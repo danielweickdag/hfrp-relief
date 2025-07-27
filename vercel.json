@@ -1,22 +1,5 @@
 {
-  "version": 2,
   "framework": "nextjs",
   "buildCommand": "npm run build",
-  "outputDirectory": ".next",
-  "installCommand": "npm install",
-  "devCommand": "npm run dev",
-  "env": {
-    "NODE_ENV": "production"
-  },
-  "functions": {
-    "src/app/api/**": {
-      "runtime": "nodejs18.x"
-    }
-  },
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/api/$1"
-    }
-  ]
+  "installCommand": "npm install"
 }
