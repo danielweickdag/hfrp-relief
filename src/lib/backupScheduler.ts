@@ -1,17 +1,33 @@
-import type { BackupSchedule } from '@/types/backup';
-import { backupStorage } from './backupStorage';
+import type { BackupSchedule } from "@/types/backup";
+import { backupStorage } from "./backupStorage";
 
 // Backup scheduler service
 export class BackupSchedulerService {
   private schedules: Map<string, NodeJS.Timeout> = new Map();
-  private readonly STORAGE_KEY = 'hfrp_backup_schedules';
+  private readonly STORAGE_KEY = "hfrp_backup_schedules";
 
   constructor() {
     this.loadAndStartSchedules();
   }
 
+  private isClient(): boolean {
+    return typeof window !== "undefined";
+  }
+
+  private getFromStorage(key: string, defaultValue: string = ""): string {
+    if (!this.isClient()) return defaultValue;
+    return localStorage.getItem(key) || defaultValue;
+  }
+
+  private setToStorage(key: string, value: string): void {
+    if (!this.isClient()) return;
+    this.setToStorage(key, value);
+  }
+
   // Load schedules from storage and start them
   private async loadAndStartSchedules() {
+    if (!this.isClient()) return;
+
     const schedules = await this.getAllSchedules();
     for (const schedule of schedules) {
       if (schedule.isActive) {
@@ -22,18 +38,25 @@ export class BackupSchedulerService {
 
   // Get all schedules
   async getAllSchedules(): Promise<BackupSchedule[]> {
-    const stored = localStorage.getItem(this.STORAGE_KEY);
+    if (!this.isClient()) return [];
+
+    const stored = this.getFromStorage(this.STORAGE_KEY, "[]");
     return stored ? JSON.parse(stored) : [];
   }
 
   // Get schedule by ID
   async getScheduleById(id: string): Promise<BackupSchedule | null> {
     const schedules = await this.getAllSchedules();
-    return schedules.find(s => s.id === id) || null;
+    return schedules.find((s) => s.id === id) || null;
   }
 
   // Create a new schedule
-  async createSchedule(schedule: Omit<BackupSchedule, 'id' | 'createdAt' | 'updatedAt' | 'nextBackup'>): Promise<BackupSchedule> {
+  async createSchedule(
+    schedule: Omit<
+      BackupSchedule,
+      "id" | "createdAt" | "updatedAt" | "nextBackup"
+    >
+  ): Promise<BackupSchedule> {
     const schedules = await this.getAllSchedules();
 
     const newSchedule: BackupSchedule = {
@@ -41,11 +64,11 @@ export class BackupSchedulerService {
       id: `schedule-${Date.now()}`,
       nextBackup: this.calculateNextBackup(schedule),
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     };
 
     schedules.push(newSchedule);
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(schedules));
+    this.setToStorage(this.STORAGE_KEY, JSON.stringify(schedules));
 
     if (newSchedule.isActive) {
       this.startSchedule(newSchedule);
@@ -55,24 +78,32 @@ export class BackupSchedulerService {
   }
 
   // Update a schedule
-  async updateSchedule(id: string, updates: Partial<BackupSchedule>): Promise<BackupSchedule | null> {
+  async updateSchedule(
+    id: string,
+    updates: Partial<BackupSchedule>
+  ): Promise<BackupSchedule | null> {
     const schedules = await this.getAllSchedules();
-    const index = schedules.findIndex(s => s.id === id);
+    const index = schedules.findIndex((s) => s.id === id);
 
     if (index === -1) return null;
 
     const updatedSchedule = {
       ...schedules[index],
       ...updates,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     };
 
-    if (updates.frequency || updates.time || updates.dayOfWeek || updates.dayOfMonth) {
+    if (
+      updates.frequency ||
+      updates.time ||
+      updates.dayOfWeek ||
+      updates.dayOfMonth
+    ) {
       updatedSchedule.nextBackup = this.calculateNextBackup(updatedSchedule);
     }
 
     schedules[index] = updatedSchedule;
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(schedules));
+    this.setToStorage(this.STORAGE_KEY, JSON.stringify(schedules));
 
     // Restart schedule if needed
     this.stopSchedule(id);
@@ -86,12 +117,12 @@ export class BackupSchedulerService {
   // Delete a schedule
   async deleteSchedule(id: string): Promise<boolean> {
     const schedules = await this.getAllSchedules();
-    const filtered = schedules.filter(s => s.id !== id);
+    const filtered = schedules.filter((s) => s.id !== id);
 
     if (filtered.length === schedules.length) return false;
 
     this.stopSchedule(id);
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(filtered));
+    this.setToStorage(this.STORAGE_KEY, JSON.stringify(filtered));
     return true;
   }
 
@@ -110,7 +141,7 @@ export class BackupSchedulerService {
         // Update schedule with new next backup time
         await this.updateSchedule(schedule.id, {
           lastBackup: now.toISOString(),
-          nextBackup: this.calculateNextBackup(schedule)
+          nextBackup: this.calculateNextBackup(schedule),
         });
       }
     };
@@ -138,15 +169,15 @@ export class BackupSchedulerService {
     let next = new Date();
 
     switch (schedule.frequency) {
-      case 'hourly':
+      case "hourly":
         next.setHours(next.getHours() + 1);
         next.setMinutes(0);
         next.setSeconds(0);
         break;
 
-      case 'daily':
+      case "daily":
         if (schedule.time) {
-          const [hours, minutes] = schedule.time.split(':').map(Number);
+          const [hours, minutes] = schedule.time.split(":").map(Number);
           next.setHours(hours, minutes, 0, 0);
           if (next <= now) {
             next.setDate(next.getDate() + 1);
@@ -154,9 +185,9 @@ export class BackupSchedulerService {
         }
         break;
 
-      case 'weekly':
+      case "weekly":
         if (schedule.dayOfWeek !== undefined && schedule.time) {
-          const [hours, minutes] = schedule.time.split(':').map(Number);
+          const [hours, minutes] = schedule.time.split(":").map(Number);
           next.setHours(hours, minutes, 0, 0);
 
           // Find next occurrence of the specified day
@@ -169,9 +200,9 @@ export class BackupSchedulerService {
         }
         break;
 
-      case 'monthly':
+      case "monthly":
         if (schedule.dayOfMonth && schedule.time) {
-          const [hours, minutes] = schedule.time.split(':').map(Number);
+          const [hours, minutes] = schedule.time.split(":").map(Number);
           next.setDate(schedule.dayOfMonth);
           next.setHours(hours, minutes, 0, 0);
 
@@ -191,12 +222,14 @@ export class BackupSchedulerService {
       console.log(`Running scheduled backup: ${schedule.name}`);
 
       // Create backup
-      const backupData = await backupStorage.createBackup(`Schedule: ${schedule.name}`);
+      const backupData = await backupStorage.createBackup(
+        `Schedule: ${schedule.name}`
+      );
 
       // Apply encryption if enabled
       if (schedule.encryption) {
         // Encryption would be applied here
-        console.log('Applying encryption to backup...');
+        console.log("Applying encryption to backup...");
       }
 
       // Upload to cloud if configured
@@ -210,15 +243,14 @@ export class BackupSchedulerService {
 
       // Send notifications
       if (schedule.notifications.onSuccess) {
-        console.log('Sending success notification...');
+        console.log("Sending success notification...");
         // Notification would be sent here
       }
-
     } catch (error) {
-      console.error('Scheduled backup failed:', error);
+      console.error("Scheduled backup failed:", error);
 
       if (schedule.notifications.onFailure) {
-        console.log('Sending failure notification...');
+        console.log("Sending failure notification...");
         // Notification would be sent here
       }
     }
@@ -228,11 +260,17 @@ export class BackupSchedulerService {
   private async applyRetentionPolicy(schedule: BackupSchedule) {
     const history = await backupStorage.getBackupHistory();
     const scheduleBackups = history
-      .filter(b => b.scheduleId === schedule.id)
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      .filter((b) => b.scheduleId === schedule.id)
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
 
     // Remove old backups based on count
-    if (schedule.retention.count > 0 && scheduleBackups.length > schedule.retention.count) {
+    if (
+      schedule.retention.count > 0 &&
+      scheduleBackups.length > schedule.retention.count
+    ) {
       const toDelete = scheduleBackups.slice(schedule.retention.count);
       for (const backup of toDelete) {
         if (!backup.retention?.isProtected) {
@@ -248,7 +286,10 @@ export class BackupSchedulerService {
       cutoffDate.setDate(cutoffDate.getDate() - schedule.retention.days);
 
       for (const backup of scheduleBackups) {
-        if (new Date(backup.createdAt) < cutoffDate && !backup.retention?.isProtected) {
+        if (
+          new Date(backup.createdAt) < cutoffDate &&
+          !backup.retention?.isProtected
+        ) {
           console.log(`Deleting expired backup: ${backup.filename}`);
           // Delete backup
         }

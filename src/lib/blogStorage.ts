@@ -1,34 +1,77 @@
-import type { BlogPost, BlogCategory, BlogTag, BlogFilters, BlogPostFormData, BlogStats } from '@/types/blog';
-import { notificationService } from './notificationService';
+import type {
+  BlogPost,
+  BlogCategory,
+  BlogTag,
+  BlogFilters,
+  BlogPostFormData,
+  BlogStats,
+} from "@/types/blog";
+import { notificationService } from "./notificationService";
 
 // Storage keys
 const STORAGE_KEYS = {
-  POSTS: 'hfrp_blog_posts',
-  CATEGORIES: 'hfrp_blog_categories',
-  TAGS: 'hfrp_blog_tags',
-  DRAFTS: 'hfrp_blog_drafts'
+  POSTS: "hfrp_blog_posts",
+  CATEGORIES: "hfrp_blog_categories",
+  TAGS: "hfrp_blog_tags",
+  DRAFTS: "hfrp_blog_drafts",
 };
 
 // Default categories
 const DEFAULT_CATEGORIES: BlogCategory[] = [
-  { id: 'cat-1', name: 'News & Updates', slug: 'news-updates', color: 'blue', description: 'Latest news from HFRP' },
-  { id: 'cat-2', name: 'Success Stories', slug: 'success-stories', color: 'green', description: 'Stories of impact and transformation' },
-  { id: 'cat-3', name: 'Education', slug: 'education', color: 'purple', description: 'Educational programs and initiatives' },
-  { id: 'cat-4', name: 'Healthcare', slug: 'healthcare', color: 'red', description: 'Healthcare initiatives and updates' },
-  { id: 'cat-5', name: 'Community', slug: 'community', color: 'yellow', description: 'Community events and engagement' },
-  { id: 'cat-6', name: 'Volunteer Stories', slug: 'volunteer-stories', color: 'indigo', description: 'Experiences from our volunteers' }
+  {
+    id: "cat-1",
+    name: "News & Updates",
+    slug: "news-updates",
+    color: "blue",
+    description: "Latest news from HFRP",
+  },
+  {
+    id: "cat-2",
+    name: "Success Stories",
+    slug: "success-stories",
+    color: "green",
+    description: "Stories of impact and transformation",
+  },
+  {
+    id: "cat-3",
+    name: "Education",
+    slug: "education",
+    color: "purple",
+    description: "Educational programs and initiatives",
+  },
+  {
+    id: "cat-4",
+    name: "Healthcare",
+    slug: "healthcare",
+    color: "red",
+    description: "Healthcare initiatives and updates",
+  },
+  {
+    id: "cat-5",
+    name: "Community",
+    slug: "community",
+    color: "yellow",
+    description: "Community events and engagement",
+  },
+  {
+    id: "cat-6",
+    name: "Volunteer Stories",
+    slug: "volunteer-stories",
+    color: "indigo",
+    description: "Experiences from our volunteers",
+  },
 ];
 
 // Default tags
 const DEFAULT_TAGS: BlogTag[] = [
-  { id: 'tag-1', name: 'Children', slug: 'children', color: 'pink' },
-  { id: 'tag-2', name: 'Education', slug: 'education', color: 'blue' },
-  { id: 'tag-3', name: 'Healthcare', slug: 'healthcare', color: 'green' },
-  { id: 'tag-4', name: 'Nutrition', slug: 'nutrition', color: 'orange' },
-  { id: 'tag-5', name: 'Volunteers', slug: 'volunteers', color: 'purple' },
-  { id: 'tag-6', name: 'Donations', slug: 'donations', color: 'red' },
-  { id: 'tag-7', name: 'Events', slug: 'events', color: 'yellow' },
-  { id: 'tag-8', name: 'Haiti', slug: 'haiti', color: 'indigo' }
+  { id: "tag-1", name: "Children", slug: "children", color: "pink" },
+  { id: "tag-2", name: "Education", slug: "education", color: "blue" },
+  { id: "tag-3", name: "Healthcare", slug: "healthcare", color: "green" },
+  { id: "tag-4", name: "Nutrition", slug: "nutrition", color: "orange" },
+  { id: "tag-5", name: "Volunteers", slug: "volunteers", color: "purple" },
+  { id: "tag-6", name: "Donations", slug: "donations", color: "red" },
+  { id: "tag-7", name: "Events", slug: "events", color: "yellow" },
+  { id: "tag-8", name: "Haiti", slug: "haiti", color: "indigo" },
 ];
 
 class BlogStorageService {
@@ -37,20 +80,40 @@ class BlogStorageService {
     this.initializeDefaults();
   }
 
+  private isClient(): boolean {
+    return typeof window !== "undefined";
+  }
+
+  private getFromStorage(key: string, defaultValue: string = ""): string {
+    if (!this.isClient()) return defaultValue;
+    return this.getFromStorage(key) || defaultValue;
+  }
+
+  private setToStorage(key: string, value: string): void {
+    if (!this.isClient()) return;
+    this.setToStorage(key, value);
+  }
+
   private initializeDefaults() {
+    // Only initialize if we're in the browser
+    if (!this.isClient()) return;
+
     // Initialize categories if not exists
-    if (!localStorage.getItem(STORAGE_KEYS.CATEGORIES)) {
-      localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(DEFAULT_CATEGORIES));
+    if (!this.getFromStorage(STORAGE_KEYS.CATEGORIES)) {
+      this.setToStorage(
+        STORAGE_KEYS.CATEGORIES,
+        JSON.stringify(DEFAULT_CATEGORIES)
+      );
     }
 
     // Initialize tags if not exists
-    if (!localStorage.getItem(STORAGE_KEYS.TAGS)) {
-      localStorage.setItem(STORAGE_KEYS.TAGS, JSON.stringify(DEFAULT_TAGS));
+    if (!this.getFromStorage(STORAGE_KEYS.TAGS)) {
+      this.setToStorage(STORAGE_KEYS.TAGS, JSON.stringify(DEFAULT_TAGS));
     }
 
     // Initialize empty posts array if not exists
-    if (!localStorage.getItem(STORAGE_KEYS.POSTS)) {
-      localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify([]));
+    if (!this.getFromStorage(STORAGE_KEYS.POSTS)) {
+      this.setToStorage(STORAGE_KEYS.POSTS, JSON.stringify([]));
     }
   }
 
@@ -58,8 +121,8 @@ class BlogStorageService {
   private generateSlug(title: string): string {
     return title
       .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
   }
 
   // Calculate reading time based on content
@@ -71,82 +134,95 @@ class BlogStorageService {
 
   // Get all posts
   async getAllPosts(filters?: BlogFilters): Promise<BlogPost[]> {
-    const posts = JSON.parse(localStorage.getItem(STORAGE_KEYS.POSTS) || '[]') as BlogPost[];
+    if (!this.isClient()) return [];
+
+    const posts = JSON.parse(
+      this.getFromStorage(STORAGE_KEYS.POSTS, "[]")
+    ) as BlogPost[];
 
     let filteredPosts = [...posts];
 
     // Apply filters
     if (filters) {
       if (filters.status) {
-        filteredPosts = filteredPosts.filter(post => post.status === filters.status);
+        filteredPosts = filteredPosts.filter(
+          (post) => post.status === filters.status
+        );
       }
 
       if (filters.categories?.length) {
-        filteredPosts = filteredPosts.filter(post =>
-          post.categories.some(cat => filters.categories?.includes(cat.id))
+        filteredPosts = filteredPosts.filter((post) =>
+          post.categories.some((cat) => filters.categories?.includes(cat.id))
         );
       }
 
       if (filters.tags?.length) {
-        filteredPosts = filteredPosts.filter(post =>
-          post.tags.some(tag => filters.tags?.includes(tag.id))
+        filteredPosts = filteredPosts.filter((post) =>
+          post.tags.some((tag) => filters.tags?.includes(tag.id))
         );
       }
 
       if (filters.authors?.length) {
-        filteredPosts = filteredPosts.filter(post =>
+        filteredPosts = filteredPosts.filter((post) =>
           filters.authors?.includes(post.author.id)
         );
       }
 
       if (filters.dateFrom) {
-        filteredPosts = filteredPosts.filter(post =>
-          new Date(post.publishedAt || post.createdAt) >= new Date(filters.dateFrom)
+        filteredPosts = filteredPosts.filter(
+          (post) =>
+            new Date(post.publishedAt || post.createdAt) >=
+            new Date(filters.dateFrom!)
         );
       }
 
       if (filters.dateTo) {
-        filteredPosts = filteredPosts.filter(post =>
-          new Date(post.publishedAt || post.createdAt) <= new Date(filters.dateTo)
+        filteredPosts = filteredPosts.filter(
+          (post) =>
+            new Date(post.publishedAt || post.createdAt) <=
+            new Date(filters.dateTo!)
         );
       }
 
       if (filters.search) {
         const searchLower = filters.search.toLowerCase();
-        filteredPosts = filteredPosts.filter(post =>
-          post.title.toLowerCase().includes(searchLower) ||
-          post.excerpt.toLowerCase().includes(searchLower) ||
-          post.content.toLowerCase().includes(searchLower)
+        filteredPosts = filteredPosts.filter(
+          (post) =>
+            post.title.toLowerCase().includes(searchLower) ||
+            post.excerpt.toLowerCase().includes(searchLower) ||
+            post.content.toLowerCase().includes(searchLower)
         );
       }
 
       // Apply sorting
-      const sortBy = filters.sortBy || 'date';
-      const sortOrder = filters.sortOrder || 'desc';
+      const sortBy = filters.sortBy || "date";
+      const sortOrder = filters.sortOrder || "desc";
 
       filteredPosts.sort((a, b) => {
         let comparison = 0;
 
         switch (sortBy) {
-          case 'title':
+          case "title":
             comparison = a.title.localeCompare(b.title);
             break;
-          case 'date':
-            comparison = new Date(b.publishedAt || b.createdAt).getTime() -
-                        new Date(a.publishedAt || a.createdAt).getTime();
+          case "date":
+            comparison =
+              new Date(b.publishedAt || b.createdAt).getTime() -
+              new Date(a.publishedAt || a.createdAt).getTime();
             break;
-          case 'author':
+          case "author":
             comparison = a.author.name.localeCompare(b.author.name);
             break;
-          case 'views':
+          case "views":
             comparison = b.viewCount - a.viewCount;
             break;
-          case 'updated':
-            comparison = new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+          case "updated":
+            comparison =
+              new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
             break;
         }
 
-        return sortOrder === 'asc' ? -comparison : comparison;
+        return sortOrder === "asc" ? -comparison : comparison;
       });
     }
 
@@ -156,17 +232,20 @@ class BlogStorageService {
   // Get a single post by ID
   async getPostById(id: string): Promise<BlogPost | null> {
     const posts = await this.getAllPosts();
-    return posts.find(post => post.id === id) || null;
+    return posts.find((post) => post.id === id) || null;
   }
 
   // Get a single post by slug
   async getPostBySlug(slug: string): Promise<BlogPost | null> {
     const posts = await this.getAllPosts();
-    return posts.find(post => post.slug === slug) || null;
+    return posts.find((post) => post.slug === slug) || null;
   }
 
   // Create a new post
-  async createPost(data: BlogPostFormData, author: { id: string; name: string; email: string }): Promise<BlogPost> {
+  async createPost(
+    data: BlogPostFormData,
+    author: { id: string; name: string; email: string }
+  ): Promise<BlogPost> {
     const posts = await this.getAllPosts();
     const categories = await this.getCategories();
     const tags = await this.getTags();
@@ -181,32 +260,36 @@ class BlogStorageService {
       author: {
         id: author.id,
         name: author.name,
-        email: author.email
+        email: author.email,
       },
-      categories: categories.filter(cat => data.categories.includes(cat.id)),
-      tags: tags.filter(tag => data.tags.includes(tag.id)),
+      categories: categories.filter((cat) => data.categories.includes(cat.id)),
+      tags: tags.filter((tag) => data.tags.includes(tag.id)),
       featuredImage: data.featuredImage,
       seo: data.seo,
-      publishedAt: data.status === 'published' ? new Date().toISOString() : undefined,
+      publishedAt:
+        data.status === "published" ? new Date().toISOString() : undefined,
       scheduledAt: data.scheduledAt,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       viewCount: 0,
       readingTime: this.calculateReadingTime(data.content),
-      isDraft: data.status === 'draft',
-      isFeatured: data.isFeatured
+      isDraft: data.status === "draft",
+      isFeatured: data.isFeatured,
     };
 
     posts.push(newPost);
-    localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(posts));
+    this.setToStorage(STORAGE_KEYS.POSTS, JSON.stringify(posts));
 
     return newPost;
   }
 
   // Update a post
-  async updatePost(id: string, data: Partial<BlogPostFormData>): Promise<BlogPost | null> {
+  async updatePost(
+    id: string,
+    data: Partial<BlogPostFormData>
+  ): Promise<BlogPost | null> {
     const posts = await this.getAllPosts();
-    const index = posts.findIndex(post => post.id === id);
+    const index = posts.findIndex((post) => post.id === id);
 
     if (index === -1) return null;
 
@@ -218,22 +301,25 @@ class BlogStorageService {
       ...existingPost,
       ...data,
       categories: data.categories
-        ? categories.filter(cat => data.categories?.includes(cat.id))
+        ? categories.filter((cat) => data.categories?.includes(cat.id))
         : existingPost.categories,
       tags: data.tags
-        ? tags.filter(tag => data.tags?.includes(tag.id))
+        ? tags.filter((tag) => data.tags?.includes(tag.id))
         : existingPost.tags,
       slug: data.title ? this.generateSlug(data.title) : existingPost.slug,
-      readingTime: data.content ? this.calculateReadingTime(data.content) : existingPost.readingTime,
+      readingTime: data.content
+        ? this.calculateReadingTime(data.content)
+        : existingPost.readingTime,
       updatedAt: new Date().toISOString(),
-      publishedAt: data.status === 'published' && !existingPost.publishedAt
-        ? new Date().toISOString()
-        : existingPost.publishedAt,
-      isDraft: data.status ? data.status === 'draft' : existingPost.isDraft
+      publishedAt:
+        data.status === "published" && !existingPost.publishedAt
+          ? new Date().toISOString()
+          : existingPost.publishedAt,
+      isDraft: data.status ? data.status === "draft" : existingPost.isDraft,
     };
 
     posts[index] = updatedPost;
-    localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(posts));
+    this.setToStorage(STORAGE_KEYS.POSTS, JSON.stringify(posts));
 
     return updatedPost;
   }
@@ -241,87 +327,91 @@ class BlogStorageService {
   // Delete a post
   async deletePost(id: string): Promise<boolean> {
     const posts = await this.getAllPosts();
-    const filtered = posts.filter(post => post.id !== id);
+    const filtered = posts.filter((post) => post.id !== id);
 
     if (filtered.length === posts.length) return false;
 
-    localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(filtered));
+    this.setToStorage(STORAGE_KEYS.POSTS, JSON.stringify(filtered));
     return true;
   }
 
   // Save draft (auto-save functionality)
   async saveDraft(postId: string, content: string): Promise<void> {
-    const drafts = JSON.parse(localStorage.getItem(STORAGE_KEYS.DRAFTS) || '{}');
+    const drafts = JSON.parse(this.getFromStorage(STORAGE_KEYS.DRAFTS) || "{}");
     drafts[postId] = {
       content,
-      savedAt: new Date().toISOString()
+      savedAt: new Date().toISOString(),
     };
-    localStorage.setItem(STORAGE_KEYS.DRAFTS, JSON.stringify(drafts));
+    this.setToStorage(STORAGE_KEYS.DRAFTS, JSON.stringify(drafts));
   }
 
   // Get draft
-  async getDraft(postId: string): Promise<{ content: string; savedAt: string } | null> {
-    const drafts = JSON.parse(localStorage.getItem(STORAGE_KEYS.DRAFTS) || '{}');
+  async getDraft(
+    postId: string
+  ): Promise<{ content: string; savedAt: string } | null> {
+    const drafts = JSON.parse(this.getFromStorage(STORAGE_KEYS.DRAFTS) || "{}");
     return drafts[postId] || null;
   }
 
   // Clear draft
   async clearDraft(postId: string): Promise<void> {
-    const drafts = JSON.parse(localStorage.getItem(STORAGE_KEYS.DRAFTS) || '{}');
+    const drafts = JSON.parse(this.getFromStorage(STORAGE_KEYS.DRAFTS) || "{}");
     delete drafts[postId];
-    localStorage.setItem(STORAGE_KEYS.DRAFTS, JSON.stringify(drafts));
+    this.setToStorage(STORAGE_KEYS.DRAFTS, JSON.stringify(drafts));
   }
 
   // Get all categories
   async getCategories(): Promise<BlogCategory[]> {
-    return JSON.parse(localStorage.getItem(STORAGE_KEYS.CATEGORIES) || '[]');
+    return JSON.parse(this.getFromStorage(STORAGE_KEYS.CATEGORIES, "[]"));
   }
 
   // Create category
-  async createCategory(category: Omit<BlogCategory, 'id'>): Promise<BlogCategory> {
+  async createCategory(
+    category: Omit<BlogCategory, "id">
+  ): Promise<BlogCategory> {
     const categories = await this.getCategories();
     const newCategory: BlogCategory = {
       ...category,
-      id: `cat-${Date.now()}`
+      id: `cat-${Date.now()}`,
     };
     categories.push(newCategory);
-    localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(categories));
+    this.setToStorage(STORAGE_KEYS.CATEGORIES, JSON.stringify(categories));
     return newCategory;
   }
 
   // Get all tags
   async getTags(): Promise<BlogTag[]> {
-    return JSON.parse(localStorage.getItem(STORAGE_KEYS.TAGS) || '[]');
+    return JSON.parse(this.getFromStorage(STORAGE_KEYS.TAGS, "[]"));
   }
 
   // Create tag
-  async createTag(tag: Omit<BlogTag, 'id'>): Promise<BlogTag> {
+  async createTag(tag: Omit<BlogTag, "id">): Promise<BlogTag> {
     const tags = await this.getTags();
     const newTag: BlogTag = {
       ...tag,
-      id: `tag-${Date.now()}`
+      id: `tag-${Date.now()}`,
     };
     tags.push(newTag);
-    localStorage.setItem(STORAGE_KEYS.TAGS, JSON.stringify(tags));
+    this.setToStorage(STORAGE_KEYS.TAGS, JSON.stringify(tags));
     return newTag;
   }
 
   // Increment view count
   async incrementViewCount(id: string): Promise<void> {
     const posts = await this.getAllPosts();
-    const post = posts.find(p => p.id === id);
+    const post = posts.find((p) => p.id === id);
     if (post) {
       post.viewCount += 1;
-      localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(posts));
+      this.setToStorage(STORAGE_KEYS.POSTS, JSON.stringify(posts));
     }
   }
 
   // Get blog statistics
   async getStats(): Promise<BlogStats> {
     const posts = await this.getAllPosts();
-    const publishedPosts = posts.filter(p => p.status === 'published');
-    const draftPosts = posts.filter(p => p.status === 'draft');
-    const scheduledPosts = posts.filter(p => p.status === 'scheduled');
+    const publishedPosts = posts.filter((p) => p.status === "published");
+    const draftPosts = posts.filter((p) => p.status === "draft");
+    const scheduledPosts = posts.filter((p) => p.status === "scheduled");
 
     // Calculate top categories
     const categoryCount: Record<string, number> = {};
@@ -348,12 +438,20 @@ class BlogStorageService {
       .slice(0, 5);
 
     // Calculate average reading time
-    const totalReadingTime = posts.reduce((sum, post) => sum + (post.readingTime || 0), 0);
-    const averageReadingTime = posts.length > 0 ? Math.round(totalReadingTime / posts.length) : 0;
+    const totalReadingTime = posts.reduce(
+      (sum, post) => sum + (post.readingTime || 0),
+      0
+    );
+    const averageReadingTime =
+      posts.length > 0 ? Math.round(totalReadingTime / posts.length) : 0;
 
     // Get recent posts
     const recentPosts = [...publishedPosts]
-      .sort((a, b) => new Date(b.publishedAt!).getTime() - new Date(a.publishedAt!).getTime())
+      .sort(
+        (a, b) =>
+          new Date(b.publishedAt!).getTime() -
+          new Date(a.publishedAt!).getTime()
+      )
       .slice(0, 5);
 
     return {
@@ -365,12 +463,15 @@ class BlogStorageService {
       averageReadingTime,
       topCategories,
       topAuthors,
-      recentPosts
+      recentPosts,
     };
   }
 
   // Bulk operations
-  async bulkUpdateStatus(postIds: string[], status: BlogPost['status']): Promise<void> {
+  async bulkUpdateStatus(
+    postIds: string[],
+    status: BlogPost["status"]
+  ): Promise<void> {
     const posts = await this.getAllPosts();
     const now = new Date().toISOString();
 
@@ -378,20 +479,20 @@ class BlogStorageService {
       if (postIds.includes(post.id)) {
         post.status = status;
         post.updatedAt = now;
-        if (status === 'published' && !post.publishedAt) {
+        if (status === "published" && !post.publishedAt) {
           post.publishedAt = now;
         }
-        post.isDraft = status === 'draft';
+        post.isDraft = status === "draft";
       }
     }
 
-    localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(posts));
+    this.setToStorage(STORAGE_KEYS.POSTS, JSON.stringify(posts));
   }
 
   async bulkDelete(postIds: string[]): Promise<void> {
     const posts = await this.getAllPosts();
-    const filtered = posts.filter(post => !postIds.includes(post.id));
-    localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(filtered));
+    const filtered = posts.filter((post) => !postIds.includes(post.id));
+    this.setToStorage(STORAGE_KEYS.POSTS, JSON.stringify(filtered));
   }
 }
 

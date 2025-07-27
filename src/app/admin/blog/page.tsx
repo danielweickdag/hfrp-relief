@@ -1,12 +1,24 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { AdminAuthProvider, useAdminAuth, WithPermission } from '../../_components/AdminAuth';
-import EnhancedRichTextEditor from '../../_components/EnhancedRichTextEditor';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { blogStorage } from '@/lib/blogStorage';
-import { type BlogPostFormData, type BlogCategory, type BlogTag, BlogSEO } from '@/types/blog';
+// Force dynamic rendering to prevent localStorage SSR issues
+export const dynamic = "force-dynamic";
+
+import { useState, useEffect } from "react";
+import {
+  AdminAuthProvider,
+  useAdminAuth,
+  WithPermission,
+} from "../../_components/AdminAuth";
+import EnhancedRichTextEditor from "../../_components/EnhancedRichTextEditor";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { blogStorage } from "@/lib/blogStorage";
+import {
+  type BlogPostFormData,
+  type BlogCategory,
+  type BlogTag,
+  BlogSEO,
+} from "@/types/blog";
 
 function BlogEditorContent() {
   const { isAuthenticated, isLoading, user } = useAdminAuth();
@@ -14,23 +26,25 @@ function BlogEditorContent() {
   const [categories, setCategories] = useState<BlogCategory[]>([]);
   const [tags, setTags] = useState<BlogTag[]>([]);
   const [isSaving, setIsSaving] = useState(false);
-  const [autoSaveStatus, setAutoSaveStatus] = useState<'saved' | 'saving' | 'error' | null>(null);
+  const [autoSaveStatus, setAutoSaveStatus] = useState<
+    "saved" | "saving" | "error" | null
+  >(null);
 
   const [formData, setFormData] = useState<BlogPostFormData>({
-    title: '',
-    excerpt: '',
-    content: '',
-    status: 'draft',
+    title: "",
+    excerpt: "",
+    content: "",
+    status: "draft",
     categories: [],
     tags: [],
-    featuredImage: '',
+    featuredImage: "",
     seo: {
-      title: '',
-      description: '',
+      title: "",
+      description: "",
       keywords: [],
-      ogImage: ''
+      ogImage: "",
     },
-    isFeatured: false
+    isFeatured: false,
   });
 
   const [showSEO, setShowSEO] = useState(false);
@@ -46,12 +60,12 @@ function BlogEditorContent() {
     try {
       const [categoriesData, tagsData] = await Promise.all([
         blogStorage.getCategories(),
-        blogStorage.getTags()
+        blogStorage.getTags(),
       ]);
       setCategories(categoriesData);
       setTags(tagsData);
     } catch (error) {
-      console.error('Failed to load data:', error);
+      console.error("Failed to load data:", error);
     }
   };
 
@@ -60,13 +74,13 @@ function BlogEditorContent() {
     if (!formData.title && !formData.content) return;
 
     const timer = setTimeout(async () => {
-      setAutoSaveStatus('saving');
+      setAutoSaveStatus("saving");
       try {
-        const draftId = `draft-${user?.email || 'anonymous'}`;
+        const draftId = `draft-${user?.email || "anonymous"}`;
         await blogStorage.saveDraft(draftId, JSON.stringify(formData));
-        setAutoSaveStatus('saved');
+        setAutoSaveStatus("saved");
       } catch (error) {
-        setAutoSaveStatus('error');
+        setAutoSaveStatus("error");
       }
     }, 2000);
 
@@ -85,27 +99,27 @@ function BlogEditorContent() {
     });
   };
 
-  const handleSubmit = async (status: BlogPostFormData['status']) => {
+  const handleSubmit = async (status: BlogPostFormData["status"]) => {
     if (!user) return;
 
     // Validate form
     if (!formData.title.trim()) {
-      alert('Please enter a title');
+      alert("Please enter a title");
       return;
     }
 
     if (!formData.excerpt.trim()) {
-      alert('Please enter an excerpt');
+      alert("Please enter an excerpt");
       return;
     }
 
     if (!formData.content.trim()) {
-      alert('Please enter content');
+      alert("Please enter content");
       return;
     }
 
     if (formData.categories.length === 0) {
-      alert('Please select at least one category');
+      alert("Please select at least one category");
       return;
     }
 
@@ -119,14 +133,17 @@ function BlogEditorContent() {
           ...formData.seo,
           title: formData.seo.title || formData.title,
           description: formData.seo.description || formData.excerpt,
-          keywords: formData.seo.keywords.length > 0 ? formData.seo.keywords : ['haiti', 'relief', 'charity']
-        }
+          keywords:
+            formData.seo.keywords.length > 0
+              ? formData.seo.keywords
+              : ["haiti", "relief", "charity"],
+        },
       };
 
       await blogStorage.createPost(postData, {
         id: user.email,
         name: user.name,
-        email: user.email
+        email: user.email,
       });
 
       // Clear draft
@@ -135,18 +152,18 @@ function BlogEditorContent() {
 
       // Track event
       if (window.gtag) {
-        window.gtag('event', 'blog_post_created', {
-          event_category: 'Content',
+        window.gtag("event", "blog_post_created", {
+          event_category: "Content",
           event_label: status,
-          value: 1
+          value: 1,
         });
       }
 
       // Redirect to posts list
-      router.push('/admin/blog/posts');
+      router.push("/admin/blog/posts");
     } catch (error) {
-      console.error('Failed to save post:', error);
-      alert('Failed to save post. Please try again.');
+      console.error("Failed to save post:", error);
+      alert("Failed to save post. Please try again.");
     } finally {
       setIsSaving(false);
     }
@@ -155,23 +172,23 @@ function BlogEditorContent() {
   const handleAddTag = (tagName: string) => {
     const trimmed = tagName.trim();
     if (trimmed && formData.seo.keywords.indexOf(trimmed) === -1) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         seo: {
           ...prev.seo,
-          keywords: [...prev.seo.keywords, trimmed]
-        }
+          keywords: [...prev.seo.keywords, trimmed],
+        },
       }));
     }
   };
 
   const handleRemoveTag = (index: number) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       seo: {
         ...prev.seo,
-        keywords: prev.seo.keywords.filter((_, i) => i !== index)
-      }
+        keywords: prev.seo.keywords.filter((_, i) => i !== index),
+      },
     }));
   };
 
@@ -190,7 +207,9 @@ function BlogEditorContent() {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Authentication Required</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            Authentication Required
+          </h2>
           <p className="text-gray-600 mb-6">
             You need to be logged in to create blog posts.
           </p>
@@ -213,7 +232,8 @@ function BlogEditorContent() {
           <div className="max-w-7xl mx-auto">
             <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
               <p className="text-sm text-yellow-700">
-                You do not have permission to create blog posts. Contact an administrator for access.
+                You do not have permission to create blog posts. Contact an
+                administrator for access.
               </p>
             </div>
             <Link
@@ -231,27 +251,45 @@ function BlogEditorContent() {
           {/* Header */}
           <div className="mb-8 flex justify-between items-center">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Create Blog Post</h1>
-              <p className="text-gray-600">Write and publish content for your audience</p>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Create Blog Post
+              </h1>
+              <p className="text-gray-600">
+                Write and publish content for your audience
+              </p>
             </div>
             <div className="flex items-center gap-3">
               {autoSaveStatus && (
-                <div className={`text-sm ${
-                  autoSaveStatus === 'saved' ? 'text-green-600' :
-                  autoSaveStatus === 'saving' ? 'text-gray-600' :
-                  'text-red-600'
-                }`}>
-                  {autoSaveStatus === 'saved' && '✓ Auto-saved'}
-                  {autoSaveStatus === 'saving' && 'Saving...'}
-                  {autoSaveStatus === 'error' && 'Failed to save'}
+                <div
+                  className={`text-sm ${
+                    autoSaveStatus === "saved"
+                      ? "text-green-600"
+                      : autoSaveStatus === "saving"
+                        ? "text-gray-600"
+                        : "text-red-600"
+                  }`}
+                >
+                  {autoSaveStatus === "saved" && "✓ Auto-saved"}
+                  {autoSaveStatus === "saving" && "Saving..."}
+                  {autoSaveStatus === "error" && "Failed to save"}
                 </div>
               )}
               <Link
                 href="/admin/blog/posts"
                 className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-lg flex items-center"
               >
-                <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                <svg
+                  className="w-5 h-5 mr-1"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                  />
                 </svg>
                 Back
               </Link>
@@ -263,14 +301,19 @@ function BlogEditorContent() {
             <div className="lg:col-span-2 space-y-6">
               {/* Title */}
               <div className="bg-white rounded-lg shadow p-6">
-                <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="title"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Post Title
                 </label>
                 <input
                   type="text"
                   id="title"
                   value={formData.title}
-                  onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, title: e.target.value }))
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Enter your post title..."
                 />
@@ -278,14 +321,22 @@ function BlogEditorContent() {
 
               {/* Excerpt */}
               <div className="bg-white rounded-lg shadow p-6">
-                <label htmlFor="excerpt" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="excerpt"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Excerpt
                 </label>
                 <textarea
                   id="excerpt"
                   rows={3}
                   value={formData.excerpt}
-                  onChange={(e) => setFormData(prev => ({ ...prev, excerpt: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      excerpt: e.target.value,
+                    }))
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Brief description of your post..."
                 />
@@ -298,7 +349,9 @@ function BlogEditorContent() {
                 </label>
                 <EnhancedRichTextEditor
                   content={formData.content}
-                  onChange={(content) => setFormData(prev => ({ ...prev, content }))}
+                  onChange={(content) =>
+                    setFormData((prev) => ({ ...prev, content }))
+                  }
                   onImageUpload={handleImageUpload}
                   readOnly={previewMode}
                 />
@@ -312,45 +365,75 @@ function BlogEditorContent() {
                   className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50"
                 >
                   <div className="flex items-center">
-                    <svg className="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    <svg
+                      className="w-5 h-5 mr-2 text-gray-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                      />
                     </svg>
                     <span className="font-medium">SEO Settings</span>
                   </div>
-                  <svg className={`w-5 h-5 text-gray-400 transform transition-transform ${showSEO ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  <svg
+                    className={`w-5 h-5 text-gray-400 transform transition-transform ${showSEO ? "rotate-180" : ""}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
                   </svg>
                 </button>
                 {showSEO && (
                   <div className="px-6 pb-6 space-y-4">
                     <div>
-                      <label htmlFor="seo-title" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label
+                        htmlFor="seo-title"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
                         SEO Title
                       </label>
                       <input
                         type="text"
                         id="seo-title"
                         value={formData.seo.title}
-                        onChange={(e) => setFormData(prev => ({
-                          ...prev,
-                          seo: { ...prev.seo, title: e.target.value }
-                        }))}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            seo: { ...prev.seo, title: e.target.value },
+                          }))
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="Leave empty to use post title"
                       />
                     </div>
                     <div>
-                      <label htmlFor="seo-description" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label
+                        htmlFor="seo-description"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
                         Meta Description
                       </label>
                       <textarea
                         id="seo-description"
                         rows={2}
                         value={formData.seo.description}
-                        onChange={(e) => setFormData(prev => ({
-                          ...prev,
-                          seo: { ...prev.seo, description: e.target.value }
-                        }))}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            seo: { ...prev.seo, description: e.target.value },
+                          }))
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="Leave empty to use excerpt"
                       />
@@ -361,7 +444,10 @@ function BlogEditorContent() {
                       </label>
                       <div className="flex flex-wrap gap-2 mb-2">
                         {formData.seo.keywords.map((keyword, index) => (
-                          <span key={index} className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+                          <span
+                            key={index}
+                            className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800"
+                          >
                             {keyword}
                             <button
                               type="button"
@@ -377,10 +463,10 @@ function BlogEditorContent() {
                         type="text"
                         placeholder="Add keyword and press Enter"
                         onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
+                          if (e.key === "Enter") {
                             e.preventDefault();
                             handleAddTag(e.currentTarget.value);
-                            e.currentTarget.value = '';
+                            e.currentTarget.value = "";
                           }
                         }}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -395,7 +481,9 @@ function BlogEditorContent() {
             <div className="lg:col-span-1 space-y-6">
               {/* Publish Settings */}
               <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Publish Settings</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  Publish Settings
+                </h3>
 
                 <div className="space-y-4">
                   <div className="flex items-center">
@@ -403,10 +491,18 @@ function BlogEditorContent() {
                       type="checkbox"
                       id="featured"
                       checked={formData.isFeatured}
-                      onChange={(e) => setFormData(prev => ({ ...prev, isFeatured: e.target.checked }))}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          isFeatured: e.target.checked,
+                        }))
+                      }
                       className="h-4 w-4 text-blue-600 rounded border-gray-300"
                     />
-                    <label htmlFor="featured" className="ml-2 text-sm text-gray-700">
+                    <label
+                      htmlFor="featured"
+                      className="ml-2 text-sm text-gray-700"
+                    >
                       Featured Post
                     </label>
                   </div>
@@ -417,13 +513,20 @@ function BlogEditorContent() {
                       onClick={() => setShowSchedule(!showSchedule)}
                       className="text-sm text-blue-600 hover:text-blue-800"
                     >
-                      {showSchedule ? 'Cancel scheduling' : 'Schedule for later'}
+                      {showSchedule
+                        ? "Cancel scheduling"
+                        : "Schedule for later"}
                     </button>
                     {showSchedule && (
                       <input
                         type="datetime-local"
-                        value={formData.scheduledAt || ''}
-                        onChange={(e) => setFormData(prev => ({ ...prev, scheduledAt: e.target.value }))}
+                        value={formData.scheduledAt || ""}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            scheduledAt: e.target.value,
+                          }))
+                        }
                         className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     )}
@@ -432,7 +535,7 @@ function BlogEditorContent() {
                   <div className="pt-4 space-y-3">
                     <button
                       type="button"
-                      onClick={() => handleSubmit('draft')}
+                      onClick={() => handleSubmit("draft")}
                       disabled={isSaving}
                       className="w-full bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition-colors disabled:opacity-50"
                     >
@@ -443,15 +546,21 @@ function BlogEditorContent() {
                       onClick={() => setPreviewMode(!previewMode)}
                       className="w-full bg-blue-100 text-blue-700 px-4 py-2 rounded hover:bg-blue-200 transition-colors"
                     >
-                      {previewMode ? 'Edit Mode' : 'Preview Mode'}
+                      {previewMode ? "Edit Mode" : "Preview Mode"}
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleSubmit(showSchedule ? 'scheduled' : 'published')}
+                      onClick={() =>
+                        handleSubmit(showSchedule ? "scheduled" : "published")
+                      }
                       disabled={isSaving}
                       className="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors disabled:opacity-50"
                     >
-                      {isSaving ? 'Publishing...' : (showSchedule ? 'Schedule Post' : 'Publish Now')}
+                      {isSaving
+                        ? "Publishing..."
+                        : showSchedule
+                          ? "Schedule Post"
+                          : "Publish Now"}
                     </button>
                   </div>
                 </div>
@@ -459,7 +568,9 @@ function BlogEditorContent() {
 
               {/* Categories */}
               <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Categories</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  Categories
+                </h3>
                 <div className="space-y-2">
                   {categories.map((category) => (
                     <label key={category.id} className="flex items-center">
@@ -468,20 +579,24 @@ function BlogEditorContent() {
                         checked={formData.categories.includes(category.id)}
                         onChange={(e) => {
                           if (e.target.checked) {
-                            setFormData(prev => ({
+                            setFormData((prev) => ({
                               ...prev,
-                              categories: [...prev.categories, category.id]
+                              categories: [...prev.categories, category.id],
                             }));
                           } else {
-                            setFormData(prev => ({
+                            setFormData((prev) => ({
                               ...prev,
-                              categories: prev.categories.filter(id => id !== category.id)
+                              categories: prev.categories.filter(
+                                (id) => id !== category.id
+                              ),
                             }));
                           }
                         }}
                         className="h-4 w-4 text-blue-600 rounded border-gray-300"
                       />
-                      <span className="ml-2 text-sm text-gray-700">{category.name}</span>
+                      <span className="ml-2 text-sm text-gray-700">
+                        {category.name}
+                      </span>
                     </label>
                   ))}
                 </div>
@@ -498,20 +613,22 @@ function BlogEditorContent() {
                         checked={formData.tags.includes(tag.id)}
                         onChange={(e) => {
                           if (e.target.checked) {
-                            setFormData(prev => ({
+                            setFormData((prev) => ({
                               ...prev,
-                              tags: [...prev.tags, tag.id]
+                              tags: [...prev.tags, tag.id],
                             }));
                           } else {
-                            setFormData(prev => ({
+                            setFormData((prev) => ({
                               ...prev,
-                              tags: prev.tags.filter(id => id !== tag.id)
+                              tags: prev.tags.filter((id) => id !== tag.id),
                             }));
                           }
                         }}
                         className="h-4 w-4 text-blue-600 rounded border-gray-300"
                       />
-                      <span className="ml-2 text-sm text-gray-700">{tag.name}</span>
+                      <span className="ml-2 text-sm text-gray-700">
+                        {tag.name}
+                      </span>
                     </label>
                   ))}
                 </div>
@@ -519,7 +636,9 @@ function BlogEditorContent() {
 
               {/* Featured Image */}
               <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Featured Image</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  Featured Image
+                </h3>
                 {formData.featuredImage ? (
                   <div className="relative">
                     <img
@@ -529,11 +648,23 @@ function BlogEditorContent() {
                     />
                     <button
                       type="button"
-                      onClick={() => setFormData(prev => ({ ...prev, featuredImage: '' }))}
+                      onClick={() =>
+                        setFormData((prev) => ({ ...prev, featuredImage: "" }))
+                      }
                       className="absolute top-2 right-2 bg-red-600 text-white p-1 rounded hover:bg-red-700"
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M6 18L18 6M6 6l12 12"
+                        />
                       </svg>
                     </button>
                   </div>
@@ -546,7 +677,10 @@ function BlogEditorContent() {
                         const file = e.target.files?.[0];
                         if (file) {
                           const url = await handleImageUpload(file);
-                          setFormData(prev => ({ ...prev, featuredImage: url }));
+                          setFormData((prev) => ({
+                            ...prev,
+                            featuredImage: url,
+                          }));
                         }
                       }}
                       className="hidden"
@@ -556,10 +690,22 @@ function BlogEditorContent() {
                       htmlFor="featured-image"
                       className="block w-full text-center px-4 py-8 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 cursor-pointer"
                     >
-                      <svg className="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      <svg
+                        className="w-8 h-8 text-gray-400 mx-auto mb-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 4v16m8-8H4"
+                        />
                       </svg>
-                      <span className="text-sm text-gray-600">Click to upload image</span>
+                      <span className="text-sm text-gray-600">
+                        Click to upload image
+                      </span>
                     </label>
                   </div>
                 )}
@@ -575,7 +721,11 @@ function BlogEditorContent() {
 // Extend window interface for analytics
 declare global {
   interface Window {
-    gtag?: (command: string, action: string, parameters: Record<string, unknown>) => void;
+    gtag?: (
+      command: string,
+      action: string,
+      parameters: Record<string, unknown>
+    ) => void;
   }
 }
 

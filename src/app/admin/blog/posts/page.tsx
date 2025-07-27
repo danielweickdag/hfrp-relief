@@ -1,10 +1,22 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { AdminAuthProvider, useAdminAuth, WithPermission } from '../../../_components/AdminAuth';
-import Link from 'next/link';
-import { blogStorage } from '@/lib/blogStorage';
-import type { BlogPost, BlogFilters, BlogCategory, BlogTag } from '@/types/blog';
+// Force dynamic rendering to prevent localStorage SSR issues
+export const dynamic = "force-dynamic";
+
+import { useState, useEffect } from "react";
+import {
+  AdminAuthProvider,
+  useAdminAuth,
+  WithPermission,
+} from "../../../_components/AdminAuth";
+import Link from "next/link";
+import { blogStorage } from "@/lib/blogStorage";
+import type {
+  BlogPost,
+  BlogFilters,
+  BlogCategory,
+  BlogTag,
+} from "@/types/blog";
 
 function BlogPostsContent() {
   const { isAuthenticated, isLoading, user } = useAdminAuth();
@@ -13,8 +25,8 @@ function BlogPostsContent() {
   const [tags, setTags] = useState<BlogTag[]>([]);
   const [selectedPosts, setSelectedPosts] = useState<string[]>([]);
   const [filters, setFilters] = useState<BlogFilters>({
-    sortBy: 'date',
-    sortOrder: 'desc'
+    sortBy: "date",
+    sortOrder: "desc",
   });
   const [isLoadingPosts, setIsLoadingPosts] = useState(true);
   const [showBulkActions, setShowBulkActions] = useState(false);
@@ -30,57 +42,62 @@ function BlogPostsContent() {
       const [postsData, categoriesData, tagsData] = await Promise.all([
         blogStorage.getAllPosts(filters),
         blogStorage.getCategories(),
-        blogStorage.getTags()
+        blogStorage.getTags(),
       ]);
       setPosts(postsData);
       setCategories(categoriesData);
       setTags(tagsData);
     } catch (error) {
-      console.error('Failed to load blog data:', error);
+      console.error("Failed to load blog data:", error);
     } finally {
       setIsLoadingPosts(false);
     }
   };
 
   const handleFilterChange = (key: keyof BlogFilters, value: any) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
+    setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
   const handleSelectAll = () => {
     if (selectedPosts.length === posts.length) {
       setSelectedPosts([]);
     } else {
-      setSelectedPosts(posts.map(post => post.id));
+      setSelectedPosts(posts.map((post) => post.id));
     }
   };
 
   const handleSelectPost = (postId: string) => {
-    setSelectedPosts(prev =>
+    setSelectedPosts((prev) =>
       prev.includes(postId)
-        ? prev.filter(id => id !== postId)
+        ? prev.filter((id) => id !== postId)
         : [...prev, postId]
     );
   };
 
-  const handleBulkAction = async (action: 'publish' | 'unpublish' | 'archive' | 'delete') => {
+  const handleBulkAction = async (
+    action: "publish" | "unpublish" | "archive" | "delete"
+  ) => {
     if (selectedPosts.length === 0) return;
 
-    if (action === 'delete' && !confirm(`Are you sure you want to delete ${selectedPosts.length} posts?`)) {
+    if (
+      action === "delete" &&
+      !confirm(`Are you sure you want to delete ${selectedPosts.length} posts?`)
+    ) {
       return;
     }
 
     try {
       switch (action) {
-        case 'publish':
-          await blogStorage.bulkUpdateStatus(selectedPosts, 'published');
+        case "publish":
+          await blogStorage.bulkUpdateStatus(selectedPosts, "published");
           break;
-        case 'unpublish':
-          await blogStorage.bulkUpdateStatus(selectedPosts, 'draft');
+        case "unpublish":
+          await blogStorage.bulkUpdateStatus(selectedPosts, "draft");
           break;
-        case 'archive':
-          await blogStorage.bulkUpdateStatus(selectedPosts, 'archived');
+        case "archive":
+          await blogStorage.bulkUpdateStatus(selectedPosts, "archived");
           break;
-        case 'delete':
+        case "delete":
           await blogStorage.bulkDelete(selectedPosts);
           break;
       }
@@ -88,27 +105,27 @@ function BlogPostsContent() {
       setSelectedPosts([]);
       setShowBulkActions(false);
     } catch (error) {
-      console.error('Failed to perform bulk action:', error);
+      console.error("Failed to perform bulk action:", error);
     }
   };
 
   const handleDeletePost = async (postId: string) => {
-    if (!confirm('Are you sure you want to delete this post?')) return;
+    if (!confirm("Are you sure you want to delete this post?")) return;
 
     try {
       await blogStorage.deletePost(postId);
       await loadData();
     } catch (error) {
-      console.error('Failed to delete post:', error);
+      console.error("Failed to delete post:", error);
     }
   };
 
-  const getStatusBadge = (status: BlogPost['status']) => {
+  const getStatusBadge = (status: BlogPost["status"]) => {
     const badges = {
-      draft: 'bg-gray-100 text-gray-800',
-      published: 'bg-green-100 text-green-800',
-      scheduled: 'bg-blue-100 text-blue-800',
-      archived: 'bg-yellow-100 text-yellow-800'
+      draft: "bg-gray-100 text-gray-800",
+      published: "bg-green-100 text-green-800",
+      scheduled: "bg-blue-100 text-blue-800",
+      archived: "bg-yellow-100 text-yellow-800",
     };
 
     return badges[status];
@@ -129,7 +146,9 @@ function BlogPostsContent() {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Authentication Required</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            Authentication Required
+          </h2>
           <p className="text-gray-600 mb-6">
             You need to be logged in to access the blog management page.
           </p>
@@ -158,8 +177,18 @@ function BlogPostsContent() {
               href="/admin/blog"
               className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors flex items-center"
             >
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              <svg
+                className="w-5 h-5 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4v16m8-8H4"
+                />
               </svg>
               New Post
             </Link>
@@ -167,8 +196,18 @@ function BlogPostsContent() {
               href="/admin"
               className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-lg flex items-center"
             >
-              <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              <svg
+                className="w-5 h-5 mr-1"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                />
               </svg>
               Back
             </Link>
@@ -180,10 +219,14 @@ function BlogPostsContent() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Status Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Status
+              </label>
               <select
-                value={filters.status || ''}
-                onChange={(e) => handleFilterChange('status', e.target.value || undefined)}
+                value={filters.status || ""}
+                onChange={(e) =>
+                  handleFilterChange("status", e.target.value || undefined)
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">All Statuses</option>
@@ -196,24 +239,40 @@ function BlogPostsContent() {
 
             {/* Category Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Category
+              </label>
               <select
-                onChange={(e) => handleFilterChange('categories', e.target.value ? [e.target.value] : undefined)}
+                onChange={(e) =>
+                  handleFilterChange(
+                    "categories",
+                    e.target.value ? [e.target.value] : undefined
+                  )
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">All Categories</option>
-                {categories.map(category => (
-                  <option key={category.id} value={category.id}>{category.name}</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
                 ))}
               </select>
             </div>
 
             {/* Sort By */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Sort By
+              </label>
               <select
                 value={filters.sortBy}
-                onChange={(e) => handleFilterChange('sortBy', e.target.value as BlogFilters['sortBy'])}
+                onChange={(e) =>
+                  handleFilterChange(
+                    "sortBy",
+                    e.target.value as BlogFilters["sortBy"]
+                  )
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="date">Date</option>
@@ -226,12 +285,14 @@ function BlogPostsContent() {
 
             {/* Search */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Search</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Search
+              </label>
               <input
                 type="text"
                 placeholder="Search posts..."
-                value={filters.search || ''}
-                onChange={(e) => handleFilterChange('search', e.target.value)}
+                value={filters.search || ""}
+                onChange={(e) => handleFilterChange("search", e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -243,29 +304,30 @@ function BlogPostsContent() {
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
             <div className="flex items-center justify-between">
               <span className="text-blue-900 font-medium">
-                {selectedPosts.length} post{selectedPosts.length !== 1 ? 's' : ''} selected
+                {selectedPosts.length} post
+                {selectedPosts.length !== 1 ? "s" : ""} selected
               </span>
               <div className="flex gap-2">
                 <button
-                  onClick={() => handleBulkAction('publish')}
+                  onClick={() => handleBulkAction("publish")}
                   className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-sm"
                 >
                   Publish
                 </button>
                 <button
-                  onClick={() => handleBulkAction('unpublish')}
+                  onClick={() => handleBulkAction("unpublish")}
                   className="px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700 text-sm"
                 >
                   Unpublish
                 </button>
                 <button
-                  onClick={() => handleBulkAction('archive')}
+                  onClick={() => handleBulkAction("archive")}
                   className="px-3 py-1 bg-yellow-600 text-white rounded hover:bg-yellow-700 text-sm"
                 >
                   Archive
                 </button>
                 <button
-                  onClick={() => handleBulkAction('delete')}
+                  onClick={() => handleBulkAction("delete")}
                   className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-sm"
                 >
                   Delete
@@ -284,17 +346,41 @@ function BlogPostsContent() {
             </div>
           ) : posts.length === 0 ? (
             <div className="p-8 text-center">
-              <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              <svg
+                className="w-16 h-16 text-gray-400 mx-auto mb-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
               </svg>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No posts found</h3>
-              <p className="text-gray-600 mb-4">Get started by creating your first blog post.</p>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No posts found
+              </h3>
+              <p className="text-gray-600 mb-4">
+                Get started by creating your first blog post.
+              </p>
               <Link
                 href="/admin/blog"
                 className="inline-flex items-center bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
               >
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                <svg
+                  className="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
                 </svg>
                 Create Post
               </Link>
@@ -350,23 +436,31 @@ function BlogPostsContent() {
                         </td>
                         <td className="px-6 py-4">
                           <div>
-                            <div className="text-sm font-medium text-gray-900">{post.title}</div>
-                            <div className="text-sm text-gray-500 truncate max-w-xs">{post.excerpt}</div>
+                            <div className="text-sm font-medium text-gray-900">
+                              {post.title}
+                            </div>
+                            <div className="text-sm text-gray-500 truncate max-w-xs">
+                              {post.excerpt}
+                            </div>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {post.author.name}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadge(post.status)}`}>
+                          <span
+                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadge(post.status)}`}
+                          >
                             {post.status}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {post.categories.map(cat => cat.name).join(', ')}
+                          {post.categories.map((cat) => cat.name).join(", ")}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {new Date(post.publishedAt || post.createdAt).toLocaleDateString()}
+                          {new Date(
+                            post.publishedAt || post.createdAt
+                          ).toLocaleDateString()}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {post.viewCount}
@@ -412,16 +506,26 @@ function BlogPostsContent() {
                           className="h-4 w-4 text-blue-600 rounded border-gray-300 mt-1 mr-3"
                         />
                         <div className="flex-1">
-                          <h3 className="text-sm font-medium text-gray-900">{post.title}</h3>
-                          <p className="text-sm text-gray-500 mt-1">{post.excerpt}</p>
+                          <h3 className="text-sm font-medium text-gray-900">
+                            {post.title}
+                          </h3>
+                          <p className="text-sm text-gray-500 mt-1">
+                            {post.excerpt}
+                          </p>
                         </div>
                       </div>
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadge(post.status)}`}>
+                      <span
+                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadge(post.status)}`}
+                      >
                         {post.status}
                       </span>
                     </div>
                     <div className="text-xs text-gray-500 mb-2">
-                      By {post.author.name} • {new Date(post.publishedAt || post.createdAt).toLocaleDateString()} • {post.viewCount} views
+                      By {post.author.name} •{" "}
+                      {new Date(
+                        post.publishedAt || post.createdAt
+                      ).toLocaleDateString()}{" "}
+                      • {post.viewCount} views
                     </div>
                     <div className="flex justify-end gap-3">
                       <Link
