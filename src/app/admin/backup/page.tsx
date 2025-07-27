@@ -1,29 +1,46 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import BackupManagement from '@/app/_components/BackupManagement';
-import AdminAuth from '@/app/_components/AdminAuth';
+// Force dynamic rendering to prevent localStorage SSR issues
+export const dynamic = "force-dynamic";
 
-export default function BackupPage() {
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import BackupManagement from "@/app/_components/BackupManagement";
+import { AdminAuthProvider, useAdminAuth } from "@/app/_components/AdminAuth";
+
+function BackupPageContent() {
+  const { user, isAuthenticated, isLoading } = useAdminAuth();
   const router = useRouter();
-  const [currentUser, setCurrentUser] = useState<{ id: string; name: string; email: string } | null>(null);
 
   useEffect(() => {
-    const user = localStorage.getItem('admin-user');
-    if (user) {
-      const parsedUser = JSON.parse(user);
-      setCurrentUser({
-        id: parsedUser.id,
-        name: parsedUser.name,
-        email: parsedUser.email
-      });
+    if (!isLoading && !isAuthenticated) {
+      router.push("/admin/login");
     }
-  }, []);
+  }, [isAuthenticated, isLoading, router]);
 
-  if (!currentUser) {
-    return <AdminAuth />;
+  if (isLoading) {
+    return <div className="p-8">Loading...</div>;
   }
 
-  return <BackupManagement currentUser={currentUser} />;
+  if (!isAuthenticated || !user) {
+    return <div className="p-8">Redirecting to login...</div>;
+  }
+
+  return (
+    <BackupManagement
+      currentUser={{
+        id: user.email,
+        name: user.name,
+        email: user.email,
+      }}
+    />
+  );
+}
+
+export default function BackupPage() {
+  return (
+    <AdminAuthProvider>
+      <BackupPageContent />
+    </AdminAuthProvider>
+  );
 }

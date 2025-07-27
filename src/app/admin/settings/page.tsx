@@ -1,8 +1,15 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { AdminAuthProvider, useAdminAuth, WithPermission } from '../../_components/AdminAuth';
-import Link from 'next/link';
+// Force dynamic rendering to prevent localStorage SSR issues
+export const dynamic = "force-dynamic";
+
+import { useState } from "react";
+import {
+  AdminAuthProvider,
+  useAdminAuth,
+  WithPermission,
+} from "../../_components/AdminAuth";
+import Link from "next/link";
 
 interface SettingsFormData {
   siteTitle: string;
@@ -19,21 +26,24 @@ interface SettingsFormData {
 
 function SettingsContent() {
   const { isAuthenticated, isLoading, user } = useAdminAuth();
-  const [activeTab, setActiveTab] = useState<'general' | 'contact' | 'social' | 'donation' | 'api'>('general');
+  const [activeTab, setActiveTab] = useState<
+    "general" | "contact" | "social" | "donation" | "api"
+  >("general");
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
   const [formData, setFormData] = useState<SettingsFormData>({
-    siteTitle: 'Haitian Family Relief Project',
-    siteDescription: 'Join us in our mission to feed and empower Haitian orphans. Make a lasting difference with daily giving - as little as 16¢ can provide meals, shelter, education, and healthcare.',
-    contactEmail: 'haitianfamilyrelief@gmail.com',
-    contactPhone: '(224) 217-0230',
-    gaTrackingId: 'G-XXXXXXXXXX',
-    fbUrl: 'https://facebook.com/haitianfamilyrelief',
-    igUrl: 'https://instagram.com/haitianfamilyrelief',
-    twUrl: 'https://twitter.com/hfrp_haiti',
-    donorboxCampaignId: 'hfrp-haiti-relief-fund',
-    enableDonationTest: false
+    siteTitle: "Haitian Family Relief Project",
+    siteDescription:
+      "Join us in our mission to feed and empower Haitian orphans. Make a lasting difference with daily giving - as little as 16¢ can provide meals, shelter, education, and healthcare.",
+    contactEmail: "haitianfamilyrelief@gmail.com",
+    contactPhone: "(224) 217-0230",
+    gaTrackingId: "G-XXXXXXXXXX",
+    fbUrl: "https://facebook.com/haitianfamilyrelief",
+    igUrl: "https://instagram.com/haitianfamilyrelief",
+    twUrl: "https://twitter.com/hfrp_haiti",
+    donorboxCampaignId: "hfrp-haiti-relief-fund",
+    enableDonationTest: false,
   });
 
   if (isLoading) {
@@ -51,10 +61,22 @@ function SettingsContent() {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full text-center">
-          <svg className="w-16 h-16 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0z" />
+          <svg
+            className="w-16 h-16 text-red-500 mx-auto mb-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 15v2m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0z"
+            />
           </svg>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Authentication Required</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            Authentication Required
+          </h2>
           <p className="text-gray-600 mb-6">
             You need to be logged in to access the site settings.
           </p>
@@ -69,12 +91,15 @@ function SettingsContent() {
     );
   }
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value, type } = e.target;
 
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
+      [name]:
+        type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
     }));
   };
 
@@ -104,8 +129,17 @@ function SettingsContent() {
             href="/admin"
             className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-lg flex items-center"
           >
-            <svg className="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            <svg
+              className="w-5 h-5 mr-1"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              />
             </svg>
             Back to Dashboard
           </Link>
@@ -117,13 +151,22 @@ function SettingsContent() {
             <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
               <div className="flex">
                 <div className="flex-shrink-0">
-                  <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  <svg
+                    className="h-5 w-5 text-yellow-400"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 </div>
                 <div className="ml-3">
                   <p className="text-sm text-yellow-700">
-                    You need additional permissions to modify site settings. Contact a super admin for access.
+                    You need additional permissions to modify site settings.
+                    Contact a super admin for access.
                   </p>
                 </div>
               </div>
@@ -135,51 +178,51 @@ function SettingsContent() {
               <div className="w-48 bg-gray-50 py-6 border-r border-gray-200">
                 <nav className="flex flex-col">
                   <button
-                    onClick={() => setActiveTab('general')}
+                    onClick={() => setActiveTab("general")}
                     className={`px-4 py-2 text-left ${
-                      activeTab === 'general'
-                        ? 'bg-gray-100 text-blue-600 font-medium border-l-4 border-blue-600'
-                        : 'text-gray-600 hover:bg-gray-100'
+                      activeTab === "general"
+                        ? "bg-gray-100 text-blue-600 font-medium border-l-4 border-blue-600"
+                        : "text-gray-600 hover:bg-gray-100"
                     }`}
                   >
                     General
                   </button>
                   <button
-                    onClick={() => setActiveTab('contact')}
+                    onClick={() => setActiveTab("contact")}
                     className={`px-4 py-2 text-left ${
-                      activeTab === 'contact'
-                        ? 'bg-gray-100 text-blue-600 font-medium border-l-4 border-blue-600'
-                        : 'text-gray-600 hover:bg-gray-100'
+                      activeTab === "contact"
+                        ? "bg-gray-100 text-blue-600 font-medium border-l-4 border-blue-600"
+                        : "text-gray-600 hover:bg-gray-100"
                     }`}
                   >
                     Contact Info
                   </button>
                   <button
-                    onClick={() => setActiveTab('social')}
+                    onClick={() => setActiveTab("social")}
                     className={`px-4 py-2 text-left ${
-                      activeTab === 'social'
-                        ? 'bg-gray-100 text-blue-600 font-medium border-l-4 border-blue-600'
-                        : 'text-gray-600 hover:bg-gray-100'
+                      activeTab === "social"
+                        ? "bg-gray-100 text-blue-600 font-medium border-l-4 border-blue-600"
+                        : "text-gray-600 hover:bg-gray-100"
                     }`}
                   >
                     Social Media
                   </button>
                   <button
-                    onClick={() => setActiveTab('donation')}
+                    onClick={() => setActiveTab("donation")}
                     className={`px-4 py-2 text-left ${
-                      activeTab === 'donation'
-                        ? 'bg-gray-100 text-blue-600 font-medium border-l-4 border-blue-600'
-                        : 'text-gray-600 hover:bg-gray-100'
+                      activeTab === "donation"
+                        ? "bg-gray-100 text-blue-600 font-medium border-l-4 border-blue-600"
+                        : "text-gray-600 hover:bg-gray-100"
                     }`}
                   >
                     Donation
                   </button>
                   <button
-                    onClick={() => setActiveTab('api')}
+                    onClick={() => setActiveTab("api")}
                     className={`px-4 py-2 text-left ${
-                      activeTab === 'api'
-                        ? 'bg-gray-100 text-blue-600 font-medium border-l-4 border-blue-600'
-                        : 'text-gray-600 hover:bg-gray-100'
+                      activeTab === "api"
+                        ? "bg-gray-100 text-blue-600 font-medium border-l-4 border-blue-600"
+                        : "text-gray-600 hover:bg-gray-100"
                     }`}
                   >
                     API Keys
@@ -191,20 +234,33 @@ function SettingsContent() {
                 {/* Success Message */}
                 {saveSuccess && (
                   <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-6 flex items-center">
-                    <svg className="w-5 h-5 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    <svg
+                      className="w-5 h-5 mr-2 text-green-500"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clipRule="evenodd"
+                      />
                     </svg>
                     Settings saved successfully!
                   </div>
                 )}
 
                 {/* General Settings */}
-                {activeTab === 'general' && (
+                {activeTab === "general" && (
                   <div>
-                    <h2 className="text-lg font-medium text-gray-900 mb-4">General Settings</h2>
+                    <h2 className="text-lg font-medium text-gray-900 mb-4">
+                      General Settings
+                    </h2>
                     <div className="space-y-4">
                       <div>
-                        <label htmlFor="siteTitle" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label
+                          htmlFor="siteTitle"
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
                           Site Title
                         </label>
                         <input
@@ -215,11 +271,16 @@ function SettingsContent() {
                           onChange={handleInputChange}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
-                        <p className="mt-1 text-xs text-gray-500">Used in the browser title and SEO</p>
+                        <p className="mt-1 text-xs text-gray-500">
+                          Used in the browser title and SEO
+                        </p>
                       </div>
 
                       <div>
-                        <label htmlFor="siteDescription" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label
+                          htmlFor="siteDescription"
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
                           Site Description
                         </label>
                         <textarea
@@ -230,11 +291,16 @@ function SettingsContent() {
                           onChange={handleInputChange}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
-                        <p className="mt-1 text-xs text-gray-500">Used for SEO and social sharing</p>
+                        <p className="mt-1 text-xs text-gray-500">
+                          Used for SEO and social sharing
+                        </p>
                       </div>
 
                       <div>
-                        <label htmlFor="gaTrackingId" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label
+                          htmlFor="gaTrackingId"
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
                           Google Analytics Tracking ID
                         </label>
                         <input
@@ -245,19 +311,26 @@ function SettingsContent() {
                           onChange={handleInputChange}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
-                        <p className="mt-1 text-xs text-gray-500">Format: G-XXXXXXXXXX</p>
+                        <p className="mt-1 text-xs text-gray-500">
+                          Format: G-XXXXXXXXXX
+                        </p>
                       </div>
                     </div>
                   </div>
                 )}
 
                 {/* Contact Settings */}
-                {activeTab === 'contact' && (
+                {activeTab === "contact" && (
                   <div>
-                    <h2 className="text-lg font-medium text-gray-900 mb-4">Contact Information</h2>
+                    <h2 className="text-lg font-medium text-gray-900 mb-4">
+                      Contact Information
+                    </h2>
                     <div className="space-y-4">
                       <div>
-                        <label htmlFor="contactEmail" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label
+                          htmlFor="contactEmail"
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
                           Contact Email
                         </label>
                         <input
@@ -268,11 +341,16 @@ function SettingsContent() {
                           onChange={handleInputChange}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
-                        <p className="mt-1 text-xs text-gray-500">Primary contact email displayed on the website</p>
+                        <p className="mt-1 text-xs text-gray-500">
+                          Primary contact email displayed on the website
+                        </p>
                       </div>
 
                       <div>
-                        <label htmlFor="contactPhone" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label
+                          htmlFor="contactPhone"
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
                           Contact Phone
                         </label>
                         <input
@@ -283,19 +361,26 @@ function SettingsContent() {
                           onChange={handleInputChange}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
-                        <p className="mt-1 text-xs text-gray-500">Format: (XXX) XXX-XXXX</p>
+                        <p className="mt-1 text-xs text-gray-500">
+                          Format: (XXX) XXX-XXXX
+                        </p>
                       </div>
                     </div>
                   </div>
                 )}
 
                 {/* Social Media Settings */}
-                {activeTab === 'social' && (
+                {activeTab === "social" && (
                   <div>
-                    <h2 className="text-lg font-medium text-gray-900 mb-4">Social Media Links</h2>
+                    <h2 className="text-lg font-medium text-gray-900 mb-4">
+                      Social Media Links
+                    </h2>
                     <div className="space-y-4">
                       <div>
-                        <label htmlFor="fbUrl" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label
+                          htmlFor="fbUrl"
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
                           Facebook URL
                         </label>
                         <div className="flex rounded-md shadow-sm">
@@ -306,7 +391,7 @@ function SettingsContent() {
                             type="text"
                             id="fbUrl"
                             name="fbUrl"
-                            value={formData.fbUrl.replace('https://', '')}
+                            value={formData.fbUrl.replace("https://", "")}
                             onChange={handleInputChange}
                             className="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                           />
@@ -314,7 +399,10 @@ function SettingsContent() {
                       </div>
 
                       <div>
-                        <label htmlFor="igUrl" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label
+                          htmlFor="igUrl"
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
                           Instagram URL
                         </label>
                         <div className="flex rounded-md shadow-sm">
@@ -325,7 +413,7 @@ function SettingsContent() {
                             type="text"
                             id="igUrl"
                             name="igUrl"
-                            value={formData.igUrl.replace('https://', '')}
+                            value={formData.igUrl.replace("https://", "")}
                             onChange={handleInputChange}
                             className="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                           />
@@ -333,7 +421,10 @@ function SettingsContent() {
                       </div>
 
                       <div>
-                        <label htmlFor="twUrl" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label
+                          htmlFor="twUrl"
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
                           Twitter URL
                         </label>
                         <div className="flex rounded-md shadow-sm">
@@ -344,7 +435,7 @@ function SettingsContent() {
                             type="text"
                             id="twUrl"
                             name="twUrl"
-                            value={formData.twUrl.replace('https://', '')}
+                            value={formData.twUrl.replace("https://", "")}
                             onChange={handleInputChange}
                             className="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                           />
@@ -355,12 +446,17 @@ function SettingsContent() {
                 )}
 
                 {/* Donation Settings */}
-                {activeTab === 'donation' && (
+                {activeTab === "donation" && (
                   <div>
-                    <h2 className="text-lg font-medium text-gray-900 mb-4">Donation Settings</h2>
+                    <h2 className="text-lg font-medium text-gray-900 mb-4">
+                      Donation Settings
+                    </h2>
                     <div className="space-y-4">
                       <div>
-                        <label htmlFor="donorboxCampaignId" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label
+                          htmlFor="donorboxCampaignId"
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
                           Donorbox Campaign ID
                         </label>
                         <input
@@ -371,7 +467,9 @@ function SettingsContent() {
                           onChange={handleInputChange}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
-                        <p className="mt-1 text-xs text-gray-500">The ID for your main Donorbox campaign</p>
+                        <p className="mt-1 text-xs text-gray-500">
+                          The ID for your main Donorbox campaign
+                        </p>
                       </div>
 
                       <div className="flex items-center">
@@ -383,24 +481,35 @@ function SettingsContent() {
                           onChange={handleInputChange}
                           className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                         />
-                        <label htmlFor="enableDonationTest" className="ml-2 block text-sm text-gray-900">
+                        <label
+                          htmlFor="enableDonationTest"
+                          className="ml-2 block text-sm text-gray-900"
+                        >
                           Enable Donation Test Mode
                         </label>
                       </div>
-                      <p className="text-xs text-gray-500 pl-6">When enabled, donations will be processed in test mode</p>
+                      <p className="text-xs text-gray-500 pl-6">
+                        When enabled, donations will be processed in test mode
+                      </p>
                     </div>
                   </div>
                 )}
 
                 {/* API Keys Settings */}
-                {activeTab === 'api' && (
+                {activeTab === "api" && (
                   <div>
-                    <h2 className="text-lg font-medium text-gray-900 mb-4">API Keys & Integrations</h2>
+                    <h2 className="text-lg font-medium text-gray-900 mb-4">
+                      API Keys & Integrations
+                    </h2>
                     <div className="space-y-4">
                       <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                        <h3 className="text-md font-medium text-gray-900 mb-2">API Keys</h3>
+                        <h3 className="text-md font-medium text-gray-900 mb-2">
+                          API Keys
+                        </h3>
                         <p className="text-sm text-gray-600 mb-3">
-                          For security reasons, API keys are managed through environment variables and are not accessible through this interface.
+                          For security reasons, API keys are managed through
+                          environment variables and are not accessible through
+                          this interface.
                         </p>
                         <div className="text-sm text-gray-800">
                           <div className="flex justify-between items-center py-2 border-b border-gray-200">
@@ -423,31 +532,73 @@ function SettingsContent() {
                       </div>
 
                       <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                        <h3 className="text-md font-medium text-blue-900 mb-2">Integration Status</h3>
+                        <h3 className="text-md font-medium text-blue-900 mb-2">
+                          Integration Status
+                        </h3>
                         <div className="text-sm">
                           <div className="flex items-center py-1">
-                            <svg className="w-4 h-4 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            <svg
+                              className="w-4 h-4 text-green-600 mr-2"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clipRule="evenodd"
+                              />
                             </svg>
-                            <span className="text-blue-800">Contact Form: Working</span>
+                            <span className="text-blue-800">
+                              Contact Form: Working
+                            </span>
                           </div>
                           <div className="flex items-center py-1">
-                            <svg className="w-4 h-4 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            <svg
+                              className="w-4 h-4 text-green-600 mr-2"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clipRule="evenodd"
+                              />
                             </svg>
-                            <span className="text-blue-800">Donations: Working</span>
+                            <span className="text-blue-800">
+                              Donations: Working
+                            </span>
                           </div>
                           <div className="flex items-center py-1">
-                            <svg className="w-4 h-4 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            <svg
+                              className="w-4 h-4 text-green-600 mr-2"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clipRule="evenodd"
+                              />
                             </svg>
-                            <span className="text-blue-800">Analytics: Working</span>
+                            <span className="text-blue-800">
+                              Analytics: Working
+                            </span>
                           </div>
                           <div className="flex items-center py-1">
-                            <svg className="w-4 h-4 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            <svg
+                              className="w-4 h-4 text-green-600 mr-2"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clipRule="evenodd"
+                              />
                             </svg>
-                            <span className="text-blue-800">Netlify: Working</span>
+                            <span className="text-blue-800">
+                              Netlify: Working
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -457,7 +608,8 @@ function SettingsContent() {
 
                 <div className="mt-6 pt-6 border-t border-gray-200 flex justify-between items-center">
                   <div className="text-sm text-gray-500">
-                    Last updated: {new Date().toLocaleDateString()} by {user?.name || 'Admin'}
+                    Last updated: {new Date().toLocaleDateString()} by{" "}
+                    {user?.name || "Admin"}
                   </div>
                   <button
                     onClick={handleSaveSettings}
@@ -466,14 +618,30 @@ function SettingsContent() {
                   >
                     {isSaving ? (
                       <>
-                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        <svg
+                          className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          />
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          />
                         </svg>
                         Saving...
                       </>
                     ) : (
-                      'Save Settings'
+                      "Save Settings"
                     )}
                   </button>
                 </div>

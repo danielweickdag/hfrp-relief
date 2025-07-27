@@ -1,9 +1,15 @@
-'use client';
+"use client";
 
-import { useState, useEffect, createContext, useContext, type ReactNode } from 'react';
+import {
+  useState,
+  useEffect,
+  createContext,
+  useContext,
+  type ReactNode,
+} from "react";
 
 // Admin user types with different permission levels
-type UserRole = 'superadmin' | 'editor' | 'volunteer';
+type UserRole = "superadmin" | "editor" | "volunteer";
 
 interface AdminUser {
   email: string;
@@ -18,6 +24,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   isLoading: boolean;
+  hasPermission: (permission: string) => boolean;
 }
 
 // Create auth context
@@ -26,55 +33,52 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // Define permissions for each role
 const rolePermissions: Record<UserRole, string[]> = {
   superadmin: [
-    'manage_users',
-    'edit_content',
-    'manage_donations',
-    'view_analytics',
-    'manage_settings',
-    'upload_media',
-    'manage_volunteers',
-    'publish_content',
-    'manage_volunteer_program',
-    'view_donation_reports',
-    'export_donations',
-    'manage_backups'
+    "manage_users",
+    "edit_content",
+    "manage_donations",
+    "view_analytics",
+    "manage_settings",
+    "upload_media",
+    "manage_volunteers",
+    "publish_content",
+    "manage_volunteer_program",
+    "view_donation_reports",
+    "export_donations",
+    "manage_backups",
   ],
   editor: [
-    'edit_content',
-    'view_analytics',
-    'upload_media',
-    'publish_content',
-    'manage_volunteers',
-    'manage_donations',
-    'view_donation_reports'
+    "edit_content",
+    "view_analytics",
+    "upload_media",
+    "publish_content",
+    "manage_volunteers",
+    "manage_donations",
+    "view_donation_reports",
   ],
-  volunteer: [
-    'view_analytics',
-    'edit_content'
-  ]
+  volunteer: ["view_analytics", "edit_content"],
 };
 
 // Mock admin users with secure storage
 const getAdminUsers = () => {
   return [
     {
-      email: 'w.regis@comcast.net',
-      name: 'Wilson Regis',
-      role: 'superadmin' as UserRole,
-      permissions: rolePermissions.superadmin
+      email: "w.regis@comcast.net",
+      name: "Wilson Regis",
+      role: "superadmin" as UserRole,
+      permissions: rolePermissions.superadmin,
     },
     {
-      email: 'editor@haitianfamilyrelief.org',
-      name: 'HFRP Editor',
-      role: 'editor' as UserRole,
-      permissions: rolePermissions.editor
+      email: "editor@haitianfamilyrelief.org",
+      name: "HFRP Editor",
+      role: "editor" as UserRole,
+      permissions: rolePermissions.editor,
     },
     {
-      email: 'volunteer@haitianfamilyrelief.org',
-      name: 'HFRP Volunteer',
-      role: 'volunteer' as UserRole,
-      permissions: rolePermissions.volunteer
-    }
+      email: "volunteer@haitianfamilyrelief.org",
+      name: "HFRP Volunteer",
+      role: "volunteer" as UserRole,
+      permissions: rolePermissions.volunteer,
+    },
   ];
 };
 
@@ -84,14 +88,14 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
 
   // Check for existing session
   useEffect(() => {
-    const storedUser = localStorage.getItem('hfrp-admin-user');
+    const storedUser = localStorage.getItem("hfrp-admin-user");
     if (storedUser) {
       try {
         const parsedUser = JSON.parse(storedUser);
         setUser(parsedUser);
       } catch (error) {
-        console.error('Failed to parse stored user', error);
-        localStorage.removeItem('hfrp-admin-user');
+        console.error("Failed to parse stored user", error);
+        localStorage.removeItem("hfrp-admin-user");
       }
     }
     setIsLoading(false);
@@ -104,27 +108,29 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     // In a real app, this would be an API call with proper security
     // For demo purposes, we're using a hardcoded password
     // IMPORTANT: In production, use proper authentication with hashed passwords
-    if (password !== 'Melirosecherie58') {
+    if (password !== "Melirosecherie58") {
       setIsLoading(false);
       return false;
     }
 
     const users = getAdminUsers();
-    const foundUser = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+    const foundUser = users.find(
+      (u) => u.email.toLowerCase() === email.toLowerCase()
+    );
 
     if (foundUser) {
       // Set user in state
       setUser(foundUser);
 
       // Store in localStorage (use secure HTTP-only cookies in production)
-      localStorage.setItem('hfrp-admin-user', JSON.stringify(foundUser));
+      localStorage.setItem("hfrp-admin-user", JSON.stringify(foundUser));
 
       // Track login event
       if (window.gtag) {
-        window.gtag('event', 'admin_login', {
-          event_category: 'Admin',
+        window.gtag("event", "admin_login", {
+          event_category: "Admin",
           event_label: foundUser.role,
-          user_email: foundUser.email
+          user_email: foundUser.email,
         });
       }
 
@@ -138,15 +144,21 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
 
   // Logout function
   const logout = () => {
-    localStorage.removeItem('hfrp-admin-user');
+    localStorage.removeItem("hfrp-admin-user");
     setUser(null);
 
     // Track logout event
     if (window.gtag) {
-      window.gtag('event', 'admin_logout', {
-        event_category: 'Admin'
+      window.gtag("event", "admin_logout", {
+        event_category: "Admin",
       });
     }
+  };
+
+  // Permission checker function
+  const hasPermission = (permission: string): boolean => {
+    if (!user) return false;
+    return user.permissions.includes(permission);
   };
 
   return (
@@ -156,7 +168,8 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated: !!user,
         login,
         logout,
-        isLoading
+        isLoading,
+        hasPermission,
       }}
     >
       {children}
@@ -168,16 +181,19 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
 export function useAdminAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAdminAuth must be used within an AdminAuthProvider');
+    throw new Error("useAdminAuth must be used within an AdminAuthProvider");
   }
   return context;
 }
+
+// Alias for backward compatibility
+export const useAuth = useAdminAuth;
 
 // Permission checker component
 export function WithPermission({
   permission,
   children,
-  fallback = null
+  fallback = null,
 }: {
   permission: string;
   children: ReactNode;
@@ -195,6 +211,13 @@ export function WithPermission({
 // Extend window interface for analytics
 declare global {
   interface Window {
-    gtag?: (command: string, action: string, parameters: Record<string, unknown>) => void;
+    gtag?: (
+      command: string,
+      action: string,
+      parameters: Record<string, unknown>
+    ) => void;
   }
 }
+
+// Default export for component imports
+export default AdminAuthProvider;

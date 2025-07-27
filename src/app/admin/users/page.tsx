@@ -1,4 +1,6 @@
 'use client';
+// Force dynamic rendering to prevent localStorage SSR issues
+export const dynamic = 'force-dynamic';
 
 import { AdminAuthProvider, useAdminAuth, WithPermission } from '../../_components/AdminAuth';
 import AdminUsers from '../../_components/AdminUsers';
