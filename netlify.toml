@@ -1,0 +1,61 @@
+[build]
+  command = "bun install && bun run build"
+  # Do not specify publish directory when using Next.js plugin
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[build.environment]
+  # Use Node 18 for compatibility
+  NODE_VERSION = "18"
+
+# Netlify serverless function configuration
+[functions]
+  # Configure serverless functions for API routes
+  node_bundler = "esbuild"
+
+# Headers for security and performance
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Content-Security-Policy = "frame-ancestors 'none'"
+
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    Cache-Control = "no-store, no-cache, must-revalidate"
+
+[[headers]]
+  for = "*.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "*.mp4"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Image handling for remote images
+[images]
+  remote_images = ["https://source.unsplash.com/.*", "https://images.unsplash.com/.*", "https://ext.same-assets.com/.*", "https://ugc.same-assets.com/.*"]
+
+# Redirects (if needed)
+[[redirects]]
+  from = "/.netlify/functions/*"
+  to = "/api/:splat"
+  status = 200
+
+# Form handling
+[[redirects]]
+  from = "/success"
+  to = "/contact?success=true"
+  status = 302

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - Haitian Family Relief Project</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #3b82f6 0%, #dc2626 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            padding: 20px;
+        }
+
+        .offline-container {
+            text-align: center;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: #dc2626;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        p {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .offline-features {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .offline-features h3 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .feature-list {
+            list-style: none;
+        }
+
+        .feature-list li {
+            padding: 8px 0;
+            position: relative;
+            padding-left: 25px;
+        }
+
+        .feature-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: 2px solid white;
+            background: transparent;
+            color: white;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background: white;
+            color: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: white;
+            color: #dc2626;
+        }
+
+        .btn-primary:hover {
+            background: transparent;
+            color: white;
+        }
+
+        .status {
+            margin-top: 30px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            font-size: 14px;
+        }
+
+        .status.online {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .status.offline {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .connection-icon {
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        @media (max-width: 600px) {
+            .offline-container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="logo">❤️</div>
+
+        <h1>You're Currently Offline</h1>
+
+        <p>Don't worry! You can still explore HFRP and even save donation intents while offline. We'll help you complete them when you're back online.</p>
+
+        <div class="offline-features">
+            <h3>What You Can Do Offline:</h3>
+            <ul class="feature-list">
+                <li>Browse our mission and programs</li>
+                <li>View cached photos from our gallery</li>
+                <li>Save donation intents for later</li>
+                <li>Read about our impact stories</li>
+                <li>Access contact information</li>
+            </ul>
+        </div>
+
+        <div class="button-group">
+            <button onclick="goHome()" class="btn btn-primary">
+                🏠 Go to Homepage
+            </button>
+            <button onclick="retryConnection()" class="btn">
+                🔄 Try Again
+            </button>
+            <button onclick="saveDonationIntent()" class="btn">
+                💝 Save Donation Intent
+            </button>
+        </div>
+
+        <div class="status offline" id="connectionStatus">
+            <span class="connection-icon">🔌</span>
+            <span class="pulse">Checking connection...</span>
+        </div>
+    </div>
+
+    <script>
+        // Check online status
+        function updateConnectionStatus() {
+            const status = document.getElementById('connectionStatus');
+            if (navigator.onLine) {
+                status.className = 'status online';
+                status.innerHTML = '<span class="connection-icon">🌐</span>You\'re back online! <a href="/" style="color: white; text-decoration: underline;">Refresh page</a>';
+            } else {
+                status.className = 'status offline';
+                status.innerHTML = '<span class="connection-icon">🔌</span><span class="pulse">Still offline - We\'ll notify you when you\'re back online</span>';
+            }
+        }
+
+        // Listen for online/offline events
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
+
+        // Initial check
+        updateConnectionStatus();
+
+        // Functions for buttons
+        function goHome() {
+            if (navigator.onLine) {
+                window.location.href = '/';
+            } else {
+                // Try to load cached homepage
+                window.location.href = '/';
+            }
+        }
+
+        function retryConnection() {
+            window.location.reload();
+        }
+
+        function saveDonationIntent() {
+            // Open a simple form to save donation intent
+            const amount = prompt('Enter donation amount ($):');
+            if (amount && !isNaN(amount) && amount > 0) {
+                const recurring = confirm('Would you like this to be a monthly recurring donation?');
+
+                // Store in localStorage for when online
+                const donationIntent = {
+                    amount: parseFloat(amount),
+                    recurring: recurring,
+                    timestamp: new Date().toISOString(),
+                    id: 'offline_' + Date.now()
+                };
+
+                try {
+                    let intents = JSON.parse(localStorage.getItem('hfrp_donation_intents') || '[]');
+                    intents.push(donationIntent);
+                    localStorage.setItem('hfrp_donation_intents', JSON.stringify(intents));
+
+                    alert(`✅ Donation intent for $${amount} saved! We'll remind you to complete it when you're online.`);
+                } catch (error) {
+                    alert('Unable to save donation intent. Please try again when online.');
+                }
+            }
+        }
+
+        // Check for saved donation intents when online
+        function checkSavedIntents() {
+            if (navigator.onLine) {
+                try {
+                    const intents = JSON.parse(localStorage.getItem('hfrp_donation_intents') || '[]');
+                    if (intents.length > 0) {
+                        const shouldComplete = confirm(`You have ${intents.length} saved donation intent(s). Would you like to complete them now?`);
+                        if (shouldComplete) {
+                            window.location.href = '/donate?resume=offline';
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error checking saved intents:', error);
+                }
+            }
+        }
+
+        // Check periodically for connection and saved intents
+        setInterval(() => {
+            updateConnectionStatus();
+            if (navigator.onLine) {
+                checkSavedIntents();
+            }
+        }, 5000);
+
+        // Initial check for saved intents
+        setTimeout(checkSavedIntents, 1000);
+    </script>
+</body>
+</html>
