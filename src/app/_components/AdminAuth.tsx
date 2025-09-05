@@ -84,31 +84,53 @@ const getAdminUsers = () => {
 
 export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AdminUser | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true); // Start with true to handle SSR
+  const [mounted, setMounted] = useState(false);
 
-  // Check for existing session
+  // Handle hydration and session check
   useEffect(() => {
-    const storedUser = localStorage.getItem("hfrp-admin-user");
-    if (storedUser) {
+    console.log("🔧 AdminAuth: Component mounted, starting session check...");
+    setMounted(true);
+
+    // Add a small delay to ensure DOM is ready
+    const timer = setTimeout(() => {
       try {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
+        if (typeof window !== "undefined") {
+          const storedUser = localStorage.getItem("hfrp-admin-user");
+          console.log("🔧 AdminAuth: Checking localStorage:", storedUser);
+
+          if (storedUser) {
+            const parsedUser = JSON.parse(storedUser);
+            console.log("🔧 AdminAuth: Found stored user:", parsedUser.email);
+            setUser(parsedUser);
+            console.log(
+              "🔧 AdminAuth: User state updated, should be authenticated"
+            );
+          } else {
+            console.log("🔧 AdminAuth: No stored user found");
+          }
+        }
       } catch (error) {
-        console.error("Failed to parse stored user", error);
-        localStorage.removeItem("hfrp-admin-user");
+        console.error("🔧 AdminAuth: Error checking stored session:", error);
       }
-    }
-    setIsLoading(false);
+
+      setIsLoading(false);
+      console.log("🔧 AdminAuth: Session check complete");
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, []);
 
   // Login function with improved security
   const login = async (email: string, password: string): Promise<boolean> => {
+    console.log("🔧 AdminAuth: Login attempt for:", email);
     setIsLoading(true);
 
     // In a real app, this would be an API call with proper security
     // For demo purposes, we're using a hardcoded password
     // IMPORTANT: In production, use proper authentication with hashed passwords
     if (password !== "Melirosecherie58") {
+      console.log("🔧 AdminAuth: Invalid password");
       setIsLoading(false);
       return false;
     }
@@ -119,14 +141,20 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     );
 
     if (foundUser) {
+      console.log("🔧 AdminAuth: User found, logging in:", foundUser.email);
+
       // Set user in state
       setUser(foundUser);
+      console.log("🔧 AdminAuth: User state set");
 
-      // Store in localStorage (use secure HTTP-only cookies in production)
-      localStorage.setItem("hfrp-admin-user", JSON.stringify(foundUser));
+      // Store in localStorage only on client side
+      if (typeof window !== "undefined") {
+        localStorage.setItem("hfrp-admin-user", JSON.stringify(foundUser));
+        console.log("🔧 AdminAuth: User stored in localStorage");
+      }
 
       // Track login event
-      if (window.gtag) {
+      if (typeof window !== "undefined" && window.gtag) {
         window.gtag("event", "admin_login", {
           event_category: "Admin",
           event_label: foundUser.role,
@@ -135,20 +163,24 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
       }
 
       setIsLoading(false);
+      console.log("🔧 AdminAuth: Login successful");
       return true;
     }
 
+    console.log("🔧 AdminAuth: User not found");
     setIsLoading(false);
     return false;
   };
 
   // Logout function
   const logout = () => {
-    localStorage.removeItem("hfrp-admin-user");
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("hfrp-admin-user");
+    }
     setUser(null);
 
     // Track logout event
-    if (window.gtag) {
+    if (typeof window !== "undefined" && window.gtag) {
       window.gtag("event", "admin_logout", {
         event_category: "Admin",
       });
@@ -172,7 +204,28 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
         hasPermission,
       }}
     >
-      {children}
+      {(() => {
+        console.log("🔧 AdminAuth: Provider rendering with state:", {
+          user: user?.email || "none",
+          isAuthenticated: !!user,
+          isLoading,
+          mounted,
+        });
+
+        // Prevent hydration mismatches
+        if (!mounted) {
+          return (
+            <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <p className="text-gray-600">Initializing...</p>
+              </div>
+            </div>
+          );
+        }
+
+        return children;
+      })()}
     </AuthContext.Provider>
   );
 }

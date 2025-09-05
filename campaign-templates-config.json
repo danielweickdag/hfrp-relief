@@ -1,0 +1,628 @@
+{
+  "campaigns": {
+    "hfrp_emergency_2025": {
+      "enabled": true,
+      "automation": {
+        "emailTemplates": {
+          "welcomeEmail": {
+            "enabled": true,
+            "template": "emergency-welcome-template",
+            "delay": 0,
+            "triggers": ["first_donation"]
+          },
+          "thankYouEmail": {
+            "enabled": true,
+            "template": "emergency-thank-you-template",
+            "delay": 300,
+            "triggers": ["donation_completed"]
+          },
+          "progressUpdate": {
+            "enabled": true,
+            "template": "emergency-progress-template",
+            "triggers": ["milestone_reached", "weekly_update"]
+          },
+          "urgencyReminder": {
+            "enabled": true,
+            "template": "emergency-urgency-template",
+            "triggers": ["goal_deadline_approaching"]
+          }
+        },
+        "socialMediaPosts": {
+          "facebook": {
+            "enabled": true,
+            "templates": [
+              "emergency-update-facebook",
+              "emergency-impact-facebook",
+              "emergency-urgent-facebook"
+            ],
+            "frequency": "twice_daily"
+          },
+          "instagram": {
+            "enabled": true,
+            "templates": [
+              "emergency-story-instagram",
+              "emergency-photo-instagram",
+              "emergency-video-instagram"
+            ],
+            "frequency": "daily"
+          },
+          "twitter": {
+            "enabled": true,
+            "templates": [
+              "emergency-update-twitter",
+              "emergency-goal-twitter",
+              "emergency-thanks-twitter"
+            ],
+            "frequency": "hourly_peak"
+          }
+        },
+        "milestones": [
+          {
+            "percentage": 25,
+            "enabled": true,
+            "actions": ["send_email", "social_post", "donor_thank_you"]
+          },
+          {
+            "percentage": 50,
+            "enabled": true,
+            "actions": [
+              "send_email",
+              "social_post",
+              "impact_report",
+              "press_release"
+            ]
+          },
+          {
+            "percentage": 75,
+            "enabled": true,
+            "actions": [
+              "send_email",
+              "social_post",
+              "donor_celebration",
+              "media_outreach"
+            ]
+          },
+          {
+            "percentage": 90,
+            "enabled": true,
+            "actions": [
+              "send_email",
+              "social_post",
+              "final_push",
+              "urgency_campaign"
+            ]
+          },
+          {
+            "percentage": 100,
+            "enabled": true,
+            "actions": [
+              "send_email",
+              "social_post",
+              "success_celebration",
+              "impact_showcase",
+              "donor_recognition"
+            ]
+          }
+        ],
+        "donorSegmentation": {
+          "firstTime": {
+            "enabled": true,
+            "template": "first-time-donor-emergency",
+            "followUp": "welcome_series"
+          },
+          "recurring": {
+            "enabled": true,
+            "template": "recurring-donor-emergency",
+            "followUp": "loyalty_program"
+          },
+          "majorGifts": {
+            "enabled": true,
+            "template": "major-gift-emergency",
+            "followUp": "personal_outreach"
+          },
+          "corporate": {
+            "enabled": true,
+            "template": "corporate-donor-emergency",
+            "followUp": "partnership_development"
+          }
+        }
+      }
+    },
+    "hfrp_education_2025": {
+      "enabled": true,
+      "automation": {
+        "emailTemplates": {
+          "welcomeEmail": {
+            "enabled": true,
+            "template": "education-welcome-template",
+            "delay": 0,
+            "triggers": ["first_donation"]
+          },
+          "impactEmail": {
+            "enabled": true,
+            "template": "education-impact-template",
+            "triggers": ["monthly_report", "milestone_reached"]
+          },
+          "studentStories": {
+            "enabled": true,
+            "template": "education-student-stories-template",
+            "triggers": ["weekly_story"]
+          },
+          "progressReport": {
+            "enabled": true,
+            "template": "education-progress-template",
+            "triggers": ["quarterly_report"]
+          }
+        },
+        "socialMediaPosts": {
+          "facebook": {
+            "enabled": true,
+            "templates": [
+              "education-student-facebook",
+              "education-school-facebook",
+              "education-success-facebook"
+            ],
+            "frequency": "daily"
+          },
+          "instagram": {
+            "enabled": true,
+            "templates": [
+              "education-classroom-instagram",
+              "education-student-instagram",
+              "education-supplies-instagram"
+            ],
+            "frequency": "daily"
+          },
+          "twitter": {
+            "enabled": true,
+            "templates": [
+              "education-facts-twitter",
+              "education-progress-twitter",
+              "education-thanks-twitter"
+            ],
+            "frequency": "twice_daily"
+          }
+        },
+        "milestones": [
+          {
+            "percentage": 20,
+            "enabled": true,
+            "actions": ["send_email", "social_post", "student_feature"]
+          },
+          {
+            "percentage": 40,
+            "enabled": true,
+            "actions": ["send_email", "social_post", "school_visit_video"]
+          },
+          {
+            "percentage": 60,
+            "enabled": true,
+            "actions": ["send_email", "social_post", "teacher_testimonial"]
+          },
+          {
+            "percentage": 80,
+            "enabled": true,
+            "actions": ["send_email", "social_post", "graduation_preview"]
+          },
+          {
+            "percentage": 100,
+            "enabled": true,
+            "actions": [
+              "send_email",
+              "social_post",
+              "graduation_celebration",
+              "year_end_report"
+            ]
+          }
+        ]
+      }
+    },
+    "hfrp_healthcare_2025": {
+      "enabled": true,
+      "automation": {
+        "emailTemplates": {
+          "welcomeEmail": {
+            "enabled": true,
+            "template": "healthcare-welcome-template",
+            "delay": 0,
+            "triggers": ["first_donation"]
+          },
+          "medicalImpact": {
+            "enabled": true,
+            "template": "healthcare-impact-template",
+            "triggers": ["treatment_milestone", "monthly_report"]
+          },
+          "patientStories": {
+            "enabled": true,
+            "template": "healthcare-patient-stories-template",
+            "triggers": ["bi_weekly_story"]
+          },
+          "healthMetrics": {
+            "enabled": true,
+            "template": "healthcare-metrics-template",
+            "triggers": ["quarterly_metrics"]
+          }
+        },
+        "socialMediaPosts": {
+          "facebook": {
+            "enabled": true,
+            "templates": [
+              "healthcare-clinic-facebook",
+              "healthcare-patient-facebook",
+              "healthcare-staff-facebook"
+            ],
+            "frequency": "daily"
+          },
+          "instagram": {
+            "enabled": true,
+            "templates": [
+              "healthcare-treatment-instagram",
+              "healthcare-recovery-instagram",
+              "healthcare-team-instagram"
+            ],
+            "frequency": "daily"
+          },
+          "twitter": {
+            "enabled": true,
+            "templates": [
+              "healthcare-stats-twitter",
+              "healthcare-thanks-twitter",
+              "healthcare-awareness-twitter"
+            ],
+            "frequency": "daily"
+          }
+        },
+        "milestones": [
+          {
+            "percentage": 25,
+            "enabled": true,
+            "actions": ["send_email", "social_post", "treatment_update"]
+          },
+          {
+            "percentage": 50,
+            "enabled": true,
+            "actions": ["send_email", "social_post", "clinic_expansion"]
+          },
+          {
+            "percentage": 75,
+            "enabled": true,
+            "actions": ["send_email", "social_post", "medical_equipment"]
+          },
+          {
+            "percentage": 100,
+            "enabled": true,
+            "actions": ["send_email", "social_post", "health_outcomes_report"]
+          }
+        ]
+      }
+    },
+    "hfrp_housing_2025": {
+      "enabled": true,
+      "automation": {
+        "emailTemplates": {
+          "welcomeEmail": {
+            "enabled": true,
+            "template": "housing-welcome-template",
+            "delay": 0,
+            "triggers": ["first_donation"]
+          },
+          "constructionUpdate": {
+            "enabled": true,
+            "template": "housing-construction-template",
+            "triggers": ["construction_milestone", "weekly_progress"]
+          },
+          "familyStories": {
+            "enabled": true,
+            "template": "housing-family-stories-template",
+            "triggers": ["family_move_in", "monthly_story"]
+          },
+          "communityImpact": {
+            "enabled": true,
+            "template": "housing-community-template",
+            "triggers": ["community_milestone"]
+          }
+        },
+        "socialMediaPosts": {
+          "facebook": {
+            "enabled": true,
+            "templates": [
+              "housing-construction-facebook",
+              "housing-family-facebook",
+              "housing-community-facebook"
+            ],
+            "frequency": "daily"
+          },
+          "instagram": {
+            "enabled": true,
+            "templates": [
+              "housing-progress-instagram",
+              "housing-family-instagram",
+              "housing-before-after-instagram"
+            ],
+            "frequency": "daily"
+          },
+          "twitter": {
+            "enabled": true,
+            "templates": [
+              "housing-milestone-twitter",
+              "housing-thanks-twitter",
+              "housing-facts-twitter"
+            ],
+            "frequency": "daily"
+          }
+        },
+        "milestones": [
+          {
+            "percentage": 30,
+            "enabled": true,
+            "actions": ["send_email", "social_post", "foundation_completion"]
+          },
+          {
+            "percentage": 60,
+            "enabled": true,
+            "actions": ["send_email", "social_post", "walls_roofing"]
+          },
+          {
+            "percentage": 90,
+            "enabled": true,
+            "actions": ["send_email", "social_post", "finishing_touches"]
+          },
+          {
+            "percentage": 100,
+            "enabled": true,
+            "actions": [
+              "send_email",
+              "social_post",
+              "family_move_in",
+              "community_celebration"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "events": {
+    "annual_gala_2025": {
+      "enabled": true,
+      "date": "2025-11-15T19:00:00Z",
+      "automation": {
+        "emailCampaigns": {
+          "saveTheDate": {
+            "enabled": true,
+            "template": "gala-save-the-date-template",
+            "sendDate": "2025-09-01T10:00:00Z"
+          },
+          "earlyBird": {
+            "enabled": true,
+            "template": "gala-early-bird-template",
+            "sendDate": "2025-09-15T10:00:00Z"
+          },
+          "finalReminder": {
+            "enabled": true,
+            "template": "gala-final-reminder-template",
+            "sendDate": "2025-11-01T10:00:00Z"
+          },
+          "thankYou": {
+            "enabled": true,
+            "template": "gala-thank-you-template",
+            "sendDate": "2025-11-16T10:00:00Z"
+          }
+        },
+        "socialMediaCampaign": {
+          "countdownPosts": {
+            "enabled": true,
+            "frequency": "weekly",
+            "templates": [
+              "gala-countdown-facebook",
+              "gala-countdown-instagram",
+              "gala-countdown-twitter"
+            ]
+          },
+          "sponsorHighlights": {
+            "enabled": true,
+            "frequency": "bi-weekly",
+            "templates": [
+              "gala-sponsor-facebook",
+              "gala-sponsor-instagram",
+              "gala-sponsor-linkedin"
+            ]
+          },
+          "behindScenes": {
+            "enabled": true,
+            "frequency": "weekly",
+            "templates": ["gala-bts-instagram", "gala-bts-facebook"]
+          }
+        },
+        "ticketingSales": {
+          "enabled": true,
+          "automation": {
+            "cartAbandonment": {
+              "enabled": true,
+              "template": "gala-cart-abandonment-template",
+              "delay": 3600
+            },
+            "groupDiscounts": {
+              "enabled": true,
+              "threshold": 5,
+              "discount": 15
+            }
+          }
+        }
+      }
+    },
+    "virtual_5k_run_2025": {
+      "enabled": true,
+      "date": "2025-10-05T08:00:00Z",
+      "automation": {
+        "emailCampaigns": {
+          "registration": {
+            "enabled": true,
+            "template": "5k-registration-template",
+            "sendDate": "2025-08-20T10:00:00Z"
+          },
+          "training": {
+            "enabled": true,
+            "template": "5k-training-tips-template",
+            "frequency": "weekly",
+            "startDate": "2025-09-01T10:00:00Z"
+          },
+          "raceDay": {
+            "enabled": true,
+            "template": "5k-race-day-template",
+            "sendDate": "2025-10-05T06:00:00Z"
+          },
+          "results": {
+            "enabled": true,
+            "template": "5k-results-template",
+            "sendDate": "2025-10-06T10:00:00Z"
+          }
+        },
+        "socialMediaCampaign": {
+          "trainingMotivation": {
+            "enabled": true,
+            "frequency": "daily",
+            "templates": ["5k-motivation-instagram", "5k-motivation-facebook"]
+          },
+          "participantSpotlight": {
+            "enabled": true,
+            "frequency": "bi-weekly",
+            "templates": ["5k-participant-facebook", "5k-participant-instagram"]
+          },
+          "raceDayLive": {
+            "enabled": true,
+            "templates": [
+              "5k-live-instagram",
+              "5k-live-facebook",
+              "5k-live-twitter"
+            ]
+          }
+        }
+      }
+    },
+    "volunteer_appreciation_day": {
+      "enabled": true,
+      "date": "2025-12-10T14:00:00Z",
+      "automation": {
+        "emailCampaigns": {
+          "invitation": {
+            "enabled": true,
+            "template": "volunteer-appreciation-invitation-template",
+            "sendDate": "2025-11-15T10:00:00Z"
+          },
+          "reminder": {
+            "enabled": true,
+            "template": "volunteer-appreciation-reminder-template",
+            "sendDate": "2025-12-05T10:00:00Z"
+          },
+          "thankYou": {
+            "enabled": true,
+            "template": "volunteer-appreciation-thanks-template",
+            "sendDate": "2025-12-11T10:00:00Z"
+          }
+        },
+        "socialMediaCampaign": {
+          "volunteerSpotlight": {
+            "enabled": true,
+            "frequency": "daily",
+            "startDate": "2025-12-01T10:00:00Z",
+            "templates": [
+              "volunteer-spotlight-facebook",
+              "volunteer-spotlight-instagram"
+            ]
+          },
+          "appreciationPosts": {
+            "enabled": true,
+            "frequency": "twice_daily",
+            "templates": [
+              "volunteer-appreciation-facebook",
+              "volunteer-appreciation-instagram",
+              "volunteer-appreciation-twitter"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "templates": {
+    "email": {
+      "emergency-welcome-template": {
+        "enabled": true,
+        "subject": "🚨 Thank you for your Emergency Relief donation",
+        "personalization": true,
+        "dynamicContent": ["donor_name", "donation_amount", "impact_message"]
+      },
+      "education-impact-template": {
+        "enabled": true,
+        "subject": "📚 Your education donation is changing lives",
+        "personalization": true,
+        "dynamicContent": ["donor_name", "students_helped", "schools_supported"]
+      },
+      "healthcare-patient-stories-template": {
+        "enabled": true,
+        "subject": "💊 Patient Success Story: Thanks to your support",
+        "personalization": true,
+        "dynamicContent": ["donor_name", "patient_story", "treatment_success"]
+      },
+      "housing-construction-template": {
+        "enabled": true,
+        "subject": "🏠 Construction Update: Your donation at work",
+        "personalization": true,
+        "dynamicContent": [
+          "donor_name",
+          "construction_progress",
+          "families_helped"
+        ]
+      }
+    },
+    "social": {
+      "emergency-update-facebook": {
+        "enabled": true,
+        "content": "🚨 URGENT: We're {percentage}% toward our emergency relief goal! Every donation helps families in crisis. Donate now: {campaign_url}",
+        "hashtags": ["#HFRPRelief", "#HaitiEmergency", "#HumanitarianAid"]
+      },
+      "education-student-instagram": {
+        "enabled": true,
+        "content": "📚 Meet {student_name}, one of the amazing students your donations support! Thanks to you, they're building a brighter future. ✨",
+        "hashtags": ["#EducationMatters", "#HFRPEducation", "#StudentSuccess"]
+      },
+      "healthcare-stats-twitter": {
+        "enabled": true,
+        "content": "💊 This month: {treatments_provided} treatments, {patients_helped} patients helped, {lives_saved} lives saved. Your donations make this possible! #HFRPHealthcare",
+        "hashtags": ["#HealthcareForAll", "#HFRPHealth", "#SavingLives"]
+      }
+    },
+    "automation": {
+      "milestone-celebration": {
+        "enabled": true,
+        "triggers": ["percentage_milestone"],
+        "actions": {
+          "email": true,
+          "social_media": true,
+          "donor_recognition": true,
+          "progress_update": true
+        }
+      },
+      "donor-journey": {
+        "enabled": true,
+        "stages": {
+          "awareness": {
+            "templates": ["awareness-email", "awareness-social"],
+            "duration": "7_days"
+          },
+          "consideration": {
+            "templates": ["consideration-email", "impact-stories"],
+            "duration": "14_days"
+          },
+          "conversion": {
+            "templates": ["conversion-email", "urgency-social"],
+            "duration": "7_days"
+          },
+          "retention": {
+            "templates": ["thank-you-email", "impact-updates"],
+            "duration": "ongoing"
+          }
+        }
+      }
+    }
+  }
+}

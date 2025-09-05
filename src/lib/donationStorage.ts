@@ -282,14 +282,14 @@ class DonationStorageService {
     return typeof window !== "undefined";
   }
 
-  private getFromStorage(key: string, defaultValue: string = ""): string {
+  private getFromStorage(key: string, defaultValue = ""): string {
     if (!this.isClient()) return defaultValue;
-    return this.getFromStorage(key) || defaultValue;
+    return localStorage.getItem(key) || defaultValue;
   }
 
   private setToStorage(key: string, value: string): void {
     if (!this.isClient()) return;
-    this.setToStorage(key, value);
+    localStorage.setItem(key, value);
   }
 
   private initializeDefaults() {

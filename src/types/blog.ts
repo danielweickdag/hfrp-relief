@@ -1,5 +1,5 @@
 // Blog post status types
-export type BlogPostStatus = 'draft' | 'published' | 'scheduled' | 'archived';
+export type BlogPostStatus = "draft" | "published" | "scheduled" | "archived";
 
 // Blog post category type
 export interface BlogCategory {
@@ -88,8 +88,8 @@ export interface BlogFilters {
   dateFrom?: string;
   dateTo?: string;
   search?: string;
-  sortBy?: 'title' | 'date' | 'author' | 'views' | 'updated';
-  sortOrder?: 'asc' | 'desc';
+  sortBy?: "title" | "date" | "author" | "views" | "updated";
+  sortOrder?: "asc" | "desc";
 }
 
 // Blog statistics type

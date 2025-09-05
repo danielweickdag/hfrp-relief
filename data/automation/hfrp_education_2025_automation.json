@@ -1,0 +1,75 @@
+{
+  "campaign_id": "hfrp_education_2025",
+  "social_content": {
+    "progress_update": {
+      "facebook": "🎉 AMAZING NEWS! Our \"Education Initiative\" campaign is now 47.3% funded! We've raised $18,900.00 thanks to 89 incredible supporters. Only $21,100.00 left to reach our goal! Every donation makes a difference. 💙 #HFRP #HopeForHaiti",
+      "instagram": "✨ Progress Update: 47.3% complete! 📊\n\nEducation Initiative is making real impact with $18,900.00 raised! 🙌\n\nStill need: $21,100.00\nDonors: 89 amazing people\n\n#HFRP #Haiti #Hope #Community #MakeADifference",
+      "twitter": "🚀 47.3% funded! \"Education Initiative\" has raised $18,900.00 from 89 donors. Help us reach $40,000.00! Every dollar creates hope. 💙 #HFRP #HaitiRelief"
+    },
+    "urgency": null
+  },
+  "email_template": {
+    "subject": "Education Initiative: 47.3% Funded - Your Impact is Growing!",
+    "html_content": "\n        <h2>Dear HFRP Supporter,</h2>\n        \n        <p>We have incredible news to share about our <strong>\"Education Initiative\"</strong> campaign!</p>\n        \n        <div style=\"background: #f0f8ff; padding: 20px; border-left: 4px solid #007bff;\">\n          <h3>📊 Progress Update</h3>\n          <ul>\n            <li><strong>Goal:</strong> $40,000.00</li>\n            <li><strong>Raised:</strong> $18,900.00 (47.3%)</li>\n            <li><strong>Donors:</strong> 89 amazing supporters</li>\n            <li><strong>Remaining:</strong> $21,100.00</li>\n          </ul>\n        </div>\n        \n        <p>Supporting education and school supplies for children in Haiti</p>\n        \n        <p>Thanks to donors like you, we're making real progress! Every donation brings us closer to our goal and brings hope to families in Haiti.</p>\n        \n        <div style=\"text-align: center; margin: 30px 0;\">\n          <a href=\"https://donorbox.org/education-initiative-haiti\" style=\"background: #007bff; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px;\">\n            🤝 Continue Supporting This Campaign\n          </a>\n        </div>\n        \n        <p>With gratitude,<br>The HFRP Team</p>\n      ",
+    "text_content": "\n        Dear HFRP Supporter,\n        \n        Education Initiative Progress Update:\n        - Goal: $40,000.00\n        - Raised: $18,900.00 (47.3%)\n        - Donors: 89\n        - Remaining: $21,100.00\n        \n        Supporting education and school supplies for children in Haiti\n        \n        Support this campaign: https://donorbox.org/education-initiative-haiti\n        \n        Thank you for your continued support!\n        The HFRP Team\n      "
+  },
+  "tracking_setup": {
+    "milestones": [
+      {
+        "percentage": 25,
+        "message": "Great start! 25% funded!",
+        "triggered": true
+      },
+      {
+        "percentage": 50,
+        "message": "Halfway there! 50% complete!",
+        "triggered": false
+      },
+      {
+        "percentage": 75,
+        "message": "Almost there! 75% funded!",
+        "triggered": false
+      },
+      {
+        "percentage": 100,
+        "message": "GOAL REACHED! Thank you!",
+        "triggered": false
+      }
+    ],
+    "alerts": {
+      "daily_update": true,
+      "weekly_summary": true,
+      "milestone_notifications": true,
+      "low_velocity_warning": false
+    },
+    "metrics_tracking": {
+      "conversion_rate": "1.88",
+      "funding_velocity": "102.72",
+      "momentum_score": "79",
+      "last_updated": "2025-08-04T14:22:12.161Z"
+    }
+  },
+  "donor_segments": {
+    "high_value": {
+      "criteria": "Donations >= $250",
+      "estimated_count": 8,
+      "engagement_strategy": "Personal thank you calls, exclusive updates"
+    },
+    "regular": {
+      "criteria": "Donations $50-$249",
+      "estimated_count": 53,
+      "engagement_strategy": "Monthly newsletters, impact stories"
+    },
+    "grassroots": {
+      "criteria": "Donations $1-$49",
+      "estimated_count": 26,
+      "engagement_strategy": "Social media engagement, community events"
+    },
+    "recurring": {
+      "criteria": "Monthly recurring donors",
+      "estimated_count": 13,
+      "engagement_strategy": "VIP treatment, early access to new campaigns"
+    }
+  },
+  "automated_at": "2025-08-04T14:22:12.161Z"
+}

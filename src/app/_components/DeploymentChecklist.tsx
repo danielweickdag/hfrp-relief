@@ -167,7 +167,7 @@ export default function DeploymentChecklist() {
 
   const categories = [...new Set(items.map((item) => item.category))];
   const completedCount = items.filter(
-    (item) => item.status === "complete"
+    (item) => item.status === "complete",
   ).length;
   const errorCount = items.filter((item) => item.status === "error").length;
   const warningCount = items.filter((item) => item.status === "warning").length;

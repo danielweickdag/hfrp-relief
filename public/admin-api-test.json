@@ -1,0 +1,11 @@
+{
+  "status": "ok",
+  "message": "HFRP Admin API is working",
+  "timestamp": "2025-08-04T16:07:13.779Z",
+  "credentials": {
+    "email": "w.regis@comcast.net",
+    "password": "Melirosecherie58"
+  },
+  "admin_url": "http://localhost:3000/admin",
+  "test_page": "http://localhost:3000/admin-test.html"
+}

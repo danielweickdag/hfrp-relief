@@ -1,0 +1,116 @@
+{
+  "timestamp": "2025-08-15T03:15:30.215Z",
+  "summary": {
+    "total": 21,
+    "passed": 20,
+    "failed": 1,
+    "passRate": 95.2
+  },
+  "details": [
+    {
+      "test": "Main Admin Page",
+      "status": "PASS",
+      "path": "/Users/blvckdlphn/projects/hfrp-relief/src/app/admin/page.tsx"
+    },
+    {
+      "test": "Admin Layout",
+      "status": "PASS",
+      "path": "/Users/blvckdlphn/projects/hfrp-relief/src/app/admin/layout.tsx"
+    },
+    {
+      "test": "Admin Authentication",
+      "status": "PASS",
+      "path": "/Users/blvckdlphn/projects/hfrp-relief/src/app/_components/AdminAuth.tsx"
+    },
+    {
+      "test": "Admin Dashboard Component",
+      "status": "PASS",
+      "path": "/Users/blvckdlphn/projects/hfrp-relief/src/app/_components/AdminDashboard.tsx"
+    },
+    {
+      "test": "Admin analytics Template",
+      "status": "PASS",
+      "path": "/Users/blvckdlphn/projects/hfrp-relief/src/app/admin/analytics/page.tsx"
+    },
+    {
+      "test": "Admin donations Template",
+      "status": "PASS",
+      "path": "/Users/blvckdlphn/projects/hfrp-relief/src/app/admin/donations/page.tsx"
+    },
+    {
+      "test": "Admin blog posts Template",
+      "status": "PASS",
+      "path": "/Users/blvckdlphn/projects/hfrp-relief/src/app/admin/blog/posts/page.tsx"
+    },
+    {
+      "test": "Admin users Template",
+      "status": "PASS",
+      "path": "/Users/blvckdlphn/projects/hfrp-relief/src/app/admin/users/page.tsx"
+    },
+    {
+      "test": "Admin volunteers Template",
+      "status": "PASS",
+      "path": "/Users/blvckdlphn/projects/hfrp-relief/src/app/admin/volunteers/page.tsx"
+    },
+    {
+      "test": "Admin settings Template",
+      "status": "PASS",
+      "path": "/Users/blvckdlphn/projects/hfrp-relief/src/app/admin/settings/page.tsx"
+    },
+    {
+      "test": "Admin media Template",
+      "status": "PASS",
+      "path": "/Users/blvckdlphn/projects/hfrp-relief/src/app/admin/media/page.tsx"
+    },
+    {
+      "test": "Admin backup Template",
+      "status": "PASS",
+      "path": "/Users/blvckdlphn/projects/hfrp-relief/src/app/admin/backup/page.tsx"
+    },
+    {
+      "test": "Admin deploy Template",
+      "status": "PASS",
+      "path": "/Users/blvckdlphn/projects/hfrp-relief/src/app/admin/deploy/page.tsx"
+    },
+    {
+      "test": "Authentication Provider Implementation",
+      "status": "PASS",
+      "file": "AdminAuth.tsx"
+    },
+    {
+      "test": "Admin Auth Hook Implementation",
+      "status": "PASS",
+      "file": "AdminAuth.tsx"
+    },
+    {
+      "test": "Dashboard Tab Navigation",
+      "status": "PASS",
+      "file": "AdminDashboard.tsx"
+    },
+    {
+      "test": "Permission-based Access Control",
+      "status": "PASS",
+      "file": "AdminDashboard.tsx"
+    },
+    {
+      "test": "Analytics Charts Integration",
+      "status": "FAIL",
+      "file": "page.tsx"
+    },
+    {
+      "test": "Donations Management Interface",
+      "status": "PASS",
+      "file": "page.tsx"
+    },
+    {
+      "test": "Automation Settings Integration",
+      "status": "PASS",
+      "file": "AdminDashboard.tsx"
+    },
+    {
+      "test": "Role-based Permissions System",
+      "status": "PASS",
+      "file": "AdminAuth.tsx"
+    }
+  ]
+}

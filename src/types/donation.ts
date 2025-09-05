@@ -1,8 +1,27 @@
 // Donation types
-export type DonationType = 'one_time' | 'monthly' | 'quarterly' | 'annual';
-export type PaymentMethod = 'credit_card' | 'debit_card' | 'paypal' | 'bank_transfer' | 'check' | 'cash' | 'crypto';
-export type DonationStatus = 'pending' | 'completed' | 'failed' | 'refunded' | 'cancelled';
-export type DonationSource = 'website' | 'mobile' | 'event' | 'mail' | 'phone' | 'social_media' | 'email_campaign';
+export type DonationType = "one_time" | "monthly" | "quarterly" | "annual";
+export type PaymentMethod =
+  | "credit_card"
+  | "debit_card"
+  | "paypal"
+  | "bank_transfer"
+  | "check"
+  | "cash"
+  | "crypto";
+export type DonationStatus =
+  | "pending"
+  | "completed"
+  | "failed"
+  | "refunded"
+  | "cancelled";
+export type DonationSource =
+  | "website"
+  | "mobile"
+  | "event"
+  | "mail"
+  | "phone"
+  | "social_media"
+  | "email_campaign";
 
 // Donor information
 export interface Donor {
@@ -97,7 +116,7 @@ export interface RecurringDonation {
   currency: string;
   frequency: DonationType;
   paymentMethod: PaymentMethod;
-  status: 'active' | 'paused' | 'cancelled' | 'expired';
+  status: "active" | "paused" | "cancelled" | "expired";
 
   // Schedule
   startDate: string;
@@ -151,8 +170,8 @@ export interface DonationFilters {
   isRecurring?: boolean;
   isAnonymous?: boolean;
   search?: string;
-  sortBy?: 'date' | 'amount' | 'donor' | 'status';
-  sortOrder?: 'asc' | 'desc';
+  sortBy?: "date" | "amount" | "donor" | "status";
+  sortOrder?: "asc" | "desc";
 }
 
 // Donation statistics
@@ -262,7 +281,7 @@ export interface FinancialReport {
 }
 
 // Export formats
-export type ExportFormat = 'csv' | 'excel' | 'pdf' | 'json';
+export type ExportFormat = "csv" | "excel" | "pdf" | "json";
 
 export interface ExportOptions {
   format: ExportFormat;
@@ -272,7 +291,7 @@ export interface ExportOptions {
   };
   includePersonalInfo?: boolean;
   includeTaxInfo?: boolean;
-  groupBy?: 'donor' | 'date' | 'campaign' | 'program';
+  groupBy?: "donor" | "date" | "campaign" | "program";
 }
 
 // Donation goal tracking
@@ -284,7 +303,7 @@ export interface DonationGoal {
   currentAmount: number;
   startDate: string;
   endDate: string;
-  category: 'annual' | 'campaign' | 'program' | 'emergency';
+  category: "annual" | "campaign" | "program" | "emergency";
   isActive: boolean;
   milestones?: Array<{
     amount: number;

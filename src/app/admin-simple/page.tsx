@@ -1,27 +1,27 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 
 export default function SimpleAdminPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     const validUsers = [
-      'w.regis@comcast.net',
-      'editor@haitianfamilyrelief.org',
-      'volunteer@haitianfamilyrelief.org'
+      "w.regis@comcast.net",
+      "editor@haitianfamilyrelief.org",
+      "volunteer@haitianfamilyrelief.org",
     ];
 
-    if (validUsers.includes(email) && password === 'Melirosecherie58') {
+    if (validUsers.includes(email) && password === "Melirosecherie58") {
       setIsLoggedIn(true);
     } else {
-      setError('Invalid email or password');
+      setError("Invalid email or password");
     }
   };
 
@@ -31,7 +31,9 @@ export default function SimpleAdminPage() {
         <div className="max-w-4xl mx-auto">
           <header className="bg-white rounded-lg shadow p-6 mb-8">
             <div className="flex justify-between items-center">
-              <h1 className="text-2xl font-bold text-gray-900">HFRP Admin Dashboard</h1>
+              <h1 className="text-2xl font-bold text-gray-900">
+                HFRP Admin Dashboard
+              </h1>
               <button
                 onClick={() => setIsLoggedIn(false)}
                 className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
@@ -43,24 +45,32 @@ export default function SimpleAdminPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Total Donations</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Total Donations
+              </h3>
               <p className="text-3xl font-bold text-green-600">$15,420.50</p>
               <p className="text-sm text-gray-500">This month: $3,240.75</p>
             </div>
             <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Blog Posts</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Blog Posts
+              </h3>
               <p className="text-3xl font-bold text-blue-600">24</p>
               <p className="text-sm text-gray-500">Published</p>
             </div>
             <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Volunteers</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Volunteers
+              </h3>
               <p className="text-3xl font-bold text-purple-600">12</p>
               <p className="text-sm text-gray-500">Active this month</p>
             </div>
           </div>
 
           <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Quick Actions
+            </h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <button className="bg-blue-600 text-white p-4 rounded hover:bg-blue-700">
                 📝 Create Blog Post
@@ -79,8 +89,11 @@ export default function SimpleAdminPage() {
 
           <div className="mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
             <p className="text-yellow-800">
-              <strong>Note:</strong> This is a simplified admin interface.
-              The full admin system is available at <a href="/admin" className="underline">/admin</a>
+              <strong>Note:</strong> This is a simplified admin interface. The
+              full admin system is available at{" "}
+              <a href="/admin" className="underline">
+                /admin
+              </a>
             </p>
           </div>
         </div>
@@ -103,7 +116,10 @@ export default function SimpleAdminPage() {
 
         <form onSubmit={handleLogin} className="space-y-6">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Email
             </label>
             <input
@@ -118,7 +134,10 @@ export default function SimpleAdminPage() {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Password
             </label>
             <input

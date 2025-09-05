@@ -5,6 +5,7 @@ export const dynamic = "force-dynamic";
 
 import { useState } from "react";
 import { AdminAuthProvider, useAdminAuth } from "../_components/AdminAuth";
+import { AdminErrorBoundary } from "../_components/ErrorBoundary";
 import AdminDashboard from "../_components/AdminDashboard";
 
 function AdminLogin() {
@@ -145,27 +146,45 @@ function AdminLogin() {
   );
 }
 
-function AdminContent() {
-  const { isAuthenticated, isLoading } = useAdminAuth();
+function AdminPageWrapper() {
+  const { user, isAuthenticated, isLoading } = useAdminAuth();
+
+  console.log("🔧 AdminPageWrapper: Current state:", {
+    isLoading,
+    isAuthenticated,
+    hasUser: !!user,
+    userEmail: user?.email,
+  });
 
   if (isLoading) {
+    console.log("🔧 AdminPageWrapper: Showing loading screen");
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto" />
-          <p className="mt-4 text-gray-600">Loading admin panel...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading admin panel...</p>
         </div>
       </div>
     );
   }
 
-  return isAuthenticated ? <AdminDashboard /> : <AdminLogin />;
+  if (!isAuthenticated) {
+    console.log("🔧 AdminPageWrapper: Not authenticated, showing login");
+    return <AdminLogin />;
+  }
+
+  console.log("🔧 AdminPageWrapper: Authenticated, showing dashboard");
+  return (
+    <AdminErrorBoundary>
+      <AdminDashboard />
+    </AdminErrorBoundary>
+  );
 }
 
 export default function AdminPage() {
   return (
     <AdminAuthProvider>
-      <AdminContent />
+      <AdminPageWrapper />
     </AdminAuthProvider>
   );
 }

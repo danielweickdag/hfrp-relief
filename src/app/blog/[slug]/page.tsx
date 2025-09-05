@@ -1,5 +1,5 @@
-import Image from 'next/image';
-import BackButton from './BackButton';
+import Image from "next/image";
+import BackButton from "./BackButton";
 
 interface PostData {
   [key: string]: string;
@@ -9,73 +9,95 @@ interface PostData {
 function parseMarkdownPost(md: string): PostData | null {
   const match = md.match(/^---\n([\s\S]+?)---\n([\s\S]*)$/);
   if (!match) return null;
-  const metaLines = match[1].split('\n');
+  const metaLines = match[1].split("\n");
   const data: { [key: string]: string } = {};
   for (const l of metaLines) {
-    const [key, ...rest] = l.split(':');
-    if (key && rest.length) data[key.trim()] = rest.join(':').trim().replace(/^\"|\"$/g, "");
+    const [key, ...rest] = l.split(":");
+    if (key && rest.length)
+      data[key.trim()] = rest
+        .join(":")
+        .trim()
+        .replace(/^\"|\"$/g, "");
   }
   return {
     ...data,
-    content: match[2]
+    content: match[2],
   };
 }
-
-
 
 // Generate static params for all blog posts
 export async function generateStaticParams() {
   // For now, we only have one blog post
-  return [
-    { slug: 'sample-post' }
-  ];
+  return [{ slug: "sample-post" }];
 }
 
 // Generate metadata for each blog post
-export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const post = await fetchPost(params.slug);
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const post = await fetchPost(slug);
 
   if (!post) {
     return {
-      title: 'Post Not Found | Haitian Family Relief Project'
+      title: "Post Not Found | Haitian Family Relief Project",
     };
   }
 
   return {
     title: `${post.title} | Haitian Family Relief Project`,
-    description: post.summary || `Read ${post.title} - a story from the Haitian Family Relief Project`,
-    keywords: `${post.title}, Haiti, relief, orphans, story, ${post.author || 'HFRP'}`,
+    description:
+      post.summary ||
+      `Read ${post.title} - a story from the Haitian Family Relief Project`,
+    keywords: `${post.title}, Haiti, relief, orphans, story, ${post.author || "HFRP"}`,
     openGraph: {
       title: `${post.title} | Haitian Family Relief Project`,
-      description: post.summary || `Read ${post.title} - a story from the Haitian Family Relief Project`,
-      type: 'article',
-      url: `https://haitianfamilyrelief.org/blog/${params.slug}`,
-      images: post.image ? [`https://haitianfamilyrelief.org${post.image}`] : [],
+      description:
+        post.summary ||
+        `Read ${post.title} - a story from the Haitian Family Relief Project`,
+      type: "article",
+      url: `https://haitianfamilyrelief.org/blog/${slug}`,
+      images: post.image
+        ? [`https://haitianfamilyrelief.org${post.image}`]
+        : [],
       article: {
         authors: [post.author || "HFRP Team"],
         publishedTime: post.date,
         section: "Stories & Updates",
-        tags: ["Haiti", "Relief", "Orphans"]
-      }
+        tags: ["Haiti", "Relief", "Orphans"],
+      },
     },
     twitter: {
-      card: 'summary_large_image',
+      card: "summary_large_image",
       title: `${post.title} | Haitian Family Relief Project`,
-      description: post.summary || `Read ${post.title} - a story from the Haitian Family Relief Project`,
-      images: post.image ? [`https://haitianfamilyrelief.org${post.image}`] : []
-    }
+      description:
+        post.summary ||
+        `Read ${post.title} - a story from the Haitian Family Relief Project`,
+      images: post.image
+        ? [`https://haitianfamilyrelief.org${post.image}`]
+        : [],
+    },
   };
 }
 
 async function fetchPost(slug: string) {
   if (slug === "sample-post") {
-    return parseMarkdownPost(`---\ntitle: \"Welcome to Our New Blog!\"\ndate: \"2024-05-13\"\nauthor: \"HFRP Team\"\nsummary: \"A new space for our community to share stories, news, and inspiration.\"\nimage: \"/uploads/LOGO.jpg\"\n---\n\nWe're excited to launch our new blog! Here you'll find stories of impact, updates from the field, successes, and ways you can help. Stay tuned for more inspiring news from the Haitian Family Relief Project!\n`);
+    return parseMarkdownPost(
+      `---\ntitle: \"Welcome to Our New Blog!\"\ndate: \"2024-05-13\"\nauthor: \"HFRP Team\"\nsummary: \"A new space for our community to share stories, news, and inspiration.\"\nimage: \"/uploads/LOGO.jpg\"\n---\n\nWe're excited to launch our new blog! Here you'll find stories of impact, updates from the field, successes, and ways you can help. Stay tuned for more inspiring news from the Haitian Family Relief Project!\n`
+    );
   }
   return null;
 }
 
-export default async function BlogPostPage({ params }: { params: { slug: string } }) {
-  const post = await fetchPost(params.slug);
+export default async function BlogPostPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const post = await fetchPost(slug);
 
   if (!post) return <div className="py-10 text-center">Post not found</div>;
 
@@ -88,9 +110,18 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
         {post.author && <span>· By {post.author}</span>}
       </div>
       {post.image && (
-        <Image src={post.image} alt={post.title} width={580} height={290} className="rounded-lg mb-4 object-cover w-full h-56" />
+        <Image
+          src={post.image}
+          alt={post.title}
+          width={580}
+          height={290}
+          className="rounded-lg mb-4 object-cover w-full h-56"
+        />
       )}
-      <div className="prose max-w-none text-zinc-800" style={{whiteSpace: 'pre-line'}}>
+      <div
+        className="prose max-w-none text-zinc-800"
+        style={{ whiteSpace: "pre-line" }}
+      >
         {post.content}
       </div>
     </article>

@@ -18,12 +18,14 @@
 1. **Fork this repository** to your GitHub account
 
 2. **Connect to Vercel:**
+
    - Go to [vercel.com](https://vercel.com)
    - Click "Import Project"
    - Connect your GitHub account
    - Select this repository
 
 3. **Configure Environment Variables:**
+
    - In Vercel dashboard, go to your project settings
    - Add environment variables from `.env.example`
    - Required for basic functionality:
@@ -31,6 +33,8 @@
      NEXT_PUBLIC_GA_TRACKING_ID=your_google_analytics_id
      RESEND_API_KEY=your_resend_api_key (for contact forms)
      NEXT_PUBLIC_SITE_URL=https://your-domain.vercel.app
+     STRIPE_SECRET_KEY=sk_live_xxx_REDACTED_xxx...
+     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_xxx_REDACTED_xxx...
      ```
 
 4. **Deploy:**
@@ -130,3 +134,54 @@ Total: 39 pages successfully built
 **🚀 DEPLOYMENT STATUS: READY**
 
 The project builds successfully with 0 errors and is fully optimized for Vercel deployment. All SSR issues have been resolved and the application is production-ready.
+
+```javascript
+function processTree(root) {
+  const stack = [root];
+  while (stack.length) {
+    const node = stack.pop();
+    // ... process node
+    stack.push(...node.children);
+  }
+}
+```
+
+<script>
+  document.querySelectorAll('input').forEach(element => {
+    element.addEventListener('input', () => {
+      if (element.value !== element.value.toUpperCase()) {
+        element.value = element.value.toUpperCase();
+      }
+    });
+  });
+</script>
+
+```javascript
+function safeStringify(obj) {
+  const seen = new WeakSet();
+  return JSON.stringify(obj, (key, value) => {
+    if (typeof value === "object" && value !== null) {
+      if (seen.has(value)) return "[Circular]";
+      seen.add(value);
+    }
+    return value;
+  });
+}
+
+// JSON.stringify(circularObject); // Throws error
+const result = safeStringify(circularObject);
+console.log(result);
+```
+
+<!-- Donorbox embed or iframe -->
+
+import DonateButton from "@/components/DonateButton";
+
+export default function DonatePage() {
+return (
+<div>
+<h1>Support a Campaign</h1>
+<DonateButton amount={25} campaignId="abc123" userId="user456" />
+</div>
+);
+}

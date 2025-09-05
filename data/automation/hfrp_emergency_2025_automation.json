@@ -1,0 +1,75 @@
+{
+  "campaign_id": "hfrp_emergency_2025",
+  "social_content": {
+    "progress_update": {
+      "facebook": "🎉 AMAZING NEWS! Our \"Emergency Relief for Haiti\" campaign is now 31.3% funded! We've raised $23,450.00 thanks to 156 incredible supporters. Only $51,550.00 left to reach our goal! Every donation makes a difference. 💙 #HFRP #HopeForHaiti",
+      "instagram": "✨ Progress Update: 31.3% complete! 📊\n\nEmergency Relief for Haiti is making real impact with $23,450.00 raised! 🙌\n\nStill need: $51,550.00\nDonors: 156 amazing people\n\n#HFRP #Haiti #Hope #Community #MakeADifference",
+      "twitter": "🚀 31.3% funded! \"Emergency Relief for Haiti\" has raised $23,450.00 from 156 donors. Help us reach $75,000.00! Every dollar creates hope. 💙 #HFRP #HaitiRelief"
+    },
+    "urgency": null
+  },
+  "email_template": {
+    "subject": "Emergency Relief for Haiti: 31.3% Funded - Your Impact is Growing!",
+    "html_content": "\n        <h2>Dear HFRP Supporter,</h2>\n        \n        <p>We have incredible news to share about our <strong>\"Emergency Relief for Haiti\"</strong> campaign!</p>\n        \n        <div style=\"background: #f0f8ff; padding: 20px; border-left: 4px solid #007bff;\">\n          <h3>📊 Progress Update</h3>\n          <ul>\n            <li><strong>Goal:</strong> $75,000.00</li>\n            <li><strong>Raised:</strong> $23,450.00 (31.3%)</li>\n            <li><strong>Donors:</strong> 156 amazing supporters</li>\n            <li><strong>Remaining:</strong> $51,550.00</li>\n          </ul>\n        </div>\n        \n        <p>Providing immediate emergency relief to families affected by recent disasters in Haiti</p>\n        \n        <p>Thanks to donors like you, we're making real progress! Every donation brings us closer to our goal and brings hope to families in Haiti.</p>\n        \n        <div style=\"text-align: center; margin: 30px 0;\">\n          <a href=\"https://donorbox.org/emergency-relief-haiti-2025\" style=\"background: #007bff; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px;\">\n            🤝 Continue Supporting This Campaign\n          </a>\n        </div>\n        \n        <p>With gratitude,<br>The HFRP Team</p>\n      ",
+    "text_content": "\n        Dear HFRP Supporter,\n        \n        Emergency Relief for Haiti Progress Update:\n        - Goal: $75,000.00\n        - Raised: $23,450.00 (31.3%)\n        - Donors: 156\n        - Remaining: $51,550.00\n        \n        Providing immediate emergency relief to families affected by recent disasters in Haiti\n        \n        Support this campaign: https://donorbox.org/emergency-relief-haiti-2025\n        \n        Thank you for your continued support!\n        The HFRP Team\n      "
+  },
+  "tracking_setup": {
+    "milestones": [
+      {
+        "percentage": 25,
+        "message": "Great start! 25% funded!",
+        "triggered": true
+      },
+      {
+        "percentage": 50,
+        "message": "Halfway there! 50% complete!",
+        "triggered": false
+      },
+      {
+        "percentage": 75,
+        "message": "Almost there! 75% funded!",
+        "triggered": false
+      },
+      {
+        "percentage": 100,
+        "message": "GOAL REACHED! Thank you!",
+        "triggered": false
+      }
+    ],
+    "alerts": {
+      "daily_update": true,
+      "weekly_summary": true,
+      "milestone_notifications": true,
+      "low_velocity_warning": false
+    },
+    "metrics_tracking": {
+      "conversion_rate": "1.50",
+      "funding_velocity": "116.67",
+      "momentum_score": "63",
+      "last_updated": "2025-08-04T14:22:12.159Z"
+    }
+  },
+  "donor_segments": {
+    "high_value": {
+      "criteria": "Donations >= $250",
+      "estimated_count": 15,
+      "engagement_strategy": "Personal thank you calls, exclusive updates"
+    },
+    "regular": {
+      "criteria": "Donations $50-$249",
+      "estimated_count": 93,
+      "engagement_strategy": "Monthly newsletters, impact stories"
+    },
+    "grassroots": {
+      "criteria": "Donations $1-$49",
+      "estimated_count": 46,
+      "engagement_strategy": "Social media engagement, community events"
+    },
+    "recurring": {
+      "criteria": "Monthly recurring donors",
+      "estimated_count": 23,
+      "engagement_strategy": "VIP treatment, early access to new campaigns"
+    }
+  },
+  "automated_at": "2025-08-04T14:22:12.159Z"
+}

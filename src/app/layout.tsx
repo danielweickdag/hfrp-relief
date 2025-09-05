@@ -7,6 +7,8 @@ import { Navbar } from "@/app/_components/Navbar";
 import Footer from "@/app/_components/Footer";
 import GoogleAnalytics from "@/app/_components/GoogleAnalytics";
 import { AnalyticsProvider } from "@/app/_components/AnalyticsProvider";
+import { ErrorBoundary } from "@/app/_components/ErrorBoundary";
+import ErrorMonitor from "@/app/_components/ErrorMonitor";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,16 +21,22 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3001"
+  ),
   title: "Haitian Family Relief Project - Fighting Hunger, Providing Hope",
-  description: "Join us in our mission to feed and empower Haitian orphans. Make a lasting difference with daily giving - as little as 16¢ can provide meals, shelter, education, and healthcare.",
-  keywords: "Haiti, orphans, charity, donation, relief, hunger, children, nonprofit, giving, hope, daily giving, Haitian Family Relief Project",
+  description:
+    "Join us in our mission to feed and empower Haitian orphans. Make a lasting difference with daily giving - as little as 16¢ can provide meals, shelter, education, and healthcare.",
+  keywords:
+    "Haiti, orphans, charity, donation, relief, hunger, children, nonprofit, giving, hope, daily giving, Haitian Family Relief Project",
   authors: [{ name: "Haitian Family Relief Project" }],
   creator: "Haitian Family Relief Project",
   publisher: "Haitian Family Relief Project",
   robots: "index, follow",
   openGraph: {
     title: "Haitian Family Relief Project - Fighting Hunger, Providing Hope",
-    description: "Join us in our mission to feed and empower Haitian orphans. Make a lasting difference with daily giving - as little as 16¢ can provide meals, shelter, education, and healthcare.",
+    description:
+      "Join us in our mission to feed and empower Haitian orphans. Make a lasting difference with daily giving - as little as 16¢ can provide meals, shelter, education, and healthcare.",
     url: "https://haitianfamilyrelief.org",
     siteName: "Haitian Family Relief Project",
     images: [
@@ -45,7 +53,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Haitian Family Relief Project - Fighting Hunger, Providing Hope",
-    description: "Join us in our mission to feed and empower Haitian orphans. Make a lasting difference with daily giving - as little as 16¢ can provide meals, shelter, education, and healthcare.",
+    description:
+      "Join us in our mission to feed and empower Haitian orphans. Make a lasting difference with daily giving - as little as 16¢ can provide meals, shelter, education, and healthcare.",
     creator: "@hfrproject",
     images: ["/hfrp-logo.png"],
   },
@@ -69,25 +78,26 @@ export default function RootLayout({
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "Organization",
-            "name": "Haitian Family Relief Project",
-            "description": "Join us in our mission to feed and empower Haitian orphans. Make a lasting difference with daily giving.",
-            "url": "https://haitianfamilyrelief.org",
-            "logo": "https://haitianfamilyrelief.org/hfrp-logo.png",
-            "sameAs": [
+            name: "Haitian Family Relief Project",
+            description:
+              "Join us in our mission to feed and empower Haitian orphans. Make a lasting difference with daily giving.",
+            url: "https://haitianfamilyrelief.org",
+            logo: "https://haitianfamilyrelief.org/hfrp-logo.png",
+            sameAs: [
               "https://facebook.com/haitianfamilyreliefproject",
               "https://instagram.com/haitianfamilyreliefproject",
-              "https://twitter.com/hfrproject"
+              "https://twitter.com/hfrproject",
             ],
-            "contactPoint": {
+            contactPoint: {
               "@type": "ContactPoint",
-              "contactType": "donations",
-              "url": "https://haitianfamilyrelief.org/donate"
+              contactType: "donations",
+              url: "https://haitianfamilyrelief.org/donate",
             },
-            "foundingDate": "2020",
-            "location": {
+            foundingDate: "2020",
+            location: {
               "@type": "Place",
-              "name": "Haiti"
-            }
+              name: "Haiti",
+            },
           })}
         </script>
         {/*
@@ -96,29 +106,35 @@ export default function RootLayout({
           recommended by Google and is considered safe since we're only including the
           official Google Analytics code with our measurement ID.
         */}
-        <script async src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`} />
+        <script
+          async
+          src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`}
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
-              gtag('config', '${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || 'G-XXXXXXXXXX'}');
+              gtag('config', '${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "G-XXXXXXXXXX"}');
             `,
           }}
         />
       </head>
       <body className="min-h-screen text-zinc-900 antialiased">
-        <AnalyticsProvider measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}>
-          <GoogleAnalytics measurementId="G-XXXXXXXXXX" />
-          <ClientBody>
-            <Navbar />
-            <main>
-              {children}
-            </main>
-            <Footer />
-          </ClientBody>
-        </AnalyticsProvider>
+        <ErrorBoundary>
+          <AnalyticsProvider
+            measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}
+          >
+            <GoogleAnalytics measurementId="G-XXXXXXXXXX" />
+            <ClientBody>
+              <Navbar />
+              <main>{children}</main>
+              <Footer />
+            </ClientBody>
+            <ErrorMonitor />
+          </AnalyticsProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

@@ -1,7 +1,7 @@
 // Global type definitions for HFRP project
 
 // Google Analytics gtag types
-type GtagCommand = 'js' | 'config' | 'event' | 'get' | 'set';
+type GtagCommand = "js" | "config" | "event" | "get" | "set";
 type GtagTarget = string | Date;
 type GtagConfigParams = {
   page_title?: string;
@@ -38,14 +38,26 @@ interface NextJSWindow {
 interface AnalyticsWindow {
   dataLayer: unknown[];
   gtag: {
-    (command: 'js', target: Date, params?: Record<string, unknown>): void;
-    (command: 'config', target: string, params?: GtagConfigParams): void;
-    (command: 'event', target: string, params?: GtagEventParams): void;
-    (command: GtagCommand, target: GtagTarget, params?: Record<string, unknown>): void;
+    (command: "js", target: Date, params?: Record<string, unknown>): void;
+    (command: "config", target: string, params?: GtagConfigParams): void;
+    (command: "event", target: string, params?: GtagEventParams): void;
+    (
+      command: GtagCommand,
+      target: GtagTarget,
+      params?: Record<string, unknown>,
+    ): void;
   };
-  trackDonation?: (amount: number, currency?: string, campaign?: string) => void;
+  trackDonation?: (
+    amount: number,
+    currency?: string,
+    campaign?: string,
+  ) => void;
   hfrpAnalytics?: {
-    trackDonation: (amount: number, currency?: string, campaign?: string) => void;
+    trackDonation: (
+      amount: number,
+      currency?: string,
+      campaign?: string,
+    ) => void;
     trackContactSubmit: () => void;
     trackGalleryView: (imageId: string, category: string) => void;
     trackProgramView: (programType: string) => void;

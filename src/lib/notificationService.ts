@@ -237,13 +237,13 @@ class NotificationService {
     if (!localStorage.getItem(STORAGE_KEYS.SETTINGS)) {
       localStorage.setItem(
         STORAGE_KEYS.SETTINGS,
-        JSON.stringify(DEFAULT_SETTINGS)
+        JSON.stringify(DEFAULT_SETTINGS),
       );
     }
     if (!localStorage.getItem(STORAGE_KEYS.TEMPLATES)) {
       localStorage.setItem(
         STORAGE_KEYS.TEMPLATES,
-        JSON.stringify(DEFAULT_TEMPLATES)
+        JSON.stringify(DEFAULT_TEMPLATES),
       );
     }
     if (!localStorage.getItem(STORAGE_KEYS.RECIPIENTS)) {
@@ -255,7 +255,7 @@ class NotificationService {
     if (!localStorage.getItem(STORAGE_KEYS.MODERATION_WORKFLOWS)) {
       localStorage.setItem(
         STORAGE_KEYS.MODERATION_WORKFLOWS,
-        JSON.stringify([DEFAULT_WORKFLOW])
+        JSON.stringify([DEFAULT_WORKFLOW]),
       );
     }
     if (!localStorage.getItem(STORAGE_KEYS.LOGS)) {
@@ -270,7 +270,7 @@ class NotificationService {
 
   // Update notification settings
   async updateSettings(
-    settings: Partial<NotificationSettings>
+    settings: Partial<NotificationSettings>,
   ): Promise<NotificationSettings> {
     const current = await this.getSettings();
     const updated = { ...current, ...settings };
@@ -285,7 +285,7 @@ class NotificationService {
 
   // Get template by type
   async getTemplateByType(
-    type: NotificationType
+    type: NotificationType,
   ): Promise<EmailTemplate | null> {
     const templates = await this.getTemplates();
     return templates.find((t) => t.type === type && t.isActive) || null;
@@ -294,7 +294,7 @@ class NotificationService {
   // Update email template
   async updateTemplate(
     id: string,
-    data: Partial<EmailTemplate>
+    data: Partial<EmailTemplate>,
   ): Promise<EmailTemplate | null> {
     const templates = await this.getTemplates();
     const index = templates.findIndex((t) => t.id === id);
@@ -319,7 +319,7 @@ class NotificationService {
     options?: {
       priority?: NotificationPriority;
       scheduledFor?: string;
-    }
+    },
   ): Promise<NotificationQueueItem> {
     const settings = await this.getSettings();
     const typeSettings = settings.notificationTypes[type];
@@ -382,7 +382,7 @@ class NotificationService {
   // Process template with data
   private processTemplate(
     template: EmailTemplate,
-    data: Record<string, unknown>
+    data: Record<string, unknown>,
   ): { subject: string; content: string } {
     let subject = template.subject;
     let content = template.body;
@@ -463,10 +463,10 @@ class NotificationService {
   private async logNotification(
     item: NotificationQueueItem,
     status: "success" | "failed",
-    error?: unknown
+    error?: unknown,
   ): Promise<void> {
     const logs = JSON.parse(
-      localStorage.getItem(STORAGE_KEYS.LOGS) || "[]"
+      localStorage.getItem(STORAGE_KEYS.LOGS) || "[]",
     ) as NotificationLog[];
 
     logs.push({
@@ -525,7 +525,7 @@ class NotificationService {
       title: string;
       author: ContentModerationItem["author"];
       metadata?: Record<string, unknown>;
-    }
+    },
   ): Promise<ContentModerationItem> {
     const items = await this.getModerationItems();
     const workflow = await this.getActiveWorkflow();
@@ -565,7 +565,7 @@ class NotificationService {
   }
 
   private createModerationItem(
-    data: Record<string, unknown>
+    data: Record<string, unknown>,
   ): ContentModerationItem {
     return {
       id: `mod-${Date.now()}`,
@@ -576,10 +576,10 @@ class NotificationService {
 
   // Get moderation items
   async getModerationItems(
-    status?: ModerationStatus
+    status?: ModerationStatus,
   ): Promise<ContentModerationItem[]> {
     const items = JSON.parse(
-      localStorage.getItem(STORAGE_KEYS.MODERATION_ITEMS) || "[]"
+      localStorage.getItem(STORAGE_KEYS.MODERATION_ITEMS) || "[]",
     ) as ContentModerationItem[];
 
     if (status) {
@@ -594,7 +594,7 @@ class NotificationService {
     itemId: string,
     status: ModerationStatus,
     moderator: { id: string; name: string; email: string },
-    feedback?: string
+    feedback?: string,
   ): Promise<ContentModerationItem | null> {
     const items = await this.getModerationItems();
     const index = items.findIndex((item) => item.id === itemId);
@@ -626,14 +626,14 @@ class NotificationService {
   // Get active workflow
   async getActiveWorkflow(): Promise<ModerationWorkflow | null> {
     const workflows = JSON.parse(
-      localStorage.getItem(STORAGE_KEYS.MODERATION_WORKFLOWS) || "[]"
+      localStorage.getItem(STORAGE_KEYS.MODERATION_WORKFLOWS) || "[]",
     ) as ModerationWorkflow[];
     return workflows.find((w) => w.isActive) || null;
   }
 
   // Notification helpers for moderation
   private async notifyModerationNeeded(
-    item: ContentModerationItem
+    item: ContentModerationItem,
   ): Promise<void> {
     const settings = await this.getSettings();
     const recipients =
@@ -658,7 +658,7 @@ class NotificationService {
   }
 
   private async notifyModerationResult(
-    item: ContentModerationItem
+    item: ContentModerationItem,
   ): Promise<void> {
     const payload: ModerationPayload = {
       itemId: item.id,
@@ -684,7 +684,7 @@ class NotificationService {
     endDate?: string;
   }): Promise<NotificationLog[]> {
     let logs = JSON.parse(
-      localStorage.getItem(STORAGE_KEYS.LOGS) || "[]"
+      localStorage.getItem(STORAGE_KEYS.LOGS) || "[]",
     ) as NotificationLog[];
 
     if (filters) {
@@ -696,19 +696,19 @@ class NotificationService {
       }
       if (filters.startDate) {
         logs = logs.filter(
-          (log) => new Date(log.timestamp) >= new Date(filters.startDate!)
+          (log) => new Date(log.timestamp) >= new Date(filters.startDate!),
         );
       }
       if (filters.endDate) {
         logs = logs.filter(
-          (log) => new Date(log.timestamp) <= new Date(filters.endDate!)
+          (log) => new Date(log.timestamp) <= new Date(filters.endDate!),
         );
       }
     }
 
     return logs.sort(
       (a, b) =>
-        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
     );
   }
 
@@ -721,14 +721,14 @@ class NotificationService {
     const queue = await this.getQueue();
     const filteredQueue = queue.filter(
       (item) =>
-        item.status === "pending" || new Date(item.createdAt) > cutoffDate
+        item.status === "pending" || new Date(item.createdAt) > cutoffDate,
     );
     localStorage.setItem(STORAGE_KEYS.QUEUE, JSON.stringify(filteredQueue));
 
     // Clean logs
     const logs = await this.getLogs();
     const filteredLogs = logs.filter(
-      (log) => new Date(log.timestamp) > cutoffDate
+      (log) => new Date(log.timestamp) > cutoffDate,
     );
     localStorage.setItem(STORAGE_KEYS.LOGS, JSON.stringify(filteredLogs));
 
@@ -736,11 +736,11 @@ class NotificationService {
     const moderationItems = await this.getModerationItems();
     const filteredModeration = moderationItems.filter(
       (item) =>
-        item.status === "pending" || new Date(item.submittedAt) > cutoffDate
+        item.status === "pending" || new Date(item.submittedAt) > cutoffDate,
     );
     localStorage.setItem(
       STORAGE_KEYS.MODERATION_ITEMS,
-      JSON.stringify(filteredModeration)
+      JSON.stringify(filteredModeration),
     );
   }
 }

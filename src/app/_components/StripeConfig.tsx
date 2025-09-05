@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { stripeService } from '@/lib/stripeConfig';
+import { useState, useEffect } from "react";
+import { stripeService } from "@/lib/stripeConfig";
 
 export default function StripeConfig() {
   const [config, setConfig] = useState(stripeService.getConfig());
@@ -17,9 +17,9 @@ export default function StripeConfig() {
     setIsSaving(true);
     try {
       stripeService.updateConfig(config);
-      alert('Stripe configuration saved successfully!');
+      alert("Stripe configuration saved successfully!");
     } catch (error) {
-      alert('Failed to save configuration');
+      alert("Failed to save configuration");
     } finally {
       setIsSaving(false);
     }
@@ -32,7 +32,7 @@ export default function StripeConfig() {
       // Validate configuration
       const validation = stripeService.validateConfig();
       if (!validation.isValid) {
-        throw new Error(validation.errors.join(', '));
+        throw new Error(validation.errors.join(", "));
       }
 
       // Test creating a payment intent
@@ -43,7 +43,8 @@ export default function StripeConfig() {
       setTestConnection({
         testing: false,
         success: false,
-        error: error instanceof Error ? error.message : 'Connection test failed'
+        error:
+          error instanceof Error ? error.message : "Connection test failed",
       });
     }
   };
@@ -59,7 +60,9 @@ export default function StripeConfig() {
             <input
               type="checkbox"
               checked={config.isTestMode}
-              onChange={(e) => setConfig({ ...config, isTestMode: e.target.checked })}
+              onChange={(e) =>
+                setConfig({ ...config, isTestMode: e.target.checked })
+              }
               className="mr-2"
             />
             <span className="text-sm">Test Mode</span>
@@ -76,10 +79,12 @@ export default function StripeConfig() {
           </label>
           <div className="relative">
             <input
-              type={showKey ? 'text' : 'password'}
+              type={showKey ? "text" : "password"}
               value={config.publishableKey}
-              onChange={(e) => setConfig({ ...config, publishableKey: e.target.value })}
-              placeholder={config.isTestMode ? 'pk_test_...' : 'pk_live_xxx_REDACTED_xxx...'}
+              onChange={(e) =>
+                setConfig({ ...config, publishableKey: e.target.value })
+              }
+              placeholder={config.isTestMode ? "pk_test_..." : "pk_live_xxx_REDACTED_xxx..."}
               className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <button
@@ -87,7 +92,7 @@ export default function StripeConfig() {
               onClick={() => setShowKey(!showKey)}
               className="absolute right-2 top-2 text-gray-500 hover:text-gray-700"
             >
-              {showKey ? '🙈' : '👁️'}
+              {showKey ? "🙈" : "👁️"}
             </button>
           </div>
           <p className="text-xs text-gray-500 mt-1">
@@ -138,15 +143,19 @@ export default function StripeConfig() {
             disabled={testConnection.testing}
             className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 disabled:opacity-50"
           >
-            {testConnection.testing ? 'Testing...' : 'Test Connection'}
+            {testConnection.testing ? "Testing..." : "Test Connection"}
           </button>
 
           {testConnection.success && (
-            <p className="mt-2 text-sm text-green-600">✓ Connection successful!</p>
+            <p className="mt-2 text-sm text-green-600">
+              ✓ Connection successful!
+            </p>
           )}
 
           {testConnection.error && (
-            <p className="mt-2 text-sm text-red-600">✗ {testConnection.error}</p>
+            <p className="mt-2 text-sm text-red-600">
+              ✗ {testConnection.error}
+            </p>
           )}
         </div>
 
@@ -157,7 +166,7 @@ export default function StripeConfig() {
             disabled={isSaving}
             className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
           >
-            {isSaving ? 'Saving...' : 'Save Configuration'}
+            {isSaving ? "Saving..." : "Save Configuration"}
           </button>
         </div>
       </div>
@@ -166,11 +175,23 @@ export default function StripeConfig() {
       <div className="mt-6 p-4 bg-blue-50 rounded">
         <h3 className="font-medium text-blue-900 mb-2">Setup Instructions:</h3>
         <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
-          <li>Create a Stripe account at <a href="https://stripe.com" target="_blank" rel="noopener noreferrer" className="underline">stripe.com</a></li>
+          <li>
+            Create a Stripe account at{" "}
+            <a
+              href="https://stripe.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline"
+            >
+              stripe.com
+            </a>
+          </li>
           <li>Get your API keys from the Stripe Dashboard</li>
           <li>Use test keys (pk_test_) for development</li>
           <li>Switch to live keys (pk_live_xxx_REDACTED_xxx) for production</li>
-          <li>Configure webhooks in Stripe Dashboard for donation notifications</li>
+          <li>
+            Configure webhooks in Stripe Dashboard for donation notifications
+          </li>
         </ol>
       </div>
     </div>

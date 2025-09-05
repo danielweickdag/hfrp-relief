@@ -1,0 +1,18 @@
+{
+  "sync_date": "2025-08-03T22:17:52.951Z",
+  "credentials_used": "w.regis@comcast.net",
+  "results": {
+    "donations": 4,
+    "donors": 2,
+    "campaigns": 2,
+    "errors": [],
+    "success": true
+  },
+  "data_summary": {
+    "donations_synced": 4,
+    "donors_synced": 2,
+    "campaigns_synced": 2,
+    "errors_count": 0
+  },
+  "next_sync_recommended": "2025-08-04T04:17:52.951Z"
+}

@@ -5,10 +5,10 @@ export class BackupEncryption {
   // Simple XOR encryption for demonstration (NOT SECURE FOR PRODUCTION)
   // In production, use AES-256-GCM or similar
   private static xorEncrypt(data: string, key: string): string {
-    let encrypted = '';
+    let encrypted = "";
     for (let i = 0; i < data.length; i++) {
       encrypted += String.fromCharCode(
-        data.charCodeAt(i) ^ key.charCodeAt(i % key.length)
+        data.charCodeAt(i) ^ key.charCodeAt(i % key.length),
       );
     }
     return btoa(encrypted); // Base64 encode
@@ -16,10 +16,10 @@ export class BackupEncryption {
 
   private static xorDecrypt(data: string, key: string): string {
     const decoded = atob(data); // Base64 decode
-    let decrypted = '';
+    let decrypted = "";
     for (let i = 0; i < decoded.length; i++) {
       decrypted += String.fromCharCode(
-        decoded.charCodeAt(i) ^ key.charCodeAt(i % key.length)
+        decoded.charCodeAt(i) ^ key.charCodeAt(i % key.length),
       );
     }
     return decrypted;
@@ -30,7 +30,7 @@ export class BackupEncryption {
     let hash = 0;
     for (let i = 0; i < data.length; i++) {
       const char = data.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash; // Convert to 32-bit integer
     }
     return Math.abs(hash).toString(16);
@@ -42,7 +42,10 @@ export class BackupEncryption {
   }
 
   // Encrypt backup data
-  static encryptBackup(data: string, password: string): {
+  static encryptBackup(
+    data: string,
+    password: string,
+  ): {
     encrypted: string;
     checksum: string;
     algorithm: string;
@@ -53,7 +56,7 @@ export class BackupEncryption {
     return {
       encrypted,
       checksum,
-      algorithm: 'XOR-BASE64' // In production, use 'AES-256-GCM'
+      algorithm: "XOR-BASE64", // In production, use 'AES-256-GCM'
     };
   }
 
@@ -62,7 +65,9 @@ export class BackupEncryption {
     try {
       return this.xorDecrypt(encryptedData, password);
     } catch (error) {
-      throw new Error('Failed to decrypt backup. Invalid password or corrupted data.');
+      throw new Error(
+        "Failed to decrypt backup. Invalid password or corrupted data.",
+      );
     }
   }
 
@@ -83,7 +88,7 @@ export class BackupEncryption {
       compressed: data,
       originalSize,
       compressedSize: data.length,
-      algorithm: 'none' // In production: 'gzip' or 'deflate'
+      algorithm: "none", // In production: 'gzip' or 'deflate'
     };
   }
 
@@ -94,7 +99,7 @@ export class BackupEncryption {
   }
 
   // Generate encryption key from password
-  static generateKey(password: string, salt: string = 'hfrp-backup'): string {
+  static generateKey(password: string, salt = "hfrp-backup"): string {
     // In production, use PBKDF2 or similar
     return password + salt;
   }
@@ -107,24 +112,24 @@ export class BackupEncryption {
     const errors: string[] = [];
 
     if (password.length < 8) {
-      errors.push('Password must be at least 8 characters long');
+      errors.push("Password must be at least 8 characters long");
     }
     if (!/[A-Z]/.test(password)) {
-      errors.push('Password must contain at least one uppercase letter');
+      errors.push("Password must contain at least one uppercase letter");
     }
     if (!/[a-z]/.test(password)) {
-      errors.push('Password must contain at least one lowercase letter');
+      errors.push("Password must contain at least one lowercase letter");
     }
     if (!/[0-9]/.test(password)) {
-      errors.push('Password must contain at least one number');
+      errors.push("Password must contain at least one number");
     }
     if (!/[^A-Za-z0-9]/.test(password)) {
-      errors.push('Password must contain at least one special character');
+      errors.push("Password must contain at least one special character");
     }
 
     return {
       isValid: errors.length === 0,
-      errors
+      errors,
     };
   }
 }

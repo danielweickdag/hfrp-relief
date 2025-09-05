@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState, useRef } from 'react';
+import { useState, useRef } from "react";
 
 interface FileUploaderProps {
   onFileUpload?: (file: File) => void;
@@ -11,9 +11,9 @@ interface FileUploaderProps {
 
 export default function AdminFileUploader({
   onFileUpload,
-  allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'],
+  allowedTypes = ["image/jpeg", "image/png", "image/gif", "application/pdf"],
   maxSizeMB = 5,
-  className = ''
+  className = "",
 }: FileUploaderProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -47,7 +47,9 @@ export default function AdminFileUploader({
 
     // Check file type
     if (!allowedTypes.includes(file.type)) {
-      setErrorMessage(`Invalid file type. Allowed types: ${allowedTypes.join(', ')}`);
+      setErrorMessage(
+        `Invalid file type. Allowed types: ${allowedTypes.join(", ")}`,
+      );
       return false;
     }
 
@@ -69,7 +71,7 @@ export default function AdminFileUploader({
     setUploadedFile(file);
 
     // Create preview for images
-    if (file.type.startsWith('image/')) {
+    if (file.type.startsWith("image/")) {
       const reader = new FileReader();
       reader.onload = (e) => {
         setPreview(e.target?.result as string);
@@ -114,7 +116,7 @@ export default function AdminFileUploader({
     setPreview(null);
     setErrorMessage(null);
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.value = "";
     }
   };
 
@@ -123,10 +125,10 @@ export default function AdminFileUploader({
       <div
         className={`border-2 border-dashed rounded-lg p-6 transition-colors ${
           isDragging
-            ? 'border-blue-500 bg-blue-50'
+            ? "border-blue-500 bg-blue-50"
             : errorMessage
-            ? 'border-red-400 bg-red-50'
-            : 'border-gray-300 hover:border-gray-400'
+              ? "border-red-400 bg-red-50"
+              : "border-gray-300 hover:border-gray-400"
         }`}
         onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
@@ -138,13 +140,18 @@ export default function AdminFileUploader({
           ref={fileInputRef}
           onChange={handleFileInputChange}
           className="hidden"
-          accept={allowedTypes.join(',')}
+          accept={allowedTypes.join(",")}
         />
 
         {!uploadedFile ? (
           <div className="text-center">
             <div className="mx-auto h-12 w-12 text-gray-400">
-              <svg className="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                className="h-12 w-12"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -154,7 +161,7 @@ export default function AdminFileUploader({
               </svg>
             </div>
             <p className="mt-1 text-sm text-gray-600">
-              Drag and drop file here, or{' '}
+              Drag and drop file here, or{" "}
               <button
                 type="button"
                 className="text-blue-600 hover:text-blue-500 focus:outline-none focus:underline"
@@ -164,7 +171,8 @@ export default function AdminFileUploader({
               </button>
             </p>
             <p className="mt-1 text-xs text-gray-500">
-              Allowed file types: {allowedTypes.map(type => type.split('/')[1]).join(', ')}
+              Allowed file types:{" "}
+              {allowedTypes.map((type) => type.split("/")[1]).join(", ")}
             </p>
             <p className="text-xs text-gray-500">Maximum size: {maxSizeMB}MB</p>
           </div>
@@ -180,7 +188,12 @@ export default function AdminFileUploader({
               </div>
             ) : (
               <div className="mb-4 p-4 bg-gray-100 rounded-lg">
-                <svg className="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg
+                  className="h-8 w-8 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -193,12 +206,15 @@ export default function AdminFileUploader({
             <div className="w-full max-w-xs bg-gray-100 rounded-full h-2.5 mb-2">
               <div
                 className="bg-blue-600 h-2.5 rounded-full transition-all duration-500"
-                style={{ width: isUploading ? '100%' : '0%' }}
+                style={{ width: isUploading ? "100%" : "0%" }}
               />
             </div>
             <div className="flex items-center justify-between w-full max-w-xs">
               <div className="text-sm">
-                <p className="font-medium text-gray-900 truncate" style={{ maxWidth: '200px' }}>
+                <p
+                  className="font-medium text-gray-900 truncate"
+                  style={{ maxWidth: "200px" }}
+                >
                   {uploadedFile.name}
                 </p>
                 <p className="text-gray-500 text-xs">
@@ -211,14 +227,16 @@ export default function AdminFileUploader({
                 className="text-red-600 hover:text-red-800 text-sm font-medium"
                 disabled={isUploading}
               >
-                {isUploading ? 'Uploading...' : 'Cancel'}
+                {isUploading ? "Uploading..." : "Cancel"}
               </button>
             </div>
           </div>
         )}
 
         {errorMessage && (
-          <div className="mt-3 text-sm text-red-600 text-center">{errorMessage}</div>
+          <div className="mt-3 text-sm text-red-600 text-center">
+            {errorMessage}
+          </div>
         )}
       </div>
     </div>

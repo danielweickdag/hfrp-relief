@@ -1,13 +1,15 @@
-'use client';
+"use client";
 // Force dynamic rendering to prevent localStorage SSR issues
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export default function AdminTestPage() {
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
       <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Admin Test Page</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+            Admin Test Page
+          </h1>
           <p className="text-gray-600 mb-4">
             This page confirms that the admin routing is working correctly.
           </p>

@@ -1,0 +1,37 @@
+{
+  "timestamp": "2025-08-15T04:51:10.698Z",
+  "duration": 19,
+  "results": {
+    "stripe": {
+      "success": false,
+      "error": "fetch failed"
+    },
+    "campaigns": {
+      "success": true,
+      "count": 2
+    },
+    "donations": {
+      "success": true,
+      "count": 4
+    },
+    "analytics": {
+      "success": false,
+      "error": "fetch failed"
+    },
+    "webhooks": {
+      "success": true,
+      "processed": 0
+    }
+  },
+  "stats": {
+    "totalSyncs": 23,
+    "successfulSyncs": 23,
+    "errors": 0,
+    "lastError": null
+  },
+  "summary": {
+    "successful": 3,
+    "failed": 2,
+    "total": 5
+  }
+}

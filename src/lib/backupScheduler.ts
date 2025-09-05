@@ -14,7 +14,7 @@ export class BackupSchedulerService {
     return typeof window !== "undefined";
   }
 
-  private getFromStorage(key: string, defaultValue: string = ""): string {
+  private getFromStorage(key: string, defaultValue = ""): string {
     if (!this.isClient()) return defaultValue;
     return localStorage.getItem(key) || defaultValue;
   }
@@ -55,7 +55,7 @@ export class BackupSchedulerService {
     schedule: Omit<
       BackupSchedule,
       "id" | "createdAt" | "updatedAt" | "nextBackup"
-    >
+    >,
   ): Promise<BackupSchedule> {
     const schedules = await this.getAllSchedules();
 
@@ -80,7 +80,7 @@ export class BackupSchedulerService {
   // Update a schedule
   async updateSchedule(
     id: string,
-    updates: Partial<BackupSchedule>
+    updates: Partial<BackupSchedule>,
   ): Promise<BackupSchedule | null> {
     const schedules = await this.getAllSchedules();
     const index = schedules.findIndex((s) => s.id === id);
@@ -166,7 +166,7 @@ export class BackupSchedulerService {
   // Calculate next backup time
   private calculateNextBackup(schedule: Partial<BackupSchedule>): string {
     const now = new Date();
-    let next = new Date();
+    const next = new Date();
 
     switch (schedule.frequency) {
       case "hourly":
@@ -223,7 +223,7 @@ export class BackupSchedulerService {
 
       // Create backup
       const backupData = await backupStorage.createBackup(
-        `Schedule: ${schedule.name}`
+        `Schedule: ${schedule.name}`,
       );
 
       // Apply encryption if enabled
@@ -263,7 +263,7 @@ export class BackupSchedulerService {
       .filter((b) => b.scheduleId === schedule.id)
       .sort(
         (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
       );
 
     // Remove old backups based on count

@@ -1,46 +1,38 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import RadioPlayer from "./RadioPlayer";
 
 export function Navbar() {
   const router = useRouter();
 
   const handleDonateClick = () => {
-    console.log('🔴 NAVBAR DONATE BUTTON CLICKED!');
-    console.log('Opening Donorbox payment form directly');
+    console.log("🔴 NAVBAR DONATE BUTTON CLICKED!");
+    console.log("Opening Stripe payment form directly");
 
-    // Open Donorbox form directly with recommended $15 monthly (50¢ daily)
-    const isTestMode = process.env.NEXT_PUBLIC_DONATION_TEST_MODE === 'true';
-    let donorboxUrl: string;
+    // Navigate to our Stripe-powered donation page
+    const isTestMode = process.env.NEXT_PUBLIC_STRIPE_TEST_MODE === "true";
 
     if (isTestMode) {
-      donorboxUrl = "https://donorbox.org/embed/test-campaign?amount=15&recurring=true&test=true";
+      console.log("🧪 Test mode: redirecting to donation page");
     } else {
-      const campaignId = process.env.NEXT_PUBLIC_DONORBOX_MAIN_CAMPAIGN || "hfrp-haiti-relief-fund";
-      donorboxUrl = `https://donorbox.org/${campaignId}?amount=15&recurring=true`;
+      console.log("🌐 Production mode: opening live Stripe donation form");
     }
 
-    console.log('🌐 Opening payment form:', donorboxUrl);
+    // Always go to our donation page which has Stripe integration
+    router.push("/donate");
 
-    // Try to open in new window, fallback to direct navigation
-    const newWindow = window.open(donorboxUrl, '_blank', 'noopener,noreferrer,width=800,height=700');
+    console.log("✅ Navigated to Stripe donation page");
 
-    if (!newWindow) {
-      console.warn('Pop-up blocked, falling back to donate page');
-      router.push('/donate');
-    } else {
-      console.log('✅ Payment form opened successfully');
-
-      // Track with Google Analytics if available
-      if (window.gtag) {
-        window.gtag('event', 'donate_button_click', {
-          event_category: 'Donations',
-          event_label: 'navbar_direct_payment',
-          value: 15,
-          donation_type: 'recurring'
-        });
-      }
+    // Track with Google Analytics if available
+    if (window.gtag) {
+      window.gtag("event", "donate_button_click", {
+        event_category: "Donations",
+        event_label: "navbar_stripe_payment",
+        value: 15,
+        donation_type: "recurring",
+      });
     }
   };
 
@@ -62,30 +54,64 @@ export function Navbar() {
 
           {/* Navigation Links */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link href="/" className="text-white hover:text-gray-300 transition">
+            <Link
+              href="/"
+              className="text-white hover:text-gray-300 transition"
+            >
               Home
             </Link>
-            <Link href="/gallery" className="text-white hover:text-gray-300 transition">
+            <Link
+              href="/gallery"
+              className="text-white hover:text-gray-300 transition"
+            >
               Gallery
             </Link>
-            <Link href="/impact" className="text-white hover:text-gray-300 transition">
+            <Link
+              href="/radio"
+              className="text-white hover:text-gray-300 transition"
+            >
+              Radio
+            </Link>
+            <Link
+              href="/impact"
+              className="text-white hover:text-gray-300 transition"
+            >
               Impact
             </Link>
-            <Link href="/contact" className="text-white hover:text-gray-300 transition">
+            <Link
+              href="/contact"
+              className="text-white hover:text-gray-300 transition"
+            >
               Contact
             </Link>
           </div>
 
           {/* Right side: Social Media + Donate Button */}
           <div className="flex items-center space-x-4">
-
-            {/* Quick Links (Admin) */}
+            {/* Quick Links (Admin + Radio) */}
             <div className="hidden md:flex items-center space-x-3">
-              <Link href="/admin" className="text-white hover:text-gray-300 transition text-sm" title="Admin Dashboard">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+              <Link
+                href="/admin"
+                className="text-white hover:text-gray-300 transition text-sm"
+                title="Admin Dashboard"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
                 </svg>
               </Link>
+
+              {/* Radio Player */}
+              <RadioPlayer
+                streamUrl="https://your-radio-stream-url.com/stream"
+                stationName="HFRP Radio"
+                size="sm"
+                variant="icon"
+                className="transition-transform hover:scale-110"
+              />
             </div>
 
             {/* Vertical Divider */}
@@ -101,8 +127,12 @@ export function Navbar() {
                 className="text-white hover:text-blue-400 transition-colors duration-200"
                 aria-label="Follow us on Facebook"
               >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                <svg
+                  className="w-5 h-5"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                 </svg>
               </a>
 
@@ -114,8 +144,12 @@ export function Navbar() {
                 className="text-white hover:text-blue-300 transition-colors duration-200"
                 aria-label="Follow us on Twitter"
               >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                <svg
+                  className="w-5 h-5"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                 </svg>
               </a>
 
@@ -127,9 +161,13 @@ export function Navbar() {
                 className="text-white hover:text-pink-400 transition-colors duration-200"
                 aria-label="Follow us on Instagram"
               >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 6.621 5.367 11.988 11.988 11.988c6.62 0 11.987-5.367 11.987-11.988C24.014 5.367 18.637.001 12.017.001zm6.624 13.684c-.003 1.518-.458 2.942-1.314 4.098-.859 1.159-2.051 2.015-3.438 2.468-1.388.452-2.876.452-4.264 0-1.387-.453-2.579-1.309-3.438-2.468-.856-1.156-1.311-2.58-1.314-4.098.003-1.518.458-2.942 1.314-4.098.859-1.159 2.051-2.015 3.438-2.468 1.388-.452 2.876-.452 4.264 0 1.387.453 2.579 1.309 3.438 2.468.856 1.156 1.311 2.58 1.314 4.098z"/>
-                  <path d="M8.448 16.988c-1.297 0-2.448-1.151-2.448-2.448s1.151-2.448 2.448-2.448c1.297 0 2.448 1.151 2.448 2.448s-1.151 2.448-2.448 2.448zm7.104 0c-1.297 0-2.448-1.151-2.448-2.448s1.151-2.448 2.448-2.448c1.297 0 2.448 1.151 2.448 2.448s-1.151 2.448-2.448 2.448z"/>
+                <svg
+                  className="w-5 h-5"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 6.621 5.367 11.988 11.988 11.988c6.62 0 11.987-5.367 11.987-11.988C24.014 5.367 18.637.001 12.017.001zm6.624 13.684c-.003 1.518-.458 2.942-1.314 4.098-.859 1.159-2.051 2.015-3.438 2.468-1.388.452-2.876.452-4.264 0-1.387-.453-2.579-1.309-3.438-2.468-.856-1.156-1.311-2.58-1.314-4.098.003-1.518.458-2.942 1.314-4.098.859-1.159 2.051-2.015 3.438-2.468 1.388-.452 2.876-.452 4.264 0 1.387.453 2.579 1.309 3.438 2.468.856 1.156 1.311 2.58 1.314 4.098z" />
+                  <path d="M8.448 16.988c-1.297 0-2.448-1.151-2.448-2.448s1.151-2.448 2.448-2.448c1.297 0 2.448 1.151 2.448 2.448s-1.151 2.448-2.448 2.448zm7.104 0c-1.297 0-2.448-1.151-2.448-2.448s1.151-2.448 2.448-2.448c1.297 0 2.448 1.151 2.448 2.448s-1.151 2.448-2.448 2.448z" />
                 </svg>
               </a>
             </div>
@@ -150,8 +188,18 @@ export function Navbar() {
           {/* Mobile menu button */}
           <div className="md:hidden">
             <button className="text-white hover:text-gray-300">
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              <svg
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               </svg>
             </button>
           </div>

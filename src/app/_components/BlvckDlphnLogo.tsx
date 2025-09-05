@@ -7,7 +7,7 @@ interface BlvckDlphnLogoProps {
 export default function BlvckDlphnLogo({
   width = 40,
   height = 40,
-  className = ""
+  className = "",
 }: BlvckDlphnLogoProps) {
   return (
     <svg
@@ -42,7 +42,13 @@ export default function BlvckDlphnLogo({
 
         {/* Drop shadow filter */}
         <filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">
-          <feDropShadow dx="4" dy="6" stdDeviation="8" floodColor="#2C3E50" floodOpacity="0.3"/>
+          <feDropShadow
+            dx="4"
+            dy="6"
+            stdDeviation="8"
+            floodColor="#2C3E50"
+            floodOpacity="0.3"
+          />
         </filter>
       </defs>
 
@@ -171,18 +177,86 @@ export default function BlvckDlphnLogo({
         />
 
         {/* Additional highlights for premium look */}
-        <line x1="-60" y1="-80" x2="40" y2="-80" stroke="url(#goldHighlight)" strokeWidth="2" opacity="0.8"/>
-        <line x1="-60" y1="80" x2="40" y2="80" stroke="url(#goldHighlight)" strokeWidth="2" opacity="0.8"/>
-        <line x1="-60" y1="-80" x2="-60" y2="80" stroke="url(#goldHighlight)" strokeWidth="2" opacity="0.8"/>
-        <line x1="60" y1="-60" x2="60" y2="60" stroke="url(#goldHighlight)" strokeWidth="2" opacity="0.8"/>
+        <line
+          x1="-60"
+          y1="-80"
+          x2="40"
+          y2="-80"
+          stroke="url(#goldHighlight)"
+          strokeWidth="2"
+          opacity="0.8"
+        />
+        <line
+          x1="-60"
+          y1="80"
+          x2="40"
+          y2="80"
+          stroke="url(#goldHighlight)"
+          strokeWidth="2"
+          opacity="0.8"
+        />
+        <line
+          x1="-60"
+          y1="-80"
+          x2="-60"
+          y2="80"
+          stroke="url(#goldHighlight)"
+          strokeWidth="2"
+          opacity="0.8"
+        />
+        <line
+          x1="60"
+          y1="-60"
+          x2="60"
+          y2="60"
+          stroke="url(#goldHighlight)"
+          strokeWidth="2"
+          opacity="0.8"
+        />
 
         {/* Corner highlights */}
-        <circle cx="40" cy="-80" r="3" fill="url(#goldHighlight)" opacity="0.9"/>
-        <circle cx="60" cy="-60" r="3" fill="url(#goldHighlight)" opacity="0.9"/>
-        <circle cx="60" cy="60" r="3" fill="url(#goldHighlight)" opacity="0.9"/>
-        <circle cx="40" cy="80" r="3" fill="url(#goldHighlight)" opacity="0.9"/>
-        <circle cx="-60" cy="80" r="3" fill="url(#goldHighlight)" opacity="0.9"/>
-        <circle cx="-60" cy="-80" r="3" fill="url(#goldHighlight)" opacity="0.9"/>
+        <circle
+          cx="40"
+          cy="-80"
+          r="3"
+          fill="url(#goldHighlight)"
+          opacity="0.9"
+        />
+        <circle
+          cx="60"
+          cy="-60"
+          r="3"
+          fill="url(#goldHighlight)"
+          opacity="0.9"
+        />
+        <circle
+          cx="60"
+          cy="60"
+          r="3"
+          fill="url(#goldHighlight)"
+          opacity="0.9"
+        />
+        <circle
+          cx="40"
+          cy="80"
+          r="3"
+          fill="url(#goldHighlight)"
+          opacity="0.9"
+        />
+        <circle
+          cx="-60"
+          cy="80"
+          r="3"
+          fill="url(#goldHighlight)"
+          opacity="0.9"
+        />
+        <circle
+          cx="-60"
+          cy="-80"
+          r="3"
+          fill="url(#goldHighlight)"
+          opacity="0.9"
+        />
       </g>
     </svg>
   );

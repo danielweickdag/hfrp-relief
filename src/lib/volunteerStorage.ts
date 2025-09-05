@@ -155,7 +155,7 @@ class VolunteerStorageService {
     return typeof window !== "undefined";
   }
 
-  private getFromStorage(key: string, defaultValue: string = "[]"): string {
+  private getFromStorage(key: string, defaultValue = "[]"): string {
     if (!this.isClient()) return defaultValue;
     return this.getFromStorage(key) || defaultValue;
   }
@@ -178,13 +178,13 @@ class VolunteerStorageService {
     if (!this.getFromStorage(STORAGE_KEYS.PROGRAMS)) {
       this.setToStorage(
         STORAGE_KEYS.PROGRAMS,
-        JSON.stringify(DEFAULT_PROGRAMS)
+        JSON.stringify(DEFAULT_PROGRAMS),
       );
     }
     if (!this.getFromStorage(STORAGE_KEYS.TRAININGS)) {
       this.setToStorage(
         STORAGE_KEYS.TRAININGS,
-        JSON.stringify(DEFAULT_TRAININGS)
+        JSON.stringify(DEFAULT_TRAININGS),
       );
     }
   }
@@ -194,7 +194,7 @@ class VolunteerStorageService {
     if (!this.isClient()) return [];
 
     const volunteers = JSON.parse(
-      this.getFromStorage(STORAGE_KEYS.VOLUNTEERS, "[]")
+      this.getFromStorage(STORAGE_KEYS.VOLUNTEERS, "[]"),
     ) as Volunteer[];
 
     let filtered = [...volunteers];
@@ -206,33 +206,34 @@ class VolunteerStorageService {
 
       if (filters.skills?.length) {
         filtered = filtered.filter((v) =>
-          v.skills.some((skill) => filters.skills?.includes(skill.id))
+          v.skills.some((skill) => filters.skills?.includes(skill.id)),
         );
       }
 
       if (filters.programs?.length) {
         filtered = filtered.filter((v) =>
-          v.preferredPrograms.some((prog) => filters.programs?.includes(prog))
+          v.preferredPrograms.some((prog) => filters.programs?.includes(prog)),
         );
       }
 
       if (filters.availability?.length) {
         filtered = filtered.filter((v) =>
           v.availability.some((avail) =>
-            filters.availability?.includes(avail.dayOfWeek)
-          )
+            filters.availability?.includes(avail.dayOfWeek),
+          ),
         );
       }
 
       if (filters.hasTransportation !== undefined) {
         filtered = filtered.filter(
-          (v) => v.hasTransportation === filters.hasTransportation
+          (v) => v.hasTransportation === filters.hasTransportation,
         );
       }
 
       if (filters.backgroundCheckCompleted !== undefined) {
         filtered = filtered.filter(
-          (v) => v.backgroundCheckCompleted === filters.backgroundCheckCompleted
+          (v) =>
+            v.backgroundCheckCompleted === filters.backgroundCheckCompleted,
         );
       }
 
@@ -244,7 +245,7 @@ class VolunteerStorageService {
               .toLowerCase()
               .includes(searchLower) ||
             v.email.toLowerCase().includes(searchLower) ||
-            v.phone.includes(filters.search || "")
+            v.phone.includes(filters.search || ""),
         );
       }
 
@@ -258,7 +259,7 @@ class VolunteerStorageService {
         switch (sortBy) {
           case "name":
             comparison = `${a.firstName} ${a.lastName}`.localeCompare(
-              `${b.firstName} ${b.lastName}`
+              `${b.firstName} ${b.lastName}`,
             );
             break;
           case "joinDate":
@@ -291,7 +292,7 @@ class VolunteerStorageService {
     data: Omit<
       Volunteer,
       "id" | "createdAt" | "updatedAt" | "totalHours" | "totalShifts"
-    >
+    >,
   ): Promise<Volunteer> {
     const volunteers = await this.getAllVolunteers();
 
@@ -312,7 +313,7 @@ class VolunteerStorageService {
 
   async updateVolunteer(
     id: string,
-    data: Partial<Volunteer>
+    data: Partial<Volunteer>,
   ): Promise<Volunteer | null> {
     const volunteers = await this.getAllVolunteers();
     const index = volunteers.findIndex((v) => v.id === id);
@@ -341,10 +342,10 @@ class VolunteerStorageService {
 
   // Shift CRUD operations
   async getAllShifts(
-    filters?: VolunteerScheduleFilters
+    filters?: VolunteerScheduleFilters,
   ): Promise<VolunteerShift[]> {
     const shifts = JSON.parse(
-      this.getFromStorage(STORAGE_KEYS.SHIFTS) || "[]"
+      this.getFromStorage(STORAGE_KEYS.SHIFTS) || "[]",
     ) as VolunteerShift[];
 
     let filtered = [...shifts];
@@ -352,7 +353,7 @@ class VolunteerStorageService {
     if (filters) {
       if (filters.volunteerId) {
         filtered = filtered.filter(
-          (s) => s.volunteerId === filters.volunteerId
+          (s) => s.volunteerId === filters.volunteerId,
         );
       }
 
@@ -368,26 +369,26 @@ class VolunteerStorageService {
         filtered = filtered.filter((s) =>
           s.location
             .toLowerCase()
-            .includes(filters.location?.toLowerCase() || "")
+            .includes(filters.location?.toLowerCase() || ""),
         );
       }
 
       if (filters.dateFrom) {
         filtered = filtered.filter(
-          (s) => new Date(s.date) >= new Date(filters.dateFrom!)
+          (s) => new Date(s.date) >= new Date(filters.dateFrom!),
         );
       }
 
       if (filters.dateTo) {
         filtered = filtered.filter(
-          (s) => new Date(s.date) <= new Date(filters.dateTo!)
+          (s) => new Date(s.date) <= new Date(filters.dateTo!),
         );
       }
     }
 
     // Sort by date descending
     filtered.sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
     );
 
     return filtered;
@@ -399,7 +400,7 @@ class VolunteerStorageService {
   }
 
   async createShift(
-    data: Omit<VolunteerShift, "id" | "createdAt" | "updatedAt">
+    data: Omit<VolunteerShift, "id" | "createdAt" | "updatedAt">,
   ): Promise<VolunteerShift> {
     const shifts = await this.getAllShifts();
     const volunteer = await this.getVolunteerById(data.volunteerId);
@@ -422,7 +423,7 @@ class VolunteerStorageService {
 
   async updateShift(
     id: string,
-    data: Partial<VolunteerShift>
+    data: Partial<VolunteerShift>,
   ): Promise<VolunteerShift | null> {
     const shifts = await this.getAllShifts();
     const index = shifts.findIndex((s) => s.id === id);
@@ -461,7 +462,7 @@ class VolunteerStorageService {
   private async updateVolunteerStats(
     volunteerId: string,
     hours: number,
-    shifts: number
+    shifts: number,
   ) {
     const volunteer = await this.getVolunteerById(volunteerId);
     if (volunteer) {
@@ -483,7 +484,7 @@ class VolunteerStorageService {
 
   async checkOutShift(
     shiftId: string,
-    actualHours?: number
+    actualHours?: number,
   ): Promise<VolunteerShift | null> {
     const shift = await this.getShiftById(shiftId);
     if (!shift || !shift.checkInTime) return null;
@@ -519,7 +520,7 @@ class VolunteerStorageService {
   }
 
   async createProgram(
-    data: Omit<VolunteerProgram, "id" | "createdAt" | "updatedAt">
+    data: Omit<VolunteerProgram, "id" | "createdAt" | "updatedAt">,
   ): Promise<VolunteerProgram> {
     const programs = await this.getAllPrograms();
 
@@ -547,7 +548,7 @@ class VolunteerStorageService {
   }
 
   async createTraining(
-    data: Omit<VolunteerTraining, "id" | "createdAt" | "updatedAt">
+    data: Omit<VolunteerTraining, "id" | "createdAt" | "updatedAt">,
   ): Promise<VolunteerTraining> {
     const trainings = await this.getAllTrainings();
 
@@ -596,11 +597,11 @@ class VolunteerStorageService {
 
     const totalHoursThisMonth = shiftsThisMonth.reduce(
       (sum, s) => sum + (s.actualHours || s.duration),
-      0
+      0,
     );
     const totalHoursThisYear = shiftsThisYear.reduce(
       (sum, s) => sum + (s.actualHours || s.duration),
-      0
+      0,
     );
 
     // Top volunteers
@@ -637,7 +638,7 @@ class VolunteerStorageService {
           volunteers: stats.volunteers.size,
           hours: stats.hours,
         };
-      })
+      }),
     );
 
     // Upcoming shifts
@@ -653,7 +654,7 @@ class VolunteerStorageService {
       .filter((s) => s.status === "completed")
       .sort(
         (a, b) =>
-          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
       )
       .slice(0, 5);
 
@@ -691,7 +692,7 @@ class VolunteerStorageService {
   async generateHoursReport(
     volunteerId: string,
     startDate: string,
-    endDate: string
+    endDate: string,
   ): Promise<VolunteerHoursReport | null> {
     const volunteer = await this.getVolunteerById(volunteerId);
     if (!volunteer) return null;
@@ -736,11 +737,11 @@ class VolunteerStorageService {
 
     const totalHours = Object.values(programHours).reduce(
       (sum, p) => sum + p.hours,
-      0
+      0,
     );
     const totalShifts = Object.values(programHours).reduce(
       (sum, p) => sum + p.shifts,
-      0
+      0,
     );
 
     return {
@@ -761,7 +762,7 @@ class VolunteerStorageService {
   // Bulk operations
   async bulkUpdateVolunteerStatus(
     volunteerIds: string[],
-    status: VolunteerStatus
+    status: VolunteerStatus,
   ): Promise<void> {
     const volunteers = await this.getAllVolunteers();
 
@@ -777,7 +778,7 @@ class VolunteerStorageService {
 
   async assignTrainingToVolunteers(
     volunteerIds: string[],
-    trainingId: string
+    trainingId: string,
   ): Promise<void> {
     const volunteers = await this.getAllVolunteers();
 

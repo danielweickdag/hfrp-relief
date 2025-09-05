@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 interface PWAInstallPrompt {
   prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
 interface OfflineDonationIntent {
@@ -25,12 +25,16 @@ export default function PWAFeatures() {
   const [canInstall, setCanInstall] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
-  const [offlineIntents, setOfflineIntents] = useState<OfflineDonationIntent[]>([]);
-  const [deferredPrompt, setDeferredPrompt] = useState<PWAInstallPrompt | null>(null);
+  const [offlineIntents, setOfflineIntents] = useState<OfflineDonationIntent[]>(
+    [],
+  );
+  const [deferredPrompt, setDeferredPrompt] = useState<PWAInstallPrompt | null>(
+    null,
+  );
 
   useEffect(() => {
     // Check if app is already installed
-    if (window.matchMedia?.('(display-mode: standalone)').matches) {
+    if (window.matchMedia?.("(display-mode: standalone)").matches) {
       setIsInstalled(true);
     }
 
@@ -56,9 +60,9 @@ export default function PWAFeatures() {
 
       // Track installation
       if (window.gtag) {
-        window.gtag('event', 'pwa_installed', {
-          event_category: 'PWA',
-          event_label: 'app_installed'
+        window.gtag("event", "pwa_installed", {
+          event_category: "PWA",
+          event_label: "app_installed",
         });
       }
     };
@@ -69,9 +73,9 @@ export default function PWAFeatures() {
       checkOfflineIntents();
 
       if (window.gtag) {
-        window.gtag('event', 'connection_restored', {
-          event_category: 'PWA',
-          event_label: 'back_online'
+        window.gtag("event", "connection_restored", {
+          event_category: "PWA",
+          event_label: "back_online",
         });
       }
     };
@@ -80,9 +84,9 @@ export default function PWAFeatures() {
       setIsOnline(false);
 
       if (window.gtag) {
-        window.gtag('event', 'connection_lost', {
-          event_category: 'PWA',
-          event_label: 'went_offline'
+        window.gtag("event", "connection_lost", {
+          event_category: "PWA",
+          event_label: "went_offline",
         });
       }
     };
@@ -91,10 +95,10 @@ export default function PWAFeatures() {
     setIsOnline(navigator.onLine);
 
     // Add event listeners
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    window.addEventListener('appinstalled', handleAppInstalled);
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    window.addEventListener("appinstalled", handleAppInstalled);
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
 
     // Check for offline donation intents on load
     checkOfflineIntents();
@@ -103,25 +107,31 @@ export default function PWAFeatures() {
     registerServiceWorker();
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-      window.removeEventListener('appinstalled', handleAppInstalled);
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener(
+        "beforeinstallprompt",
+        handleBeforeInstallPrompt,
+      );
+      window.removeEventListener("appinstalled", handleAppInstalled);
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
     };
   }, [isInstalled]);
 
   const registerServiceWorker = async () => {
-    if ('serviceWorker' in navigator) {
+    if ("serviceWorker" in navigator) {
       try {
-        const registration = await navigator.serviceWorker.register('/sw.js');
-        console.log('✅ Service Worker registered:', registration.scope);
+        const registration = await navigator.serviceWorker.register("/sw.js");
+        console.log("✅ Service Worker registered:", registration.scope);
 
         // Listen for updates
-        registration.addEventListener('updatefound', () => {
+        registration.addEventListener("updatefound", () => {
           const newWorker = registration.installing;
           if (newWorker) {
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            newWorker.addEventListener("statechange", () => {
+              if (
+                newWorker.state === "installed" &&
+                navigator.serviceWorker.controller
+              ) {
                 // New version available
                 showUpdateNotification();
               }
@@ -130,18 +140,19 @@ export default function PWAFeatures() {
         });
 
         // Request notification permission
-        if ('Notification' in window && Notification.permission === 'default') {
+        if ("Notification" in window && Notification.permission === "default") {
           await Notification.requestPermission();
         }
-
       } catch (error) {
-        console.error('❌ Service Worker registration failed:', error);
+        console.error("❌ Service Worker registration failed:", error);
       }
     }
   };
 
   const showUpdateNotification = () => {
-    if (confirm('A new version of HFRP is available. Would you like to update?')) {
+    if (
+      confirm("A new version of HFRP is available. Would you like to update?")
+    ) {
       window.location.reload();
     }
   };
@@ -153,17 +164,17 @@ export default function PWAFeatures() {
       await deferredPrompt.prompt();
       const choiceResult = await deferredPrompt.userChoice;
 
-      if (choiceResult.outcome === 'accepted') {
-        console.log('✅ User accepted PWA install');
+      if (choiceResult.outcome === "accepted") {
+        console.log("✅ User accepted PWA install");
         setShowInstallPrompt(false);
       } else {
-        console.log('❌ User dismissed PWA install');
+        console.log("❌ User dismissed PWA install");
       }
 
       setDeferredPrompt(null);
       setCanInstall(false);
     } catch (error) {
-      console.error('❌ Error installing PWA:', error);
+      console.error("❌ Error installing PWA:", error);
     }
   };
 
@@ -171,37 +182,37 @@ export default function PWAFeatures() {
     setShowInstallPrompt(false);
 
     // Don't show again for 24 hours
-    localStorage.setItem('hfrp_install_dismissed', Date.now().toString());
+    localStorage.setItem("hfrp_install_dismissed", Date.now().toString());
 
     if (window.gtag) {
-      window.gtag('event', 'pwa_install_dismissed', {
-        event_category: 'PWA',
-        event_label: 'install_dismissed'
+      window.gtag("event", "pwa_install_dismissed", {
+        event_category: "PWA",
+        event_label: "install_dismissed",
       });
     }
   };
 
   const checkOfflineIntents = () => {
     try {
-      const stored = localStorage.getItem('hfrp_donation_intents');
+      const stored = localStorage.getItem("hfrp_donation_intents");
       if (stored) {
         const intents = JSON.parse(stored);
         setOfflineIntents(intents);
       }
     } catch (error) {
-      console.error('Error checking offline intents:', error);
+      console.error("Error checking offline intents:", error);
     }
   };
 
   const processOfflineIntents = () => {
     if (offlineIntents.length > 0) {
       // Redirect to donate page with offline resume flag
-      window.location.href = '/donate?resume=offline';
+      window.location.href = "/donate?resume=offline";
     }
   };
 
   const clearOfflineIntents = () => {
-    localStorage.removeItem('hfrp_donation_intents');
+    localStorage.removeItem("hfrp_donation_intents");
     setOfflineIntents([]);
   };
 
@@ -210,27 +221,29 @@ export default function PWAFeatures() {
       id: `offline_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       amount,
       recurring,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
 
     try {
-      const existing = JSON.parse(localStorage.getItem('hfrp_donation_intents') || '[]');
+      const existing = JSON.parse(
+        localStorage.getItem("hfrp_donation_intents") || "[]",
+      );
       const updated = [...existing, intent];
-      localStorage.setItem('hfrp_donation_intents', JSON.stringify(updated));
+      localStorage.setItem("hfrp_donation_intents", JSON.stringify(updated));
       setOfflineIntents(updated);
 
       // Show notification if permission granted
-      if ('Notification' in window && Notification.permission === 'granted') {
-        new Notification('HFRP Donation Saved', {
+      if ("Notification" in window && Notification.permission === "granted") {
+        new Notification("HFRP Donation Saved", {
           body: `Your $${amount} donation intent has been saved. We'll remind you to complete it when you're online.`,
-          icon: '/icons/icon-192x192.png',
-          tag: 'donation-saved'
+          icon: "/icons/icon-192x192.png",
+          tag: "donation-saved",
         });
       }
 
       return true;
     } catch (error) {
-      console.error('Error saving offline intent:', error);
+      console.error("Error saving offline intent:", error);
       return false;
     }
   };
@@ -273,7 +286,11 @@ export default function PWAFeatures() {
               className="flex-shrink-0 text-gray-400 hover:text-gray-600"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                <path
+                  fillRule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                />
               </svg>
             </button>
           </div>
@@ -284,7 +301,8 @@ export default function PWAFeatures() {
       {!isOnline && (
         <div className="fixed top-16 left-0 right-0 bg-yellow-500 text-black p-2 z-40 text-center text-sm font-medium">
           <span className="mr-2">🔌</span>
-          You're offline. Some features may be limited, but you can still browse and save donation intents.
+          You're offline. Some features may be limited, but you can still browse
+          and save donation intents.
         </div>
       )}
 
@@ -302,7 +320,8 @@ export default function PWAFeatures() {
                 Complete Your Donations
               </h3>
               <p className="text-sm text-green-700 mb-3">
-                You have {offlineIntents.length} saved donation intent{offlineIntents.length > 1 ? 's' : ''} ready to complete.
+                You have {offlineIntents.length} saved donation intent
+                {offlineIntents.length > 1 ? "s" : ""} ready to complete.
               </p>
               <div className="flex space-x-2">
                 <button
@@ -324,12 +343,16 @@ export default function PWAFeatures() {
       )}
 
       {/* Connection Status Indicator (for debugging) */}
-      {process.env.NODE_ENV === 'development' && (
+      {process.env.NODE_ENV === "development" && (
         <div className="fixed top-20 right-4 z-50">
-          <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-            isOnline ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-          }`}>
-            {isOnline ? '🌐 Online' : '🔌 Offline'}
+          <div
+            className={`px-3 py-1 rounded-full text-xs font-medium ${
+              isOnline
+                ? "bg-green-100 text-green-800"
+                : "bg-red-100 text-red-800"
+            }`}
+          >
+            {isOnline ? "🌐 Online" : "🔌 Offline"}
           </div>
         </div>
       )}

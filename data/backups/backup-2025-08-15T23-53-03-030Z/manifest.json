@@ -1,0 +1,10 @@
+{
+  "timestamp": "2025-08-15T23:53:03.167Z",
+  "files": 18,
+  "syncStats": {
+    "totalSyncs": 200,
+    "successfulSyncs": 199,
+    "errors": 0,
+    "lastError": null
+  }
+}

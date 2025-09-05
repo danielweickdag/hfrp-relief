@@ -1,0 +1,26 @@
+[
+  {
+    "id": "camp_001",
+    "name": "Emergency Relief",
+    "goal": 50000,
+    "raised": 12750,
+    "donors": 45,
+    "status": "active",
+    "created": "2025-06-01T00:00:00Z",
+    "synced_at": "2025-08-15T06:01:15.244Z",
+    "source": "donorbox",
+    "progress_percentage": "25.5"
+  },
+  {
+    "id": "camp_002",
+    "name": "Education Fund",
+    "goal": 25000,
+    "raised": 8900,
+    "donors": 28,
+    "status": "active",
+    "created": "2025-07-01T00:00:00Z",
+    "synced_at": "2025-08-15T06:01:15.244Z",
+    "source": "donorbox",
+    "progress_percentage": "35.6"
+  }
+]

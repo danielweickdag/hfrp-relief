@@ -1,4 +1,4 @@
-import Head from 'next/head';
+import Head from "next/head";
 
 interface SEOHeadProps {
   title?: string;
@@ -6,7 +6,7 @@ interface SEOHeadProps {
   keywords?: string;
   image?: string;
   url?: string;
-  type?: 'website' | 'article';
+  type?: "website" | "article";
   article?: {
     author?: string;
     publishedTime?: string;
@@ -23,10 +23,12 @@ export default function SEOHead({
   image = "/hfrp-logo.png",
   url = "https://haitianfamilyrelief.org",
   type = "website",
-  article
+  article,
 }: SEOHeadProps) {
-  const fullTitle = title.includes("Haitian Family Relief") ? title : `${title} | Haitian Family Relief Project`;
-  const fullImage = image.startsWith('http') ? image : `${url}${image}`;
+  const fullTitle = title.includes("Haitian Family Relief")
+    ? title
+    : `${title} | Haitian Family Relief Project`;
+  const fullImage = image.startsWith("http") ? image : `${url}${image}`;
 
   return (
     <Head>
@@ -51,11 +53,17 @@ export default function SEOHead({
       <meta property="og:locale" content="en_US" />
 
       {/* Article specific meta tags */}
-      {article && type === 'article' && (
+      {article && type === "article" && (
         <>
           <meta property="article:author" content={article.author} />
-          <meta property="article:published_time" content={article.publishedTime} />
-          <meta property="article:modified_time" content={article.modifiedTime} />
+          <meta
+            property="article:published_time"
+            content={article.publishedTime}
+          />
+          <meta
+            property="article:modified_time"
+            content={article.modifiedTime}
+          />
           <meta property="article:section" content={article.section} />
           {article.tags?.map((tag) => (
             <meta key={tag} property="article:tag" content={tag} />
@@ -87,29 +95,29 @@ export default function SEOHead({
         {JSON.stringify({
           "@context": "https://schema.org",
           "@type": "Organization",
-          "name": "Haitian Family Relief Project",
-          "description": description,
-          "url": url,
-          "logo": fullImage,
-          "sameAs": [
+          name: "Haitian Family Relief Project",
+          description: description,
+          url: url,
+          logo: fullImage,
+          sameAs: [
             "https://facebook.com/haitianfamilyreliefproject",
             "https://instagram.com/haitianfamilyreliefproject",
-            "https://twitter.com/hfrproject"
+            "https://twitter.com/hfrproject",
           ],
-          "contactPoint": {
+          contactPoint: {
             "@type": "ContactPoint",
-            "contactType": "donations",
-            "url": `${url}/donate`
+            contactType: "donations",
+            url: `${url}/donate`,
           },
-          "foundingDate": "2020",
-          "location": {
+          foundingDate: "2020",
+          location: {
             "@type": "Place",
-            "name": "Haiti"
+            name: "Haiti",
           },
-          "seeks": {
+          seeks: {
             "@type": "Demand",
-            "name": "Donations for Haitian orphan care"
-          }
+            name: "Donations for Haitian orphan care",
+          },
         })}
       </script>
     </Head>

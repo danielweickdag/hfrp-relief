@@ -1,0 +1,430 @@
+{
+  "timestamp": "2025-08-15T03:59:06.144Z",
+  "summary": {
+    "totalTests": 28,
+    "passed": 24,
+    "failed": 0,
+    "warnings": 4
+  },
+  "tests": [
+    {
+      "name": "Main Server Response",
+      "status": "pass",
+      "details": "HTTP 200",
+      "category": "server",
+      "timestamp": "2025-08-15T03:59:09.400Z"
+    },
+    {
+      "name": "Admin Endpoint",
+      "status": "pass",
+      "details": "HTTP 200",
+      "category": "server",
+      "timestamp": "2025-08-15T03:59:09.614Z"
+    },
+    {
+      "name": "Login Form Present",
+      "status": "pass",
+      "details": "Form elements detected",
+      "category": "authentication",
+      "timestamp": "2025-08-15T03:59:09.830Z"
+    },
+    {
+      "name": "Login Fields",
+      "status": "warning",
+      "details": "Login fields not detected",
+      "category": "authentication",
+      "timestamp": "2025-08-15T03:59:09.830Z"
+    },
+    {
+      "name": "HFRP Branding",
+      "status": "pass",
+      "details": "HFRP branding present",
+      "category": "authentication",
+      "timestamp": "2025-08-15T03:59:09.830Z"
+    },
+    {
+      "name": "Main Admin Page",
+      "status": "pass",
+      "details": "HTTP 200",
+      "category": "navigation",
+      "timestamp": "2025-08-15T03:59:10.039Z"
+    },
+    {
+      "name": "Analytics Page",
+      "status": "pass",
+      "details": "HTTP 200",
+      "category": "navigation",
+      "timestamp": "2025-08-15T03:59:10.826Z"
+    },
+    {
+      "name": "Campaigns Page",
+      "status": "warning",
+      "details": "HTTP 404 - Not implemented",
+      "category": "navigation",
+      "timestamp": "2025-08-15T03:59:11.524Z"
+    },
+    {
+      "name": "Donations Page",
+      "status": "pass",
+      "details": "HTTP 200",
+      "category": "navigation",
+      "timestamp": "2025-08-15T03:59:12.264Z"
+    },
+    {
+      "name": "Settings Page",
+      "status": "pass",
+      "details": "HTTP 200",
+      "category": "navigation",
+      "timestamp": "2025-08-15T03:59:12.910Z"
+    },
+    {
+      "name": "AdminAuth Component",
+      "status": "pass",
+      "details": "File exists (5.7KB)",
+      "category": "components",
+      "timestamp": "2025-08-15T03:59:12.911Z"
+    },
+    {
+      "name": "AdminDashboard Component",
+      "status": "pass",
+      "details": "File exists (77.6KB)",
+      "category": "components",
+      "timestamp": "2025-08-15T03:59:12.911Z"
+    },
+    {
+      "name": "Admin Page Component",
+      "status": "pass",
+      "details": "File exists (5.6KB)",
+      "category": "components",
+      "timestamp": "2025-08-15T03:59:12.911Z"
+    },
+    {
+      "name": "Admin Layout Component",
+      "status": "pass",
+      "details": "File exists (1.3KB)",
+      "category": "components",
+      "timestamp": "2025-08-15T03:59:12.912Z"
+    },
+    {
+      "name": "Analytics Page Component",
+      "status": "pass",
+      "details": "File exists (20.1KB)",
+      "category": "components",
+      "timestamp": "2025-08-15T03:59:12.912Z"
+    },
+    {
+      "name": "Chart.js Setup",
+      "status": "pass",
+      "details": "File exists (1.0KB)",
+      "category": "components",
+      "timestamp": "2025-08-15T03:59:12.912Z"
+    },
+    {
+      "name": "Package Configuration",
+      "status": "pass",
+      "details": "File exists (2.1KB)",
+      "category": "components",
+      "timestamp": "2025-08-15T03:59:12.912Z"
+    },
+    {
+      "name": "Chart Components",
+      "status": "warning",
+      "details": "Chart elements not detected",
+      "category": "analytics",
+      "timestamp": "2025-08-15T03:59:13.102Z"
+    },
+    {
+      "name": "Analytics Content",
+      "status": "pass",
+      "details": "Analytics and data content present",
+      "category": "analytics",
+      "timestamp": "2025-08-15T03:59:13.102Z"
+    },
+    {
+      "name": "HFRP Logo",
+      "status": "pass",
+      "details": "HTTP 200",
+      "category": "components",
+      "timestamp": "2025-08-15T03:59:13.129Z"
+    },
+    {
+      "name": "Favicon",
+      "status": "warning",
+      "details": "HTTP 404 - Not implemented",
+      "category": "components",
+      "timestamp": "2025-08-15T03:59:13.163Z"
+    },
+    {
+      "name": "Dependency: next",
+      "status": "pass",
+      "details": "Version ^15.4.5",
+      "category": "components",
+      "timestamp": "2025-08-15T03:59:13.164Z"
+    },
+    {
+      "name": "Dependency: react",
+      "status": "pass",
+      "details": "Version ^19.1.1",
+      "category": "components",
+      "timestamp": "2025-08-15T03:59:13.164Z"
+    },
+    {
+      "name": "Dependency: react-dom",
+      "status": "pass",
+      "details": "Version ^19.1.1",
+      "category": "components",
+      "timestamp": "2025-08-15T03:59:13.164Z"
+    },
+    {
+      "name": "Dependency: typescript",
+      "status": "pass",
+      "details": "Version ^5",
+      "category": "components",
+      "timestamp": "2025-08-15T03:59:13.165Z"
+    },
+    {
+      "name": "Dependency: chart.js",
+      "status": "pass",
+      "details": "Version ^4.5.0",
+      "category": "components",
+      "timestamp": "2025-08-15T03:59:13.165Z"
+    },
+    {
+      "name": "Dependency: react-chartjs-2",
+      "status": "pass",
+      "details": "Version ^5.3.0",
+      "category": "components",
+      "timestamp": "2025-08-15T03:59:13.165Z"
+    },
+    {
+      "name": "Dependency: lucide-react",
+      "status": "pass",
+      "details": "Version ^0.475.0",
+      "category": "components",
+      "timestamp": "2025-08-15T03:59:13.165Z"
+    }
+  ],
+  "features": {
+    "server": {
+      "status": "passed",
+      "details": [
+        {
+          "name": "Main Server Response",
+          "status": "pass",
+          "details": "HTTP 200",
+          "category": "server",
+          "timestamp": "2025-08-15T03:59:09.400Z"
+        },
+        {
+          "name": "Admin Endpoint",
+          "status": "pass",
+          "details": "HTTP 200",
+          "category": "server",
+          "timestamp": "2025-08-15T03:59:09.614Z"
+        }
+      ]
+    },
+    "authentication": {
+      "status": "warning",
+      "details": [
+        {
+          "name": "Login Form Present",
+          "status": "pass",
+          "details": "Form elements detected",
+          "category": "authentication",
+          "timestamp": "2025-08-15T03:59:09.830Z"
+        },
+        {
+          "name": "Login Fields",
+          "status": "warning",
+          "details": "Login fields not detected",
+          "category": "authentication",
+          "timestamp": "2025-08-15T03:59:09.830Z"
+        },
+        {
+          "name": "HFRP Branding",
+          "status": "pass",
+          "details": "HFRP branding present",
+          "category": "authentication",
+          "timestamp": "2025-08-15T03:59:09.830Z"
+        }
+      ]
+    },
+    "navigation": {
+      "status": "warning",
+      "details": [
+        {
+          "name": "Main Admin Page",
+          "status": "pass",
+          "details": "HTTP 200",
+          "category": "navigation",
+          "timestamp": "2025-08-15T03:59:10.039Z"
+        },
+        {
+          "name": "Analytics Page",
+          "status": "pass",
+          "details": "HTTP 200",
+          "category": "navigation",
+          "timestamp": "2025-08-15T03:59:10.826Z"
+        },
+        {
+          "name": "Campaigns Page",
+          "status": "warning",
+          "details": "HTTP 404 - Not implemented",
+          "category": "navigation",
+          "timestamp": "2025-08-15T03:59:11.524Z"
+        },
+        {
+          "name": "Donations Page",
+          "status": "pass",
+          "details": "HTTP 200",
+          "category": "navigation",
+          "timestamp": "2025-08-15T03:59:12.264Z"
+        },
+        {
+          "name": "Settings Page",
+          "status": "pass",
+          "details": "HTTP 200",
+          "category": "navigation",
+          "timestamp": "2025-08-15T03:59:12.910Z"
+        }
+      ]
+    },
+    "components": {
+      "status": "warning",
+      "details": [
+        {
+          "name": "AdminAuth Component",
+          "status": "pass",
+          "details": "File exists (5.7KB)",
+          "category": "components",
+          "timestamp": "2025-08-15T03:59:12.911Z"
+        },
+        {
+          "name": "AdminDashboard Component",
+          "status": "pass",
+          "details": "File exists (77.6KB)",
+          "category": "components",
+          "timestamp": "2025-08-15T03:59:12.911Z"
+        },
+        {
+          "name": "Admin Page Component",
+          "status": "pass",
+          "details": "File exists (5.6KB)",
+          "category": "components",
+          "timestamp": "2025-08-15T03:59:12.911Z"
+        },
+        {
+          "name": "Admin Layout Component",
+          "status": "pass",
+          "details": "File exists (1.3KB)",
+          "category": "components",
+          "timestamp": "2025-08-15T03:59:12.912Z"
+        },
+        {
+          "name": "Analytics Page Component",
+          "status": "pass",
+          "details": "File exists (20.1KB)",
+          "category": "components",
+          "timestamp": "2025-08-15T03:59:12.912Z"
+        },
+        {
+          "name": "Chart.js Setup",
+          "status": "pass",
+          "details": "File exists (1.0KB)",
+          "category": "components",
+          "timestamp": "2025-08-15T03:59:12.912Z"
+        },
+        {
+          "name": "Package Configuration",
+          "status": "pass",
+          "details": "File exists (2.1KB)",
+          "category": "components",
+          "timestamp": "2025-08-15T03:59:12.912Z"
+        },
+        {
+          "name": "HFRP Logo",
+          "status": "pass",
+          "details": "HTTP 200",
+          "category": "components",
+          "timestamp": "2025-08-15T03:59:13.129Z"
+        },
+        {
+          "name": "Favicon",
+          "status": "warning",
+          "details": "HTTP 404 - Not implemented",
+          "category": "components",
+          "timestamp": "2025-08-15T03:59:13.163Z"
+        },
+        {
+          "name": "Dependency: next",
+          "status": "pass",
+          "details": "Version ^15.4.5",
+          "category": "components",
+          "timestamp": "2025-08-15T03:59:13.164Z"
+        },
+        {
+          "name": "Dependency: react",
+          "status": "pass",
+          "details": "Version ^19.1.1",
+          "category": "components",
+          "timestamp": "2025-08-15T03:59:13.164Z"
+        },
+        {
+          "name": "Dependency: react-dom",
+          "status": "pass",
+          "details": "Version ^19.1.1",
+          "category": "components",
+          "timestamp": "2025-08-15T03:59:13.164Z"
+        },
+        {
+          "name": "Dependency: typescript",
+          "status": "pass",
+          "details": "Version ^5",
+          "category": "components",
+          "timestamp": "2025-08-15T03:59:13.165Z"
+        },
+        {
+          "name": "Dependency: chart.js",
+          "status": "pass",
+          "details": "Version ^4.5.0",
+          "category": "components",
+          "timestamp": "2025-08-15T03:59:13.165Z"
+        },
+        {
+          "name": "Dependency: react-chartjs-2",
+          "status": "pass",
+          "details": "Version ^5.3.0",
+          "category": "components",
+          "timestamp": "2025-08-15T03:59:13.165Z"
+        },
+        {
+          "name": "Dependency: lucide-react",
+          "status": "pass",
+          "details": "Version ^0.475.0",
+          "category": "components",
+          "timestamp": "2025-08-15T03:59:13.165Z"
+        }
+      ]
+    },
+    "analytics": {
+      "status": "warning",
+      "details": [
+        {
+          "name": "Chart Components",
+          "status": "warning",
+          "details": "Chart elements not detected",
+          "category": "analytics",
+          "timestamp": "2025-08-15T03:59:13.102Z"
+        },
+        {
+          "name": "Analytics Content",
+          "status": "pass",
+          "details": "Analytics and data content present",
+          "category": "analytics",
+          "timestamp": "2025-08-15T03:59:13.102Z"
+        }
+      ]
+    }
+  }
+}

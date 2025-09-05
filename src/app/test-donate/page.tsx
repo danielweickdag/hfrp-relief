@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface TestResult {
   test: string;
-  status: 'pending' | 'pass' | 'fail' | 'info';
+  status: "pending" | "pass" | "fail" | "info";
   message: string;
   timestamp: string;
 }
@@ -35,20 +35,33 @@ export default function TestDonatePage() {
     const originalError = console.error;
 
     console.log = (...args: unknown[]) => {
-      const message = args.map(arg =>
-        typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
-      ).join(' ');
+      const message = args
+        .map((arg) =>
+          typeof arg === "object" ? JSON.stringify(arg) : String(arg)
+        )
+        .join(" ");
 
-      if (message.includes('DONATE') || message.includes('payment') || message.includes('Donorbox')) {
-        setConsoleLogs(prev => [...prev, `[LOG] ${new Date().toLocaleTimeString()}: ${message}`]);
+      if (
+        message.includes("DONATE") ||
+        message.includes("payment") ||
+        message.includes("Stripe") ||
+        message.includes("checkout")
+      ) {
+        setConsoleLogs((prev) => [
+          ...prev,
+          `[LOG] ${new Date().toLocaleTimeString()}: ${message}`,
+        ]);
       }
       originalLog.apply(console, args as []);
     };
 
     console.warn = (...args: unknown[]) => {
-      const message = args.map(arg => String(arg)).join(' ');
-      if (message.includes('Pop-up blocked') || message.includes('popup')) {
-        setConsoleLogs(prev => [...prev, `[WARN] ${new Date().toLocaleTimeString()}: ${message}`]);
+      const message = args.map((arg) => String(arg)).join(" ");
+      if (message.includes("Pop-up blocked") || message.includes("popup")) {
+        setConsoleLogs((prev) => [
+          ...prev,
+          `[WARN] ${new Date().toLocaleTimeString()}: ${message}`,
+        ]);
         setPopupBlocked(true);
       }
       originalWarn.apply(console, args as []);
@@ -66,17 +79,19 @@ export default function TestDonatePage() {
     const originalGtag = window.gtag;
 
     window.gtag = (...args: GtagArgs) => {
-      if (args[0] === 'event' && args[1]) {
+      if (args[0] === "event" && args[1]) {
         const eventData: AnalyticsEvent = {
           event: String(args[1]),
           timestamp: new Date().toLocaleTimeString(),
-          ...(typeof args[2] === 'object' && args[2] !== null ? args[2] as object : {})
+          ...(typeof args[2] === "object" && args[2] !== null
+            ? (args[2] as object)
+            : {}),
         };
-        setAnalyticsEvents(prev => [...prev, eventData]);
+        setAnalyticsEvents((prev) => [...prev, eventData]);
 
         addTestResult(
-          'Analytics Event Fired',
-          'pass',
+          "Analytics Event Fired",
+          "pass",
           `Event: ${args[1]} with data: ${JSON.stringify(args[2] || {})}`
         );
       }
@@ -93,14 +108,18 @@ export default function TestDonatePage() {
     };
   }, []);
 
-  const addTestResult = (test: string, status: TestResult['status'], message: string) => {
+  const addTestResult = (
+    test: string,
+    status: TestResult["status"],
+    message: string
+  ) => {
     const result: TestResult = {
       test,
       status,
       message,
-      timestamp: new Date().toLocaleTimeString()
+      timestamp: new Date().toLocaleTimeString(),
     };
-    setTestResults(prev => [...prev, result]);
+    setTestResults((prev) => [...prev, result]);
   };
 
   const clearResults = () => {
@@ -112,121 +131,184 @@ export default function TestDonatePage() {
 
   // Test navbar donate button
   const testNavbarButton = () => {
-    addTestResult('Navbar Button Test', 'info', 'Testing navbar donate button...');
+    addTestResult(
+      "Navbar Button Test",
+      "info",
+      "Testing navbar donate button..."
+    );
 
     // Simulate navbar button click logic
-    console.log('🔴 NAVBAR DONATE BUTTON CLICKED - TEST!');
-    console.log('Opening Donorbox payment form directly');
+    console.log("🔴 NAVBAR DONATE BUTTON CLICKED - TEST!");
+    console.log("Opening Donorbox payment form directly");
 
-    const isTestMode = process.env.NEXT_PUBLIC_DONATION_TEST_MODE === 'true';
+    const isTestMode = process.env.NEXT_PUBLIC_STRIPE_TEST_MODE === "true";
     let donorboxUrl: string;
 
     if (isTestMode) {
-      donorboxUrl = "https://donorbox.org/embed/test-campaign?amount=15&recurring=true&test=true";
+      donorboxUrl =
+        "https://donorbox.org/embed/test-campaign?amount=15&recurring=true&test=true";
     } else {
-      const campaignId = process.env.NEXT_PUBLIC_DONORBOX_MAIN_CAMPAIGN || "hfrp-haiti-relief-fund";
+      const campaignId =
+        process.env.NEXT_PUBLIC_STRIPE_MAIN_CAMPAIGN ||
+        "hfrp-haiti-relief-fund";
       donorboxUrl = `https://donorbox.org/${campaignId}?amount=15&recurring=true`;
     }
 
-    console.log('🌐 Opening payment form:', donorboxUrl);
+    console.log("🌐 Opening payment form:", donorboxUrl);
 
-    const newWindow = window.open(donorboxUrl, '_blank', 'noopener,noreferrer,width=800,height=700');
+    const newWindow = window.open(
+      donorboxUrl,
+      "_blank",
+      "noopener,noreferrer,width=800,height=700"
+    );
 
     if (!newWindow) {
-      console.warn('Pop-up blocked, falling back to donate page');
-      addTestResult('Navbar Button Test', 'info', 'Popup blocked - testing fallback navigation');
-      router.push('/donate');
+      console.warn("Pop-up blocked, falling back to donate page");
+      addTestResult(
+        "Navbar Button Test",
+        "info",
+        "Popup blocked - testing fallback navigation"
+      );
+      router.push("/donate");
     } else {
-      console.log('✅ Payment form opened successfully');
-      addTestResult('Navbar Button Test', 'pass', 'Payment popup opened successfully');
+      console.log("✅ Payment form opened successfully");
+      addTestResult(
+        "Navbar Button Test",
+        "pass",
+        "Payment popup opened successfully"
+      );
 
       // Close the test popup after 2 seconds
       setTimeout(() => {
         newWindow.close();
-        addTestResult('Navbar Button Test', 'info', 'Test popup closed automatically');
+        addTestResult(
+          "Navbar Button Test",
+          "info",
+          "Test popup closed automatically"
+        );
       }, 2000);
     }
 
     // Simulate analytics tracking
     if (window.gtag) {
-      window.gtag('event', 'donate_button_click', {
-        event_category: 'Donations',
-        event_label: 'navbar_direct_payment',
+      window.gtag("event", "donate_button_click", {
+        event_category: "Donations",
+        event_label: "navbar_direct_payment",
         value: 15,
-        donation_type: 'recurring'
+        donation_type: "recurring",
       });
     }
   };
 
   // Test homepage donate button
   const testHomepageButton = () => {
-    addTestResult('Homepage Button Test', 'info', 'Testing homepage donate button...');
+    addTestResult(
+      "Homepage Button Test",
+      "info",
+      "Testing homepage donate button..."
+    );
 
-    console.log('🔴 HOMEPAGE DONATE BUTTON CLICKED - TEST!');
-    console.log('Opening Donorbox payment form directly');
+    console.log("🔴 HOMEPAGE DONATE BUTTON CLICKED - TEST!");
+    console.log("Opening Donorbox payment form directly");
 
-    const isTestMode = process.env.NEXT_PUBLIC_DONATION_TEST_MODE === 'true';
+    const isTestMode = process.env.NEXT_PUBLIC_STRIPE_TEST_MODE === "true";
     let donorboxUrl: string;
 
     if (isTestMode) {
-      donorboxUrl = "https://donorbox.org/embed/test-campaign?amount=15&recurring=true&test=true";
+      donorboxUrl =
+        "https://donorbox.org/embed/test-campaign?amount=15&recurring=true&test=true";
     } else {
-      const campaignId = process.env.NEXT_PUBLIC_DONORBOX_MAIN_CAMPAIGN || "hfrp-haiti-relief-fund";
+      const campaignId =
+        process.env.NEXT_PUBLIC_STRIPE_MAIN_CAMPAIGN ||
+        "hfrp-haiti-relief-fund";
       donorboxUrl = `https://donorbox.org/${campaignId}?amount=15&recurring=true`;
     }
 
-    console.log('🌐 Opening payment form:', donorboxUrl);
+    console.log("🌐 Opening payment form:", donorboxUrl);
 
-    const newWindow = window.open(donorboxUrl, '_blank', 'noopener,noreferrer,width=800,height=700');
+    const newWindow = window.open(
+      donorboxUrl,
+      "_blank",
+      "noopener,noreferrer,width=800,height=700"
+    );
 
     if (!newWindow) {
-      console.warn('Pop-up blocked, falling back to donate page');
-      addTestResult('Homepage Button Test', 'info', 'Popup blocked - testing fallback navigation');
-      router.push('/donate');
+      console.warn("Pop-up blocked, falling back to donate page");
+      addTestResult(
+        "Homepage Button Test",
+        "info",
+        "Popup blocked - testing fallback navigation"
+      );
+      router.push("/donate");
     } else {
-      console.log('✅ Payment form opened successfully');
-      addTestResult('Homepage Button Test', 'pass', 'Payment popup opened successfully');
+      console.log("✅ Payment form opened successfully");
+      addTestResult(
+        "Homepage Button Test",
+        "pass",
+        "Payment popup opened successfully"
+      );
 
       // Close the test popup after 2 seconds
       setTimeout(() => {
         newWindow.close();
-        addTestResult('Homepage Button Test', 'info', 'Test popup closed automatically');
+        addTestResult(
+          "Homepage Button Test",
+          "info",
+          "Test popup closed automatically"
+        );
       }, 2000);
     }
 
     // Simulate analytics tracking
     if (window.gtag) {
-      window.gtag('event', 'donate_button_click', {
-        event_category: 'Donations',
-        event_label: 'homepage_direct_payment',
+      window.gtag("event", "donate_button_click", {
+        event_category: "Donations",
+        event_label: "homepage_direct_payment",
         value: 15,
-        donation_type: 'recurring'
+        donation_type: "recurring",
       });
     }
   };
 
   // Test 50¢ daily giving option
   const testDailyGiving = () => {
-    addTestResult('Daily Giving Test', 'info', 'Testing 50¢ daily giving option...');
+    addTestResult(
+      "Daily Giving Test",
+      "info",
+      "Testing 50¢ daily giving option..."
+    );
 
-    const donorboxUrl = "https://donorbox.org/embed/test-campaign?amount=15&recurring=true&frequency=monthly&test=true";
-    console.log('🌐 Opening 50¢ daily giving form (15$ monthly):', donorboxUrl);
+    const donorboxUrl =
+      "https://donorbox.org/embed/test-campaign?amount=15&recurring=true&frequency=monthly&test=true";
+    console.log("🌐 Opening 50¢ daily giving form (15$ monthly):", donorboxUrl);
 
-    const newWindow = window.open(donorboxUrl, '_blank', 'noopener,noreferrer,width=800,height=700');
+    const newWindow = window.open(
+      donorboxUrl,
+      "_blank",
+      "noopener,noreferrer,width=800,height=700"
+    );
 
     if (!newWindow) {
-      addTestResult('Daily Giving Test', 'fail', 'Could not open payment form for daily giving test');
+      addTestResult(
+        "Daily Giving Test",
+        "fail",
+        "Could not open payment form for daily giving test"
+      );
     } else {
-      addTestResult('Daily Giving Test', 'pass', '50¢ daily giving form opened - complete transaction in popup');
+      addTestResult(
+        "Daily Giving Test",
+        "pass",
+        "50¢ daily giving form opened - complete transaction in popup"
+      );
 
       // Analytics for daily giving
       if (window.gtag) {
-        window.gtag('event', 'donate_button_click', {
-          event_category: 'Donations',
-          event_label: 'daily_giving_test',
+        window.gtag("event", "donate_button_click", {
+          event_category: "Donations",
+          event_label: "daily_giving_test",
           value: 15,
-          donation_type: 'recurring',
-          frequency: 'monthly'
+          donation_type: "recurring",
+          frequency: "monthly",
         });
       }
     }
@@ -234,32 +316,48 @@ export default function TestDonatePage() {
 
   // Test popup blocking
   const testPopupBlocking = () => {
-    addTestResult('Popup Blocking Test', 'info', 'Testing popup blocking simulation...');
+    addTestResult(
+      "Popup Blocking Test",
+      "info",
+      "Testing popup blocking simulation..."
+    );
 
     // Override window.open to simulate blocked popup
     const originalWindowOpen = window.open;
     window.open = () => null;
 
-    console.log('🔴 SIMULATING POPUP BLOCKED SCENARIO');
-    console.warn('Pop-up blocked, falling back to donate page');
+    console.log("🔴 SIMULATING POPUP BLOCKED SCENARIO");
+    console.warn("Pop-up blocked, falling back to donate page");
 
-    addTestResult('Popup Blocking Test', 'pass', 'Popup blocking simulated - should redirect to /donate');
+    addTestResult(
+      "Popup Blocking Test",
+      "pass",
+      "Popup blocking simulated - should redirect to /donate"
+    );
 
     // Restore original window.open after test
     setTimeout(() => {
       window.open = originalWindowOpen;
-      addTestResult('Popup Blocking Test', 'info', 'window.open restored to normal');
+      addTestResult(
+        "Popup Blocking Test",
+        "info",
+        "window.open restored to normal"
+      );
     }, 1000);
 
     // Test fallback navigation
     setTimeout(() => {
-      router.push('/donate');
+      router.push("/donate");
     }, 500);
   };
 
   const runAllTests = () => {
     clearResults();
-    addTestResult('Full Test Suite', 'info', 'Starting comprehensive donate button testing...');
+    addTestResult(
+      "Full Test Suite",
+      "info",
+      "Starting comprehensive donate button testing..."
+    );
 
     setTimeout(() => testNavbarButton(), 500);
     setTimeout(() => testHomepageButton(), 2000);
@@ -267,12 +365,16 @@ export default function TestDonatePage() {
     setTimeout(() => testPopupBlocking(), 6000);
   };
 
-  const getStatusColor = (status: TestResult['status']) => {
+  const getStatusColor = (status: TestResult["status"]) => {
     switch (status) {
-      case 'pass': return 'text-green-600 bg-green-50 border-green-200';
-      case 'fail': return 'text-red-600 bg-red-50 border-red-200';
-      case 'info': return 'text-blue-600 bg-blue-50 border-blue-200';
-      default: return 'text-gray-600 bg-gray-50 border-gray-200';
+      case "pass":
+        return "text-green-600 bg-green-50 border-green-200";
+      case "fail":
+        return "text-red-600 bg-red-50 border-red-200";
+      case "info":
+        return "text-blue-600 bg-blue-50 border-blue-200";
+      default:
+        return "text-gray-600 bg-gray-50 border-gray-200";
     }
   };
 
@@ -285,7 +387,8 @@ export default function TestDonatePage() {
               🧪 Donate Button Testing Center
             </h1>
             <p className="text-lg text-gray-600 mb-6">
-              Comprehensive testing and verification of donate button functionality
+              Comprehensive testing and verification of donate button
+              functionality
             </p>
 
             <div className="flex flex-wrap justify-center gap-4 mb-6">
@@ -339,7 +442,9 @@ export default function TestDonatePage() {
               </h2>
               <div className="space-y-3 max-h-96 overflow-y-auto">
                 {testResults.length === 0 ? (
-                  <p className="text-gray-500 italic">No tests run yet. Click a test button to start.</p>
+                  <p className="text-gray-500 italic">
+                    No tests run yet. Click a test button to start.
+                  </p>
                 ) : (
                   testResults.map((result, index) => (
                     <div
@@ -364,22 +469,37 @@ export default function TestDonatePage() {
               </h2>
               <div className="space-y-3 max-h-96 overflow-y-auto">
                 {analyticsEvents.length === 0 ? (
-                  <p className="text-gray-500 italic">No analytics events captured yet.</p>
+                  <p className="text-gray-500 italic">
+                    No analytics events captured yet.
+                  </p>
                 ) : (
                   analyticsEvents.map((event, index) => (
-                    <div key={`analytics-${event.event}-${event.timestamp}-${index}`} className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <div
+                      key={`analytics-${event.event}-${event.timestamp}-${index}`}
+                      className="bg-blue-50 border border-blue-200 rounded-lg p-3"
+                    >
                       <div className="flex justify-between items-start mb-2">
-                        <span className="font-semibold text-blue-800">{event.event}</span>
-                        <span className="text-xs text-blue-600">{event.timestamp}</span>
+                        <span className="font-semibold text-blue-800">
+                          {event.event}
+                        </span>
+                        <span className="text-xs text-blue-600">
+                          {event.timestamp}
+                        </span>
                       </div>
                       {event.category && (
-                        <p className="text-sm text-blue-700">Category: {event.category}</p>
+                        <p className="text-sm text-blue-700">
+                          Category: {event.category}
+                        </p>
                       )}
                       {event.label && (
-                        <p className="text-sm text-blue-700">Label: {event.label}</p>
+                        <p className="text-sm text-blue-700">
+                          Label: {event.label}
+                        </p>
                       )}
                       {event.value && (
-                        <p className="text-sm text-blue-700">Value: ${event.value}</p>
+                        <p className="text-sm text-blue-700">
+                          Value: ${event.value}
+                        </p>
                       )}
                     </div>
                   ))
@@ -394,10 +514,15 @@ export default function TestDonatePage() {
               </h2>
               <div className="space-y-2 max-h-96 overflow-y-auto">
                 {consoleLogs.length === 0 ? (
-                  <p className="text-gray-500 italic">No relevant console logs captured yet.</p>
+                  <p className="text-gray-500 italic">
+                    No relevant console logs captured yet.
+                  </p>
                 ) : (
                   consoleLogs.map((log, index) => (
-                    <div key={`console-${index}-${log}`} className="bg-gray-800 text-green-400 rounded p-2 text-sm font-mono">
+                    <div
+                      key={`console-${index}-${log}`}
+                      className="bg-gray-800 text-green-400 rounded p-2 text-sm font-mono"
+                    >
                       {log}
                     </div>
                   ))
@@ -412,39 +537,57 @@ export default function TestDonatePage() {
               </h2>
               <div className="space-y-4 text-sm">
                 <div className="bg-yellow-50 border border-yellow-200 rounded p-3">
-                  <h3 className="font-semibold text-yellow-800 mb-2">Step 1: Console Monitoring</h3>
+                  <h3 className="font-semibold text-yellow-800 mb-2">
+                    Step 1: Console Monitoring
+                  </h3>
                   <p className="text-yellow-700">
-                    Press F12 to open browser console. Look for messages starting with 🔴 when clicking donate buttons.
+                    Press F12 to open browser console. Look for messages
+                    starting with 🔴 when clicking donate buttons.
                   </p>
                 </div>
 
                 <div className="bg-green-50 border border-green-200 rounded p-3">
-                  <h3 className="font-semibold text-green-800 mb-2">Step 2: Button Testing</h3>
+                  <h3 className="font-semibold text-green-800 mb-2">
+                    Step 2: Button Testing
+                  </h3>
                   <p className="text-green-700">
-                    Test each donate button and verify payment forms open in popup windows (800x700).
+                    Test each donate button and verify payment forms open in
+                    popup windows (800x700).
                   </p>
                 </div>
 
                 <div className="bg-blue-50 border border-blue-200 rounded p-3">
-                  <h3 className="font-semibold text-blue-800 mb-2">Step 3: Analytics Verification</h3>
+                  <h3 className="font-semibold text-blue-800 mb-2">
+                    Step 3: Analytics Verification
+                  </h3>
                   <p className="text-blue-700">
-                    Check that Google Analytics events appear in the Analytics Events section above.
+                    Check that Google Analytics events appear in the Analytics
+                    Events section above.
                   </p>
                 </div>
 
                 <div className="bg-orange-50 border border-orange-200 rounded p-3">
-                  <h3 className="font-semibold text-orange-800 mb-2">Step 4: Fallback Testing</h3>
+                  <h3 className="font-semibold text-orange-800 mb-2">
+                    Step 4: Fallback Testing
+                  </h3>
                   <p className="text-orange-700">
-                    Block popups in browser settings and verify buttons redirect to /donate page.
+                    Block popups in browser settings and verify buttons redirect
+                    to /donate page.
                   </p>
                 </div>
               </div>
 
               <div className="mt-6 space-y-2">
-                <Link href="/" className="block bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-center transition-colors">
+                <Link
+                  href="/"
+                  className="block bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-center transition-colors"
+                >
                   🏠 Test on Homepage
                 </Link>
-                <Link href="/donate" className="block bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-center transition-colors">
+                <Link
+                  href="/donate"
+                  className="block bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-center transition-colors"
+                >
                   💰 Visit Donate Page
                 </Link>
               </div>
@@ -453,35 +596,44 @@ export default function TestDonatePage() {
 
           {/* Status Summary */}
           <div className="mt-8 bg-gray-50 rounded-lg p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">📈 Testing Summary</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-4">
+              📈 Testing Summary
+            </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="bg-white rounded-lg p-4 text-center">
-                <div className="text-2xl font-bold text-blue-600">{testResults.length}</div>
+                <div className="text-2xl font-bold text-blue-600">
+                  {testResults.length}
+                </div>
                 <div className="text-sm text-gray-600">Total Tests</div>
               </div>
               <div className="bg-white rounded-lg p-4 text-center">
                 <div className="text-2xl font-bold text-green-600">
-                  {testResults.filter(r => r.status === 'pass').length}
+                  {testResults.filter((r) => r.status === "pass").length}
                 </div>
                 <div className="text-sm text-gray-600">Passed</div>
               </div>
               <div className="bg-white rounded-lg p-4 text-center">
                 <div className="text-2xl font-bold text-red-600">
-                  {testResults.filter(r => r.status === 'fail').length}
+                  {testResults.filter((r) => r.status === "fail").length}
                 </div>
                 <div className="text-sm text-gray-600">Failed</div>
               </div>
               <div className="bg-white rounded-lg p-4 text-center">
-                <div className="text-2xl font-bold text-purple-600">{analyticsEvents.length}</div>
+                <div className="text-2xl font-bold text-purple-600">
+                  {analyticsEvents.length}
+                </div>
                 <div className="text-sm text-gray-600">Analytics Events</div>
               </div>
             </div>
 
             {popupBlocked && (
               <div className="mt-4 bg-orange-100 border border-orange-300 rounded-lg p-4">
-                <h3 className="font-semibold text-orange-800 mb-2">⚠️ Popup Blocked Detected</h3>
+                <h3 className="font-semibold text-orange-800 mb-2">
+                  ⚠️ Popup Blocked Detected
+                </h3>
                 <p className="text-orange-700">
-                  Popup blocking was detected during testing. The fallback system should redirect to the /donate page.
+                  Popup blocking was detected during testing. The fallback
+                  system should redirect to the /donate page.
                 </p>
               </div>
             )}

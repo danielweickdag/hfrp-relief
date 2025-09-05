@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import Image from 'next/image';
-import SocialMediaLinks from './SocialMediaLinks';
-import BlvckDlphnLogo from './BlvckDlphnLogo';
+import Link from "next/link";
+import Image from "next/image";
+import SocialMediaLinks from "./SocialMediaLinks";
+import BlvckDlphnLogo from "./BlvckDlphnLogo";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -27,13 +27,18 @@ export default function Footer() {
                 />
               </div>
               <div>
-                <h3 className="text-xl font-bold">Haitian Family Relief Project</h3>
-                <p className="text-gray-400 text-sm">Fighting hunger, providing hope</p>
+                <h3 className="text-xl font-bold">
+                  Haitian Family Relief Project
+                </h3>
+                <p className="text-gray-400 text-sm">
+                  Fighting hunger, providing hope
+                </p>
               </div>
             </div>
             <p className="text-gray-300 mb-6 max-w-md">
-              Together, we feed and empower Haitian orphans—join us to make a lasting difference.
-              Every donation helps provide meals, shelter, education, and healthcare to families in need.
+              Together, we feed and empower Haitian orphans—join us to make a
+              lasting difference. Every donation helps provide meals, shelter,
+              education, and healthcare to families in need.
             </p>
             <div className="mb-6">
               <SocialMediaLinks variant="footer" size="md" />
@@ -45,32 +50,58 @@ export default function Footer() {
             <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
             <ul className="space-y-2">
               <li>
-                <Link href="/" className="text-gray-300 hover:text-white transition">
+                <Link
+                  href="/"
+                  className="text-gray-300 hover:text-white transition"
+                >
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/gallery" className="text-gray-300 hover:text-white transition">
+                <Link
+                  href="/gallery"
+                  className="text-gray-300 hover:text-white transition"
+                >
                   Gallery
                 </Link>
               </li>
               <li>
-                <Link href="/impact" className="text-gray-300 hover:text-white transition">
+                <Link
+                  href="/radio"
+                  className="text-gray-300 hover:text-white transition"
+                >
+                  Radio
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/impact"
+                  className="text-gray-300 hover:text-white transition"
+                >
                   Our Impact
                 </Link>
               </li>
               <li>
-                <Link href="/donate" className="text-gray-300 hover:text-white transition">
+                <Link
+                  href="/donate"
+                  className="text-gray-300 hover:text-white transition"
+                >
                   Donate
                 </Link>
               </li>
               <li>
-                <Link href="/membership" className="text-gray-300 hover:text-white transition">
+                <Link
+                  href="/membership"
+                  className="text-gray-300 hover:text-white transition"
+                >
                   Become a Member
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-gray-300 hover:text-white transition">
+                <Link
+                  href="/contact"
+                  className="text-gray-300 hover:text-white transition"
+                >
                   Contact Us
                 </Link>
               </li>
@@ -82,22 +113,34 @@ export default function Footer() {
             <h4 className="text-lg font-semibold mb-4">Our Programs</h4>
             <ul className="space-y-2">
               <li>
-                <Link href="/programs/feeding" className="text-gray-300 hover:text-white transition">
+                <Link
+                  href="/programs/feeding"
+                  className="text-gray-300 hover:text-white transition"
+                >
                   Feeding Program
                 </Link>
               </li>
               <li>
-                <Link href="/programs/healthcare" className="text-gray-300 hover:text-white transition">
+                <Link
+                  href="/programs/healthcare"
+                  className="text-gray-300 hover:text-white transition"
+                >
                   Healthcare
                 </Link>
               </li>
               <li>
-                <Link href="/programs/education" className="text-gray-300 hover:text-white transition">
+                <Link
+                  href="/programs/education"
+                  className="text-gray-300 hover:text-white transition"
+                >
                   Education
                 </Link>
               </li>
               <li>
-                <Link href="/programs/shelter" className="text-gray-300 hover:text-white transition">
+                <Link
+                  href="/programs/shelter"
+                  className="text-gray-300 hover:text-white transition"
+                >
                   Safe Housing
                 </Link>
               </li>
@@ -113,7 +156,8 @@ export default function Footer() {
             {/* Copyright */}
             <div className="text-center md:text-left">
               <p className="text-gray-400 text-sm">
-                © {currentYear} Haitian Family Relief Project. All rights reserved.
+                © {currentYear} Haitian Family Relief Project. All rights
+                reserved.
               </p>
             </div>
 
@@ -155,10 +199,16 @@ export default function Footer() {
 
             {/* Legal Links */}
             <div className="flex space-x-6 text-sm">
-              <Link href="/privacy" className="text-gray-400 hover:text-white transition">
+              <Link
+                href="/privacy"
+                className="text-gray-400 hover:text-white transition"
+              >
                 Privacy Policy
               </Link>
-              <Link href="/terms" className="text-gray-400 hover:text-white transition">
+              <Link
+                href="/terms"
+                className="text-gray-400 hover:text-white transition"
+              >
                 Terms of Service
               </Link>
             </div>

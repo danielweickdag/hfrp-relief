@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
+import { useState } from "react";
+import Link from "next/link";
 
 interface Program {
   id: string;
@@ -19,92 +19,96 @@ interface Program {
 
 const programs: Program[] = [
   {
-    id: 'feeding',
-    title: 'Feeding Program',
-    icon: '🍽️',
-    description: 'Providing nutritious meals to combat hunger and malnutrition among Haitian families and children.',
+    id: "feeding",
+    title: "Feeding Program",
+    icon: "🍽️",
+    description:
+      "Providing nutritious meals to combat hunger and malnutrition among Haitian families and children.",
     impact: {
-      stat: '850+',
-      description: 'Meals served daily'
+      stat: "850+",
+      description: "Meals served daily",
     },
     details: [
-      'Daily hot meals for children and families',
-      'Nutritional education and meal planning',
-      'Community kitchens and food preparation training',
-      'Emergency food distribution during crises',
-      'Traditional Haitian cuisine with modern nutrition standards'
+      "Daily hot meals for children and families",
+      "Nutritional education and meal planning",
+      "Community kitchens and food preparation training",
+      "Emergency food distribution during crises",
+      "Traditional Haitian cuisine with modern nutrition standards",
     ],
-    color: 'text-orange-600',
-    bgColor: 'bg-orange-100'
+    color: "text-orange-600",
+    bgColor: "bg-orange-100",
   },
   {
-    id: 'healthcare',
-    title: 'Healthcare Services',
-    icon: '🏥',
-    description: 'Essential medical care, health screenings, and preventive healthcare for underserved communities.',
+    id: "healthcare",
+    title: "Healthcare Services",
+    icon: "🏥",
+    description:
+      "Essential medical care, health screenings, and preventive healthcare for underserved communities.",
     impact: {
-      stat: '300+',
-      description: 'Patients treated monthly'
+      stat: "300+",
+      description: "Patients treated monthly",
     },
     details: [
-      'Mobile medical clinics in remote areas',
-      'Pediatric care and child health screenings',
-      'Maternal health and prenatal care',
-      'Vaccination programs and disease prevention',
-      'Health education and community wellness programs'
+      "Mobile medical clinics in remote areas",
+      "Pediatric care and child health screenings",
+      "Maternal health and prenatal care",
+      "Vaccination programs and disease prevention",
+      "Health education and community wellness programs",
     ],
-    color: 'text-green-600',
-    bgColor: 'bg-green-100'
+    color: "text-green-600",
+    bgColor: "bg-green-100",
   },
   {
-    id: 'education',
-    title: 'Education Support',
-    icon: '📚',
-    description: 'Educational opportunities, school supplies, and learning programs to empower children through knowledge.',
+    id: "education",
+    title: "Education Support",
+    icon: "📚",
+    description:
+      "Educational opportunities, school supplies, and learning programs to empower children through knowledge.",
     impact: {
-      stat: '200+',
-      description: 'Children receiving educational support'
+      stat: "200+",
+      description: "Children receiving educational support",
     },
     details: [
-      'School supplies and educational materials distribution',
-      'After-school tutoring and homework assistance',
-      'Literacy programs for children and adults',
-      'Vocational training and skill development',
-      'Scholarship programs for higher education'
+      "School supplies and educational materials distribution",
+      "After-school tutoring and homework assistance",
+      "Literacy programs for children and adults",
+      "Vocational training and skill development",
+      "Scholarship programs for higher education",
     ],
-    color: 'text-blue-600',
-    bgColor: 'bg-blue-100'
+    color: "text-blue-600",
+    bgColor: "bg-blue-100",
   },
   {
-    id: 'shelter',
-    title: 'Safe Housing',
-    icon: '🏠',
-    description: 'Secure shelter and housing assistance for families in need of safe, stable living conditions.',
+    id: "shelter",
+    title: "Safe Housing",
+    icon: "🏠",
+    description:
+      "Secure shelter and housing assistance for families in need of safe, stable living conditions.",
     impact: {
-      stat: '150+',
-      description: 'Individuals housed safely'
+      stat: "150+",
+      description: "Individuals housed safely",
     },
     details: [
-      'Emergency shelter for displaced families',
-      'Safe housing for orphaned children',
-      'Housing repair and improvement projects',
-      'Temporary shelter during natural disasters',
-      'Community building and neighborhood development'
+      "Emergency shelter for displaced families",
+      "Safe housing for orphaned children",
+      "Housing repair and improvement projects",
+      "Temporary shelter during natural disasters",
+      "Community building and neighborhood development",
     ],
-    color: 'text-purple-600',
-    bgColor: 'bg-purple-100'
-  }
+    color: "text-purple-600",
+    bgColor: "bg-purple-100",
+  },
 ];
 
 export default function ImpactPage() {
   const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
 
   const totalImpact = {
-    mealsServed: '25,000+',
-    patientsHelped: '3,600+',
-    childrenEducated: '1,200+',
-    familiesHoused: '450+',
-    volunteersActive: '25+'
+    mealsServed: "25,000+",
+    patientsHelped: "3,600+",
+    childrenEducated: "1,200+",
+    familiesHoused: "450+",
+    volunteersActive: "25+",
   };
 
   return (
@@ -116,8 +120,9 @@ export default function ImpactPage() {
             Our Impact in Haiti
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Through our comprehensive programs, we're transforming lives and building hope
-            in Haitian communities. See how your support creates lasting change.
+            Through our comprehensive programs, we're transforming lives and
+            building hope in Haitian communities. See how your support creates
+            lasting change.
           </p>
         </div>
 
@@ -181,7 +186,9 @@ export default function ImpactPage() {
                         {program.title}
                       </h3>
                       <div className="flex items-center mt-2">
-                        <span className={`text-3xl font-bold ${program.color} mr-2`}>
+                        <span
+                          className={`text-3xl font-bold ${program.color} mr-2`}
+                        >
                           {program.impact.stat}
                         </span>
                         <span className="text-gray-600 text-sm">
@@ -236,16 +243,17 @@ export default function ImpactPage() {
             Join Us in Making a Difference
           </h2>
           <p className="text-xl mb-8 opacity-90">
-            Your support helps us expand these vital programs and reach even more families in need.
+            Your support helps us expand these vital programs and reach even
+            more families in need.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
               onClick={() => {
-                window.location.href = '/donate';
+                window.location.href = "/donate";
               }}
               className="bg-white text-red-600 px-8 py-4 rounded-lg font-bold hover:bg-gray-100 transition-all transform hover:scale-105 cursor-pointer"
             >
-Donate Now
+              Donate Now
             </button>
             <Link
               href="/membership"
@@ -269,13 +277,19 @@ Donate Now
               <div className={`${selectedProgram.bgColor} p-6`}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
-                    <span className="text-5xl mr-4">{selectedProgram.icon}</span>
+                    <span className="text-5xl mr-4">
+                      {selectedProgram.icon}
+                    </span>
                     <div>
-                      <h2 className={`text-3xl font-bold ${selectedProgram.color}`}>
+                      <h2
+                        className={`text-3xl font-bold ${selectedProgram.color}`}
+                      >
                         {selectedProgram.title}
                       </h2>
                       <div className="flex items-center mt-2">
-                        <span className={`text-4xl font-bold ${selectedProgram.color} mr-3`}>
+                        <span
+                          className={`text-4xl font-bold ${selectedProgram.color} mr-3`}
+                        >
                           {selectedProgram.impact.stat}
                         </span>
                         <span className="text-gray-700">
@@ -304,7 +318,9 @@ Donate Now
                 <div className="space-y-3 mb-6">
                   {selectedProgram.details.map((detail) => (
                     <div key={detail} className="flex items-start">
-                      <span className="text-green-500 mr-3 mt-1 text-lg">✓</span>
+                      <span className="text-green-500 mr-3 mt-1 text-lg">
+                        ✓
+                      </span>
                       <span className="text-gray-700">{detail}</span>
                     </div>
                   ))}
@@ -313,7 +329,7 @@ Donate Now
                 <div className="flex justify-center">
                   <Link
                     href={`/programs/${selectedProgram.id}`}
-                    className={`px-6 py-3 bg-gradient-to-r ${selectedProgram.color.replace('text-', 'from-')} to-gray-600 text-white rounded-lg font-bold hover:shadow-lg transition-all transform hover:scale-105`}
+                    className={`px-6 py-3 bg-gradient-to-r ${selectedProgram.color.replace("text-", "from-")} to-gray-600 text-white rounded-lg font-bold hover:shadow-lg transition-all transform hover:scale-105`}
                   >
                     Visit {selectedProgram.title} Page
                   </Link>

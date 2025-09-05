@@ -1,8 +1,13 @@
 // Volunteer status types
-export type VolunteerStatus = 'active' | 'inactive' | 'pending' | 'on_leave';
+export type VolunteerStatus = "active" | "inactive" | "pending" | "on_leave";
 
 // Volunteer shift status
-export type ShiftStatus = 'scheduled' | 'in_progress' | 'completed' | 'cancelled' | 'no_show';
+export type ShiftStatus =
+  | "scheduled"
+  | "in_progress"
+  | "completed"
+  | "cancelled"
+  | "no_show";
 
 // Volunteer skill types
 export interface VolunteerSkill {
@@ -124,7 +129,7 @@ export interface VolunteerTraining {
   name: string;
   description: string;
   duration: number; // in hours
-  type: 'online' | 'in_person' | 'hybrid';
+  type: "online" | "in_person" | "hybrid";
   materials?: string[]; // URLs or file paths
   instructor?: string;
   maxParticipants?: number;
@@ -154,8 +159,8 @@ export interface VolunteerFilters {
   hasTransportation?: boolean;
   backgroundCheckCompleted?: boolean;
   search?: string;
-  sortBy?: 'name' | 'joinDate' | 'totalHours' | 'lastActive';
-  sortOrder?: 'asc' | 'desc';
+  sortBy?: "name" | "joinDate" | "totalHours" | "lastActive";
+  sortOrder?: "asc" | "desc";
 }
 
 // Volunteer statistics
@@ -179,7 +184,7 @@ export interface VolunteerStats {
   }>;
   upcomingShifts: VolunteerShift[];
   recentActivity: Array<{
-    type: 'shift_completed' | 'volunteer_joined' | 'training_completed';
+    type: "shift_completed" | "volunteer_joined" | "training_completed";
     volunteerId: string;
     volunteerName: string;
     description: string;
@@ -210,6 +215,10 @@ export interface VolunteerHoursReport {
 // Bulk operations
 export interface BulkVolunteerOperation {
   volunteerIds: string[];
-  operation: 'activate' | 'deactivate' | 'assign_training' | 'send_notification';
+  operation:
+    | "activate"
+    | "deactivate"
+    | "assign_training"
+    | "send_notification";
   params?: Record<string, unknown>;
 }

@@ -1,13 +1,19 @@
-'use client';
+"use client";
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
 
 // Types for analytics events
 interface DonationEvent {
   event_name: string;
   amount?: number;
-  donation_type?: 'one_time' | 'recurring';
-  amount_category?: 'micro' | 'standard' | 'major';
+  donation_type?: "one_time" | "recurring";
+  amount_category?: "micro" | "standard" | "major";
   page_source?: string;
   button_id?: string;
   campaign_id?: string;
@@ -50,10 +56,25 @@ interface UserSession {
 interface AnalyticsContextType {
   trackEvent: (event: DonationEvent) => void;
   trackPageView: (page: string, title?: string) => void;
-  trackDonationIntent: (amount: number, type: 'one_time' | 'recurring', source: string) => void;
-  trackDonationClick: (amount: number, type: 'one_time' | 'recurring', buttonId: string) => void;
-  trackDonationFormOpen: (amount: number, type: 'one_time' | 'recurring') => void;
-  trackDonationComplete: (amount: number, type: 'one_time' | 'recurring', transactionId: string) => void;
+  trackDonationIntent: (
+    amount: number,
+    type: "one_time" | "recurring",
+    source: string,
+  ) => void;
+  trackDonationClick: (
+    amount: number,
+    type: "one_time" | "recurring",
+    buttonId: string,
+  ) => void;
+  trackDonationFormOpen: (
+    amount: number,
+    type: "one_time" | "recurring",
+  ) => void;
+  trackDonationComplete: (
+    amount: number,
+    type: "one_time" | "recurring",
+    transactionId: string,
+  ) => void;
   trackFunnelStage: (stage: string, data?: Record<string, unknown>) => void;
   getUserSession: () => UserSession;
   isAnalyticsEnabled: boolean;
@@ -70,7 +91,7 @@ interface AnalyticsProviderProps {
 export function AnalyticsProvider({
   children,
   measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID,
-  enableDebugMode = process.env.NODE_ENV === 'development'
+  enableDebugMode = process.env.NODE_ENV === "development",
 }: AnalyticsProviderProps) {
   const [isAnalyticsEnabled, setIsAnalyticsEnabled] = useState(false);
   const [userSession, setUserSession] = useState<UserSession | null>(null);
@@ -93,13 +114,13 @@ export function AnalyticsProvider({
   const initializeAnalytics = () => {
     if (!measurementId) {
       if (enableDebugMode) {
-        console.warn('🔍 Google Analytics Measurement ID not provided');
+        console.warn("🔍 Google Analytics Measurement ID not provided");
       }
       return;
     }
 
     // Load Google Analytics
-    const script = document.createElement('script');
+    const script = document.createElement("script");
     script.async = true;
     script.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
     document.head.appendChild(script);
@@ -111,32 +132,36 @@ export function AnalyticsProvider({
       };
 
       // Initialize gtag with proper typing
-      const gtag = window.gtag as (command: string, target: Date | string, params?: Record<string, unknown>) => void;
-      gtag('js', new Date(), {});
-      window.gtag('config', measurementId || 'G-XXXXXXXXXX', {
+      const gtag = window.gtag as (
+        command: string,
+        target: Date | string,
+        params?: Record<string, unknown>,
+      ) => void;
+      gtag("js", new Date(), {});
+      window.gtag("config", measurementId || "G-XXXXXXXXXX", {
         // Enhanced ecommerce settings
         send_page_view: false, // We'll send manually for better control
         custom_map: {
-          custom_parameter_1: 'donation_type',
-          custom_parameter_2: 'amount_category',
-          custom_parameter_3: 'user_journey_stage',
-          custom_parameter_4: 'page_source'
-        }
+          custom_parameter_1: "donation_type",
+          custom_parameter_2: "amount_category",
+          custom_parameter_3: "user_journey_stage",
+          custom_parameter_4: "page_source",
+        },
       });
 
       setIsAnalyticsEnabled(true);
 
       if (enableDebugMode) {
-        console.log('✅ Google Analytics initialized');
+        console.log("✅ Google Analytics initialized");
         // Enable debug mode
-        window.gtag('config', measurementId, {
-          debug_mode: true
+        window.gtag("config", measurementId, {
+          debug_mode: true,
         });
       }
     };
 
     script.onerror = () => {
-      console.error('❌ Failed to load Google Analytics');
+      console.error("❌ Failed to load Google Analytics");
     };
   };
 
@@ -153,15 +178,15 @@ export function AnalyticsProvider({
       completed_donations: 0,
       device_type: getDeviceType(),
       is_mobile: isMobileDevice(),
-      source: urlParams.get('utm_source') || document.referrer || 'direct',
-      medium: urlParams.get('utm_medium') || 'organic',
-      campaign: urlParams.get('utm_campaign') || undefined
+      source: urlParams.get("utm_source") || document.referrer || "direct",
+      medium: urlParams.get("utm_medium") || "organic",
+      campaign: urlParams.get("utm_campaign") || undefined,
     };
 
     setUserSession(session);
 
     // Store session in sessionStorage for persistence across page loads
-    sessionStorage.setItem('hfrp_analytics_session', JSON.stringify(session));
+    sessionStorage.setItem("hfrp_analytics_session", JSON.stringify(session));
   };
 
   const trackEvent = (event: DonationEvent) => {
@@ -175,13 +200,13 @@ export function AnalyticsProvider({
       is_mobile: userSession?.is_mobile,
       source: userSession?.source,
       medium: userSession?.medium,
-      campaign: userSession?.campaign
+      campaign: userSession?.campaign,
     };
 
-    window.gtag('event', event.event_name, enhancedEvent);
+    window.gtag("event", event.event_name, enhancedEvent);
 
     if (enableDebugMode) {
-      console.log('📊 Analytics Event:', enhancedEvent);
+      console.log("📊 Analytics Event:", enhancedEvent);
     }
   };
 
@@ -192,122 +217,142 @@ export function AnalyticsProvider({
     if (userSession) {
       const updatedSession = {
         ...userSession,
-        page_views: [...userSession.page_views, page]
+        page_views: [...userSession.page_views, page],
       };
       setUserSession(updatedSession);
-      sessionStorage.setItem('hfrp_analytics_session', JSON.stringify(updatedSession));
+      sessionStorage.setItem(
+        "hfrp_analytics_session",
+        JSON.stringify(updatedSession),
+      );
     }
 
-    window.gtag('config', measurementId || 'G-XXXXXXXXXX', {
+    window.gtag("config", measurementId || "G-XXXXXXXXXX", {
       page_title: title || document.title,
       page_location: window.location.href,
-      page_path: page
+      page_path: page,
     });
 
     // Track page-specific events
-    if (page === '/donate') {
-      trackFunnelStage('donation_page_view');
-    } else if (page === '/') {
-      trackFunnelStage('homepage_view');
+    if (page === "/donate") {
+      trackFunnelStage("donation_page_view");
+    } else if (page === "/") {
+      trackFunnelStage("homepage_view");
     }
 
     if (enableDebugMode) {
-      console.log('📄 Page View:', { page, title });
+      console.log("📄 Page View:", { page, title });
     }
   };
 
-  const trackDonationIntent = (amount: number, type: 'one_time' | 'recurring', source: string) => {
+  const trackDonationIntent = (
+    amount: number,
+    type: "one_time" | "recurring",
+    source: string,
+  ) => {
     if (userSession) {
       const updatedSession = {
         ...userSession,
-        donation_intents: userSession.donation_intents + 1
+        donation_intents: userSession.donation_intents + 1,
       };
       setUserSession(updatedSession);
     }
 
     trackEvent({
-      event_name: 'donation_intent',
+      event_name: "donation_intent",
       amount,
       donation_type: type,
       amount_category: categorizeAmount(amount),
       page_source: source,
-      user_journey_stage: 'intent'
+      user_journey_stage: "intent",
     });
 
-    trackFunnelStage('donation_intent', { amount, type, source });
+    trackFunnelStage("donation_intent", { amount, type, source });
   };
 
-  const trackDonationClick = (amount: number, type: 'one_time' | 'recurring', buttonId: string) => {
+  const trackDonationClick = (
+    amount: number,
+    type: "one_time" | "recurring",
+    buttonId: string,
+  ) => {
     trackEvent({
-      event_name: 'donate_button_click',
+      event_name: "donate_button_click",
       amount,
       donation_type: type,
       amount_category: categorizeAmount(amount),
       button_id: buttonId,
-      user_journey_stage: 'button_click'
+      user_journey_stage: "button_click",
     });
 
-    trackFunnelStage('donation_button_click', { amount, type, buttonId });
+    trackFunnelStage("donation_button_click", { amount, type, buttonId });
 
     // Special tracking for daily giving
-    if (type === 'recurring') {
+    if (type === "recurring") {
       trackEvent({
-        event_name: 'daily_giving_selected',
+        event_name: "daily_giving_selected",
         amount,
         donation_type: type,
         amount_category: categorizeAmount(amount),
-        button_id: buttonId
+        button_id: buttonId,
       });
     }
   };
 
-  const trackDonationFormOpen = (amount: number, type: 'one_time' | 'recurring') => {
+  const trackDonationFormOpen = (
+    amount: number,
+    type: "one_time" | "recurring",
+  ) => {
     trackEvent({
-      event_name: 'donation_form_opened',
+      event_name: "donation_form_opened",
       amount,
       donation_type: type,
       amount_category: categorizeAmount(amount),
-      user_journey_stage: 'form_open'
+      user_journey_stage: "form_open",
     });
 
-    trackFunnelStage('donation_form_opened', { amount, type });
+    trackFunnelStage("donation_form_opened", { amount, type });
   };
 
-  const trackDonationComplete = (amount: number, type: 'one_time' | 'recurring', transactionId: string) => {
+  const trackDonationComplete = (
+    amount: number,
+    type: "one_time" | "recurring",
+    transactionId: string,
+  ) => {
     if (userSession) {
       const updatedSession = {
         ...userSession,
-        completed_donations: userSession.completed_donations + 1
+        completed_donations: userSession.completed_donations + 1,
       };
       setUserSession(updatedSession);
     }
 
     // Enhanced ecommerce purchase event
     trackEvent({
-      event_name: 'purchase',
+      event_name: "purchase",
       amount,
       donation_type: type,
       amount_category: categorizeAmount(amount),
-      user_journey_stage: 'completed'
+      user_journey_stage: "completed",
     });
 
     // Also send ecommerce purchase data
     if (window.gtag) {
-      window.gtag('event', 'purchase', {
+      window.gtag("event", "purchase", {
         transaction_id: transactionId,
         value: amount,
-        currency: 'USD',
-        items: [{
-          item_id: `donation_${type}`,
-          item_name: `HFRP Donation - ${type === 'recurring' ? 'Monthly' : 'One-time'}`,
-          category: 'Charitable Giving',
-          quantity: 1,
-          price: amount
-        }]
+        currency: "USD",
+        items: [
+          {
+            item_id: `donation_${type}`,
+            item_name: `HFRP Donation - ${type === "recurring" ? "Monthly" : "One-time"}`,
+            category: "Charitable Giving",
+            quantity: 1,
+            price: amount,
+          },
+        ],
       });
     }
 
-    trackFunnelStage('donation_completed', { amount, type, transactionId });
+    trackFunnelStage("donation_completed", { amount, type, transactionId });
 
     // Calculate and track conversion metrics
     trackConversionMetrics();
@@ -318,18 +363,21 @@ export function AnalyticsProvider({
       stage,
       timestamp: Date.now(),
       page: window.location.pathname,
-      data
+      data,
     };
 
-    setFunnelData(prev => [...prev, funnelStage]);
+    setFunnelData((prev) => [...prev, funnelStage]);
 
     // Store in session storage
-    const storedFunnel = sessionStorage.getItem('hfrp_funnel_data');
+    const storedFunnel = sessionStorage.getItem("hfrp_funnel_data");
     const existingFunnel = storedFunnel ? JSON.parse(storedFunnel) : [];
-    sessionStorage.setItem('hfrp_funnel_data', JSON.stringify([...existingFunnel, funnelStage]));
+    sessionStorage.setItem(
+      "hfrp_funnel_data",
+      JSON.stringify([...existingFunnel, funnelStage]),
+    );
 
     if (enableDebugMode) {
-      console.log('🔄 Funnel Stage:', funnelStage);
+      console.log("🔄 Funnel Stage:", funnelStage);
     }
   };
 
@@ -337,36 +385,40 @@ export function AnalyticsProvider({
     if (!userSession) return;
 
     const sessionDuration = Date.now() - userSession.start_time;
-    const conversionRate = userSession.completed_donations / Math.max(userSession.donation_intents, 1);
+    const conversionRate =
+      userSession.completed_donations /
+      Math.max(userSession.donation_intents, 1);
 
     trackEvent({
-      event_name: 'conversion_metrics',
+      event_name: "conversion_metrics",
       session_duration: sessionDuration,
       conversion_rate: conversionRate,
       page_views_count: userSession.page_views.length,
       donation_intents: userSession.donation_intents,
-      completed_donations: userSession.completed_donations
+      completed_donations: userSession.completed_donations,
     });
   };
 
   const setupPerformanceTracking = () => {
     // Core Web Vitals tracking
-    if ('web-vital' in window) {
+    if ("web-vital" in window) {
       const observer = new PerformanceObserver((list) => {
         for (const entry of list.getEntries()) {
-          if (entry.entryType === 'navigation') {
+          if (entry.entryType === "navigation") {
             const navEntry = entry as PerformanceNavigationTiming;
             trackEvent({
-              event_name: 'page_performance',
+              event_name: "page_performance",
               load_time: navEntry.loadEventEnd - navEntry.loadEventStart,
-              dom_content_loaded: navEntry.domContentLoadedEventEnd - navEntry.domContentLoadedEventStart,
-              first_byte: navEntry.responseStart - navEntry.requestStart
+              dom_content_loaded:
+                navEntry.domContentLoadedEventEnd -
+                navEntry.domContentLoadedEventStart,
+              first_byte: navEntry.responseStart - navEntry.requestStart,
             });
           }
         }
       });
 
-      observer.observe({ entryTypes: ['navigation'] });
+      observer.observe({ entryTypes: ["navigation"] });
     }
   };
 
@@ -377,7 +429,9 @@ export function AnalyticsProvider({
 
     const trackScrollDepth = () => {
       const scrollPercent = Math.round(
-        (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100
+        (window.scrollY /
+          (document.documentElement.scrollHeight - window.innerHeight)) *
+          100,
       );
 
       if (scrollPercent > maxScrollDepth) {
@@ -386,12 +440,15 @@ export function AnalyticsProvider({
 
       // Track milestone achievements
       for (const milestone of scrollMilestones) {
-        if (scrollPercent >= milestone && !trackedMilestones.includes(milestone)) {
+        if (
+          scrollPercent >= milestone &&
+          !trackedMilestones.includes(milestone)
+        ) {
           trackedMilestones.push(milestone);
           trackEvent({
-            event_name: 'scroll_depth',
+            event_name: "scroll_depth",
             scroll_depth: milestone,
-            page: window.location.pathname
+            page: window.location.pathname,
           });
         }
       }
@@ -403,15 +460,15 @@ export function AnalyticsProvider({
       scrollTimeout = setTimeout(trackScrollDepth, 100);
     };
 
-    window.addEventListener('scroll', throttledScrollTracking);
+    window.addEventListener("scroll", throttledScrollTracking);
 
     // Track final scroll depth on page unload
-    window.addEventListener('beforeunload', () => {
+    window.addEventListener("beforeunload", () => {
       if (maxScrollDepth > 0) {
         trackEvent({
-          event_name: 'final_scroll_depth',
+          event_name: "final_scroll_depth",
           scroll_depth: maxScrollDepth,
-          page: window.location.pathname
+          page: window.location.pathname,
         });
       }
     });
@@ -419,16 +476,24 @@ export function AnalyticsProvider({
 
   const setupFormInteractionTracking = () => {
     // Track form focus events
-    document.addEventListener('focusin', (event) => {
-      const target = event.target as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
-      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') {
-        const form = target.closest('form');
+    document.addEventListener("focusin", (event) => {
+      const target = event.target as
+        | HTMLInputElement
+        | HTMLTextAreaElement
+        | HTMLSelectElement;
+      if (
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.tagName === "SELECT"
+      ) {
+        const form = target.closest("form");
         if (form) {
           trackEvent({
-            event_name: 'form_interaction',
-            form_type: form.id || form.className || 'unknown',
-            field_type: (target as HTMLInputElement).type || target.tagName.toLowerCase(),
-            page: window.location.pathname
+            event_name: "form_interaction",
+            form_type: form.id || form.className || "unknown",
+            field_type:
+              (target as HTMLInputElement).type || target.tagName.toLowerCase(),
+            page: window.location.pathname,
           });
         }
       }
@@ -436,10 +501,10 @@ export function AnalyticsProvider({
   };
 
   // Utility functions
-  const categorizeAmount = (amount: number): 'micro' | 'standard' | 'major' => {
-    if (amount <= 50) return 'micro';
-    if (amount <= 250) return 'standard';
-    return 'major';
+  const categorizeAmount = (amount: number): "micro" | "standard" | "major" => {
+    if (amount <= 50) return "micro";
+    if (amount <= 250) return "standard";
+    return "major";
   };
 
   const generateSessionId = (): string => {
@@ -448,9 +513,9 @@ export function AnalyticsProvider({
 
   const getDeviceType = (): string => {
     const userAgent = navigator.userAgent.toLowerCase();
-    if (/tablet|ipad/.test(userAgent)) return 'tablet';
-    if (/mobile|android|iphone/.test(userAgent)) return 'mobile';
-    return 'desktop';
+    if (/tablet|ipad/.test(userAgent)) return "tablet";
+    if (/mobile|android|iphone/.test(userAgent)) return "mobile";
+    return "desktop";
   };
 
   const isMobileDevice = (): boolean => {
@@ -458,16 +523,18 @@ export function AnalyticsProvider({
   };
 
   const getUserSession = (): UserSession => {
-    return userSession || {
-      session_id: 'unknown',
-      start_time: Date.now(),
-      page_views: [],
-      funnel_stages: [],
-      donation_intents: 0,
-      completed_donations: 0,
-      device_type: 'unknown',
-      is_mobile: false
-    };
+    return (
+      userSession || {
+        session_id: "unknown",
+        start_time: Date.now(),
+        page_views: [],
+        funnel_stages: [],
+        donation_intents: 0,
+        completed_donations: 0,
+        device_type: "unknown",
+        is_mobile: false,
+      }
+    );
   };
 
   const contextValue: AnalyticsContextType = {
@@ -479,7 +546,7 @@ export function AnalyticsProvider({
     trackDonationComplete,
     trackFunnelStage,
     getUserSession,
-    isAnalyticsEnabled
+    isAnalyticsEnabled,
   };
 
   return (
@@ -492,7 +559,7 @@ export function AnalyticsProvider({
 export function useAnalytics() {
   const context = useContext(AnalyticsContext);
   if (!context) {
-    throw new Error('useAnalytics must be used within an AnalyticsProvider');
+    throw new Error("useAnalytics must be used within an AnalyticsProvider");
   }
   return context;
 }
@@ -500,7 +567,7 @@ export function useAnalytics() {
 // HOC for automatic page view tracking
 export function withAnalytics<P extends object>(
   Component: React.ComponentType<P>,
-  pageName?: string
+  pageName?: string,
 ) {
   return function AnalyticsWrappedComponent(props: P) {
     const { trackPageView } = useAnalytics();

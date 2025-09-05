@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import { useEffect, useState } from "react";
+import Link from "next/link";
 
 export default function ButtonDebugPage() {
   const [debugInfo, setDebugInfo] = useState<Record<string, unknown>>({});
@@ -21,81 +21,91 @@ export default function ButtonDebugPage() {
       locationOrigin: window.location.origin,
       locationHref: window.location.href,
       hasReactDevTools: window.__REACT_DEVTOOLS_GLOBAL_HOOK__ !== undefined,
-      hasNextJs: window.next !== undefined || window.__NEXT_DATA__ !== undefined,
+      hasNextJs:
+        window.next !== undefined || window.__NEXT_DATA__ !== undefined,
       nodeEnv: process.env.NODE_ENV,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
     setDebugInfo(info);
 
-    console.log('🔍 BUTTON DEBUG PAGE LOADED');
-    console.log('Debug Info:', info);
+    console.log("🔍 BUTTON DEBUG PAGE LOADED");
+    console.log("Debug Info:", info);
   }, []);
 
   const addTestResult = (result: string) => {
-    setTestResults(prev => [...prev, `${new Date().toLocaleTimeString()}: ${result}`]);
+    setTestResults((prev) => [
+      ...prev,
+      `${new Date().toLocaleTimeString()}: ${result}`,
+    ]);
   };
 
   const testNavbarButton = () => {
-    console.log('🧪 TESTING NAVBAR BUTTON SIMULATION');
-    addTestResult('Testing navbar button simulation');
+    console.log("🧪 TESTING NAVBAR BUTTON SIMULATION");
+    addTestResult("Testing navbar button simulation");
 
     try {
       // Simulate the exact navbar button click
-      const event = new MouseEvent('click', {
+      const event = new MouseEvent("click", {
         bubbles: true,
         cancelable: true,
-        view: window
+        view: window,
       });
 
-      console.log('Simulated event:', event);
-      addTestResult('✅ Event simulation successful');
+      console.log("Simulated event:", event);
+      addTestResult("✅ Event simulation successful");
 
       // Test navigation
-      window.location.href = '/donate';
-      addTestResult('✅ Navigation initiated');
+      window.location.href = "/donate";
+      addTestResult("✅ Navigation initiated");
     } catch (error) {
-      console.error('❌ Navbar button test failed:', error);
-      addTestResult(`❌ Test failed: ${error instanceof Error ? error.message : String(error)}`);
+      console.error("❌ Navbar button test failed:", error);
+      addTestResult(
+        `❌ Test failed: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   };
 
   const testDirectNavigation = () => {
-    console.log('🧪 TESTING DIRECT NAVIGATION');
-    addTestResult('Testing direct navigation');
+    console.log("🧪 TESTING DIRECT NAVIGATION");
+    addTestResult("Testing direct navigation");
 
     try {
-      window.location.assign('/donate');
-      addTestResult('✅ Direct navigation successful');
+      window.location.assign("/donate");
+      addTestResult("✅ Direct navigation successful");
     } catch (error) {
-      console.error('❌ Direct navigation failed:', error);
-      addTestResult(`❌ Direct navigation failed: ${error instanceof Error ? error.message : String(error)}`);
+      console.error("❌ Direct navigation failed:", error);
+      addTestResult(
+        `❌ Direct navigation failed: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   };
 
   const testWindowOpen = () => {
-    console.log('🧪 TESTING WINDOW.OPEN');
-    addTestResult('Testing window.open navigation');
+    console.log("🧪 TESTING WINDOW.OPEN");
+    addTestResult("Testing window.open navigation");
 
     try {
-      window.open('/donate', '_self');
-      addTestResult('✅ Window.open successful');
+      window.open("/donate", "_self");
+      addTestResult("✅ Window.open successful");
     } catch (error) {
-      console.error('❌ Window.open failed:', error);
-      addTestResult(`❌ Window.open failed: ${error instanceof Error ? error.message : String(error)}`);
+      console.error("❌ Window.open failed:", error);
+      addTestResult(
+        `❌ Window.open failed: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   };
 
   const checkButtonElements = () => {
-    console.log('🧪 CHECKING BUTTON ELEMENTS');
-    addTestResult('Checking for donate buttons in DOM');
+    console.log("🧪 CHECKING BUTTON ELEMENTS");
+    addTestResult("Checking for donate buttons in DOM");
 
     // Look for donate buttons by text content
-    const allButtons = document.querySelectorAll('button');
-    const donateButtons = Array.from(allButtons).filter(btn =>
-      btn.textContent?.includes('Donate')
+    const allButtons = document.querySelectorAll("button");
+    const donateButtons = Array.from(allButtons).filter((btn) =>
+      btn.textContent?.includes("Donate"),
     );
 
-    console.log('Found donate buttons:', donateButtons.length);
+    console.log("Found donate buttons:", donateButtons.length);
     addTestResult(`Found ${donateButtons.length} donate buttons in DOM`);
 
     donateButtons.forEach((button, index) => {
@@ -103,14 +113,16 @@ export default function ButtonDebugPage() {
       const info = {
         index,
         text: button.textContent,
-        visible: styles.visibility !== 'hidden' && styles.display !== 'none',
+        visible: styles.visibility !== "hidden" && styles.display !== "none",
         pointerEvents: styles.pointerEvents,
         zIndex: styles.zIndex,
         position: styles.position,
-        cursor: styles.cursor
+        cursor: styles.cursor,
       };
       console.log(`Button ${index}:`, info);
-      addTestResult(`Button ${index}: ${info.visible ? 'Visible' : 'Hidden'}, Pointer: ${info.pointerEvents}`);
+      addTestResult(
+        `Button ${index}: ${info.visible ? "Visible" : "Hidden"}, Pointer: ${info.pointerEvents}`,
+      );
     });
   };
 
@@ -122,33 +134,66 @@ export default function ButtonDebugPage() {
             🔍 Comprehensive Button Debug Center
           </h1>
           <p className="text-center text-gray-600 mb-8">
-            Advanced debugging tools to diagnose donate button functionality issues
+            Advanced debugging tools to diagnose donate button functionality
+            issues
           </p>
         </div>
 
         {/* Environment Information */}
         <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
-          <h2 className="text-xl font-bold mb-4 text-blue-700">🌐 Environment Information</h2>
+          <h2 className="text-xl font-bold mb-4 text-blue-700">
+            🌐 Environment Information
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div><strong>User Agent:</strong> {String(debugInfo.userAgent)}</div>
-            <div><strong>Platform:</strong> {String(debugInfo.platform)}</div>
-            <div><strong>Language:</strong> {String(debugInfo.language)}</div>
-            <div><strong>Online:</strong> {debugInfo.onLine ? '✅ Yes' : '❌ No'}</div>
-            <div><strong>Cookies:</strong> {debugInfo.cookieEnabled ? '✅ Enabled' : '❌ Disabled'}</div>
-            <div><strong>Screen:</strong> {String(debugInfo.screenResolution)}</div>
-            <div><strong>Window:</strong> {String(debugInfo.windowSize)}</div>
-            <div><strong>Ready State:</strong> {String(debugInfo.documentReadyState)}</div>
-            <div><strong>Origin:</strong> {String(debugInfo.locationOrigin)}</div>
-            <div><strong>Current URL:</strong> {String(debugInfo.locationHref)}</div>
-            <div><strong>React DevTools:</strong> {debugInfo.hasReactDevTools ? '✅ Available' : '❌ Not detected'}</div>
-            <div><strong>Next.js:</strong> {debugInfo.hasNextJs ? '✅ Detected' : '❌ Not detected'}</div>
+            <div>
+              <strong>User Agent:</strong> {String(debugInfo.userAgent)}
+            </div>
+            <div>
+              <strong>Platform:</strong> {String(debugInfo.platform)}
+            </div>
+            <div>
+              <strong>Language:</strong> {String(debugInfo.language)}
+            </div>
+            <div>
+              <strong>Online:</strong> {debugInfo.onLine ? "✅ Yes" : "❌ No"}
+            </div>
+            <div>
+              <strong>Cookies:</strong>{" "}
+              {debugInfo.cookieEnabled ? "✅ Enabled" : "❌ Disabled"}
+            </div>
+            <div>
+              <strong>Screen:</strong> {String(debugInfo.screenResolution)}
+            </div>
+            <div>
+              <strong>Window:</strong> {String(debugInfo.windowSize)}
+            </div>
+            <div>
+              <strong>Ready State:</strong>{" "}
+              {String(debugInfo.documentReadyState)}
+            </div>
+            <div>
+              <strong>Origin:</strong> {String(debugInfo.locationOrigin)}
+            </div>
+            <div>
+              <strong>Current URL:</strong> {String(debugInfo.locationHref)}
+            </div>
+            <div>
+              <strong>React DevTools:</strong>{" "}
+              {debugInfo.hasReactDevTools ? "✅ Available" : "❌ Not detected"}
+            </div>
+            <div>
+              <strong>Next.js:</strong>{" "}
+              {debugInfo.hasNextJs ? "✅ Detected" : "❌ Not detected"}
+            </div>
           </div>
         </div>
 
         {/* Test Buttons */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-bold mb-4 text-red-700">🔴 Navigation Tests</h3>
+            <h3 className="text-lg font-bold mb-4 text-red-700">
+              🔴 Navigation Tests
+            </h3>
             <div className="space-y-3">
               <button
                 onClick={testNavbarButton}
@@ -172,7 +217,9 @@ export default function ButtonDebugPage() {
           </div>
 
           <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-bold mb-4 text-blue-700">🔍 DOM Analysis</h3>
+            <h3 className="text-lg font-bold mb-4 text-blue-700">
+              🔍 DOM Analysis
+            </h3>
             <div className="space-y-3">
               <button
                 onClick={checkButtonElements}
@@ -198,14 +245,21 @@ export default function ButtonDebugPage() {
 
         {/* Test Results */}
         <div className="bg-white rounded-xl shadow-lg p-6">
-          <h2 className="text-xl font-bold mb-4 text-green-700">📊 Test Results</h2>
+          <h2 className="text-xl font-bold mb-4 text-green-700">
+            📊 Test Results
+          </h2>
           <div className="bg-gray-50 rounded-lg p-4 max-h-64 overflow-y-auto">
             {testResults.length === 0 ? (
-              <p className="text-gray-500 italic">No tests run yet. Click the test buttons above to begin.</p>
+              <p className="text-gray-500 italic">
+                No tests run yet. Click the test buttons above to begin.
+              </p>
             ) : (
               <div className="space-y-1">
                 {testResults.map((result, index) => (
-                  <div key={`result-${index}-${result.slice(0, 10)}`} className="text-sm font-mono">
+                  <div
+                    key={`result-${index}-${result.slice(0, 10)}`}
+                    className="text-sm font-mono"
+                  >
                     {result}
                   </div>
                 ))}
@@ -222,15 +276,26 @@ export default function ButtonDebugPage() {
 
         {/* Quick Links */}
         <div className="bg-blue-50 rounded-xl p-6 mt-8">
-          <h3 className="text-lg font-bold mb-4 text-blue-800">🔗 Quick Navigation</h3>
+          <h3 className="text-lg font-bold mb-4 text-blue-800">
+            🔗 Quick Navigation
+          </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Link href="/" className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-center transition-colors">
+            <Link
+              href="/"
+              className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-center transition-colors"
+            >
               Homepage
             </Link>
-            <Link href="/donate" className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg text-center transition-colors">
+            <Link
+              href="/donate"
+              className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg text-center transition-colors"
+            >
               Donate Page
             </Link>
-            <Link href="/test-buttons" className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg text-center transition-colors">
+            <Link
+              href="/test-buttons"
+              className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg text-center transition-colors"
+            >
               Test Buttons
             </Link>
             <button

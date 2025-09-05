@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 
-export const dynamic = 'force-static';
+export const dynamic = "force-static";
 
 export async function GET() {
   const robotsTxt = `User-agent: *
@@ -17,7 +17,7 @@ Crawl-delay: 1`;
 
   return new NextResponse(robotsTxt, {
     headers: {
-      'Content-Type': 'text/plain',
+      "Content-Type": "text/plain",
     },
   });
 }

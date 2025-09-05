@@ -11,10 +11,10 @@ export interface StripeConfig {
 
 // Default Stripe configuration
 const defaultConfig: StripeConfig = {
-  publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '',
-  currency: 'usd',
-  country: 'US',
-  isTestMode: true
+  publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "",
+  currency: "usd",
+  country: "US",
+  isTestMode: true,
 };
 
 class StripeService {
@@ -33,17 +33,17 @@ class StripeService {
   updateConfig(updates: Partial<StripeConfig>) {
     this.config = { ...this.config, ...updates };
     // Save to localStorage for persistence
-    localStorage.setItem('hfrp_stripe_config', JSON.stringify(this.config));
+    localStorage.setItem("hfrp_stripe_config", JSON.stringify(this.config));
   }
 
   // Load configuration from storage
   loadConfig() {
-    const stored = localStorage.getItem('hfrp_stripe_config');
+    const stored = localStorage.getItem("hfrp_stripe_config");
     if (stored) {
       try {
         this.config = JSON.parse(stored);
       } catch (error) {
-        console.error('Failed to load Stripe config:', error);
+        console.error("Failed to load Stripe config:", error);
       }
     }
   }
@@ -53,24 +53,30 @@ class StripeService {
     const errors: string[] = [];
 
     if (!this.config.publishableKey) {
-      errors.push('Stripe publishable key is required');
+      errors.push("Stripe publishable key is required");
     }
 
-    if (!this.config.publishableKey.startsWith('pk_')) {
-      errors.push('Invalid Stripe publishable key format');
+    if (!this.config.publishableKey.startsWith("pk_")) {
+      errors.push("Invalid Stripe publishable key format");
     }
 
-    if (this.config.isTestMode && !this.config.publishableKey.includes('test')) {
-      errors.push('Test mode enabled but using live key');
+    if (
+      this.config.isTestMode &&
+      !this.config.publishableKey.includes("test")
+    ) {
+      errors.push("Test mode enabled but using live key");
     }
 
-    if (!this.config.isTestMode && this.config.publishableKey.includes('test')) {
-      errors.push('Live mode enabled but using test key');
+    if (
+      !this.config.isTestMode &&
+      this.config.publishableKey.includes("test")
+    ) {
+      errors.push("Live mode enabled but using test key");
     }
 
     return {
       isValid: errors.length === 0,
-      errors
+      errors,
     };
   }
 
@@ -90,32 +96,38 @@ class StripeService {
   }
 
   // Create payment intent (mock for client-side)
-  async createPaymentIntent(amount: number, metadata?: Record<string, string>): Promise<{
+  async createPaymentIntent(
+    amount: number,
+    metadata?: Record<string, string>,
+  ): Promise<{
     clientSecret: string;
     paymentIntentId: string;
   }> {
     // In production, this would be a server-side API call
-    console.log('Creating payment intent for amount:', amount, metadata);
+    console.log("Creating payment intent for amount:", amount, metadata);
 
     // Mock response
     return {
       clientSecret: `pi_mock_${Date.now()}_secret`,
-      paymentIntentId: `pi_mock_${Date.now()}`
+      paymentIntentId: `pi_mock_${Date.now()}`,
     };
   }
 
   // Process webhook (mock for client-side)
-  async processWebhook(payload: any, signature: string): Promise<{
+  async processWebhook(
+    payload: any,
+    signature: string,
+  ): Promise<{
     success: boolean;
     event?: any;
     error?: string;
   }> {
     // In production, this would be server-side webhook processing
-    console.log('Processing webhook:', payload, signature);
+    console.log("Processing webhook:", payload, signature);
 
     return {
       success: true,
-      event: payload
+      event: payload,
     };
   }
 }
@@ -124,6 +136,6 @@ class StripeService {
 export const stripeService = new StripeService();
 
 // Load configuration on initialization
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   stripeService.loadConfig();
 }

@@ -59,7 +59,7 @@ export default function LiveRadio({ className = "" }: LiveRadioProps) {
       console.warn("Radio stream failed, trying next station...");
       // Try next station on error
       const currentIndex = radioStations.findIndex(
-        (s) => s.url === currentStation.url
+        (s) => s.url === currentStation.url,
       );
       const nextIndex = (currentIndex + 1) % radioStations.length;
       setCurrentStation(radioStations[nextIndex]);
@@ -413,7 +413,7 @@ declare global {
     gtag?: (
       command: string,
       action: string,
-      parameters: Record<string, unknown>
+      parameters: Record<string, unknown>,
     ) => void;
   }
 }

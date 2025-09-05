@@ -85,21 +85,21 @@ export interface RestoreResult {
 export interface BackupSchedule {
   id: string;
   name: string;
-  frequency: 'hourly' | 'daily' | 'weekly' | 'monthly';
+  frequency: "hourly" | "daily" | "weekly" | "monthly";
   time?: string; // For daily: "HH:mm", for weekly: "day,HH:mm"
   dayOfWeek?: number; // 0-6 for weekly
   dayOfMonth?: number; // 1-31 for monthly
   lastBackup?: string;
   nextBackup: string;
   isActive: boolean;
-  backupType: 'full' | 'differential';
+  backupType: "full" | "differential";
   retention: {
     count: number;
     days: number;
   };
   encryption: boolean;
   cloudStorage?: {
-    provider: 'aws' | 'gcp' | 'azure';
+    provider: "aws" | "gcp" | "azure";
     bucket: string;
     path: string;
   };
@@ -118,12 +118,12 @@ export interface BackupHistory {
   size: number;
   createdAt: string;
   createdBy: string;
-  type: 'manual' | 'scheduled';
-  backupType: 'full' | 'differential';
+  type: "manual" | "scheduled";
+  backupType: "full" | "differential";
   scheduleId?: string;
-  status: 'completed' | 'failed' | 'in_progress';
+  status: "completed" | "failed" | "in_progress";
   error?: string;
-  location: 'local' | 'cloud' | 'both';
+  location: "local" | "cloud" | "both";
   cloudUrl?: string;
   checksum?: string;
   encrypted: boolean;
@@ -134,7 +134,7 @@ export interface BackupHistory {
 }
 
 export interface CloudStorageConfig {
-  provider: 'aws' | 'gcp' | 'azure';
+  provider: "aws" | "gcp" | "azure";
   credentials: {
     accessKeyId?: string;
     secretAccessKey?: string;

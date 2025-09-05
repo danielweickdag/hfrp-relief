@@ -1,148 +1,280 @@
-'use client';
+"use client";
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from 'next/navigation';
-import DonorboxButton from "./_components/DonorboxButton";
+import { useRouter } from "next/navigation";
+import StripeButton from "@/app/_components/StripeButton";
 import TestimonialsSection from "./_components/TestimonialsSection";
+
+// Extend window interface for gtag
+declare global {
+  interface Window {
+    gtag?: (
+      command: string,
+      action: string,
+      parameters: Record<string, unknown>
+    ) => void;
+  }
+}
 
 export default function HomePage() {
   const [year, setYear] = useState(new Date().getFullYear());
   const videoRef = useRef<HTMLVideoElement>(null);
   const router = useRouter();
 
-  const handleDonateClick = () => {
-    console.log('🔴 HOMEPAGE DONATE BUTTON CLICKED!');
-    console.log('Opening Donorbox payment form directly');
+  const handleDonateSuccess = () => {
+    console.log("✅ Stripe donation completed successfully!");
 
-    // Open Donorbox form directly with recommended $15 monthly (50¢ daily)
-    const isTestMode = process.env.NEXT_PUBLIC_DONATION_TEST_MODE === 'true';
-    let donorboxUrl: string;
-
-    if (isTestMode) {
-      donorboxUrl = "https://donorbox.org/embed/test-campaign?amount=15&recurring=true&test=true";
-    } else {
-      const campaignId = process.env.NEXT_PUBLIC_DONORBOX_MAIN_CAMPAIGN || "hfrp-haiti-relief-fund";
-      donorboxUrl = `https://donorbox.org/${campaignId}?amount=15&recurring=true`;
+    // Track with Google Analytics if available
+    if (window.gtag) {
+      window.gtag("event", "donate_button_click", {
+        event_category: "Donations",
+        event_label: "homepage_stripe_payment",
+        value: 15,
+        donation_type: "recurring",
+      });
     }
+  };
 
-    console.log('🌐 Opening payment form:', donorboxUrl);
-
-    // Try to open in new window, fallback to donate page
-    const newWindow = window.open(donorboxUrl, '_blank', 'noopener,noreferrer,width=800,height=700');
-
-    if (!newWindow) {
-      console.warn('Pop-up blocked, falling back to donate page');
-      router.push('/donate');
-    } else {
-      console.log('✅ Payment form opened successfully');
-
-      // Track with Google Analytics if available
-      if (window.gtag) {
-        window.gtag('event', 'donate_button_click', {
-          event_category: 'Donations',
-          event_label: 'homepage_direct_payment',
-          value: 15,
-          donation_type: 'recurring'
-        });
-      }
-    }
+  const handleDonateError = (error: string) => {
+    console.error("❌ Stripe donation error:", error);
+    // Fallback to donate page on error
+    router.push("/donate");
   };
 
   useEffect(() => {
     setYear(new Date().getFullYear());
   }, []);
 
-  // Enhanced video playback management with performance optimization
+  // Enhanced video playback management with improved error handling and performance
   useEffect(() => {
     const videoElement = videoRef.current;
     if (!videoElement) return;
 
-    // Optimize video for mobile devices
-    if (window.innerWidth < 768) {
-      videoElement.preload = 'none';
+    let userHasInteracted = false;
+    let retryCount = 0;
+    const maxRetries = 3;
+
+    // Optimize video loading for mobile devices
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      videoElement.preload = "metadata";
+    } else {
+      videoElement.preload = "auto";
     }
 
-    // Function to ensure video is playing
-    const ensureVideoPlays = () => {
-      if (videoElement.paused) {
-        videoElement.play().catch(err => {
-          console.log("Video play attempt failed:", err);
+    // Ensure loop is explicitly set for all browsers
+    videoElement.loop = true;
+    videoElement.setAttribute("loop", "true");
+    console.log("📹 Video loop explicitly set:", videoElement.loop);
+
+    // Immediate play attempt
+    const immediatePlay = () => {
+      videoElement
+        .play()
+        .then(() => {
+          console.log("✅ Video started playing immediately");
+        })
+        .catch((error) => {
+          console.log(
+            "📹 Immediate autoplay blocked, will retry after user interaction:",
+            error
+          );
         });
+    };
+
+    // Try to play immediately if possible
+    if (videoElement.readyState >= 2) {
+      immediatePlay();
+    } else {
+      videoElement.addEventListener("loadeddata", immediatePlay, {
+        once: true,
+      });
+    }
+
+    // Enhanced play function with retry logic
+    const playVideo = async () => {
+      if (!videoElement) return;
+
+      try {
+        // Ensure video is ready
+        if (videoElement.readyState >= 2) {
+          await videoElement.play();
+          retryCount = 0; // Reset retry count on successful play
+          console.log("✅ Video playing successfully");
+        } else {
+          console.log("📹 Video not ready, waiting...");
+          setTimeout(playVideo, 500);
+        }
+      } catch (error) {
+        console.log(`Video play attempt ${retryCount + 1} failed:`, error);
+
+        if (retryCount < maxRetries) {
+          retryCount++;
+          setTimeout(playVideo, 1000 * retryCount); // Exponential backoff
+        } else {
+          console.warn("Maximum video play retries reached");
+        }
       }
     };
 
-    // Check video status periodically
-    const videoCheckInterval = setInterval(ensureVideoPlays, 5000);
+    // Function to ensure video is playing with better error handling
+    const ensureVideoPlays = () => {
+      if (!videoElement) return;
 
-    // Resume video when page becomes visible
+      if (videoElement.paused && !videoElement.ended) {
+        playVideo();
+      }
+    };
+
+    // Check video status with reduced frequency for better performance
+    const videoCheckInterval = setInterval(ensureVideoPlays, 10000);
+
+    // Enhanced visibility change handler
     const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        setTimeout(ensureVideoPlays, 100);
+      if (!document.hidden && videoElement) {
+        // Reset video position if it's been paused for too long
+        if (videoElement.paused && videoElement.currentTime > 0) {
+          videoElement.currentTime = 0;
+        }
+        setTimeout(ensureVideoPlays, 200);
       }
     };
 
-    // Resume video on user interaction (for browsers that require user gesture)
+    // Improved user interaction handler
     const handleUserInteraction = () => {
-      ensureVideoPlays();
-      // Remove listeners after first interaction
-      document.removeEventListener('click', handleUserInteraction);
-      document.removeEventListener('touchstart', handleUserInteraction);
-      document.removeEventListener('keydown', handleUserInteraction);
+      if (!userHasInteracted) {
+        userHasInteracted = true;
+        playVideo();
+
+        // Remove listeners after first successful interaction
+        document.removeEventListener("click", handleUserInteraction);
+        document.removeEventListener("touchstart", handleUserInteraction);
+        document.removeEventListener("keydown", handleUserInteraction);
+
+        console.log("✅ User interaction detected, video should now autoplay");
+      }
     };
 
-    // Event listeners for video
+    // Enhanced video event handlers
     const handleLoadedData = () => {
-      videoElement.play().catch(err => console.log("Video autoplay failed:", err));
-    };
-
-    const handleEnded = () => {
-      videoElement.currentTime = 0;
-      videoElement.play().catch(err => console.log("Video restart failed:", err));
-    };
-
-    const handlePause = () => {
-      setTimeout(() => {
-        videoElement.play().catch(err => console.log("Video resume failed:", err));
-      }, 100);
+      console.log("📹 Video data loaded");
+      if (userHasInteracted || document.visibilityState === "visible") {
+        playVideo();
+      }
     };
 
     const handleCanPlay = () => {
-      videoElement.play().catch(err => console.log("Video canplay failed:", err));
+      console.log("📹 Video can play");
+      if (userHasInteracted || !videoElement.paused) {
+        playVideo();
+      }
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    document.addEventListener('click', handleUserInteraction);
-    document.addEventListener('touchstart', handleUserInteraction);
-    document.addEventListener('keydown', handleUserInteraction);
+    const handleEnded = () => {
+      console.log(
+        "📹 Video ended - loop attribute should restart automatically"
+      );
+      // Don't manually restart - let the loop attribute handle it
+      // If for some reason loop fails, restart after a short delay
+      setTimeout(() => {
+        if (
+          videoElement.currentTime === videoElement.duration &&
+          videoElement.paused
+        ) {
+          console.log("📹 Loop failed, manually restarting");
+          videoElement.currentTime = 0;
+          playVideo();
+        }
+      }, 100);
+    };
 
-    videoElement.addEventListener('loadeddata', handleLoadedData);
-    videoElement.addEventListener('ended', handleEnded);
-    videoElement.addEventListener('pause', handlePause);
-    videoElement.addEventListener('canplay', handleCanPlay);
+    const handleError = (event: Event) => {
+      const target = event.target as HTMLVideoElement;
+      console.error("📹 Video error:", target.error);
 
-    // Initial play attempt
-    setTimeout(ensureVideoPlays, 1000);
+      // Try alternative video source if primary fails
+      if (target.src.includes("Hatian family project.mp4")) {
+        console.log("📹 Trying alternative video source");
+        target.src = "/homepage-video.mp4";
+        target.load();
+      }
+    };
+
+    const handlePause = () => {
+      // Only restart if not paused intentionally and video should be playing
+      if (document.visibilityState === "visible" && userHasInteracted) {
+        console.log("📹 Video paused unexpectedly, attempting restart");
+        setTimeout(playVideo, 100);
+      }
+    };
+
+    const handleTimeUpdate = () => {
+      // Ensure video continues playing and doesn't get stuck
+      if (
+        videoElement &&
+        videoElement.currentTime > 0 &&
+        videoElement.paused &&
+        !videoElement.ended
+      ) {
+        console.log("📹 Video seems stuck, attempting to resume");
+        playVideo();
+      }
+    };
+
+    // Add event listeners
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    document.addEventListener("click", handleUserInteraction);
+    document.addEventListener("touchstart", handleUserInteraction);
+    document.addEventListener("keydown", handleUserInteraction);
+
+    if (videoElement) {
+      videoElement.addEventListener("loadeddata", handleLoadedData);
+      videoElement.addEventListener("canplay", handleCanPlay);
+      videoElement.addEventListener("ended", handleEnded);
+      videoElement.addEventListener("error", handleError);
+      videoElement.addEventListener("pause", handlePause);
+      videoElement.addEventListener("timeupdate", handleTimeUpdate);
+    }
+
+    // Initial play attempt with delay to ensure DOM is ready
+    const initialPlayTimer = setTimeout(() => {
+      if (videoElement.readyState >= 2) {
+        // HAVE_CURRENT_DATA
+        playVideo();
+      }
+    }, 1500);
 
     return () => {
       clearInterval(videoCheckInterval);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      document.removeEventListener('click', handleUserInteraction);
-      document.removeEventListener('touchstart', handleUserInteraction);
-      document.removeEventListener('keydown', handleUserInteraction);
+      clearTimeout(initialPlayTimer);
+
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      document.removeEventListener("click", handleUserInteraction);
+      document.removeEventListener("touchstart", handleUserInteraction);
+      document.removeEventListener("keydown", handleUserInteraction);
 
       if (videoElement) {
-        videoElement.removeEventListener('loadeddata', handleLoadedData);
-        videoElement.removeEventListener('ended', handleEnded);
-        videoElement.removeEventListener('pause', handlePause);
-        videoElement.removeEventListener('canplay', handleCanPlay);
+        videoElement.removeEventListener("loadeddata", handleLoadedData);
+        videoElement.removeEventListener("canplay", handleCanPlay);
+        videoElement.removeEventListener("ended", handleEnded);
+        videoElement.removeEventListener("error", handleError);
+        videoElement.removeEventListener("pause", handlePause);
+        videoElement.removeEventListener("timeupdate", handleTimeUpdate);
       }
     };
   }, []);
 
   return (
     <>
-      <section className="relative flex flex-col gap-12 items-center text-center pt-16 min-h-[95vh] justify-center">
+      <section
+        className="relative flex flex-col gap-12 items-center text-center pt-16 min-h-[95vh] justify-center"
+        onClick={() => {
+          const video = videoRef.current;
+          if (video && video.paused) {
+            video.play().catch((e) => console.log("📹 Click play failed:", e));
+          }
+        }}
+      >
         <video
           ref={videoRef}
           autoPlay
@@ -152,26 +284,79 @@ export default function HomePage() {
           preload="metadata"
           webkit-playsinline="true"
           x5-playsinline="true"
+          x5-video-player-type="h5"
+          x5-video-player-fullscreen="true"
           controls={false}
           disablePictureInPicture
           className="fixed inset-0 w-full h-full object-cover z-[-10] transform-gpu"
-          poster="/homepage-poster.jpg"
+          poster="/hfrp-logo.png"
+          style={{
+            backgroundColor: "#1f2937",
+            backgroundImage:
+              "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          }}
           onError={(e) => {
-            console.log("Video failed to load, using fallback background");
-            if (e.currentTarget.parentElement) {
-              e.currentTarget.parentElement.style.backgroundColor = "#1f2937";
-              e.currentTarget.parentElement.style.backgroundImage = "linear-gradient(135deg, #667eea 0%, #764ba2 100%)";
+            console.error("📹 Video failed to load:", e.currentTarget.error);
+            const target = e.currentTarget;
+
+            // Set fallback background
+            if (target.parentElement) {
+              target.parentElement.style.backgroundColor = "#1f2937";
+              target.parentElement.style.backgroundImage =
+                "linear-gradient(135deg, #667eea 0%, #764ba2 100%)";
+            }
+
+            // Try alternative video if not already tried
+            if (target.src.includes("Hatian family project.mp4")) {
+              console.log("📹 Trying alternative video source");
+              target.src = "/homepage-video.mp4";
+              target.load();
             }
           }}
           onLoadStart={() => {
-            console.log("Video loading started");
+            console.log("📹 Video loading started");
+          }}
+          onLoadedMetadata={() => {
+            console.log("📹 Video metadata loaded");
+          }}
+          onLoadedData={() => {
+            console.log("📹 Video data loaded - attempting to play");
+            const video = videoRef.current;
+            if (video) {
+              video
+                .play()
+                .catch((e) => console.log("📹 Autoplay prevented:", e));
+            }
           }}
           onCanPlay={() => {
-            console.log("Video can start playing");
+            console.log("📹 Video ready to play");
+            const video = videoRef.current;
+            if (video && video.paused) {
+              video
+                .play()
+                .catch((e) => console.log("📹 Play attempt failed:", e));
+            }
+          }}
+          onCanPlayThrough={() => {
+            console.log("📹 Video can play through without buffering");
+          }}
+          onPlaying={() => {
+            console.log("📹 Video is playing");
+          }}
+          onWaiting={() => {
+            console.log("📹 Video is buffering");
+          }}
+          onEnded={() => {
+            console.log("📹 Video ended - should loop automatically");
           }}
         >
-          <source src="/haitian-family-project.mp4" type="video/mp4" />
-          Your browser does not support the video tag.
+          <source src="/Hatian family project.mp4" type="video/mp4" />
+          <source src="/homepage-video.mp4" type="video/mp4" />
+          <div className="absolute inset-0 bg-gradient-to-b from-gray-900 via-blue-900 to-purple-900 flex items-center justify-center">
+            <p className="text-white text-lg font-medium">
+              Your browser does not support video playback.
+            </p>
+          </div>
         </video>
         <div className="fixed inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60 z-[-5] pointer-events-none" />
 
@@ -188,9 +373,14 @@ export default function HomePage() {
                 priority
               />
             </div>
-            <h2 className="text-4xl font-bold tracking-tight text-white drop-shadow-2xl">Haitian Family Relief Project</h2>
+            <h2 className="text-4xl font-bold tracking-tight text-white drop-shadow-2xl">
+              Haitian Family Relief Project
+            </h2>
             <p className="mt-2 max-w-xl text-lg text-gray-100 drop-shadow-xl font-medium">
-              Welcome to our family! We're spreading love, hope, and joy to beautiful families in Haiti. Every meal, every smile, every helping hand makes our world brighter—and you can be part of this incredible journey.
+              Welcome to our family! We're spreading love, hope, and joy to
+              beautiful families in Haiti. Every meal, every smile, every
+              helping hand makes our world brighter—and you can be part of this
+              incredible journey.
             </p>
           </div>
 
@@ -201,70 +391,113 @@ export default function HomePage() {
                 Make an Impact Today
               </h3>
               <p className="text-red-100 text-lg mb-6">
-                Your donation directly supports families in Haiti with food, healthcare, education, and safe housing.
+                Your donation directly supports families in Haiti with food,
+                healthcare, education, and safe housing.
               </p>
-              <button
-                onClick={handleDonateClick}
+              <StripeButton
+                campaignId="haiti-relief-main"
+                amount={15}
+                recurring={true}
+                interval="month"
                 className="bg-white text-red-600 hover:bg-red-50 px-8 py-4 rounded-lg font-bold text-xl transition-all transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-3 mx-auto w-fit cursor-pointer"
-                type="button"
+                onSuccess={handleDonateSuccess}
+                onError={handleDonateError}
               >
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <svg
+                  className="w-6 h-6"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                 </svg>
                 Donate Now
-              </button>
+              </StripeButton>
             </div>
           </div>
 
           <div className="w-full flex justify-center my-8">
             <blockquote className="border-l-4 border-blue-600 bg-white/90 backdrop-blur-sm p-6 rounded-xl shadow-xl max-w-xl text-center mx-auto">
               <div className="italic text-lg text-zinc-700 mb-2">
-                "The best way to find yourself is to lose yourself in the service of others."
+                "The best way to find yourself is to lose yourself in the
+                service of others."
               </div>
-              <div className="text-right font-semibold text-blue-700">— Mahatma Gandhi</div>
+              <div className="text-right font-semibold text-blue-700">
+                — Mahatma Gandhi
+              </div>
             </blockquote>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 w-full max-w-5xl px-4">
             <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-xl p-4 sm:p-6 border-t-4 border-blue-600">
-              <h3 className="text-lg font-bold mb-2 text-blue-700">💙 Our Heart & Mission</h3>
-              <p className="text-zinc-700">We're here to bring hope, love, and essential support to families in Haiti. Through building safe homes, providing mobile healthcare, serving nutritious meals, and creating educational opportunities, we're building a brighter future together.</p>
+              <h3 className="text-lg font-bold mb-2 text-blue-700">
+                💙 Our Heart & Mission
+              </h3>
+              <p className="text-zinc-700">
+                We're here to bring hope, love, and essential support to
+                families in Haiti. Through building safe homes, providing mobile
+                healthcare, serving nutritious meals, and creating educational
+                opportunities, we're building a brighter future together.
+              </p>
             </div>
             <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-xl p-6 border-t-4 border-red-600">
-              <h3 className="text-lg font-bold mb-3 text-red-700">❤️ Love in Action</h3>
+              <h3 className="text-lg font-bold mb-3 text-red-700">
+                ❤️ Love in Action
+              </h3>
               <div className="space-y-3">
                 <div className="flex items-start gap-3">
                   <span className="text-2xl">🍽️</span>
                   <div>
-                    <div className="font-semibold text-red-600">2,500+ Meals Shared</div>
-                    <div className="text-sm text-zinc-600">Bringing families together around nutritious meals daily</div>
+                    <div className="font-semibold text-red-600">
+                      2,500+ Meals Shared
+                    </div>
+                    <div className="text-sm text-zinc-600">
+                      Bringing families together around nutritious meals daily
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <span className="text-2xl">🏥</span>
                   <div>
-                    <div className="font-semibold text-blue-600">500+ Lives Touched</div>
-                    <div className="text-sm text-zinc-600">Caring healthcare reaching families in their communities</div>
+                    <div className="font-semibold text-blue-600">
+                      500+ Lives Touched
+                    </div>
+                    <div className="text-sm text-zinc-600">
+                      Caring healthcare reaching families in their communities
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <span className="text-2xl">📚</span>
                   <div>
-                    <div className="font-semibold text-green-600">200+ Dreams Nurtured</div>
-                    <div className="text-sm text-zinc-600">Educational opportunities helping children flourish</div>
+                    <div className="font-semibold text-green-600">
+                      200+ Dreams Nurtured
+                    </div>
+                    <div className="text-sm text-zinc-600">
+                      Educational opportunities helping children flourish
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <span className="text-2xl">🏠</span>
                   <div>
-                    <div className="font-semibold text-orange-600">15+ Families at Home</div>
-                    <div className="text-sm text-zinc-600">Creating safe, loving spaces where families thrive</div>
+                    <div className="font-semibold text-orange-600">
+                      15+ Families at Home
+                    </div>
+                    <div className="text-sm text-zinc-600">
+                      Creating safe, loving spaces where families thrive
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
             <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-xl p-6 border-t-4 border-purple-500">
-              <h3 className="text-lg font-bold mb-2 text-purple-700">🤝 Join Our Family</h3>
-              <p className="text-zinc-700">There's a place for everyone in our mission! Whether through donations, volunteering, or simply sharing our story, you can be part of bringing hope and joy to families in Haiti.</p>
+              <h3 className="text-lg font-bold mb-2 text-purple-700">
+                🤝 Join Our Family
+              </h3>
+              <p className="text-zinc-700">
+                There's a place for everyone in our mission! Whether through
+                donations, volunteering, or simply sharing our story, you can be
+                part of bringing hope and joy to families in Haiti.
+              </p>
             </div>
           </div>
         </div>
@@ -276,7 +509,9 @@ export default function HomePage() {
             🌟 Be Part of Something Beautiful
           </h2>
           <p className="text-xl text-blue-100 mb-8">
-            Your heart, your time, and your story can bring sunshine into someone's life. Join our amazing community of volunteers who are spreading love and making the world a little brighter every day!
+            Your heart, your time, and your story can bring sunshine into
+            someone's life. Join our amazing community of volunteers who are
+            spreading love and making the world a little brighter every day!
           </p>
           <div className="flex justify-center">
             <Link
@@ -296,6 +531,10 @@ export default function HomePage() {
 // Extend window interface for TypeScript
 declare global {
   interface Window {
-    gtag?: (command: string, action: string, parameters: Record<string, unknown>) => void;
+    gtag?: (
+      command: string,
+      action: string,
+      parameters: Record<string, unknown>
+    ) => void;
   }
 }

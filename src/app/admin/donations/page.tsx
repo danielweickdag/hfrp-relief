@@ -16,7 +16,7 @@ import type {
   DonationFilters,
   DonationCampaign,
 } from "@/types/donation";
-import DonationDashboard from "../../_components/DonationDashboard";
+// import DonationDashboard from "../../_components/DonationDashboard";
 
 function DonationsContent() {
   const { isAuthenticated, isLoading } = useAdminAuth();
@@ -247,7 +247,18 @@ function DonationsContent() {
           </div>
 
           {/* Dashboard View */}
-          {activeView === "dashboard" && <DonationDashboard />}
+          {activeView === "dashboard" && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+              <h3 className="text-lg font-medium text-yellow-800 mb-2">
+                Dashboard Temporarily Disabled
+              </h3>
+              <p className="text-yellow-700">
+                The donation dashboard is temporarily disabled during deployment
+                setup. All donations are still being processed normally through
+                the main site.
+              </p>
+            </div>
+          )}
 
           {/* List View */}
           {activeView === "list" && (

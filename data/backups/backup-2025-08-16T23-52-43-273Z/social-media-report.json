@@ -1,0 +1,17 @@
+{
+  "timestamp": "2025-08-16T17:31:35.747Z",
+  "totalPosts": 30,
+  "platformBreakdown": {
+    "facebook": 25,
+    "instagram": 24,
+    "twitter": 24,
+    "linkedin": 23
+  },
+  "campaignBreakdown": {
+    "hfrp_emergency_2025": 2,
+    "hfrp_education_2025": 1,
+    "hfrp_healthcare_2025": 1
+  },
+  "scheduledPosts": 7,
+  "pastDuePosts": 23
+}

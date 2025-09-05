@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 interface PostData {
   [key: string]: string | undefined;
@@ -10,39 +10,72 @@ interface PostData {
   content?: string;
 }
 
-function socialShareLinks({title, summary}: {title?: string, summary?: string}) {
-  const url = typeof window !== 'undefined' ? window.location.href : '';
+function socialShareLinks({
+  title,
+  summary,
+}: { title?: string; summary?: string }) {
+  const url = typeof window !== "undefined" ? window.location.href : "";
   const encodedURL = encodeURIComponent(url);
-  const encodedTitle = encodeURIComponent(title || '');
-  const encodedSummary = encodeURIComponent(summary || '');
+  const encodedTitle = encodeURIComponent(title || "");
+  const encodedSummary = encodeURIComponent(summary || "");
   return [
-    { label: 'Facebook', href: `https://www.facebook.com/sharer/sharer.php?u=${encodedURL}`, icon: '🌐' },
-    { label: 'X / Twitter', href: `https://twitter.com/intent/tweet?text=${encodedTitle}%20${encodedURL}` , icon: '🐦' },
-    { label: 'WhatsApp', href: `https://wa.me/?text=${encodedTitle}%20${encodedURL}`, icon: '📱' },
-    { label: 'Email', href: `mailto:?subject=${encodedTitle}&body=${encodedSummary}%20${encodedURL}`, icon: '✉️' }
+    {
+      label: "Facebook",
+      href: `https://www.facebook.com/sharer/sharer.php?u=${encodedURL}`,
+      icon: "🌐",
+    },
+    {
+      label: "X / Twitter",
+      href: `https://twitter.com/intent/tweet?text=${encodedTitle}%20${encodedURL}`,
+      icon: "🐦",
+    },
+    {
+      label: "WhatsApp",
+      href: `https://wa.me/?text=${encodedTitle}%20${encodedURL}`,
+      icon: "📱",
+    },
+    {
+      label: "Email",
+      href: `mailto:?subject=${encodedTitle}&body=${encodedSummary}%20${encodedURL}`,
+      icon: "✉️",
+    },
   ];
 }
 
 export default function BackButton({ post }: { post: PostData }) {
   const router = useRouter();
   const [copied, setCopied] = useState(false);
-  const shareLinks = socialShareLinks({title: post.title, summary: post.summary});
+  const shareLinks = socialShareLinks({
+    title: post.title,
+    summary: post.summary,
+  });
 
   function handleCopy() {
-    if (typeof window !== 'undefined') {
-      navigator.clipboard.writeText(window.location.href).then(()=>{
+    if (typeof window !== "undefined") {
+      navigator.clipboard.writeText(window.location.href).then(() => {
         setCopied(true);
-        setTimeout(()=>setCopied(false), 2000);
+        setTimeout(() => setCopied(false), 2000);
       });
     }
   }
 
   return (
     <>
-      <button onClick={() => router.back()} className="mb-4 text-blue-700 hover:underline">← Back to Blog</button>
+      <button
+        onClick={() => router.back()}
+        className="mb-4 text-blue-700 hover:underline"
+      >
+        ← Back to Blog
+      </button>
       <div className="flex gap-3 mb-5 mt-2">
-        {shareLinks.map(link => (
-          <a key={link.label} href={link.href} target="_blank" rel="noopener noreferrer" className="text-xs bg-blue-50 hover:bg-blue-100 border-blue-600 border px-3 py-2 rounded flex items-center gap-1 font-bold text-blue-600 transition">
+        {shareLinks.map((link) => (
+          <a
+            key={link.label}
+            href={link.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs bg-blue-50 hover:bg-blue-100 border-blue-600 border px-3 py-2 rounded flex items-center gap-1 font-bold text-blue-600 transition"
+          >
             <span>{link.icon}</span> <span>{link.label}</span>
           </a>
         ))}
@@ -52,7 +85,7 @@ export default function BackButton({ post }: { post: PostData }) {
           type="button"
           title="Copy post link to clipboard for Instagram Story"
         >
-          <span>📸</span> <span>{copied ? 'Copied!' : 'Instagram'}</span>
+          <span>📸</span> <span>{copied ? "Copied!" : "Instagram"}</span>
         </button>
       </div>
     </>
