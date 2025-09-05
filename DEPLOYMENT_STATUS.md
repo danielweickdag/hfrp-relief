@@ -21,8 +21,8 @@ Go to [Vercel Dashboard](https://vercel.com/dashboard) and add these environment
 **Critical Variables (Add these first):**
 
 ```bash
-STRIPE_SECRET_KEY=sk_live_xxx_REDACTED_xxx51Rw9JfEUygl8L6JLAhAzuH3FdTMrSZKvDyDSsXY5hR0bCj5hBUojx6usltbKgpY8AlECprNX8A3Fd65wzkojFLpt002uC9WTqS
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_xxx_REDACTED_xxx51Rw9JfEUygl8L6JLw9zLcZEESyWFK8rH7eB8TAG56jyW3iF3YPr22iLaRhSi6hPPHmWAmD9jY5zBHUhecOZHSN5000Ecx69uyZ
+STRIPE_SECRET_KEY=sk_live_xxx_REDACTED_xxx
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_xxx_REDACTED_xxx
 NEXT_PUBLIC_STRIPE_TEST_MODE=false
 NEXT_PUBLIC_SITE_URL=https://www.familyreliefproject.org
 NODE_ENV=production

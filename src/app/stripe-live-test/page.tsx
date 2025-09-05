@@ -58,7 +58,7 @@ export default function StripeLiveTestPage() {
     if (isUsingLiveKey) {
       results.push("");
       results.push("🔒 LIVE MODE CHECKLIST:");
-      results.push("• Ensure you have your secret key (sk_live_xxx_REDACTED_xxx...)");
+      results.push("• Ensure you have your secret key (sk_live_...)");
       results.push("• Set up webhooks in Stripe dashboard");
       results.push("• Test with small amounts first");
       results.push("• Monitor Stripe dashboard closely");
@@ -183,7 +183,7 @@ export default function StripeLiveTestPage() {
             real payments.
           </p>
           <div className="space-y-2 text-sm text-red-600">
-            <p>• Make sure you have configured your secret key (sk_live_xxx_REDACTED_xxx...)</p>
+            <p>• Make sure you have configured your secret key (sk_live_...)</p>
             <p>• Set up webhooks in your Stripe dashboard</p>
             <p>• Test with small amounts first ($1-5)</p>
             <p>• Monitor your Stripe dashboard for transactions</p>

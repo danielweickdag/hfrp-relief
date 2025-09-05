@@ -84,7 +84,7 @@ export default function StripeConfig() {
               onChange={(e) =>
                 setConfig({ ...config, publishableKey: e.target.value })
               }
-              placeholder={config.isTestMode ? "pk_test_..." : "pk_live_xxx_REDACTED_xxx..."}
+              placeholder={config.isTestMode ? "pk_test_..." : "pk_live_..."}
               className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <button
@@ -96,7 +96,7 @@ export default function StripeConfig() {
             </button>
           </div>
           <p className="text-xs text-gray-500 mt-1">
-            Your Stripe publishable key (starts with pk_test_ or pk_live_xxx_REDACTED_xxx)
+            Your Stripe publishable key (starts with pk_test_ or pk_live_)
           </p>
         </div>
 
@@ -188,7 +188,7 @@ export default function StripeConfig() {
           </li>
           <li>Get your API keys from the Stripe Dashboard</li>
           <li>Use test keys (pk_test_) for development</li>
-          <li>Switch to live keys (pk_live_xxx_REDACTED_xxx) for production</li>
+          <li>Switch to live keys (pk_live_) for production</li>
           <li>
             Configure webhooks in Stripe Dashboard for donation notifications
           </li>

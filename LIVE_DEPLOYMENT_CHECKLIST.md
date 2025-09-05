@@ -8,7 +8,7 @@
 
 ## Stripe Dashboard Setup
 
-- [ ] **Get Live Secret Key**: Go to Stripe Dashboard → Developers → API Keys → Secret key (starts with `sk_live_xxx_REDACTED_xxx...`)
+- [ ] **Get Live Secret Key**: Go to Stripe Dashboard → Developers → API Keys → Secret key (starts with `sk_live_...`)
 - [ ] **Set up Webhooks**:
   - Go to Stripe Dashboard → Developers → Webhooks
   - Add endpoint: `https://your-domain.com/api/stripe/webhook`
@@ -17,8 +17,8 @@
 
 ## Environment Configuration
 
-- [x] **Copy live publishable key**: `pk_live_xxx_REDACTED_xxx51Rw9JfEUygl8L6JLw9zLcZEESyWFK8rH7eB8TAG56jyW3iF3YPr22iLaRhSi6hPPHmWAmD9jY5zBHUhecOZHSN5000Ecx69uyZ` ✅
-- [x] **Add live secret key**: `sk_live_xxx_REDACTED_xxx51Rw9JfEUygl8L6JL...` ✅ **CONFIGURED**
+- [x] **Copy live publishable key**: `pk_live_51Rw9JfEUygl8L6JLw9zLcZEESyWFK8rH7eB8TAG56jyW3iF3YPr22iLaRhSi6hPPHmWAmD9jY5zBHUhecOZHSN5000Ecx69uyZ` ✅
+- [x] **Add live secret key**: `sk_live_51Rw9JfEUygl8L6JL...` ✅ **CONFIGURED**
 - [ ] **Add webhook secret** (from webhook setup)
 - [ ] **Set test mode to false**: `NEXT_PUBLIC_STRIPE_TEST_MODE=false`
 

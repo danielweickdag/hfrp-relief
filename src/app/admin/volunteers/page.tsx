@@ -1,6 +1,7 @@
 "use client";
 
 import { AdminAuthProvider } from "@/app/_components/AdminAuth";
+import StripeButton from "@/app/_components/StripeButton";
 import { useState } from "react";
 
 interface Volunteer {
@@ -275,34 +276,73 @@ function VolunteersContent() {
           </div>
         </div>
 
-        {/* Quick Actions */}
+        {/* Quick Actions & Payments */}
         <div className="mt-6 bg-white rounded-lg shadow p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Quick Actions
+            Quick Actions & Payments
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <button className="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-lg transition-colors">
-              <div className="text-left">
-                <div className="font-semibold">Send Newsletter</div>
-                <div className="text-sm opacity-90">Update all volunteers</div>
-              </div>
-            </button>
-            <button className="bg-green-600 hover:bg-green-700 text-white p-4 rounded-lg transition-colors">
-              <div className="text-left">
-                <div className="font-semibold">Schedule Training</div>
-                <div className="text-sm opacity-90">
-                  Organize volunteer training
+            <div className="flex flex-col items-stretch">
+              <button className="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-lg transition-colors mb-2">
+                <div className="text-left">
+                  <div className="font-semibold">Send Newsletter</div>
+                  <div className="text-sm opacity-90">
+                    Update all volunteers
+                  </div>
                 </div>
-              </div>
-            </button>
-            <button className="bg-purple-600 hover:bg-purple-700 text-white p-4 rounded-lg transition-colors">
-              <div className="text-left">
-                <div className="font-semibold">Generate Report</div>
-                <div className="text-sm opacity-90">
-                  Volunteer activity report
+              </button>
+              {/* Volunteer Membership Payment */}
+              <StripeButton
+                className="bg-green-600 hover:bg-green-700 text-white p-4 rounded-lg transition-colors mb-2"
+                campaignId="volunteer-membership"
+                amount={25}
+                recurring={true}
+                interval="year"
+                variant="popup"
+              >
+                Pay Volunteer Membership ($25/year)
+              </StripeButton>
+            </div>
+            <div className="flex flex-col items-stretch">
+              <button className="bg-green-600 hover:bg-green-700 text-white p-4 rounded-lg transition-colors mb-2">
+                <div className="text-left">
+                  <div className="font-semibold">Schedule Training</div>
+                  <div className="text-sm opacity-90">
+                    Organize volunteer training
+                  </div>
                 </div>
-              </div>
-            </button>
+              </button>
+              {/* Event Registration Payment */}
+              <StripeButton
+                className="bg-purple-600 hover:bg-purple-700 text-white p-4 rounded-lg transition-colors mb-2"
+                campaignId="volunteer-event-registration"
+                amount={10}
+                recurring={false}
+                variant="popup"
+              >
+                Pay Event Registration ($10)
+              </StripeButton>
+            </div>
+            <div className="flex flex-col items-stretch">
+              <button className="bg-purple-600 hover:bg-purple-700 text-white p-4 rounded-lg transition-colors mb-2">
+                <div className="text-left">
+                  <div className="font-semibold">Generate Report</div>
+                  <div className="text-sm opacity-90">
+                    Volunteer activity report
+                  </div>
+                </div>
+              </button>
+              {/* Volunteer Campaign Donation */}
+              <StripeButton
+                className="bg-red-600 hover:bg-red-700 text-white p-4 rounded-lg transition-colors"
+                campaignId="hfrp-haiti-relief-fund"
+                amount={50}
+                recurring={false}
+                variant="popup"
+              >
+                Donate $50 to Haiti Relief Fund
+              </StripeButton>
+            </div>
           </div>
         </div>
       </div>
