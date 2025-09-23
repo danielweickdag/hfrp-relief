@@ -18,7 +18,8 @@ export default function RadioPage() {
           {/* Main Radio Player */}
           <div className="flex justify-center">
             <RadioPlayer
-              streamUrl="https://your-radio-stream-url.com/stream"
+              streamUrl="https://stream.zeno.fm/wvdsqqn1cf9uv"
+              externalPlayerUrl="https://listen.zeno.fm/player/family-relief-project-radio-station"
               stationName="HFRP Radio"
               size="lg"
               variant="full"
@@ -92,9 +93,9 @@ export default function RadioPage() {
                 Every donation helps us reach more families in need and expand
                 our radio outreach.
               </p>
-              <button className="bg-white text-red-600 px-6 py-2 rounded-lg font-semibold hover:bg-gray-100 transition">
+              <a href="/donate" className="inline-block bg-white text-red-600 px-6 py-2 rounded-lg font-semibold hover:bg-gray-100 transition">
                 Donate Now
-              </button>
+              </a>
             </div>
           </div>
         </div>

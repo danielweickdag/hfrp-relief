@@ -201,20 +201,26 @@ export default function DonatePage() {
               assistance.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-xl mx-auto">
-              <div className="bg-white rounded-lg p-4 shadow">
+              <a 
+                href="mailto:contact@haitianfamilyrelief.org?subject=Donation Assistance Request"
+                className="bg-white rounded-lg p-4 shadow hover:shadow-lg transition-shadow cursor-pointer block"
+              >
                 <div className="text-2xl mb-2">📧</div>
-                <div className="font-semibold">Email Us</div>
+                <div className="font-semibold text-blue-600 hover:text-blue-800">Email Us</div>
                 <div className="text-sm text-gray-600">
                   For donation assistance
                 </div>
-              </div>
-              <div className="bg-white rounded-lg p-4 shadow">
+              </a>
+              <a 
+                href="/contact"
+                className="bg-white rounded-lg p-4 shadow hover:shadow-lg transition-shadow cursor-pointer block"
+              >
                 <div className="text-2xl mb-2">💬</div>
-                <div className="font-semibold">Contact Form</div>
+                <div className="font-semibold text-blue-600 hover:text-blue-800">Contact Form</div>
                 <div className="text-sm text-gray-600">
                   Get personalized help
                 </div>
-              </div>
+              </a>
             </div>
           </div>
         </section>
