@@ -116,7 +116,9 @@ export default function RootLayout({
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
-              gtag('config', '${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "G-XXXXXXXXXX"}');
+              if ('${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || ""}') {
+                gtag('config', '${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || ""}');
+              }
             `,
           }}
         />
@@ -126,7 +128,7 @@ export default function RootLayout({
           <AnalyticsProvider
             measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}
           >
-            <GoogleAnalytics measurementId="G-XXXXXXXXXX" />
+            <GoogleAnalytics measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || ""} />
             <ClientBody>
               <Navbar />
               <main>{children}</main>

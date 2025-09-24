@@ -116,7 +116,7 @@ export function Navbar() {
 
               {/* Radio Player */}
               <RadioPlayer
-                streamUrl="https://stream.zeno.fm/wvdsqqn1cf9uv"
+                streamUrl="https://radiofrancecaraibes.vestaradio.com/stream"
                 stationName="HFRP Radio"
                 size="sm"
                 variant="icon"
@@ -286,7 +286,7 @@ export function Navbar() {
 
               {/* Radio Player */}
               <RadioPlayer
-                streamUrl="https://stream.zeno.fm/wvdsqqn1cf9uv"
+                streamUrl="https://radiofrancecaraibes.vestaradio.com/stream"
                 stationName="HFRP Radio"
                 size="sm"
                 variant="icon"

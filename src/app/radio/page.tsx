@@ -18,7 +18,7 @@ export default function RadioPage() {
           {/* Main Radio Player */}
           <div className="flex justify-center">
             <RadioPlayer
-              streamUrl="https://stream.zeno.fm/wvdsqqn1cf9uv"
+              streamUrl="https://radiofrancecaraibes.vestaradio.com/stream"
               externalPlayerUrl="https://listen.zeno.fm/player/family-relief-project-radio-station"
               stationName="HFRP Radio"
               size="lg"

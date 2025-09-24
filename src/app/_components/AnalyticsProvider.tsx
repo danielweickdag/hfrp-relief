@@ -138,7 +138,8 @@ export function AnalyticsProvider({
         params?: Record<string, unknown>,
       ) => void;
       gtag("js", new Date(), {});
-      window.gtag("config", measurementId || "G-XXXXXXXXXX", {
+      if (measurementId && measurementId !== "" && measurementId !== "G-XXXXXXXXXX") {
+          window.gtag("config", measurementId, {
         // Enhanced ecommerce settings
         send_page_view: false, // We'll send manually for better control
         custom_map: {
@@ -148,6 +149,7 @@ export function AnalyticsProvider({
           custom_parameter_4: "page_source",
         },
       });
+      }
 
       setIsAnalyticsEnabled(true);
 
@@ -226,11 +228,13 @@ export function AnalyticsProvider({
       );
     }
 
-    window.gtag("config", measurementId || "G-XXXXXXXXXX", {
-      page_title: title || document.title,
-      page_location: window.location.href,
-      page_path: page,
-    });
+    if (measurementId && measurementId !== "" && measurementId !== "G-XXXXXXXXXX") {
+      window.gtag("config", measurementId, {
+        page_title: title || document.title,
+        page_location: window.location.href,
+        page_path: page,
+      });
+    }
 
     // Track page-specific events
     if (page === "/donate") {

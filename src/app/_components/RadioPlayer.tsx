@@ -14,7 +14,7 @@ interface RadioPlayerProps {
 }
 
 export default function RadioPlayer({
-  streamUrl = "https://stream.zeno.fm/wvdsqqn1cf9uv",
+  streamUrl = "https://radiofrancecaraibes.vestaradio.com/stream",
   stationName = "HFRP Radio",
   className = "",
   size: initialSize = "md",
@@ -141,18 +141,14 @@ export default function RadioPlayer({
       }
 
       // Enhanced stream URL options for better browser compatibility
+      // Prioritize reliable streams that don't require authentication
       const streamUrls = [
-        actualStreamUrl,
-        actualStreamUrl.includes("/hls/")
-          ? actualStreamUrl
-          : actualStreamUrl + "/stream",
-        actualStreamUrl.includes("/hls/")
-          ? actualStreamUrl.replace("/hls/", "/")
-          : actualStreamUrl + "/;",
-        // Fallback to reliable Haitian radio stations
+        // Reliable Haitian radio stations first
         "https://radiofrancecaraibes.vestaradio.com/stream",
-        "https://stream.zeno.fm/wvdsqqn1cf9uv.m3u",
-        "https://stream.zeno.fm/wvdsqqn1cf9uv.pls",
+        "https://stream.live.vc/CRTV", // Caribbean Radio & TV
+        "https://s2.radio.co/s2b2b68744/listen", // Alternative Caribbean stream
+        // Only try original stream if it's not a problematic Zeno.FM URL
+        ...(actualStreamUrl.includes('zeno.fm') && actualStreamUrl.includes('?zt=') ? [] : [actualStreamUrl]),
       ];
 
       let streamWorked = false;

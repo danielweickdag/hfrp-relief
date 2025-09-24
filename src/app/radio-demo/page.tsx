@@ -157,7 +157,7 @@ export default function RadioDemoPage() {
                 <h3 className="font-semibold">1. Set Your Stream URL</h3>
                 <p>Replace the demo URL with your actual radio stream URL:</p>
                 <code className="bg-blue-100 px-2 py-1 rounded text-sm">
-                  streamUrl="https://stream.zeno.fm/wvdsqqn1cf9uv"
+                  streamUrl="https://radiofrancecaraibes.vestaradio.com/stream"
                 </code>
               </div>
 
