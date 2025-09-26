@@ -255,7 +255,18 @@ export default function BlogManager() {
 
         <div className="divide-y divide-gray-200">
           {filteredPosts.map((post) => (
-            <div key={post.id} className="p-6 hover:bg-gray-50 transition">
+            <div 
+              key={post.id} 
+              className="p-6 hover:bg-gray-50 transition cursor-pointer"
+              onClick={(e) => {
+                // Only trigger edit if not clicking on action buttons
+                const target = e.target as HTMLElement;
+                if (!target.closest('button') && !target.closest('a') && hasPermission("blog.edit")) {
+                  handleEditPost(post);
+                }
+              }}
+              title={hasPermission("blog.edit") ? "Click to edit post" : ""}
+            >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
@@ -293,12 +304,28 @@ export default function BlogManager() {
                       </span>
                     ))}
                   </div>
+                  
+                  {post.tags && post.tags.length > 0 && (
+                    <div className="flex items-center gap-2 mt-2">
+                      {post.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full border"
+                        >
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-2 ml-4">
                   {hasPermission("blog.edit") && (
                     <button
-                      onClick={() => handleEditPost(post)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEditPost(post);
+                      }}
                       className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition"
                       title="Edit post"
                     >
@@ -308,7 +335,10 @@ export default function BlogManager() {
 
                   {hasPermission("blog.delete") && (
                     <button
-                      onClick={() => handleDeletePost(post.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeletePost(post.id);
+                      }}
                       className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition"
                       title="Delete post"
                     >
@@ -322,6 +352,7 @@ export default function BlogManager() {
                     rel="noopener noreferrer"
                     className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition"
                     title="View post"
+                    onClick={(e) => e.stopPropagation()}
                   >
                     👁️
                   </a>
@@ -576,6 +607,58 @@ function BlogEditor({
                   <span className="ml-2 text-sm text-gray-700">{category}</span>
                 </label>
               ))}
+            </div>
+          </div>
+
+          {/* Tags */}
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Tags
+            </h3>
+            <div className="space-y-3">
+              <div>
+                <input
+                  type="text"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                  placeholder="Add tags (press Enter)"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      const input = e.target as HTMLInputElement;
+                      const tag = input.value.trim();
+                      if (tag && !formData.tags.includes(tag)) {
+                        setFormData(prev => ({
+                          ...prev,
+                          tags: [...prev.tags, tag]
+                        }));
+                        input.value = '';
+                      }
+                    }
+                  }}
+                />
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {formData.tags.map((tag, index) => (
+                  <span
+                    key={index}
+                    className="inline-flex items-center px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full"
+                  >
+                    {tag}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormData(prev => ({
+                          ...prev,
+                          tags: prev.tags.filter((_, i) => i !== index)
+                        }));
+                      }}
+                      className="ml-1 text-gray-500 hover:text-red-500"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
 

@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import StripeButton from "@/app/_components/StripeButton";
+// import StripeButton from "@/app/_components/StripeButton";
 import TestimonialsSection from "./_components/TestimonialsSection";
 
 // Extend window interface for gtag
@@ -394,14 +394,9 @@ export default function HomePage() {
                 Your donation directly supports families in Haiti with food,
                 healthcare, education, and safe housing.
               </p>
-              <StripeButton
-                campaignId="haiti-relief-main"
-                amount={15}
-                recurring={true}
-                interval="month"
+              <button
+                onClick={() => router.push('/donate')}
                 className="bg-white text-red-600 hover:bg-red-50 px-8 py-4 rounded-lg font-bold text-xl transition-all transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-3 mx-auto w-fit cursor-pointer"
-                onSuccess={handleDonateSuccess}
-                onError={handleDonateError}
               >
                 <svg
                   className="w-6 h-6"
@@ -411,7 +406,7 @@ export default function HomePage() {
                   <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                 </svg>
                 Donate Now
-              </StripeButton>
+              </button>
             </div>
           </div>
 

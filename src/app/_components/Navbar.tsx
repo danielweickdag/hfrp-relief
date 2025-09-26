@@ -2,12 +2,17 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import RadioPlayer from "./RadioPlayer";
 
 export function Navbar() {
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -116,7 +121,7 @@ export function Navbar() {
 
               {/* Radio Player */}
               <RadioPlayer
-                streamUrl="https://radiofrancecaraibes.vestaradio.com/stream"
+                streamUrl="https://stream.zeno.fm/ttq4haexcf9uv"
                 stationName="HFRP Radio"
                 size="sm"
                 variant="icon"
@@ -131,7 +136,7 @@ export function Navbar() {
             <div className="hidden md:flex items-center space-x-3">
               {/* Facebook */}
               <a
-                href="https://facebook.com/haitianfamilyreliefproject"
+                href="https://facebook.com/familyreliefproject"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-white hover:text-blue-400 transition-colors duration-200"
@@ -148,7 +153,7 @@ export function Navbar() {
 
               {/* Twitter */}
               <a
-                href="https://twitter.com/hfrproject"
+                href="https://twitter.com/familyreliefproject"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-white hover:text-blue-300 transition-colors duration-200"
@@ -165,7 +170,7 @@ export function Navbar() {
 
               {/* Instagram */}
               <a
-                href="https://instagram.com/haitianfamilyreliefproject"
+                href="https://instagram.com/familyreliefproject"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-white hover:text-pink-400 transition-colors duration-200"
@@ -212,7 +217,7 @@ export function Navbar() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d={isMobileMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
+                  d={isMounted && isMobileMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
                 />
               </svg>
             </button>
@@ -286,7 +291,7 @@ export function Navbar() {
 
               {/* Radio Player */}
               <RadioPlayer
-                streamUrl="https://radiofrancecaraibes.vestaradio.com/stream"
+                streamUrl="https://stream.zeno.fm/ttq4haexcf9uv"
                 stationName="HFRP Radio"
                 size="sm"
                 variant="icon"
@@ -297,7 +302,7 @@ export function Navbar() {
             {/* Social Media Links */}
             <div className="flex items-center justify-center space-x-6 pt-4">
               <a
-                href="https://facebook.com/haitianfamilyreliefproject"
+                href="https://facebook.com/familyreliefproject"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-white hover:text-blue-400 transition-colors duration-200"
@@ -313,7 +318,7 @@ export function Navbar() {
               </a>
 
               <a
-                href="https://twitter.com/hfrproject"
+                href="https://twitter.com/familyreliefproject"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-white hover:text-blue-300 transition-colors duration-200"
@@ -329,7 +334,7 @@ export function Navbar() {
               </a>
 
               <a
-                href="https://instagram.com/haitianfamilyreliefproject"
+                href="https://instagram.com/familyreliefproject"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-white hover:text-pink-400 transition-colors duration-200"

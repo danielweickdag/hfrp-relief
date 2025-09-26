@@ -45,6 +45,11 @@ const rolePermissions: Record<UserRole, string[]> = {
     "view_donation_reports",
     "export_donations",
     "manage_backups",
+    "blog.read",
+    "blog.write",
+    "blog.edit",
+    "blog.delete",
+    "blog.publish",
   ],
   editor: [
     "edit_content",
@@ -54,8 +59,16 @@ const rolePermissions: Record<UserRole, string[]> = {
     "manage_volunteers",
     "manage_donations",
     "view_donation_reports",
+    "blog.read",
+    "blog.write",
+    "blog.edit",
+    "blog.publish",
   ],
-  volunteer: ["view_analytics", "edit_content"],
+  volunteer: [
+    "view_analytics", 
+    "edit_content",
+    "blog.read",
+  ],
 };
 
 // Mock admin users with secure storage

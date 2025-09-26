@@ -1,7 +1,9 @@
 "use client";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { AdminAuthProvider, useAdminAuth } from "@/app/_components/AdminAuth";
+
+import { useState } from "react";
+// import AdminAuthProvider, { useAdminAuth } from "@/app/_components/AdminAuth";
+// import DeploymentChecklist from "@/app/_components/DeploymentChecklist";
+import Link from "next/link";
 
 function DeployPageContent() {
   const { user, isAuthenticated, isLoading } = useAdminAuth();
@@ -67,8 +69,16 @@ function DeployPageContent() {
 
 export default function DeployPage() {
   return (
-    <AdminAuthProvider>
-      <DeployPageContent />
-    </AdminAuthProvider>
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-3xl font-bold mb-6">Deployment</h1>
+        <div className="bg-white rounded-lg shadow p-6">
+          <p className="text-gray-600">Deployment management is temporarily unavailable during deployment.</p>
+          <Link href="/admin" className="text-blue-600 hover:underline mt-4 inline-block">
+            ← Back to Admin Dashboard
+          </Link>
+        </div>
+      </div>
+    </div>
   );
 }

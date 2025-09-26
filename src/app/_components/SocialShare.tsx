@@ -46,7 +46,7 @@ export default function SocialShare({
   const openShare = (platform: keyof typeof shareLinks) => {
     if (platform === "instagram") {
       // For Instagram, we'll just open their page since they don't support URL sharing
-      window.open("https://instagram.com/haitianfamilyreliefproject", "_blank");
+      window.open("https://instagram.com/familyreliefproject", "_blank");
       return;
     }
 
@@ -153,7 +153,7 @@ export function useSocialMedia() {
         ),
       instagram: () =>
         window.open(
-          "https://instagram.com/haitianfamilyreliefproject",
+          "https://instagram.com/familyreliefproject",
           "_blank",
         ),
       whatsapp: () =>
@@ -166,10 +166,10 @@ export function useSocialMedia() {
 
   const followUs = {
     facebook: () =>
-      window.open("https://facebook.com/haitianfamilyreliefproject", "_blank"),
-    twitter: () => window.open("https://twitter.com/hfrproject", "_blank"),
-    instagram: () =>
-      window.open("https://instagram.com/haitianfamilyreliefproject", "_blank"),
+        window.open("https://facebook.com/familyreliefproject", "_blank"),
+      twitter: () => window.open("https://twitter.com/familyreliefproject", "_blank"),
+      instagram: () =>
+        window.open("https://instagram.com/familyreliefproject", "_blank"),
   };
 
   return { shareStory, followUs };

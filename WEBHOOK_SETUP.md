@@ -16,6 +16,7 @@ Add these events to your Stripe webhook in the dashboard:
 
 When you deploy to production, your webhook URL will be:
 
+- **Production**: `https://www.familyreliefproject.org/api/stripe/webhook`
 - **Vercel**: `https://your-domain.vercel.app/api/stripe/webhook`
 - **Netlify**: `https://your-domain.netlify.app/api/stripe/webhook`
 

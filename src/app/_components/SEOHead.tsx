@@ -21,7 +21,7 @@ export default function SEOHead({
   description = "Join us in our mission to feed and empower Haitian orphans. Make a lasting difference with daily giving - as little as 16¢ can provide meals, shelter, education, and healthcare.",
   keywords = "Haiti, orphans, charity, donation, relief, hunger, children, nonprofit, giving, hope, daily giving, Haitian Family Relief Project",
   image = "/hfrp-logo.png",
-  url = "https://haitianfamilyrelief.org",
+  url = "https://www.familyreliefproject.org",
   type = "website",
   article,
 }: SEOHeadProps) {
@@ -100,9 +100,9 @@ export default function SEOHead({
           url: url,
           logo: fullImage,
           sameAs: [
-            "https://facebook.com/haitianfamilyreliefproject",
-            "https://instagram.com/haitianfamilyreliefproject",
-            "https://twitter.com/hfrproject",
+            "https://facebook.com/familyreliefproject",
+        "https://instagram.com/familyreliefproject",
+        "https://twitter.com/familyreliefproject",
           ],
           contactPoint: {
             "@type": "ContactPoint",

@@ -1,15 +1,5 @@
 {
   "version": 2,
-  "routes": [
-    {
-      "src": "/admin/(.*)",
-      "dest": "/admin/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
-    }
-  ],
   "env": {
     "NODE_ENV": "production"
   },

@@ -1,6 +1,6 @@
 "use client";
 
-import CampaignSyncManager from "@/app/_components/CampaignSyncManager";
+import Link from "next/link";
 
 export default function CampaignSyncPage() {
   return (
@@ -15,7 +15,12 @@ export default function CampaignSyncPage() {
           </p>
         </div>
 
-        <CampaignSyncManager />
+        <div className="bg-white rounded-lg shadow p-6">
+          <p className="text-gray-600">Campaign sync management is temporarily unavailable during deployment.</p>
+          <Link href="/admin" className="text-blue-600 hover:underline mt-4 inline-block">
+            ← Back to Admin Dashboard
+          </Link>
+        </div>
       </div>
     </div>
   );

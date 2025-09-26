@@ -15,6 +15,14 @@ const nextConfig = {
     ],
   },
   serverExternalPackages: ["nodemailer"],
+  turbopack: {
+    rules: {
+      "*.md": {
+        loaders: ["raw-loader"],
+        as: "*.js",
+      },
+    },
+  },
 };
 
 module.exports = nextConfig;

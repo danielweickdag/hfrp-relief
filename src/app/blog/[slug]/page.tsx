@@ -58,10 +58,10 @@ export async function generateMetadata({
         post.summary ||
         `Read ${post.title} - a story from the Haitian Family Relief Project`,
       type: "article",
-      url: `https://haitianfamilyrelief.org/blog/${slug}`,
-      images: post.image
-        ? [`https://haitianfamilyrelief.org${post.image}`]
-        : [],
+    url: `https://www.familyreliefproject.org/blog/${slug}`,
+        images: post.image
+          ? [`https://www.familyreliefproject.org${post.image}`]
+          : [],
       article: {
         authors: [post.author || "HFRP Team"],
         publishedTime: post.date,
@@ -75,9 +75,9 @@ export async function generateMetadata({
       description:
         post.summary ||
         `Read ${post.title} - a story from the Haitian Family Relief Project`,
-      images: post.image
-        ? [`https://haitianfamilyrelief.org${post.image}`]
-        : [],
+     images: post.image
+          ? [`https://www.familyreliefproject.org${post.image}`]
+          : [],
     },
   };
 }

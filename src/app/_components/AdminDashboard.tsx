@@ -34,6 +34,33 @@ interface HFRPStats {
   websiteVisitors: number;
 }
 
+interface WorkflowTask {
+  name: string;
+  success: boolean;
+}
+
+interface WorkflowStatus {
+  currentWorkflow: string | null;
+  runningTasks: string[];
+  completedTasks: string[];
+  failedTasks: string[];
+  logs: string[];
+  isRunning: boolean;
+}
+
+interface Campaign {
+  name: string;
+  raised: number;
+  progress: number;
+}
+
+interface SocialContent {
+  platform: string;
+  content: string;
+  estimatedReach: number;
+  expectedEngagement: string;
+}
+
 export default function AdminDashboard({ className = "" }: DashboardProps) {
   const { user, logout } = useAdminAuth();
   const [activeTab, setActiveTab] = useState<
@@ -91,7 +118,7 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
   };
 
   // Workflow Orchestration State
-  const [workflowStatus, setWorkflowStatus] = useState({
+  const [workflowStatus, setWorkflowStatus] = useState<WorkflowStatus>({
     currentWorkflow: null,
     runningTasks: [],
     completedTasks: [],
@@ -103,12 +130,18 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
   // Workflow Management Functions
   const runWorkflow = async (workflowType: string, options = {}) => {
     setLoading(true);
-    setWorkflowStatus((prev) => ({
-      ...prev,
-      isRunning: true,
-      currentWorkflow: workflowType,
-      logs: [...prev.logs, `🚀 Starting ${workflowType} workflow...`],
-    }));
+    setWorkflowStatus((prev) => {
+      const updatedLogs = Array.isArray(prev.logs) 
+        ? [...prev.logs, `🚀 Starting ${workflowType} workflow...`]
+        : [`🚀 Starting ${workflowType} workflow...`];
+        
+      return {
+        ...prev,
+        isRunning: true,
+        currentWorkflow: workflowType,
+        logs: updatedLogs,
+      };
+    });
 
     try {
       // Call the workflow orchestrator
@@ -123,22 +156,23 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
         setWorkflowStatus((prev) => ({
           ...prev,
           completedTasks: result.tasks
-            .filter((t) => t.success)
-            .map((t) => t.name),
+            .filter((t: WorkflowTask) => t.success)
+            .map((t: WorkflowTask) => t.name),
           failedTasks: result.tasks
-            .filter((t) => !t.success)
-            .map((t) => t.name),
+            .filter((t: WorkflowTask) => !t.success)
+            .map((t: WorkflowTask) => t.name),
           logs: [...prev.logs, `✅ ${workflowType} workflow completed`],
         }));
       } else {
         throw new Error("Workflow execution failed");
       }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       setWorkflowStatus((prev) => ({
         ...prev,
         logs: [
           ...prev.logs,
-          `❌ ${workflowType} workflow failed: ${error.message}`,
+          `❌ ${workflowType} workflow failed: ${errorMessage}`,
         ],
       }));
     } finally {
@@ -150,77 +184,148 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
   // Automation Functions
   const runDonationReport = async () => {
     setLoading(true);
-    console.log("🔄 Generating comprehensive donation report...");
+    console.log("🔄 Generating comprehensive analytics report...");
 
-    // Simulate report generation
-    setTimeout(() => {
-      const report = {
+    try {
+      // Call the new analytics API
+      const response = await fetch("/api/analytics/reports", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          reportType: "comprehensive", 
+          period: "monthly" 
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        const report = result.report;
+
+        // Update dashboard stats with real data
+        setHfrpStats(prev => ({
+          ...prev,
+          totalDonations: Math.round(report.donations.total),
+          totalDonors: report.donors.total,
+          monthlyRecurring: Math.round(report.donations.total * 0.3), // Estimate recurring
+          websiteVisitors: report.traffic.visitors,
+        }));
+
+        // Show comprehensive report
+        alert(
+          `📊 COMPREHENSIVE ANALYTICS REPORT\n\n` +
+            `💰 Total Donations: $${report.donations.total.toLocaleString()}\n` +
+            `📊 Donation Count: ${report.donations.count}\n` +
+            `💵 Average Donation: $${report.donations.average.toFixed(2)}\n` +
+            `📈 Growth: ${report.donations.growth}\n` +
+            `🔄 Recurring: ${report.donations.recurring} | One-time: ${report.donations.oneTime}\n\n` +
+            `👥 DONOR INSIGHTS\n` +
+            `Total Donors: ${report.donors.total}\n` +
+            `New Donors: ${report.donors.new}\n` +
+            `Returning: ${report.donors.returning}\n` +
+            `Retention Rate: ${report.donors.retention}\n` +
+            `Avg Lifetime Value: $${report.donors.averageLifetimeValue.toFixed(2)}\n\n` +
+            `🎯 TOP CAMPAIGNS\n${report.campaigns.topPerforming.map((c: Campaign) => 
+              `• ${c.name}: $${c.raised.toLocaleString()} (${c.progress}%)`
+            ).join("\n")}\n\n` +
+            `🌐 WEBSITE TRAFFIC\n` +
+            `Visitors: ${report.traffic.visitors.toLocaleString()}\n` +
+            `Page Views: ${report.traffic.pageViews.toLocaleString()}\n` +
+            `Conversion Rate: ${report.traffic.conversionRate}\n\n` +
+            `🤖 AUTOMATION STATUS\n` +
+            `Emails Sent: ${report.automation.emailsSent}\n` +
+            `Social Posts: ${report.automation.socialPosts}\n` +
+            `Workflows: ${report.automation.workflowsExecuted}\n` +
+            `Success Rate: ${report.automation.successRate}\n\n` +
+            `📄 Report ID: ${report.reportId}\n` +
+            `📥 Download: ${result.downloadUrl}`
+        );
+
+        // Trigger automated actions based on report
+        console.log("✅ Analytics report generated and automated actions triggered");
+      } else {
+        throw new Error("Failed to generate analytics report");
+      }
+    } catch (error) {
+      console.error("❌ Analytics report generation failed:", error);
+      
+      // Fallback to basic report
+      const basicReport = {
         totalThisMonth: hfrpStats.totalDonations * 0.12,
         newDonors: Math.floor(hfrpStats.totalDonors * 0.08),
         recurringGrowth: "15.3%",
         averageDonation: 125,
-        topCampaigns: [
-          "Emergency Relief",
-          "Education Fund",
-          "Medical Care",
-          "Housing Initiative",
-        ],
-        donorRetention: "78%",
       };
 
       alert(
-        `📊 COMPREHENSIVE DONATION REPORT\n\n` +
-          `💰 This Month: $${report.totalThisMonth.toLocaleString()}\n` +
-          `👥 New Donors: ${report.newDonors}\n` +
-          `📈 Recurring Growth: ${report.recurringGrowth}\n` +
-          `💵 Average Donation: $${report.averageDonation}\n` +
-          `🔄 Donor Retention: ${report.donorRetention}\n\n` +
-          `🎯 Top Campaigns:\n${report.topCampaigns.map((c) => `• ${c}`).join("\n")}\n\n` +
-          `Report saved to: /reports/donations_${new Date().toISOString().split("T")[0]}.pdf`
+        `📊 BASIC DONATION REPORT (Offline Mode)\n\n` +
+          `💰 This Month: $${basicReport.totalThisMonth.toLocaleString()}\n` +
+          `👥 New Donors: ${basicReport.newDonors}\n` +
+          `📈 Recurring Growth: ${basicReport.recurringGrowth}\n` +
+          `💵 Average Donation: $${basicReport.averageDonation}\n\n` +
+          `⚠️ Full analytics unavailable - check API connection`
       );
+    } finally {
       setLoading(false);
-    }, 2000);
+    }
   };
 
   const syncStripeData = async () => {
     setLoading(true);
-    console.log("🔄 Syncing Stripe automation data with HFRP systems...");
+    console.log("🔄 Starting enhanced Stripe automation sync...");
 
     try {
-      // Import Stripe automation service
-      const { stripeAutomation } = await import("@/lib/stripeAutomation");
+      // Call the enhanced Stripe sync API
+      const response = await fetch("/api/stripe/sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          action: "automation-sync",
+          automateWorkflows: true,
+          generateReports: true 
+        }),
+      });
 
-      // Sync all Stripe data
-      const syncReport = await stripeAutomation.syncAllData();
+      if (response.ok) {
+        const result = await response.json();
+        const automationReport = result.automationReport;
+        const syncData = result.data;
 
-      // Update local stats
-      setHfrpStats((prev) => ({
-        ...prev,
-        totalDonations: syncReport.totalDonations,
-        totalDonors: syncReport.recurringDonors,
-      }));
+      // Update local stats with real sync data
+        setHfrpStats(prev => ({
+          ...prev,
+          totalDonations: prev.totalDonations + (automationReport.donations.totalAmount || 0),
+          totalDonors: prev.totalDonors + (automationReport.donations.synced || 0),
+          monthlyRecurring: Math.round((automationReport.donations.totalAmount || 0) * 0.4), // Estimate recurring
+        }));
 
-      // Trigger automated workflows
-      await stripeAutomation.automateWeeklyReports();
-      await stripeAutomation.automateSocialMediaPosts();
+      // Show comprehensive sync report
+        alert(
+          `✅ ENHANCED STRIPE AUTOMATION SYNC COMPLETED\n\n` +
+            `📊 SYNC SUMMARY\n` +
+            `Campaigns Synced: ${automationReport.campaigns.synced}\n` +
+            `Donations Processed: ${automationReport.donations.synced}\n` +
+            `Total Amount: $${automationReport.donations.totalAmount.toLocaleString()}\n` +
+            `Sync Duration: ${automationReport.summary.duration}\n` +
+            `Success Rate: ${automationReport.summary.successRate}\n\n` +
+            `🤖 AUTOMATION TRIGGERED\n` +
+            `Emails Sent: ${automationReport.automation.emailsTriggered}\n` +
+            `Social Posts Scheduled: ${automationReport.automation.socialPostsScheduled}\n` +
+            `Workflows Executed: ${automationReport.automation.workflowsExecuted.length}\n\n` +
+            `📄 Sync ID: ${automationReport.syncId}`
+        );
 
-      alert(
-        `✅ STRIPE AUTOMATION SYNC COMPLETED\n\n` +
-          `📊 Campaigns: ${syncReport.campaigns.length}\n` +
-          `🎟️ Events: ${syncReport.events.length}\n` +
-          `💰 Total Donations: $${syncReport.totalDonations.toLocaleString()}\n` +
-          `🔄 Recurring Donors: ${syncReport.recurringDonors}\n\n` +
-          `🤖 All automation workflows updated!\n` +
-          `📧 Email sequences activated\n` +
-          `📱 Social media posts scheduled\n` +
-          `📊 Weekly reports generated`
-      );
+        console.log("✅ Enhanced Stripe sync completed with automation");
+      } else {
+        throw new Error("Enhanced Stripe sync failed");
+      }
     } catch (error) {
-      console.error("❌ Stripe sync failed:", error);
+      console.error("❌ Enhanced Stripe sync failed:", error);
 
-      // Fallback to demo data for development
+      // Fallback to enhanced demo data
       const newDonations = Math.floor(Math.random() * 2000) + 500;
       const newDonors = Math.floor(Math.random() * 15) + 5;
+      const emailsTriggered = Math.floor(Math.random() * 20) + 10;
+      const socialPosts = Math.floor(Math.random() * 5) + 2;
 
       setHfrpStats((prev) => ({
         ...prev,
@@ -229,101 +334,245 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
       }));
 
       alert(
-        `⚠️ STRIPE SYNC (Demo Mode)\n\n` +
-          `📊 Simulated Data:\n` +
-          `• Donations: +$${newDonations.toLocaleString()}\n` +
-          `• New Donors: +${newDonors}\n` +
-          `• Stripe Integration: Active\n` +
-          `• Automation: Enabled\n\n` +
-          `� Full sync available in production`
+        `⚠️ ENHANCED STRIPE SYNC (Demo Mode)\n\n` +
+          `📊 SIMULATED SYNC DATA\n` +
+          `Donations: +$${newDonations.toLocaleString()}\n` +
+          `New Donors: +${newDonors}\n` +
+          `Campaigns Updated: 5\n` +
+          `Sync Duration: 3.2s\n\n` +
+          `🤖 AUTOMATION SIMULATED\n` +
+          `Thank You Emails: ${emailsTriggered}\n` +
+          `Social Posts Scheduled: ${socialPosts}\n` +
+          `Analytics Reports: 1\n` +
+          `Donor Retention Workflows: Active\n\n` +
+          `🔧 Full automation available in production\n` +
+          `⚠️ Check API connection for live sync`
       );
     } finally {
       setLoading(false);
     }
   };
 
-  const generateSocialContent = () => {
-    const templates = [
-      {
-        platform: "Facebook",
-        content:
-          "🏠 AMAZING NEWS! Another family in Haiti now has a safe, secure home thanks to your incredible support! Every donation, every share, every prayer matters. Together, we're not just building houses - we're building HOPE! 💙❤️ #HFRP #HopeForHaiti #FamilyFirst",
-      },
-      {
-        platform: "Instagram",
-        content:
-          "📚✨ Education changes everything! This week, 45 children received school supplies and scholarships. Watch their faces light up with possibility! Your donations are literally writing their future. 🌟📖 #EducationForAll #HaitianChildren #HFRP #Hope",
-      },
-      {
-        platform: "Twitter",
-        content:
-          "🍽️ 750 meals served this week to families in need. Every plate represents hope, love, and community. Your support makes these daily miracles possible! 🙏💙 #FeedHope #HFRP #CommunityLove #Haiti",
-      },
-      {
-        platform: "LinkedIn",
-        content:
-          "🏥 Our mobile clinic reached 85 families this month, providing essential healthcare in remote areas. Professional healthcare workers volunteer their time to ensure every person receives dignity and care. Partner with us in this mission. #Healthcare #Volunteering #SocialImpact #HFRP",
-      },
-    ];
+  const generateSocialContent = async () => {
+    setLoading(true);
+    console.log("🤖 Generating AI-powered social content...");
 
-    const randomTemplate =
-      templates[Math.floor(Math.random() * templates.length)];
+    try {
+      // Call the AI social content API
+      const response = await fetch("/api/social/content", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          platform: "all",
+          contentType: "all",
+          campaignData: {
+            homesBuilt: hfrpStats.homesBuilt,
+            educationalSupport: hfrpStats.educationalSupport,
+            mealsServed: hfrpStats.mealsServed,
+            medicalTreatments: hfrpStats.medicalTreatments,
+            volunteersActive: hfrpStats.volunteersActive,
+            totalDonations: hfrpStats.totalDonations,
+            newDonors: Math.floor(hfrpStats.totalDonors * 0.1)
+          },
+          automatePosting: true,
+          generateMultiple: true
+        }),
+      });
 
-    alert(
-      `📱 SOCIAL MEDIA CONTENT GENERATED\n\n` +
-        `Platform: ${randomTemplate.platform}\n\n` +
-        `Content:\n${randomTemplate.content}\n\n` +
-        `📊 Suggested posting time: Tomorrow 12:00 PM\n` +
-        `🎯 Estimated reach: 2,500+ people\n` +
-        `📈 Expected engagement: 15-25%\n\n` +
-        `✅ Ready to schedule across all platforms!`
-    );
+      if (response.ok) {
+        const result = await response.json();
+        const content = result.content;
+        const automationReport = result.automationReport;
+
+        // Show comprehensive content generation report
+        const contentSummary = content.map((c: SocialContent, index: number) => 
+          `${index + 1}. ${c.platform}: ${c.content.substring(0, 80)}...\n   📊 Reach: ${c.estimatedReach.toLocaleString()} | Engagement: ${c.expectedEngagement}`
+        ).join('\n\n');
+
+        alert(
+          `🤖 AI SOCIAL CONTENT GENERATED & SCHEDULED\n\n` +
+            `📱 CONTENT CREATED\n${contentSummary}\n\n` +
+            `🚀 AUTOMATION REPORT\n` +
+            `Posts Scheduled: ${automationReport.postsScheduled}\n` +
+            `Platforms: ${automationReport.platformsTargeted.join(', ')}\n` +
+            `Total Estimated Reach: ${automationReport.totalEstimatedReach.toLocaleString()}\n` +
+            `Automation ID: ${automationReport.automationId}\n\n` +
+            `⏰ POSTING SCHEDULE\n${automationReport.scheduledTimes.join('\n')}\n\n` +
+            `✅ All content optimized with real campaign data!\n` +
+            `📈 AI-powered engagement optimization active`
+        );
+
+        console.log("✅ AI social content generated and scheduled");
+      } else {
+        throw new Error("AI social content generation failed");
+      }
+    } catch (error) {
+      console.error("❌ AI social content generation failed:", error);
+
+      // Fallback to enhanced demo content
+      const platforms = ["Facebook", "Instagram", "Twitter", "LinkedIn", "TikTok"];
+      const postsGenerated = Math.floor(Math.random() * 3) + 3;
+      const totalReach = Math.floor(Math.random() * 5000) + 8000;
+      const automationId = `social_${Date.now()}`;
+
+      alert(
+        `🤖 AI SOCIAL CONTENT (Demo Mode)\n\n` +
+          `📱 CONTENT GENERATED\n` +
+          `Posts Created: ${postsGenerated}\n` +
+          `Platforms: ${platforms.slice(0, postsGenerated).join(', ')}\n` +
+          `Content Type: Impact stories, education updates, urgent needs\n\n` +
+          `🚀 AUTOMATION SIMULATED\n` +
+          `Total Estimated Reach: ${totalReach.toLocaleString()}\n` +
+          `Expected Engagement: 20-35%\n` +
+          `Automation ID: ${automationId}\n\n` +
+          `⏰ OPTIMIZED SCHEDULING\n` +
+          `Facebook: 2:00 PM EST\n` +
+          `Instagram: 12:30 PM EST\n` +
+          `Twitter: 9:00 AM EST\n\n` +
+          `🤖 AI Features: Real-time data integration, engagement optimization\n` +
+          `🔧 Full AI generation available in production`
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const scheduleEmailCampaign = () => {
-    const campaigns = [
-      {
-        name: "Monthly Impact Newsletter",
-        subject: "Your Support Changed Everything This Month ❤️",
-        recipients: hfrpStats.totalDonors,
-        content:
-          "Stories of families helped, meals served, and dreams realized",
-      },
-      {
-        name: "Emergency Relief Update",
-        subject: "Urgent: Hurricane Relief Efforts in Haiti",
-        recipients: Math.floor(hfrpStats.totalDonors * 0.8),
-        content: "Current relief efforts and immediate needs",
-      },
-      {
-        name: "Thanksgiving Gratitude",
-        subject: "Grateful Hearts: A Message from Haiti 🙏",
-        recipients: hfrpStats.totalDonors,
-        content: "Thank you messages from families you've helped",
-      },
-      {
-        name: "Year-End Giving Appeal",
-        subject: "Double Your Impact: Last Chance for 2025",
-        recipients: hfrpStats.totalDonors + 500,
-        content: "Tax benefits and matching donations available",
-      },
-    ];
+  const scheduleEmailCampaign = async () => {
+    setLoading(true);
+    try {
+      // Get email templates first
+      const templatesResponse = await fetch('/api/email/campaigns?action=templates');
+      const templatesData = await templatesResponse.json();
+      
+      if (!templatesResponse.ok) {
+        throw new Error('Failed to fetch email templates');
+      }
 
-    const randomCampaign =
-      campaigns[Math.floor(Math.random() * campaigns.length)];
+      // Select a random template
+      const templates = templatesData.templates;
+      const selectedTemplate = templates[Math.floor(Math.random() * templates.length)];
+      
+      // Generate recipient list based on current stats
+      const recipientCount = Math.floor(hfrpStats.totalDonors * (0.7 + Math.random() * 0.3));
+      const recipients = Array.from({ length: Math.min(recipientCount, 10) }, (_, i) => 
+        `donor${i + 1}@example.com`
+      );
 
-    alert(
-      `📧 EMAIL CAMPAIGN SCHEDULED\n\n` +
-        `Campaign: "${randomCampaign.name}"\n` +
-        `Subject: ${randomCampaign.subject}\n` +
-        `Recipients: ${randomCampaign.recipients.toLocaleString()}\n` +
-        `Content: ${randomCampaign.content}\n\n` +
+      // Create campaign
+      const createResponse = await fetch('/api/email/campaigns', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'create',
+          campaign: {
+            name: selectedTemplate.name,
+            subject: selectedTemplate.subject,
+            content: selectedTemplate.htmlContent,
+            recipients,
+            scheduledFor: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // Tomorrow
+          }
+        })
+      });
+
+      const createData = await createResponse.json();
+      
+      if (!createResponse.ok) {
+        throw new Error(createData.error || 'Failed to create campaign');
+      }
+
+      // Schedule the campaign
+      const scheduleResponse = await fetch('/api/email/campaigns', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'schedule',
+          campaignId: createData.campaign.id,
+          campaign: {
+            scheduledFor: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+          }
+        })
+      });
+
+      const scheduleData = await scheduleResponse.json();
+      
+      if (!scheduleResponse.ok) {
+        throw new Error(scheduleData.error || 'Failed to schedule campaign');
+      }
+
+      // Send the campaign immediately for demo
+      const sendResponse = await fetch('/api/email/campaigns', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'send',
+          campaignId: createData.campaign.id
+        })
+      });
+
+      const sendData = await sendResponse.json();
+      
+      if (sendResponse.ok && sendData.automationReport) {
+        const report = sendData.automationReport;
+        
+        alert(
+          `📧 EMAIL CAMPAIGN SENT SUCCESSFULLY\n\n` +
+          `Campaign: "${selectedTemplate.name}"\n` +
+          `Subject: ${selectedTemplate.subject}\n` +
+          `Recipients: ${recipients.length.toLocaleString()}\n` +
+          `Category: ${selectedTemplate.category.replace('_', ' ').toUpperCase()}\n\n` +
+          `📊 CAMPAIGN ANALYTICS\n` +
+          `Delivery Rate: ${(report.deliveryRate * 100).toFixed(1)}%\n` +
+          `Open Rate: ${(report.openRate * 100).toFixed(1)}%\n` +
+          `Click Rate: ${(report.clickRate * 100).toFixed(1)}%\n` +
+          `Unsubscribe Rate: ${(report.unsubscribeRate * 100).toFixed(2)}%\n\n` +
+          `🤖 AUTOMATION ACTIONS\n${report.automationActions.join('\n')}\n\n` +
+          `📅 Next Scheduled: ${report.nextScheduledDate ? new Date(report.nextScheduledDate).toLocaleDateString() : 'None'}\n\n` +
+          `✅ Campaign completed successfully!${sendData.isDemoMode ? ' (Demo Mode)' : ''}`
+        );
+      } else {
+        throw new Error(sendData.error || 'Failed to send campaign');
+      }
+    } catch (error) {
+      console.error('Email campaign error:', error);
+      
+      // Fallback to demo mode
+      const demoTemplates = [
+        {
+          name: "Monthly Impact Newsletter",
+          subject: "Your Support Changed Everything This Month ❤️",
+          category: "newsletter"
+        },
+        {
+          name: "Emergency Relief Appeal",
+          subject: "Urgent: Emergency Relief Needed in Haiti",
+          category: "emergency_appeal"
+        },
+        {
+          name: "Donation Thank You",
+          subject: "Thank You for Your Generous Donation! 🙏",
+          category: "donation_thank_you"
+        }
+      ];
+      
+      const demoTemplate = demoTemplates[Math.floor(Math.random() * demoTemplates.length)];
+      const demoRecipients = Math.floor(hfrpStats.totalDonors * (0.7 + Math.random() * 0.3));
+      
+      alert(
+        `📧 EMAIL CAMPAIGN SCHEDULED (Demo Mode)\n\n` +
+        `Campaign: "${demoTemplate.name}"\n` +
+        `Subject: ${demoTemplate.subject}\n` +
+        `Recipients: ${demoRecipients.toLocaleString()}\n` +
+        `Category: ${demoTemplate.category.replace('_', ' ').toUpperCase()}\n\n` +
         `📅 Scheduled: Tomorrow 10:00 AM EST\n` +
         `📊 Expected open rate: 28-35%\n` +
         `🎯 Expected click rate: 8-12%\n` +
         `💰 Projected donations: $2,500-4,000\n\n` +
-        `✅ Campaign queued in email system!`
-    );
+        `⚠️ Demo mode - Email service not configured\n` +
+        `✅ Campaign queued in system!`
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   const generateAnalyticsReport = () => {
@@ -371,53 +620,205 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
     );
   };
 
-  const automateVolunteerScheduling = () => {
-    const volunteer = {
-      newApplications: 7,
-      pendingInterviews: 4,
-      scheduledEvents: [
-        "Community Meal - Saturday 2PM",
-        "Supply Distribution - Monday 10AM",
-        "Medical Clinic - Wednesday 9AM",
-        "Educational Workshop - Friday 4PM",
-      ],
-      autoMatching: true,
-    };
+  const automateVolunteerScheduling = async () => {
+    setLoading(true);
+    try {
+      // Get available programs first
+      const programsResponse = await fetch('/api/volunteer/scheduler?action=programs');
+      const programsData = await programsResponse.json();
+      
+      if (!programsResponse.ok) {
+        throw new Error('Failed to fetch volunteer programs');
+      }
 
-    alert(
-      `👥 VOLUNTEER AUTOMATION COMPLETE\n\n` +
-        `📝 New Applications: ${volunteer.newApplications}\n` +
-        `📞 Interviews Scheduled: ${volunteer.pendingInterviews}\n` +
-        `🤝 Auto-matching: ${volunteer.autoMatching ? "Enabled" : "Disabled"}\n\n` +
-        `📅 UPCOMING EVENTS:\n${volunteer.scheduledEvents.map((e) => `• ${e}`).join("\n")}\n\n` +
-        `✅ Volunteers notified via email\n` +
-        `📱 Calendar invites sent\n` +
-        `🔔 Reminder system activated`
-    );
+      // Select a random program for auto-matching
+      const programs = programsData.programs;
+      const selectedProgram = programs[Math.floor(Math.random() * programs.length)];
+      
+      // Auto-match volunteers to the selected program
+      const matchResponse = await fetch('/api/volunteer/scheduler', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'auto_match',
+          programId: selectedProgram.id,
+          requiredSkills: selectedProgram.requiredSkills.slice(0, 2), // Use first 2 required skills
+          shiftDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // Next week
+        })
+      });
+
+      const matchData = await matchResponse.json();
+      
+      if (!matchResponse.ok) {
+        throw new Error(matchData.error || 'Failed to auto-match volunteers');
+      }
+
+      // Get analytics for additional context
+      const analyticsResponse = await fetch('/api/volunteer/scheduler', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'get_analytics' })
+      });
+
+      const analyticsData = await analyticsResponse.json();
+      
+      if (matchResponse.ok && matchData.automationReport) {
+        const report = matchData.automationReport;
+        const analytics = analyticsData.success ? analyticsData.analytics : null;
+        
+        alert(
+          `👥 VOLUNTEER AUTOMATION COMPLETE\n\n` +
+          `📋 Program: "${selectedProgram.name}"\n` +
+          `📍 Location: ${selectedProgram.location}\n` +
+          `👤 Coordinator: ${selectedProgram.coordinator}\n\n` +
+          `🎯 MATCHING RESULTS\n` +
+          `Potential Matches: ${report.matchesFound}\n` +
+          `Shifts Scheduled: ${report.shiftsScheduled}\n` +
+          `Volunteers Notified: ${report.volunteersNotified}\n` +
+          `Success Rate: ${(report.successRate * 100).toFixed(1)}%\n\n` +
+          `🤖 AUTOMATION ACTIONS\n${report.automationActions.join('\n')}\n\n` +
+          `📊 SYSTEM ANALYTICS\n` +
+          `Active Volunteers: ${analytics ? analytics.activeVolunteers : 'N/A'}\n` +
+          `Upcoming Shifts: ${analytics ? analytics.upcomingShifts : 'N/A'}\n` +
+          `Automation Efficiency: ${analytics ? analytics.automationEfficiency + '%' : 'N/A'}\n\n` +
+          `📅 Next Auto-Match: ${report.nextScheduledDate ? new Date(report.nextScheduledDate).toLocaleDateString() : 'TBD'}\n\n` +
+          `✅ Volunteer scheduling automation completed!${report.isDemoMode ? ' (Demo Mode)' : ''}`
+        );
+      } else {
+        throw new Error(matchData.error || 'Failed to complete volunteer automation');
+      }
+    } catch (error) {
+      console.error('Volunteer automation error:', error);
+      
+      // Fallback to demo mode
+      const demoPrograms = [
+        {
+          name: "Community Meal Program",
+          location: "HFRP Community Kitchen",
+          coordinator: "Joseph Pierre"
+        },
+        {
+          name: "Education Support",
+          location: "Port-au-Prince Education Center",
+          coordinator: "Marie Laurent"
+        },
+        {
+          name: "Healthcare Assistance",
+          location: "Mobile Health Clinic",
+          coordinator: "Dr. Jean Baptiste"
+        }
+      ];
+      
+      const demoProgram = demoPrograms[Math.floor(Math.random() * demoPrograms.length)];
+      const demoMatches = Math.floor(Math.random() * 8) + 3; // 3-10 matches
+      const demoScheduled = Math.min(demoMatches, 3); // Max 3 scheduled
+      
+      alert(
+        `👥 VOLUNTEER AUTOMATION COMPLETE (Demo Mode)\n\n` +
+        `📋 Program: "${demoProgram.name}"\n` +
+        `📍 Location: ${demoProgram.location}\n` +
+        `👤 Coordinator: ${demoProgram.coordinator}\n\n` +
+        `🎯 MATCHING RESULTS\n` +
+        `Potential Matches: ${demoMatches}\n` +
+        `Shifts Scheduled: ${demoScheduled}\n` +
+        `Volunteers Notified: ${demoScheduled}\n` +
+        `Success Rate: 95.2%\n\n` +
+        `🤖 AUTOMATION ACTIONS\n` +
+        `✅ Analyzed volunteer skills and availability\n` +
+        `📅 Scheduled optimal shift assignments\n` +
+        `📧 Sent notifications to matched volunteers\n` +
+        `📱 Created calendar invites for all shifts\n` +
+        `🔔 Set up automated reminder system\n\n` +
+        `📊 SYSTEM ANALYTICS\n` +
+        `Active Volunteers: ${hfrpStats.totalDonors}\n` +
+        `Upcoming Shifts: 12\n` +
+        `Automation Efficiency: 92.3%\n\n` +
+        `⚠️ Demo mode - Volunteer system not configured\n` +
+        `✅ Volunteer scheduling automation completed!`
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const manageDonorCommunication = () => {
-    const communication = {
-      newDonorWelcome: 8,
-      monthlyUpdates: hfrpStats.totalDonors,
-      thankYouLetters: 23,
-      taxReceipts: 156,
-      birthdayMessages: 12,
-      anniversaryReminders: 5,
-    };
+  const manageDonorCommunication = async () => {
+    setLoading(true);
+    console.log('🔄 Executing donor communication automation...');
 
-    alert(
-      `💌 DONOR COMMUNICATION AUTOMATED\n\n` +
-        `🎉 Welcome Emails: ${communication.newDonorWelcome} sent\n` +
-        `📧 Monthly Updates: ${communication.monthlyUpdates.toLocaleString()} scheduled\n` +
-        `💝 Thank You Letters: ${communication.thankYouLetters} personalized\n` +
-        `🧾 Tax Receipts: ${communication.taxReceipts} generated\n` +
-        `🎂 Birthday Messages: ${communication.birthdayMessages} queued\n` +
-        `📅 Anniversary Notes: ${communication.anniversaryReminders} prepared\n\n` +
-        `✅ All communications scheduled\n` +
-        `🤖 AI personalization active\n` +
-        `📊 Tracking enabled for all campaigns`
-    );
+    try {
+      // Call the new donor communication API
+      const response = await fetch('/api/donor/communication', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          action: 'automate_outreach'
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        const report = result.report;
+
+        // Show comprehensive automation report
+        alert(
+          `💌 DONOR COMMUNICATION AUTOMATED\n\n` +
+            `🎯 AUTOMATION RESULTS\n` +
+            `🎉 Welcome Emails: ${report.automationResults.newDonorWelcome} sent\n` +
+            `📧 Monthly Updates: ${report.automationResults.monthlyUpdates.toLocaleString()} scheduled\n` +
+            `💝 Thank You Letters: ${report.automationResults.thankYouLetters} personalized\n` +
+            `🧾 Tax Receipts: ${report.automationResults.taxReceipts} generated\n` +
+            `🎂 Birthday Messages: ${report.automationResults.birthdayMessages} queued\n` +
+            `📅 Anniversary Notes: ${report.automationResults.anniversaryReminders} prepared\n` +
+            `🔄 Lapsed Donor Re-engagement: ${report.automationResults.lapsedDonorReengagement} sent\n` +
+            `💎 Major Gift Stewardship: ${report.automationResults.majorGiftStewardship} personalized\n\n` +
+            `📊 DONOR SEGMENTS\n` +
+            `First-time: ${report.segmentBreakdown.firstTime}\n` +
+            `Recurring: ${report.segmentBreakdown.recurring}\n` +
+            `Major Gifts: ${report.segmentBreakdown.majorGifts}\n` +
+            `Corporate: ${report.segmentBreakdown.corporate}\n` +
+            `Lapsed: ${report.segmentBreakdown.lapsed}\n` +
+            `VIP: ${report.segmentBreakdown.vip}\n\n` +
+            `🤖 AUTOMATION STATUS\n` +
+            `Rules Executed: ${report.rulesExecuted}\n` +
+            `Total Recipients: ${report.totalRecipients.toLocaleString()}\n` +
+            `Next Scheduled: ${new Date(report.nextScheduled).toLocaleDateString()}\n\n` +
+            `✅ All communications automated and scheduled\n` +
+            `📊 AI personalization and tracking active`
+        );
+
+        console.log('✅ Donor communication automation completed successfully');
+      } else {
+        throw new Error('Failed to execute donor communication automation');
+      }
+    } catch (error) {
+      console.error('Donor communication automation error:', error);
+      
+      // Fallback to demo mode
+      const communication = {
+        newDonorWelcome: 8,
+        monthlyUpdates: hfrpStats.totalDonors,
+        thankYouLetters: 23,
+        taxReceipts: 156,
+        birthdayMessages: 12,
+        anniversaryReminders: 5,
+      };
+
+      alert(
+        `💌 DONOR COMMUNICATION AUTOMATED (Demo Mode)\n\n` +
+          `🎉 Welcome Emails: ${communication.newDonorWelcome} sent\n` +
+          `📧 Monthly Updates: ${communication.monthlyUpdates.toLocaleString()} scheduled\n` +
+          `💝 Thank You Letters: ${communication.thankYouLetters} personalized\n` +
+          `🧾 Tax Receipts: ${communication.taxReceipts} generated\n` +
+          `🎂 Birthday Messages: ${communication.birthdayMessages} queued\n` +
+          `📅 Anniversary Notes: ${communication.anniversaryReminders} prepared\n\n` +
+          `⚠️ Demo mode - Communication API not configured\n` +
+          `✅ All communications scheduled\n` +
+          `🤖 AI personalization active\n` +
+          `📊 Tracking enabled for all campaigns`
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!user) {
@@ -1910,12 +2311,8 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
                           id="site-description"
                           rows={3}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        >
-                          Join us in our mission to feed and empower Haitian
-                          orphans. Make a lasting difference with daily giving -
-                          as little as 16¢ can provide meals, shelter,
-                          education, and healthcare.
-                        </textarea>
+                          defaultValue="Join us in our mission to feed and empower Haitian orphans. Make a lasting difference with daily giving - as little as 16¢ can provide meals, shelter, education, and healthcare."
+                        />
                       </div>
                       <div>
                         <label
@@ -1928,7 +2325,8 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
                           type="text"
                           id="google-analytics"
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          defaultValue="G-XXXXXXXXXX"
+                          placeholder="G-XXXXXXXXXX"
+                          defaultValue=""
                         />
                       </div>
                     </div>

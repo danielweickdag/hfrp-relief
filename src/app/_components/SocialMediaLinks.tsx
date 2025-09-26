@@ -14,7 +14,7 @@ export default function SocialMediaLinks({
   const socialLinks = [
     {
       name: "Facebook",
-      url: "https://facebook.com/haitianfamilyreliefproject",
+      url: "https://facebook.com/familyreliefproject",
       icon: (
         <svg className="w-full h-full" fill="currentColor" viewBox="0 0 24 24">
           <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
@@ -25,7 +25,7 @@ export default function SocialMediaLinks({
     },
     {
       name: "Instagram",
-      url: "https://instagram.com/haitianfamilyreliefproject",
+      url: "https://instagram.com/familyreliefproject",
       icon: (
         <svg className="w-full h-full" fill="currentColor" viewBox="0 0 24 24">
           <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 6.621 5.367 11.988 11.988 11.988c6.62 0 11.987-5.367 11.987-11.988C24.014 5.367 18.637.001 12.017.001zM8.448 16.988c-1.297 0-2.448-1.151-2.448-2.448s1.151-2.448 2.448-2.448c1.297 0 2.448 1.151 2.448 2.448s-1.151 2.448-2.448 2.448zm7.104 0c-1.297 0-2.448-1.151-2.448-2.448s1.151-2.448 2.448-2.448c1.297 0 2.448 1.151 2.448 2.448s-1.151 2.448-2.448 2.448z" />
@@ -37,7 +37,7 @@ export default function SocialMediaLinks({
     },
     {
       name: "Twitter",
-      url: "https://twitter.com/hfrproject",
+      url: "https://twitter.com/familyreliefproject",
       icon: (
         <svg className="w-full h-full" fill="currentColor" viewBox="0 0 24 24">
           <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />

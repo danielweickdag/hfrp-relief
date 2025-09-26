@@ -110,9 +110,9 @@ export async function POST(request: NextRequest) {
 
     // Prepare email content
     const fromEmail =
-      process.env.RESEND_FROM_EMAIL || "noreply@haitianfamilyrelief.org";
-    const toEmail =
-      process.env.RESEND_TO_EMAIL || "contact@haitianfamilyrelief.org";
+    process.env.RESEND_FROM_EMAIL || "noreply@familyreliefproject.org";
+  const toEmail =
+    process.env.RESEND_TO_EMAIL || "contact@familyreliefproject.org";
 
     const inquiryTypeLabels = {
       general: "General Inquiry",
