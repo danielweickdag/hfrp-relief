@@ -31,6 +31,7 @@ function SettingsContent() {
   >("general");
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [showSocialMediaLinks, setShowSocialMediaLinks] = useState(true);
 
   const [formData, setFormData] = useState<SettingsFormData>({
     siteTitle: "Haitian Family Relief Project",
@@ -38,7 +39,7 @@ function SettingsContent() {
       "Join us in our mission to feed and empower Haitian orphans. Make a lasting difference with daily giving - as little as 16¢ can provide meals, shelter, education, and healthcare.",
     contactEmail: "haitianfamilyrelief@gmail.com",
     contactPhone: "(224) 217-0230",
-    gaTrackingId: "G-XXXXXXXXXX",
+    gaTrackingId: "",
     fbUrl: "https://facebook.com/haitianfamilyrelief",
     igUrl: "https://instagram.com/haitianfamilyrelief",
     twUrl: "https://twitter.com/hfrp_haiti",
@@ -372,10 +373,23 @@ function SettingsContent() {
                 {/* Social Media Settings */}
                 {activeTab === "social" && (
                   <div>
-                    <h2 className="text-lg font-medium text-gray-900 mb-4">
-                      Social Media Links
-                    </h2>
-                    <div className="space-y-4">
+                    <div className="flex justify-between items-center mb-4">
+                      <h2 className="text-lg font-medium text-gray-900">
+                        Social Media Links
+                      </h2>
+                      <button
+                        onClick={() => setShowSocialMediaLinks(!showSocialMediaLinks)}
+                        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                          showSocialMediaLinks
+                            ? "bg-red-100 text-red-700 hover:bg-red-200"
+                            : "bg-green-100 text-green-700 hover:bg-green-200"
+                        }`}
+                      >
+                        {showSocialMediaLinks ? "Hide Links" : "Show Links"}
+                      </button>
+                    </div>
+                    {showSocialMediaLinks && (
+                      <div className="space-y-4">
                       <div>
                         <label
                           htmlFor="fbUrl"
@@ -441,7 +455,8 @@ function SettingsContent() {
                           />
                         </div>
                       </div>
-                    </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -457,7 +472,7 @@ function SettingsContent() {
                           htmlFor="donorboxCampaignId"
                           className="block text-sm font-medium text-gray-700 mb-1"
                         >
-                          Donorbox Campaign ID
+                          Stripe Campaign ID
                         </label>
                         <input
                           type="text"
@@ -468,7 +483,7 @@ function SettingsContent() {
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                         <p className="mt-1 text-xs text-gray-500">
-                          The ID for your main Donorbox campaign
+                          The ID for your main Stripe campaign
                         </p>
                       </div>
 
@@ -517,7 +532,7 @@ function SettingsContent() {
                             <span className="text-green-600">Configured</span>
                           </div>
                           <div className="flex justify-between items-center py-2 border-b border-gray-200">
-                            <span>Donorbox</span>
+                            <span>Stripe</span>
                             <span className="text-green-600">Configured</span>
                           </div>
                           <div className="flex justify-between items-center py-2 border-b border-gray-200">

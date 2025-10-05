@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 
 export default function DirectAdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -188,7 +189,7 @@ export default function DirectAdminPage() {
                 </p>
               </button>
               <button className="bg-green-600 text-white p-4 rounded-lg hover:bg-green-700 text-left">
-                <h3 className="font-semibold">Sync Donorbox Data</h3>
+                <h3 className="font-semibold">Sync Stripe Data</h3>
                 <p className="text-sm opacity-90">
                   Update campaign information
                 </p>
@@ -212,7 +213,7 @@ export default function DirectAdminPage() {
               </div>
               <div className="flex items-center space-x-3">
                 <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                <span>Donorbox Sync Automation</span>
+                <span>Stripe Sync Automation</span>
               </div>
               <div className="flex items-center space-x-3">
                 <div className="w-3 h-3 bg-green-500 rounded-full"></div>
@@ -322,9 +323,9 @@ export default function DirectAdminPage() {
         </form>
 
         <div className="mt-6 text-center">
-          <a href="/" className="text-blue-600 hover:text-blue-800">
+          <Link href="/" className="text-blue-600 hover:text-blue-800">
             ← Back to Homepage
-          </a>
+          </Link>
         </div>
       </div>
     </div>

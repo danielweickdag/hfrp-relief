@@ -2,6 +2,7 @@
 const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
+    tsconfigPath: './tsconfig.json'
   },
   eslint: {
     ignoreDuringBuilds: true,
@@ -15,6 +16,14 @@ const nextConfig = {
     ],
   },
   serverExternalPackages: ["nodemailer"],
+  turbopack: {
+    rules: {
+      "*.md": {
+        loaders: ["raw-loader"],
+        as: "*.js",
+      },
+    },
+  },
 };
 
 module.exports = nextConfig;

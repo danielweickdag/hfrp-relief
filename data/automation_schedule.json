@@ -111,7 +111,7 @@
     "alerts": {
       "email_enabled": false,
       "webhook_enabled": true,
-      "webhook_url": "http://localhost:3001/api/automation/alerts"
+      "webhook_url": "https://www.familyreliefproject.org/api/automation/alerts"
     },
     "thresholds": {
       "error_rate": 10,
@@ -129,7 +129,7 @@
     "created": "2025-08-15T03:00:00.000Z",
     "updated": "2025-08-15T03:00:00.000Z",
     "version": "2.0.0",
-    "environment": "development",
+    "environment": "production",
     "description": "Comprehensive automation schedule for HFRP Relief platform"
   }
 }

@@ -14,7 +14,7 @@ interface RadioPlayerProps {
 }
 
 export default function RadioPlayer({
-  streamUrl = "https://stream.zeno.fm/hls/wvdsqqn1cf9uv",
+  streamUrl = "https://stream.zeno.fm/ttq4haexcf9uv",
   stationName = "HFRP Radio",
   className = "",
   size: initialSize = "md",
@@ -141,15 +141,34 @@ export default function RadioPlayer({
       }
 
       // Enhanced stream URL options for better browser compatibility
-      const streamUrls = [
-        actualStreamUrl,
-        actualStreamUrl.includes("/hls/")
-          ? actualStreamUrl
-          : actualStreamUrl + "/stream",
-        actualStreamUrl.includes("/hls/")
-          ? actualStreamUrl.replace("/hls/", "/")
-          : actualStreamUrl + "/;",
-      ];
+      // Prefer HLS first for Safari/iOS, then MP3/AAC fallbacks
+      const zenoIdMatch = streamUrl.match(/zeno\.fm\/(?:hls\/)?([a-z0-9]+)$/);
+      const zenoId = zenoIdMatch?.[1] || "ttq4haexcf9uv";
+      const isSafari =
+        typeof navigator !== "undefined" &&
+        /safari/i.test(navigator.userAgent) &&
+        !/chrome|android/i.test(navigator.userAgent);
+
+      const mp3Primary = `https://stream.zeno.fm/${zenoId}`;
+      const hlsPrimary = `https://stream.zeno.fm/hls/${zenoId}`;
+
+      const streamUrls = isSafari
+        ? [
+            // Safari/iOS first: HLS
+            hlsPrimary,
+            mp3Primary,
+            "https://stream.live.vc/CRTV",
+            "https://s2.radio.co/s2b2b68744/listen",
+            ...(actualStreamUrl !== mp3Primary ? [actualStreamUrl] : []),
+          ]
+        : [
+            // Non-Safari first: MP3/AAC
+            mp3Primary,
+            "https://stream.live.vc/CRTV",
+            "https://s2.radio.co/s2b2b68744/listen",
+            hlsPrimary,
+            ...(actualStreamUrl !== mp3Primary ? [actualStreamUrl] : []),
+          ];
 
       let streamWorked = false;
 
@@ -217,26 +236,27 @@ export default function RadioPlayer({
           switch (audio.error.code) {
             case audio.error.MEDIA_ERR_ABORTED:
               errorMessage = "Stream playback was aborted";
-              suggestionMessage = "Try clicking play again";
+              suggestionMessage = "Try clicking play again or use the external player link below";
               break;
             case audio.error.MEDIA_ERR_NETWORK:
               errorMessage = "Network error while loading stream";
-              suggestionMessage = "Check your internet connection";
+              suggestionMessage = "Check your internet connection and try again. Fallback streams will be attempted automatically";
               break;
             case audio.error.MEDIA_ERR_DECODE:
               errorMessage = "Stream format not supported by your browser";
               suggestionMessage =
-                "Try using the 'Listen on Zeno.FM' link below or update your browser";
+                "Try using the 'Listen on Zeno.FM' link below or update your browser. Alternative formats are being tested";
               break;
             case audio.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
               errorMessage = "Stream source not supported";
               suggestionMessage =
-                "Use the 'Listen on Zeno.FM' link for the best experience";
+                "Use the 'Listen on Zeno.FM' link for the best experience. Multiple backup streams are available";
               break;
           }
         }
 
         console.error("❌ HFRP Radio stream error:", errorMessage, audio.error);
+        console.log("🔄 Attempting fallback streams automatically...");
         setError(`${errorMessage}. ${suggestionMessage}`);
         setIsLoading(false);
         setIsPlaying(false);

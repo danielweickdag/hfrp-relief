@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import DonorboxStatus from "./DonorboxStatus";
+import StripeStatus from "./StripeStatus";
 
 export default function DonationTroubleshooting() {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -21,7 +21,7 @@ export default function DonationTroubleshooting() {
       </div>
 
       {/* Always show status */}
-      <DonorboxStatus showDetails={true} className="mb-4" />
+      <StripeStatus showDetails={true} className="mb-4" />
 
       {/* Troubleshooting details */}
       {isExpanded && (
@@ -41,13 +41,14 @@ export default function DonationTroubleshooting() {
                       Ad Blocker Detected
                     </h5>
                     <p className="text-orange-800 text-sm mb-3">
-                      Ad blockers prevent the Donorbox widget from loading, but
-                      donations still work perfectly!
+                      Some ad blockers can interfere with third-party widgets. We use
+                      Stripe Checkout, so donations still work perfectly even if
+                      embedded experiences are limited.
                     </p>
                     <div className="space-y-2 text-sm text-orange-700">
                       <div>
                         ✅ <strong>What happens:</strong> Donation buttons open
-                        Donorbox directly in a new tab
+                        Stripe Checkout securely in a new tab
                       </div>
                       <div>
                         ✅ <strong>User experience:</strong> Slightly different
@@ -55,12 +56,12 @@ export default function DonationTroubleshooting() {
                       </div>
                       <div>
                         ✅ <strong>Security:</strong> All donations are still
-                        secure through Donorbox
+                        securely processed by Stripe
                       </div>
                     </div>
                     <div className="mt-3 p-3 bg-orange-100 rounded text-sm text-orange-800">
                       <strong>For users:</strong> You can whitelist this site in
-                      your ad blocker to restore the embedded widget experience.
+                      your ad blocker if you prefer embedded experiences.
                     </div>
                   </div>
                 </div>
@@ -72,16 +73,15 @@ export default function DonationTroubleshooting() {
                   <span className="text-lg">⏰</span>
                   <div>
                     <h5 className="font-semibold text-yellow-900 mb-2">
-                      Slow Script Loading
+                      Slow Network
                     </h5>
                     <p className="text-yellow-800 text-sm mb-2">
-                      The Donorbox script is taking longer than expected to
-                      load.
+                      Your connection is slower than expected.
                     </p>
                     <div className="space-y-1 text-sm text-yellow-700">
                       <div>• Usually caused by slow internet connection</div>
                       <div>
-                        • System automatically falls back to direct links
+                        • System automatically opens Stripe Checkout directly
                       </div>
                       <div>• No impact on donation functionality</div>
                     </div>
@@ -102,7 +102,7 @@ export default function DonationTroubleshooting() {
                     </p>
                     <div className="space-y-1 text-sm text-blue-700">
                       <div>
-                        • System automatically redirects to donation page
+                        • System automatically redirects to donation page or opens a secure tab
                       </div>
                       <div>• Users can allow pop-ups for better experience</div>
                       <div>
@@ -157,14 +157,14 @@ export default function DonationTroubleshooting() {
                   </div>
                   <div>
                     Campaign ID:{" "}
-                    {process.env.NEXT_PUBLIC_STRIPE_CAMPAIGN_ID || "Not Set"}
+                    {process.env.NEXT_PUBLIC_STRIPE_MAIN_CAMPAIGN || process.env.NEXT_PUBLIC_STRIPE_CAMPAIGN_ID || "Not Set"}
                   </div>
                 </div>
                 <div>
-                  <div className="font-semibold mb-2">Script Status</div>
-                  <div>Script URL: https://donorbox.org/widget.js</div>
-                  <div>Timeout: 3 seconds</div>
-                  <div>Fallback: Direct links</div>
+                  <div className="font-semibold mb-2">Checkout Status</div>
+                  <div>Platform: Stripe Checkout</div>
+                  <div>Mode: {process.env.NEXT_PUBLIC_STRIPE_TEST_MODE === "true" ? "Test" : "Live"}</div>
+                  <div>Fallback: Redirect to donation page</div>
                 </div>
               </div>
             </div>
@@ -179,7 +179,7 @@ export default function DonationTroubleshooting() {
               <ul>
                 <li>
                   <strong>For donors with ad blockers:</strong> Donation buttons
-                  will open Donorbox in a new tab instead of an embedded widget.
+                  may open Stripe Checkout in a new tab rather than embedded.
                   This is completely normal and secure.
                 </li>
                 <li>
@@ -210,11 +210,10 @@ export default function DonationTroubleshooting() {
             <button
               onClick={() => {
                 console.log("Donation System Debug Info:", {
-                  donorboxReady: window.donorboxReady,
-                  donorboxBlocked: window.donorboxBlocked,
-                  donorboxSlow: window.donorboxSlow,
                   testMode: process.env.NEXT_PUBLIC_STRIPE_TEST_MODE,
-                  campaignId: process.env.NEXT_PUBLIC_STRIPE_CAMPAIGN_ID,
+                  campaignId:
+                    process.env.NEXT_PUBLIC_STRIPE_MAIN_CAMPAIGN ||
+                    process.env.NEXT_PUBLIC_STRIPE_CAMPAIGN_ID,
                   userAgent: navigator.userAgent,
                   timestamp: new Date().toISOString(),
                 });

@@ -8,7 +8,7 @@ interface GoogleAnalyticsProps {
 }
 
 export default function GoogleAnalytics({
-  measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "G-XXXXXXXXXX",
+  measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "",
 }: GoogleAnalyticsProps) {
   useEffect(() => {
     // Initialize dataLayer
@@ -191,6 +191,11 @@ export default function GoogleAnalytics({
       };
     }
   }, [measurementId]);
+
+  // Don't load Google Analytics if no valid measurement ID is provided
+  if (!measurementId || measurementId === "" || measurementId === "G-XXXXXXXXXX") {
+    return null;
+  }
 
   return (
     <>

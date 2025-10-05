@@ -1,8 +1,14 @@
-import { loadStripe } from "@stripe/stripe-js";
+"use client";
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+interface DonateButtonProps {
+  amount: number;
+  campaignId: string;
+  userId?: string;
+  planId?: string;
+}
 
-export default function DonateButton({ amount, campaignId, userId, planId }) {
+// Note: Stripe.js is loaded globally via script tag in layout.tsx
+export default function DonateButton({ amount, campaignId, userId, planId }: DonateButtonProps) {
   const handleClick = async () => {
     const res = await fetch("/api/stripe/checkout", {
       method: "POST",

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { stripeEnhanced } from "@/lib/stripeEnhanced";
 
 interface TestResult {
   test: string;
@@ -129,7 +130,7 @@ export default function TestDonatePage() {
     setPopupBlocked(false);
   };
 
-  // Test navbar donate button
+  // Test navbar donate button (uses Stripe and navigates to /donate)
   const testNavbarButton = () => {
     addTestResult(
       "Navbar Button Test",
@@ -139,68 +140,22 @@ export default function TestDonatePage() {
 
     // Simulate navbar button click logic
     console.log("🔴 NAVBAR DONATE BUTTON CLICKED - TEST!");
-    console.log("Opening Donorbox payment form directly");
+    console.log("Navigating to Stripe-powered donation page");
 
-    const isTestMode = process.env.NEXT_PUBLIC_STRIPE_TEST_MODE === "true";
-    let donorboxUrl: string;
-
-    if (isTestMode) {
-      donorboxUrl =
-        "https://donorbox.org/embed/test-campaign?amount=15&recurring=true&test=true";
-    } else {
-      const campaignId =
-        process.env.NEXT_PUBLIC_STRIPE_MAIN_CAMPAIGN ||
-        "hfrp-haiti-relief-fund";
-      donorboxUrl = `https://donorbox.org/${campaignId}?amount=15&recurring=true`;
-    }
-
-    console.log("🌐 Opening payment form:", donorboxUrl);
-
-    const newWindow = window.open(
-      donorboxUrl,
-      "_blank",
-      "noopener,noreferrer,width=800,height=700"
-    );
-
-    if (!newWindow) {
-      console.warn("Pop-up blocked, falling back to donate page");
-      addTestResult(
-        "Navbar Button Test",
-        "info",
-        "Popup blocked - testing fallback navigation"
-      );
-      router.push("/donate");
-    } else {
-      console.log("✅ Payment form opened successfully");
-      addTestResult(
-        "Navbar Button Test",
-        "pass",
-        "Payment popup opened successfully"
-      );
-
-      // Close the test popup after 2 seconds
-      setTimeout(() => {
-        newWindow.close();
-        addTestResult(
-          "Navbar Button Test",
-          "info",
-          "Test popup closed automatically"
-        );
-      }, 2000);
-    }
+    router.push("/donate");
 
     // Simulate analytics tracking
     if (window.gtag) {
       window.gtag("event", "donate_button_click", {
         event_category: "Donations",
-        event_label: "navbar_direct_payment",
+        event_label: "navbar_stripe_payment",
         value: 15,
         donation_type: "recurring",
       });
     }
   };
 
-  // Test homepage donate button
+  // Test homepage donate button (opens Stripe Checkout)
   const testHomepageButton = () => {
     addTestResult(
       "Homepage Button Test",
@@ -209,68 +164,75 @@ export default function TestDonatePage() {
     );
 
     console.log("🔴 HOMEPAGE DONATE BUTTON CLICKED - TEST!");
-    console.log("Opening Donorbox payment form directly");
+    console.log("Creating Stripe Checkout session for test...");
 
-    const isTestMode = process.env.NEXT_PUBLIC_STRIPE_TEST_MODE === "true";
-    let donorboxUrl: string;
+    const campaignId =
+      process.env.NEXT_PUBLIC_STRIPE_MAIN_CAMPAIGN || "haiti-relief-main";
 
-    if (isTestMode) {
-      donorboxUrl =
-        "https://donorbox.org/embed/test-campaign?amount=15&recurring=true&test=true";
-    } else {
-      const campaignId =
-        process.env.NEXT_PUBLIC_STRIPE_MAIN_CAMPAIGN ||
-        "hfrp-haiti-relief-fund";
-      donorboxUrl = `https://donorbox.org/${campaignId}?amount=15&recurring=true`;
-    }
+    stripeEnhanced
+      .createCampaignCheckout({
+        campaignId,
+        amount: 15,
+        recurring: true,
+        interval: "month",
+        successUrl: `${window.location.origin}/donation/success`,
+        cancelUrl: `${window.location.origin}/donation/cancelled`,
+        metadata: { source: "test-homepage" },
+      })
+      .then(({ url }) => {
+        console.log("🌐 Opening Stripe Checkout:", url);
+        const newWindow = window.open(
+          url,
+          "stripe-checkout",
+          "noopener,noreferrer,width=800,height=700"
+        );
 
-    console.log("🌐 Opening payment form:", donorboxUrl);
+        if (!newWindow) {
+          console.warn("Pop-up blocked, redirecting to checkout");
+          addTestResult(
+            "Homepage Button Test",
+            "info",
+            "Popup blocked - redirecting"
+          );
+          window.location.href = url;
+        } else {
+          console.log("✅ Stripe Checkout opened successfully");
+          addTestResult(
+            "Homepage Button Test",
+            "pass",
+            "Stripe checkout popup opened successfully"
+          );
 
-    const newWindow = window.open(
-      donorboxUrl,
-      "_blank",
-      "noopener,noreferrer,width=800,height=700"
-    );
+          setTimeout(() => {
+            newWindow.close();
+            addTestResult(
+              "Homepage Button Test",
+              "info",
+              "Test popup closed automatically"
+            );
+          }, 2000);
+        }
 
-    if (!newWindow) {
-      console.warn("Pop-up blocked, falling back to donate page");
-      addTestResult(
-        "Homepage Button Test",
-        "info",
-        "Popup blocked - testing fallback navigation"
-      );
-      router.push("/donate");
-    } else {
-      console.log("✅ Payment form opened successfully");
-      addTestResult(
-        "Homepage Button Test",
-        "pass",
-        "Payment popup opened successfully"
-      );
-
-      // Close the test popup after 2 seconds
-      setTimeout(() => {
-        newWindow.close();
+        if (window.gtag) {
+          window.gtag("event", "stripe_checkout_started", {
+            event_category: "Donations",
+            event_label: "homepage_stripe_payment",
+            value: 15,
+            donation_type: "recurring",
+          });
+        }
+      })
+      .catch((error) => {
+        console.error("❌ Error creating Stripe checkout:", error);
         addTestResult(
           "Homepage Button Test",
-          "info",
-          "Test popup closed automatically"
+          "fail",
+          `Stripe checkout error: ${error instanceof Error ? error.message : String(error)}`
         );
-      }, 2000);
-    }
-
-    // Simulate analytics tracking
-    if (window.gtag) {
-      window.gtag("event", "donate_button_click", {
-        event_category: "Donations",
-        event_label: "homepage_direct_payment",
-        value: 15,
-        donation_type: "recurring",
       });
-    }
   };
 
-  // Test 50¢ daily giving option
+  // Test 50¢ daily giving option (Stripe monthly recurring $15)
   const testDailyGiving = () => {
     addTestResult(
       "Daily Giving Test",
@@ -278,40 +240,61 @@ export default function TestDonatePage() {
       "Testing 50¢ daily giving option..."
     );
 
-    const donorboxUrl =
-      "https://donorbox.org/embed/test-campaign?amount=15&recurring=true&frequency=monthly&test=true";
-    console.log("🌐 Opening 50¢ daily giving form (15$ monthly):", donorboxUrl);
+    const campaignId =
+      process.env.NEXT_PUBLIC_STRIPE_MAIN_CAMPAIGN || "haiti-relief-main";
 
-    const newWindow = window.open(
-      donorboxUrl,
-      "_blank",
-      "noopener,noreferrer,width=800,height=700"
-    );
+    stripeEnhanced
+      .createCampaignCheckout({
+        campaignId,
+        amount: 15,
+        recurring: true,
+        interval: "month",
+        successUrl: `${window.location.origin}/donation/success`,
+        cancelUrl: `${window.location.origin}/donation/cancelled`,
+        metadata: { source: "test-daily-giving" },
+      })
+      .then(({ url }) => {
+        console.log(
+          "🌐 Opening 50¢ daily giving (Stripe monthly $15):",
+          url
+        );
+        const newWindow = window.open(
+          url,
+          "stripe-checkout",
+          "noopener,noreferrer,width=800,height=700"
+        );
 
-    if (!newWindow) {
-      addTestResult(
-        "Daily Giving Test",
-        "fail",
-        "Could not open payment form for daily giving test"
-      );
-    } else {
-      addTestResult(
-        "Daily Giving Test",
-        "pass",
-        "50¢ daily giving form opened - complete transaction in popup"
-      );
+        if (!newWindow) {
+          addTestResult(
+            "Daily Giving Test",
+            "fail",
+            "Could not open Stripe checkout for daily giving"
+          );
+        } else {
+          addTestResult(
+            "Daily Giving Test",
+            "pass",
+            "Stripe checkout opened - complete transaction in popup"
+          );
 
-      // Analytics for daily giving
-      if (window.gtag) {
-        window.gtag("event", "donate_button_click", {
-          event_category: "Donations",
-          event_label: "daily_giving_test",
-          value: 15,
-          donation_type: "recurring",
-          frequency: "monthly",
-        });
-      }
-    }
+          if (window.gtag) {
+            window.gtag("event", "stripe_checkout_started", {
+              event_category: "Donations",
+              event_label: "daily_giving_test",
+              value: 15,
+              donation_type: "recurring",
+              frequency: "monthly",
+            });
+          }
+        }
+      })
+      .catch((error) => {
+        addTestResult(
+          "Daily Giving Test",
+          "fail",
+          `Stripe error: ${error instanceof Error ? error.message : String(error)}`
+        );
+      });
   };
 
   // Test popup blocking

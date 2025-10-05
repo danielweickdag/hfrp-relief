@@ -93,7 +93,7 @@ export default function DonationAnalytics() {
       {
         id: "txn_003",
         donorName: "Anonymous Donor",
-        email: "anonymous@donorbox.org",
+        email: "anonymous@example.com",
         amount: 50.0,
         type: "monthly",
         campaign: "Education Support",

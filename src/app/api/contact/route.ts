@@ -1,8 +1,47 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
+import fs from "fs";
+import path from "path";
+
+// Optional Slack notifications for admin alerting
+async function notifySlack(record: ContactRecord, delivery: "demo" | "emailed") {
+  try {
+    const webhook = process.env.SLACK_WEBHOOK_URL || process.env.CONTACT_SLACK_WEBHOOK_URL;
+    if (!webhook) return;
+
+    const text =
+      delivery === "emailed"
+        ? `📩 New contact submission emailed: ${record.subject} — ${record.name} <${record.email}>`
+        : `📝 New contact submission received (demo mode): ${record.subject} — ${record.name} <${record.email}>`;
+
+    const blocks = [
+      {
+        type: "section",
+        text: { type: "mrkdwn", text },
+      },
+      {
+        type: "section",
+        fields: [
+          { type: "mrkdwn", text: `*Inquiry:* ${record.inquiryType}` },
+          { type: "mrkdwn", text: `*Newsletter:* ${record.newsletter ? "yes" : "no"}` },
+          { type: "mrkdwn", text: `*IP:* ${record.ip}` },
+          { type: "mrkdwn", text: `*Time:* ${new Date(record.timestamp).toLocaleString()}` },
+        ],
+      },
+    ];
+
+    await fetch(webhook, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text, blocks }),
+    });
+  } catch (err) {
+    console.warn("⚠️ Slack notification failed:", err);
+  }
+}
 
 // Rate limiting (simple in-memory store for development)
-const rateLimit = new Map();
+const rateLimit: Map<string, { count: number; resetTime: number }> = new Map();
 
 function isRateLimited(ip: string): boolean {
   const now = Date.now();
@@ -14,7 +53,7 @@ function isRateLimited(ip: string): boolean {
     return false;
   }
 
-  const current = rateLimit.get(ip);
+  const current = rateLimit.get(ip)!;
   if (now > current.resetTime) {
     rateLimit.set(ip, { count: 1, resetTime: now + windowMs });
     return false;
@@ -26,6 +65,51 @@ function isRateLimited(ip: string): boolean {
 
   current.count++;
   return false;
+}
+
+// Persistent logging of contact submissions for admin reliability
+const DATA_DIR = path.join(process.cwd(), "data");
+const CONTACT_LOG_FILE = path.join(DATA_DIR, "contact-requests.json");
+
+interface ContactRecord {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  subject: string;
+  message: string;
+  inquiryType: string;
+  newsletter: boolean;
+  ip: string;
+  timestamp: string;
+  status: "received" | "emailed";
+  emailId?: string | null;
+  recipients?: string[];
+  cc?: string[];
+  // Admin automation fields (optional)
+  handled?: boolean;
+  handledAt?: string;
+  assignedTo?: string;
+  adminNotes?: string;
+}
+
+function appendContactLog(record: ContactRecord) {
+  try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+
+    let existing: ContactRecord[] = [];
+    if (fs.existsSync(CONTACT_LOG_FILE)) {
+      const content = fs.readFileSync(CONTACT_LOG_FILE, "utf-8");
+      existing = content ? (JSON.parse(content) as ContactRecord[]) : [];
+    }
+
+    existing.push(record);
+    fs.writeFileSync(CONTACT_LOG_FILE, JSON.stringify(existing, null, 2));
+  } catch (err) {
+    console.error("⚠️ Failed to persist contact request:", err);
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -42,6 +126,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Prepare body early so we can persist even in demo mode
+    const body = await request.json();
+    const { name, email, phone, subject, message, inquiryType, newsletter } =
+      body;
+
+    const baseRecord: ContactRecord = {
+      id: `contact-${Date.now()}`,
+      name,
+      email,
+      phone,
+      subject,
+      message,
+      inquiryType,
+      newsletter,
+      ip,
+      timestamp: new Date().toISOString(),
+      status: "received",
+    };
+
     // Initialize Resend inside the function to avoid build-time errors
     if (
       !process.env.RESEND_API_KEY ||
@@ -50,19 +153,21 @@ export async function POST(request: NextRequest) {
       console.warn(
         "⚠️ RESEND_API_KEY not configured or using demo key, email will not be sent"
       );
+      // Persist contact submission for admin visibility in demo mode
+      appendContactLog(baseRecord);
+      // Optional Slack alert in demo mode
+      await notifySlack(baseRecord, "demo");
       // For development without email service, return success
       return NextResponse.json({
         success: true,
         message: "Message received (email service not configured - demo mode)",
         id: "demo-" + Date.now(),
         isDemoMode: true,
+        persisted: true,
       });
     }
 
     const resend = new Resend(process.env.RESEND_API_KEY);
-    const body = await request.json();
-    const { name, email, phone, subject, message, inquiryType, newsletter } =
-      body;
 
     // Validate required fields
     if (!name || !email || !subject || !message) {
@@ -110,9 +215,18 @@ export async function POST(request: NextRequest) {
 
     // Prepare email content
     const fromEmail =
-      process.env.RESEND_FROM_EMAIL || "noreply@haitianfamilyrelief.org";
-    const toEmail =
-      process.env.RESEND_TO_EMAIL || "contact@haitianfamilyrelief.org";
+      process.env.RESEND_FROM_EMAIL || "noreply@familyreliefproject.org";
+    const defaultToEmail =
+      process.env.RESEND_TO_EMAIL || "contact@familyreliefproject.org";
+    const toEmails = (process.env.RESEND_TO_EMAILS || "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const ccEmails = (process.env.RESEND_CC_EMAILS || "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const recipients = toEmails.length > 0 ? toEmails : [defaultToEmail];
 
     const inquiryTypeLabels = {
       general: "General Inquiry",
@@ -201,7 +315,8 @@ Reply directly to this email to respond to ${name}.
     // Send email using Resend
     const emailData = await resend.emails.send({
       from: fromEmail,
-      to: toEmail,
+      to: recipients,
+      cc: ccEmails.length > 0 ? ccEmails : undefined,
       replyTo: email, // Allow direct reply to the sender
       subject: `HFRP Contact Form: ${subject}`,
       html: emailHTML,
@@ -218,6 +333,24 @@ Reply directly to this email to respond to ${name}.
       emailData.data?.id || "sent"
     );
 
+    // Persist successful submission
+    appendContactLog({
+      ...baseRecord,
+      status: "emailed",
+      emailId: emailData.data?.id || null,
+      recipients,
+      cc: ccEmails,
+    });
+
+    // Optional Slack alert after email
+    await notifySlack({
+      ...baseRecord,
+      status: "emailed",
+      emailId: emailData.data?.id || null,
+      recipients,
+      cc: ccEmails,
+    }, "emailed");
+
     // Track analytics
     console.log("📊 Contact form submission:", {
       inquiryType,
@@ -230,6 +363,7 @@ Reply directly to this email to respond to ${name}.
       success: true,
       message: "Message sent successfully",
       id: emailData.data?.id || "sent",
+      persisted: true,
     });
   } catch (error) {
     console.error("❌ Contact form error:", error);

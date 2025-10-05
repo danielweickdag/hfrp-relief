@@ -9,7 +9,7 @@ interface StripeButtonProps {
   campaignId: string;
   amount?: number;
   recurring?: boolean;
-  interval?: "month" | "year";
+  interval?: "day" | "month" | "year";
   variant?: "popup" | "redirect";
   disabled?: boolean;
   onSuccess?: () => void;
@@ -208,12 +208,28 @@ export default function StripeButton({
 
   // Determine button appearance based on state
   const getButtonClasses = () => {
+    // If custom className is provided, use it as-is with minimal base classes
+    if (className && className.trim() !== "") {
+      const baseClasses = `
+        inline-flex items-center justify-center
+        transition-all duration-200
+        focus:outline-none focus:ring-2 focus:ring-offset-2
+        ${className}
+      `;
+      
+      if (disabled || isLoading) {
+        return `${baseClasses} opacity-50 cursor-not-allowed`;
+      }
+      
+      return baseClasses;
+    }
+
+    // Default styling when no custom className is provided
     const baseClasses = `
       inline-flex items-center justify-center
       px-6 py-3 text-base font-medium rounded-lg
       transition-all duration-200
       focus:outline-none focus:ring-2 focus:ring-offset-2
-      ${className}
     `;
 
     if (disabled || isLoading) {
@@ -277,7 +293,7 @@ export default function StripeButton({
         {amount && (
           <div className="text-gray-500">
             {recurring
-              ? `$${amount}/${interval === "month" ? "month" : "year"}`
+              ? `$${amount}/${interval}`
               : `One-time: $${amount}`}
           </div>
         )}

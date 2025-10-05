@@ -1,12 +1,51 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function SimpleAdminPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [actionFeedback, setActionFeedback] = useState("");
+  const router = useRouter();
+
+  const handleQuickAction = async (action: string) => {
+    setIsLoading(true);
+    setActionFeedback("");
+    
+    try {
+      switch (action) {
+        case "blog":
+          setActionFeedback("Navigating to blog creation...");
+          router.push("/admin/blog");
+          break;
+        case "analytics":
+          setActionFeedback("Opening analytics dashboard...");
+          router.push("/admin/analytics");
+          break;
+        case "volunteers":
+          setActionFeedback("Opening volunteer management...");
+          router.push("/admin/volunteers");
+          break;
+        case "settings":
+          setActionFeedback("Opening settings...");
+          router.push("/admin/settings");
+          break;
+        default:
+          setActionFeedback("Action not implemented yet");
+      }
+    } catch (error) {
+      setActionFeedback("Error executing action");
+    } finally {
+      setTimeout(() => {
+        setIsLoading(false);
+        setActionFeedback("");
+      }, 1500);
+    }
+  };
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,19 +111,47 @@ export default function SimpleAdminPage() {
               Quick Actions
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <button className="bg-blue-600 text-white p-4 rounded hover:bg-blue-700">
+              <button 
+                onClick={() => handleQuickAction("blog")}
+                disabled={isLoading}
+                className="bg-blue-600 text-white p-4 rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              >
                 📝 Create Blog Post
               </button>
-              <button className="bg-green-600 text-white p-4 rounded hover:bg-green-700">
+              <button 
+                onClick={() => handleQuickAction("analytics")}
+                disabled={isLoading}
+                className="bg-green-600 text-white p-4 rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              >
                 📊 View Analytics
               </button>
-              <button className="bg-purple-600 text-white p-4 rounded hover:bg-purple-700">
+              <button 
+                onClick={() => handleQuickAction("volunteers")}
+                disabled={isLoading}
+                className="bg-purple-600 text-white p-4 rounded hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              >
                 👥 Manage Volunteers
               </button>
-              <button className="bg-orange-600 text-white p-4 rounded hover:bg-orange-700">
+              <button 
+                onClick={() => handleQuickAction("settings")}
+                disabled={isLoading}
+                className="bg-orange-600 text-white p-4 rounded hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              >
                 ⚙️ Settings
               </button>
             </div>
+            
+            {/* Action Feedback */}
+            {(isLoading || actionFeedback) && (
+              <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-center gap-2">
+                  {isLoading && (
+                    <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                  )}
+                  <span className="text-blue-800 text-sm">{actionFeedback || "Processing..."}</span>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-4">

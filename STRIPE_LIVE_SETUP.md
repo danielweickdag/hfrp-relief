@@ -13,8 +13,8 @@ For your production environment, you need to update your environment variables:
 ```bash
 # Production Environment Variables
 NEXT_PUBLIC_STRIPE_TEST_MODE=false
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_xxx_REDACTED_xxx51Rw9JfEUygl8L6JLw9zLcZEESyWFK8rH7eB8TAG56jyW3iF3YPr22iLaRhSi6hPPHmWAmD9jY5zBHUhecOZHSN5000Ecx69uyZ
-STRIPE_SECRET_KEY=sk_live_xxx_REDACTED_xxxYOUR_SECRET_KEY_HERE  # ⚠️ YOU NEED THIS FROM STRIPE DASHBOARD
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_51Rw9JfEUygl8L6JLw9zLcZEESyWFK8rH7eB8TAG56jyW3iF3YPr22iLaRhSi6hPPHmWAmD9jY5zBHUhecOZHSN5000Ecx69uyZ
+STRIPE_SECRET_KEY=sk_live_YOUR_SECRET_KEY_HERE  # ⚠️ YOU NEED THIS FROM STRIPE DASHBOARD
 STRIPE_WEBHOOK_SECRET=whsec_YOUR_WEBHOOK_SECRET  # ⚠️ YOU NEED THIS FOR WEBHOOKS
 ```
 
@@ -22,7 +22,7 @@ STRIPE_WEBHOOK_SECRET=whsec_YOUR_WEBHOOK_SECRET  # ⚠️ YOU NEED THIS FOR WEBH
 
 1. **Get Your Secret Key**:
    - Go to https://dashboard.stripe.com/apikeys
-   - Copy your **Secret key** (starts with `sk_live_xxx_REDACTED_xxx`)
+   - Copy your **Secret key** (starts with `sk_live_`)
    - ⚠️ NEVER SHARE THIS PUBLICLY
 
 2. **Set Up Webhooks**:
@@ -37,10 +37,10 @@ STRIPE_WEBHOOK_SECRET=whsec_YOUR_WEBHOOK_SECRET  # ⚠️ YOU NEED THIS FOR WEBH
 
 ```bash
 vercel env add NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
-# Paste: pk_live_xxx_REDACTED_xxx51Rw9JfEUygl8L6JLw9zLcZEESyWFK8rH7eB8TAG56jyW3iF3YPr22iLaRhSi6hPPHmWAmD9jY5zBHUhecOZHSN5000Ecx69uyZ
+# Paste: pk_live_51Rw9JfEUygl8L6JLw9zLcZEESyWFK8rH7eB8TAG56jyW3iF3YPr22iLaRhSi6hPPHmWAmD9jY5zBHUhecOZHSN5000Ecx69uyZ
 
 vercel env add STRIPE_SECRET_KEY
-# Paste your sk_live_xxx_REDACTED_xxx key here
+# Paste your sk_live_ key here
 
 vercel env add NEXT_PUBLIC_STRIPE_TEST_MODE
 # Set to: false

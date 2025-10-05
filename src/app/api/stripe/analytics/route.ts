@@ -1,9 +1,15 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
-export async function GET() {
-  return NextResponse.json({
-    success: true,
-    message: "Analytics API is working",
-    timestamp: new Date().toISOString(),
-  });
+export async function GET(request: NextRequest) {
+  return NextResponse.json(
+    { error: "Stripe analytics are temporarily unavailable" },
+    { status: 503 }
+  );
+}
+
+export async function POST(request: NextRequest) {
+  return NextResponse.json(
+    { error: "Stripe analytics are temporarily unavailable" },
+    { status: 503 }
+  );
 }

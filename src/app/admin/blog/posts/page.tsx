@@ -1,24 +1,20 @@
 "use client";
 
-import { AdminAuthProvider } from "@/app/_components/AdminAuth";
+import { useState } from "react";
+// import AdminAuthProvider, { useAdminAuth } from "@/app/_components/AdminAuth";
+// import BlogManager from "@/app/_components/BlogManager";
+import Link from "next/link";
 
 function BlogPostsContent() {
   return (
     <div className="min-h-screen bg-gray-100 p-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-lg shadow p-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
-            Blog Management
-          </h1>
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-            <h2 className="text-lg font-medium text-yellow-800 mb-2">
-              📝 Blog Management Temporarily Disabled
-            </h2>
-            <p className="text-yellow-700">
-              The blog management system is temporarily disabled during
-              deployment setup. This will be restored in the next update.
-            </p>
-          </div>
+      <div className="max-w-6xl mx-auto">
+        <div className="p-8 text-center">
+          <h2 className="text-xl font-semibold mb-4">Blog Posts</h2>
+          <p className="text-gray-600">Blog posts management is temporarily unavailable during deployment.</p>
+          <Link href="/admin" className="text-blue-600 hover:underline mt-4 inline-block">
+            ← Back to Admin Dashboard
+          </Link>
         </div>
       </div>
     </div>
@@ -27,8 +23,16 @@ function BlogPostsContent() {
 
 export default function BlogPostsPage() {
   return (
-    <AdminAuthProvider>
-      <BlogPostsContent />
-    </AdminAuthProvider>
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-3xl font-bold mb-6">Blog Posts</h1>
+        <div className="bg-white rounded-lg shadow p-6">
+          <p className="text-gray-600">Blog posts management is temporarily unavailable during deployment.</p>
+          <Link href="/admin" className="text-blue-600 hover:underline mt-4 inline-block">
+            ← Back to Admin Dashboard
+          </Link>
+        </div>
+      </div>
+    </div>
   );
 }

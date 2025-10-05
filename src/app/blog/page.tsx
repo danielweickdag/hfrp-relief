@@ -285,7 +285,7 @@ export default function BlogPage() {
 
           <div className="flex justify-center gap-6">
             <a
-              href="https://facebook.com/haitianfamilyreliefproject"
+              href="https://facebook.com/familyreliefproject"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-all transform hover:scale-105 shadow-lg"
@@ -297,7 +297,7 @@ export default function BlogPage() {
             </a>
 
             <a
-              href="https://instagram.com/haitianfamilyreliefproject"
+              href="https://instagram.com/familyreliefproject"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-3 rounded-lg font-semibold transition-all transform hover:scale-105 shadow-lg"
@@ -309,7 +309,7 @@ export default function BlogPage() {
             </a>
 
             <a
-              href="https://twitter.com/hfrproject"
+              href="https://twitter.com/familyreliefproject"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-3 bg-gray-900 hover:bg-gray-800 text-white px-6 py-3 rounded-lg font-semibold transition-all transform hover:scale-105 shadow-lg"

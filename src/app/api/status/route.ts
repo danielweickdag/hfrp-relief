@@ -13,8 +13,11 @@ export async function GET() {
           provider: process.env.EMAIL_SERVICE || "none",
         },
         donations: {
-          testMode: process.env.NEXT_PUBLIC_DONATION_TEST_MODE === "true",
-          campaign: process.env.NEXT_PUBLIC_DONORBOX_MAIN_CAMPAIGN || "none",
+          testMode: process.env.NEXT_PUBLIC_STRIPE_TEST_MODE === "true",
+          campaign:
+            process.env.NEXT_PUBLIC_STRIPE_MAIN_CAMPAIGN ||
+            process.env.NEXT_PUBLIC_STRIPE_CAMPAIGN_ID ||
+            "none",
         },
         analytics: {
           configured: !!process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID,

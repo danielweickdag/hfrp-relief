@@ -690,7 +690,7 @@ function AnalyticsContent() {
                 </p>
                 <ul className="list-disc list-inside text-blue-700 space-y-2">
                   <li>Google Analytics 4 for website traffic data</li>
-                  <li>Donorbox API for donation metrics</li>
+                  <li>Stripe API for donation metrics</li>
                   <li>Database queries for user engagement statistics</li>
                   <li>Custom event tracking for conversion metrics</li>
                 </ul>

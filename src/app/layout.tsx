@@ -1,14 +1,34 @@
 /* biome-disable no-dangerously-set-inner-html */
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import ClientBody from "./ClientBody";
 import { Navbar } from "@/app/_components/Navbar";
 import Footer from "@/app/_components/Footer";
-import GoogleAnalytics from "@/app/_components/GoogleAnalytics";
-import { AnalyticsProvider } from "@/app/_components/AnalyticsProvider";
-import { ErrorBoundary } from "@/app/_components/ErrorBoundary";
-import ErrorMonitor from "@/app/_components/ErrorMonitor";
+
+// (Using real Navbar and Footer components)
+// import GoogleAnalytics from "@/app/_components/GoogleAnalytics";
+// import { AnalyticsProvider } from "@/app/_components/AnalyticsProvider";
+// import { ErrorBoundary } from "@/app/_components/ErrorBoundary";
+// import ErrorMonitor from "@/app/_components/ErrorMonitor";
+
+// Temporary placeholder components
+function GoogleAnalytics({ measurementId }: { measurementId: string }) {
+  return null;
+}
+
+function AnalyticsProvider({ children, measurementId }: { children: React.ReactNode; measurementId: string }) {
+  return <>{children}</>;
+}
+
+function ErrorBoundary({ children }: { children: React.ReactNode }) {
+  return <>{children}</>;
+}
+
+function ErrorMonitor() {
+  return null;
+}
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,7 +42,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3001"
+    process.env.NEXT_PUBLIC_SITE_URL || "https://www.familyreliefproject.org"
   ),
   title: "Haitian Family Relief Project - Fighting Hunger, Providing Hope",
   description:
@@ -37,7 +57,7 @@ export const metadata: Metadata = {
     title: "Haitian Family Relief Project - Fighting Hunger, Providing Hope",
     description:
       "Join us in our mission to feed and empower Haitian orphans. Make a lasting difference with daily giving - as little as 16¢ can provide meals, shelter, education, and healthcare.",
-    url: "https://haitianfamilyrelief.org",
+    url: "https://www.familyreliefproject.org",
     siteName: "Haitian Family Relief Project",
     images: [
       {
@@ -72,7 +92,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <head>
-        <link rel="canonical" href="https://haitianfamilyrelief.org" />
+        <link rel="canonical" href="https://www.familyreliefproject.org" />
         <meta name="theme-color" content="#dc2626" />
         <script type="application/ld+json">
           {JSON.stringify({
@@ -81,17 +101,17 @@ export default function RootLayout({
             name: "Haitian Family Relief Project",
             description:
               "Join us in our mission to feed and empower Haitian orphans. Make a lasting difference with daily giving.",
-            url: "https://haitianfamilyrelief.org",
-            logo: "https://haitianfamilyrelief.org/hfrp-logo.png",
+            url: "https://www.familyreliefproject.org",
+            logo: "https://www.familyreliefproject.org/hfrp-logo.png",
             sameAs: [
-              "https://facebook.com/haitianfamilyreliefproject",
-              "https://instagram.com/haitianfamilyreliefproject",
-              "https://twitter.com/hfrproject",
+              "https://facebook.com/familyreliefproject",
+        "https://instagram.com/familyreliefproject",
+        "https://twitter.com/familyreliefproject",
             ],
             contactPoint: {
               "@type": "ContactPoint",
               contactType: "donations",
-              url: "https://haitianfamilyrelief.org/donate",
+              url: "https://www.familyreliefproject.org/donate",
             },
             foundingDate: "2020",
             location: {
@@ -100,40 +120,61 @@ export default function RootLayout({
             },
           })}
         </script>
+        {/* Stripe.js Script - Load early for better performance */}
+        <script src="https://js.stripe.com/basil/stripe.js" async />
+        
         {/*
-          Google Analytics Script - Using dangerouslySetInnerHTML is necessary here
-          for proper initialization of Google Analytics. This is a standard implementation
-          recommended by Google and is considered safe since we're only including the
-          official Google Analytics code with our measurement ID.
+          Google Analytics Script - Only load if valid measurement ID is provided
         */}
-        <script
-          async
-          src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`}
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', '${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "G-XXXXXXXXXX"}');
-            `,
-          }}
-        />
+        {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && 
+         process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID !== "" && 
+         process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID !== "G-XXXXXXXXXX" && (
+          <>
+            <script
+              async
+              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`}
+            />
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  gtag('js', new Date());
+                  gtag('config', '${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}');
+                `,
+              }}
+            />
+          </>
+        )}
       </head>
       <body className="min-h-screen text-zinc-900 antialiased">
         <ErrorBoundary>
-          <AnalyticsProvider
-            measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}
-          >
-            <GoogleAnalytics measurementId="G-XXXXXXXXXX" />
-            <ClientBody>
-              <Navbar />
-              <main>{children}</main>
-              <Footer />
-            </ClientBody>
-            <ErrorMonitor />
-          </AnalyticsProvider>
+          {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && 
+           process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID !== "" && 
+           process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID !== "G-XXXXXXXXXX" ? (
+            <AnalyticsProvider
+              measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}
+            >
+              <GoogleAnalytics measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
+              <ClientBody>
+                <Navbar />
+                <main>{children}</main>
+                <Footer />
+              </ClientBody>
+              <ErrorMonitor />
+              <SpeedInsights />
+            </AnalyticsProvider>
+          ) : (
+            <>
+              <ClientBody>
+                <Navbar />
+                <main>{children}</main>
+                <Footer />
+              </ClientBody>
+              <ErrorMonitor />
+              <SpeedInsights />
+            </>
+          )}
         </ErrorBoundary>
       </body>
     </html>

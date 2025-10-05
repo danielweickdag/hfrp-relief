@@ -1,0 +1,29 @@
+name: Cloudflare DNS Update
+
+on:
+  workflow_dispatch:
+    inputs:
+      domain:
+        description: "Root domain to update"
+        required: true
+        default: "familyreliefproject.org"
+
+jobs:
+  update-dns:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install tools
+        run: sudo apt-get update && sudo apt-get install -y jq dnsutils openssl curl
+      - name: Run Cloudflare DNS update
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+        run: |
+          if [ -z "${CLOUDFLARE_API_TOKEN}" ] || [ -z "${CLOUDFLARE_ZONE_ID}" ]; then
+            echo "CLOUDFLARE secrets missing" && exit 1
+          fi
+          bash scripts/cloudflare-dns-update.sh
+      - name: Verify domain configuration
+        run: bash verify-domain.sh --strict

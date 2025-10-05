@@ -131,15 +131,20 @@ class StripeAutomatedDonationSystem {
   private stripe: Stripe;
   private automationQueue: Array<() => Promise<void>> = [];
   private processingInterval: NodeJS.Timeout | null = null;
+  private serverStorage: Map<string, string> = new Map();
+  private initialized = false;
 
   constructor() {
     this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-      apiVersion: "2025-07-30.basil",
+      apiVersion: "2025-08-27.basil",
     });
 
     // Start automation processing
     this.startAutomationProcessor();
-    this.initializeDefaultCampaigns();
+    // Initialize campaigns asynchronously
+    this.initializeDefaultCampaigns().then(() => {
+      this.initialized = true;
+    });
   }
 
   private isClient(): boolean {
@@ -147,13 +152,28 @@ class StripeAutomatedDonationSystem {
   }
 
   private getFromStorage(key: string, defaultValue = ""): string {
-    if (!this.isClient()) return defaultValue;
-    return localStorage.getItem(key) || defaultValue;
+    if (this.isClient()) {
+      return localStorage.getItem(key) || defaultValue;
+    } else {
+      // Use in-memory storage for server-side
+      return this.serverStorage.get(key) || defaultValue;
+    }
   }
 
   private setToStorage(key: string, value: string): void {
-    if (!this.isClient()) return;
-    localStorage.setItem(key, value);
+    if (this.isClient()) {
+      localStorage.setItem(key, value);
+    } else {
+      // Use in-memory storage for server-side
+      this.serverStorage.set(key, value);
+    }
+  }
+
+  private async ensureInitialized(): Promise<void> {
+    if (!this.initialized) {
+      await this.initializeDefaultCampaigns();
+      this.initialized = true;
+    }
   }
 
   // Initialize default automated campaigns
@@ -427,6 +447,7 @@ class StripeAutomatedDonationSystem {
     cancelUrl?: string;
   }): Promise<{ sessionId: string; url: string }> {
     try {
+      await this.ensureInitialized();
       const campaign = this.getStripeCampaigns().find(
         (c) => c.id === params.campaignId
       );
@@ -642,7 +663,7 @@ class StripeAutomatedDonationSystem {
   private async handleRecurringPaymentSucceeded(
     invoice: Stripe.Invoice
   ): Promise<void> {
-    const subscriptionId = invoice.subscription as string;
+    const subscriptionId = typeof invoice.subscription === 'string' ? invoice.subscription : invoice.subscription?.id;
     const campaignId = invoice.lines.data[0]?.metadata?.campaignId;
 
     if (!campaignId) return;
@@ -974,7 +995,7 @@ class StripeAutomatedDonationSystem {
   }
 
   // Public API methods
-  async getDonationStats(): Promise<DonationStats & { stripeStats: any }> {
+  async getDonationStats(): Promise<DonationStats & { stripeStats: object }> {
     const basicStats = await donationStorage.getStats();
     const stripeDonations = this.getStripeDonations();
     const stripeCampaigns = this.getStripeCampaigns();
@@ -1003,6 +1024,7 @@ class StripeAutomatedDonationSystem {
   }
 
   async getCampaignById(id: string): Promise<StripeAutomatedCampaign | null> {
+    await this.ensureInitialized();
     return this.getStripeCampaigns().find((c) => c.id === id) || null;
   }
 

@@ -94,7 +94,7 @@ export default function ContactPage() {
               </h2>
               <div className="flex space-x-4">
                 <a
-                  href="https://facebook.com/haitianfamilyrelief"
+                  href="https://facebook.com/familyreliefproject"
                   className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-colors hover:scale-105 transform"
                   aria-label="Follow us on Facebook"
                 >
@@ -107,7 +107,7 @@ export default function ContactPage() {
                   </svg>
                 </a>
                 <a
-                  href="https://instagram.com/haitianfamilyrelief"
+                  href="https://instagram.com/familyreliefproject"
                   className="bg-pink-600 text-white p-3 rounded-lg hover:bg-pink-700 transition-colors hover:scale-105 transform"
                   aria-label="Follow us on Instagram"
                 >
@@ -120,7 +120,7 @@ export default function ContactPage() {
                   </svg>
                 </a>
                 <a
-                  href="https://twitter.com/hfrp_haiti"
+                  href="https://twitter.com/familyreliefproject"
                   className="bg-blue-400 text-white p-3 rounded-lg hover:bg-blue-500 transition-colors hover:scale-105 transform"
                   aria-label="Follow us on Twitter"
                 >

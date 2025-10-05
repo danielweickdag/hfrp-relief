@@ -126,7 +126,7 @@
 ### 🔧 **Production Setup Tasks:**
 
 1. **Stripe Configuration**:
-   - ✅ Live keys configured (pk_live_xxx_REDACTED_xxx51Rw9JfEUygl8L6JL...)
+   - ✅ Live keys configured (pk_live_51Rw9JfEUygl8L6JL...)
    - ⏳ Webhook endpoints setup in Stripe Dashboard
    - ⏳ Test all payment flows in live mode
 

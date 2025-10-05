@@ -126,10 +126,10 @@ function DonationCancelledContent() {
             <p className="mt-1">
               Contact us at{" "}
               <a
-                href="mailto:contact@haitianfamilyrelief.org"
+                href="mailto:contact@familyreliefproject.org"
                 className="text-blue-600 hover:text-blue-500 transition-colors"
               >
-                contact@haitianfamilyrelief.org
+                contact@familyreliefproject.org
               </a>
             </p>
           </div>
