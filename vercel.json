@@ -1,15 +1,25 @@
 {
   "version": 2,
-  "buildCommand": "npm install && npm run build:vercel",
-  "installCommand": "npm install",
+  "buildCommand": "npm run build",
+  "installCommand": "npm ci --include=dev",
   "env": {
-    "NODE_ENV": "production"
+    "NEXT_PUBLIC_SITE_URL": "https://www.familyreliefproject.org",
+    "NEXT_PUBLIC_API_URL": "https://www.familyreliefproject.org/api",
+    "NEXT_PUBLIC_DONATION_TEST_MODE": "false"
   },
   "functions": {
     "app/api/**/*.js": {
       "maxDuration": 10
     }
   },
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "familyreliefproject.org" }],
+      "destination": "https://www.familyreliefproject.org/$1",
+      "permanent": true
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",

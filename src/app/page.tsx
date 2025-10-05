@@ -19,6 +19,7 @@ declare global {
 
 export default function HomePage() {
   const [year, setYear] = useState(new Date().getFullYear());
+  const [showVideo, setShowVideo] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
   const router = useRouter();
 
@@ -54,6 +55,170 @@ export default function HomePage() {
     let userHasInteracted = false;
     let retryCount = 0;
     const maxRetries = 3;
+
+    // Utility: wait for a media event with timeout
+    const waitForEvent = (target: HTMLVideoElement, eventName: keyof HTMLMediaElementEventMap, timeoutMs = 1500) => {
+      return new Promise<boolean>((resolve) => {
+        let done = false as boolean;
+        const onEvent = () => {
+          if (!done) {
+            done = true;
+            cleanup();
+            resolve(true);
+          }
+        };
+        const timer = setTimeout(() => {
+          if (!done) {
+            done = true;
+            cleanup();
+            resolve(false);
+          }
+        }, timeoutMs);
+        const cleanup = () => {
+          clearTimeout(timer);
+          target.removeEventListener(eventName as string, onEvent);
+        };
+        target.addEventListener(eventName as string, onEvent, { once: true });
+      });
+    };
+
+    // Choose a valid source proactively (checks local files & content-type), then test playability
+    const chooseSource = async () => {
+      const primary = "/homepage-video.mp4";
+      const alt = "/haitian-family-project.mp4";
+      // Prefer env-provided remote video if available; otherwise use the provided Zig link
+      const preferredRemote =
+        (process.env.NEXT_PUBLIC_BG_VIDEO_URL?.trim() ??
+          "https://video.zig.ht/v/arx7xtmfj2ch5vy8dda2f");
+      const remoteSample =
+        "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4";
+
+      const isVideo = (ct: string | null) => !!ct && ct.startsWith("video/");
+
+      const tryCandidate = async (candidate: string): Promise<boolean> => {
+        try {
+          // For remote sources, allow cross-origin for better compatibility
+          if (candidate.startsWith("http")) {
+            videoElement.crossOrigin = "anonymous";
+          }
+          videoElement.src = candidate;
+          videoElement.load();
+        } catch {}
+        // Wait briefly for canplay; if it doesn't arrive, treat as not playable
+        const playable = await waitForEvent(videoElement, "canplay", 1600);
+        if (!playable) {
+          console.log("📹 Candidate did not reach canplay in time:", candidate);
+        }
+        return playable;
+      };
+
+      let chosen: string | null = null;
+
+      try {
+        // 1) Try the preferred remote: use direct video if HEAD reports video
+        try {
+          const resRemote = await fetch(preferredRemote, { method: "HEAD" });
+          const ctRemote = resRemote.headers.get("content-type");
+          const headSaysVideo = resRemote.ok && isVideo(ctRemote);
+
+          if (headSaysVideo) {
+            const remoteOk = await tryCandidate(preferredRemote);
+            if (remoteOk) {
+              chosen = preferredRemote;
+            }
+          }
+
+          // If HEAD didn't confirm a direct video, attempt resolver
+          if (!headSaysVideo && !chosen) {
+            console.log(
+              "📹 Preferred remote not confirmed as direct video; attempting resolver",
+              preferredRemote,
+              ctRemote
+            );
+            try {
+              const resolveRes = await fetch(
+                `/api/video-resolve?viewer=${encodeURIComponent(preferredRemote)}`,
+                { method: "GET" }
+              );
+              if (resolveRes.ok) {
+                const data = (await resolveRes.json()) as { mp4Url?: string };
+                if (data?.mp4Url) {
+                  const ok = await tryCandidate(data.mp4Url);
+                  if (ok) {
+                    chosen = data.mp4Url;
+                  }
+                }
+              }
+            } catch (e) {
+              console.log("📹 Resolver failed:", e);
+            }
+          }
+        } catch (e) {
+          // Network/CORS errors on HEAD — still try resolver before falling back
+          console.log("📹 HEAD check failed; attempting resolver:", e);
+          try {
+            const resolveRes = await fetch(
+              `/api/video-resolve?viewer=${encodeURIComponent(preferredRemote)}`,
+              { method: "GET" }
+            );
+            if (resolveRes.ok) {
+              const data = (await resolveRes.json()) as { mp4Url?: string };
+              if (data?.mp4Url) {
+                const ok = await tryCandidate(data.mp4Url);
+                if (ok) {
+                  chosen = data.mp4Url;
+                }
+              }
+            }
+          } catch (resolverErr) {
+            console.log("📹 Resolver also failed after HEAD error:", resolverErr);
+          }
+        }
+
+        // 2) If not chosen, probe and try local primary
+        const res = await fetch(primary, { method: "HEAD" });
+        if (res.ok && isVideo(res.headers.get("content-type"))) {
+          const ok = await tryCandidate(primary);
+          if (ok) chosen = primary;
+        }
+
+        if (!chosen) {
+          const resAlt = await fetch(alt, { method: "HEAD" });
+          if (resAlt.ok && isVideo(resAlt.headers.get("content-type"))) {
+            const ok = await tryCandidate(alt);
+            if (ok) chosen = alt;
+          }
+        }
+
+        if (!chosen) {
+          console.log("📹 Sources missing/invalid or not playable; using remote sample fallback");
+          videoElement.src = remoteSample;
+          videoElement.crossOrigin = "anonymous";
+          chosen = remoteSample;
+        }
+      } catch {
+        // Network/CORS issues — use remote fallback so we don't stall
+        videoElement.src = remoteSample;
+        videoElement.crossOrigin = "anonymous";
+        chosen = remoteSample;
+      } finally {
+        try {
+          videoElement.load();
+          // Nudge playback to start as soon as possible
+          setTimeout(() => {
+            videoElement
+              .play()
+              .then(() => console.log("✅ Video play nudged after source selection"))
+              .catch((e) => console.log("📹 Play nudge failed:", e));
+          }, 140);
+        } catch {}
+        if (chosen) {
+          console.log("📹 Final chosen video src:", chosen);
+        }
+      }
+    };
+    // Kick off source selection
+    void chooseSource();
 
     // Optimize video loading for mobile devices
     if (typeof window !== "undefined" && window.innerWidth < 768) {
@@ -275,89 +440,165 @@ export default function HomePage() {
           }
         }}
       >
-        <video
-          ref={videoRef}
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="metadata"
-          webkit-playsinline="true"
-          x5-playsinline="true"
-          x5-video-player-type="h5"
-          x5-video-player-fullscreen="true"
-          controls={false}
-          disablePictureInPicture
-          className="fixed inset-0 w-full h-full object-cover z-[-10] transform-gpu"
-          poster="/hfrp-logo.png"
-          style={{
-            backgroundColor: "#1f2937",
-            backgroundImage:
-              "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-          }}
-          onError={(e) => {
-            console.error("📹 Video failed to load:", e.currentTarget.error);
-            const target = e.currentTarget;
+        {showVideo ? (
+          <video
+            ref={videoRef}
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="metadata"
+            webkit-playsinline="true"
+            x5-playsinline="true"
+            x5-video-player-type="h5"
+            x5-video-player-fullscreen="true"
+            controls={false}
+            disablePictureInPicture
+            className="fixed inset-0 w-full h-full object-cover z-[-10] transform-gpu"
+            poster="/hfrp-logo.png"
+            style={{
+              backgroundColor: "#1f2937",
+              backgroundImage:
+                "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            }}
+            onError={(e) => {
+              const video = e.currentTarget;
+              const mediaError = video.error;
+              const currentSrc = video.currentSrc || video.src;
+              const hasSrc = !!currentSrc && currentSrc !== "";
+              const code = mediaError?.code ?? null;
+              const codeName =
+                code === 1
+                  ? "MEDIA_ERR_ABORTED"
+                  : code === 2
+                  ? "MEDIA_ERR_NETWORK"
+                  : code === 3
+                  ? "MEDIA_ERR_DECODE"
+                  : code === 4
+                  ? "MEDIA_ERR_SRC_NOT_SUPPORTED"
+                  : "UNKNOWN";
 
-            // Set fallback background
-            if (target.parentElement) {
-              target.parentElement.style.backgroundColor = "#1f2937";
-              target.parentElement.style.backgroundImage =
-                "linear-gradient(135deg, #667eea 0%, #764ba2 100%)";
-            }
+              console.error(
+                `📹 Video failed to load: code=${code ?? "null"} name=${codeName} src=${currentSrc || "(none)"} networkState=${video.networkState} readyState=${video.readyState}`
+              );
 
-            // Try alternative video if not already tried
-            if (target.src.includes("Hatian family project.mp4")) {
-              console.log("📹 Trying alternative video source");
-              target.src = "/homepage-video.mp4";
-              target.load();
-            }
-          }}
-          onLoadStart={() => {
-            console.log("📹 Video loading started");
-          }}
-          onLoadedMetadata={() => {
-            console.log("📹 Video metadata loaded");
-          }}
-          onLoadedData={() => {
-            console.log("📹 Video data loaded - attempting to play");
-            const video = videoRef.current;
-            if (video) {
-              video
-                .play()
-                .catch((e) => console.log("📹 Autoplay prevented:", e));
-            }
-          }}
-          onCanPlay={() => {
-            console.log("📹 Video ready to play");
-            const video = videoRef.current;
-            if (video && video.paused) {
-              video
-                .play()
-                .catch((e) => console.log("📹 Play attempt failed:", e));
-            }
-          }}
-          onCanPlayThrough={() => {
-            console.log("📹 Video can play through without buffering");
-          }}
-          onPlaying={() => {
-            console.log("📹 Video is playing");
-          }}
-          onWaiting={() => {
-            console.log("📹 Video is buffering");
-          }}
-          onEnded={() => {
-            console.log("📹 Video ended - should loop automatically");
-          }}
-        >
-          <source src="/Hatian family project.mp4" type="video/mp4" />
-          <source src="/homepage-video.mp4" type="video/mp4" />
-          <div className="absolute inset-0 bg-gradient-to-b from-gray-900 via-blue-900 to-purple-900 flex items-center justify-center">
-            <p className="text-white text-lg font-medium">
-              Your browser does not support video playback.
-            </p>
-          </div>
-        </video>
+              // Set fallback background on container
+              if (video.parentElement) {
+                video.parentElement.style.backgroundColor = "#1f2937";
+                video.parentElement.style.backgroundImage =
+                  "linear-gradient(135deg, #667eea 0%, #764ba2 100%)";
+              }
+
+              // Prefer remote fallback if no source is set or src not supported
+              if (!video.dataset.remoteFallbackTried && (!hasSrc || code === 4)) {
+                video.dataset.remoteFallbackTried = "true";
+                const remoteSrc =
+                  "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4";
+                console.log(
+                  `📹 Using remote fallback due to ${!hasSrc ? "no src" : "SRC_NOT_SUPPORTED"}: ${remoteSrc}`
+                );
+                try {
+                  // Clear failing src to avoid stale errors
+                  video.src = "";
+                } catch {}
+                video.src = remoteSrc;
+                video.crossOrigin = "anonymous";
+                try {
+                  video.load();
+                  setTimeout(() => {
+                    video
+                      .play()
+                      .then(() => console.log("✅ Remote fallback playing"))
+                      .catch((e) => console.log("📹 Remote fallback play failed:", e));
+                  }, 120);
+                } catch {}
+                return;
+              }
+
+              // Try alternative local source once using currentSrc detection
+              if (!video.dataset.fallbackTried) {
+                video.dataset.fallbackTried = "true";
+                const altSrc = currentSrc?.endsWith("/homepage-video.mp4")
+                  ? "/haitian-family-project.mp4"
+                  : "/homepage-video.mp4";
+                console.log("📹 Trying alternative local video source:", altSrc);
+                video.src = altSrc;
+                video.load();
+                return; // Wait to see if the alternate source works
+              }
+
+              // Try a remote sample video once before disabling
+              if (!video.dataset.remoteFallbackTried) {
+                video.dataset.remoteFallbackTried = "true";
+                const remoteSrc =
+                  "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4";
+                console.log("📹 Trying remote fallback video:", remoteSrc);
+                video.src = remoteSrc;
+                video.crossOrigin = "anonymous";
+                try {
+                  video.load();
+                } catch {}
+                return; // Let the remote fallback attempt proceed
+              }
+
+              // If fallback already attempted, disable video to avoid loops
+              setShowVideo(false);
+            }}
+            onLoadStart={() => {
+              console.log("📹 Video loading started");
+            }}
+            onLoadedMetadata={() => {
+              console.log("📹 Video metadata loaded");
+            }}
+            onLoadedData={() => {
+              console.log("📹 Video data loaded - attempting to play");
+              const video = videoRef.current;
+              if (video) {
+                video
+                  .play()
+                  .catch((e) => console.log("📹 Autoplay prevented:", e));
+              }
+            }}
+            onCanPlay={() => {
+              console.log("📹 Video ready to play");
+              const video = videoRef.current;
+              if (video && video.paused) {
+                video
+                  .play()
+                  .catch((e) => console.log("📹 Play attempt failed:", e));
+              }
+            }}
+            onCanPlayThrough={() => {
+              console.log("📹 Video can play through without buffering");
+            }}
+            onPlaying={() => {
+              console.log("📹 Video is playing");
+            }}
+            onWaiting={() => {
+              console.log("📹 Video is buffering");
+            }}
+            onEnded={() => {
+              console.log("📹 Video ended - should loop automatically");
+            }}
+          >
+            {/* Source is set programmatically after HEAD checks; removing static source avoids early load errors */}
+            <div className="absolute inset-0 bg-gradient-to-b from-gray-900 via-blue-900 to-purple-900 flex items-center justify-center">
+              <p className="text-white text-lg font-medium">
+                Your browser does not support video playback.
+              </p>
+            </div>
+          </video>
+        ) : (
+          <div
+            className="fixed inset-0 z-[-10]"
+            style={{
+              backgroundColor: "#1f2937",
+              backgroundImage:
+                "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            }}
+            aria-hidden="true"
+          />
+        )}
         <div className="fixed inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60 z-[-5] pointer-events-none" />
 
         <div className="w-full z-10 flex flex-col gap-12 items-center">

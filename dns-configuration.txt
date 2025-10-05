@@ -1,0 +1,21 @@
+🌐 DNS CONFIGURATION FOR familyreliefproject.org
+=====================================================
+
+Configure these DNS records with your domain registrar:
+
+📍 A RECORD:
+   Name: @
+   Value: 76.76.19.61
+   TTL: Auto (or 3600)
+
+📍 CNAME RECORD:
+   Name: www
+   Value: cname.vercel-dns.com
+   TTL: Auto (or 3600)
+
+📍 ALTERNATIVE (if A record doesn't work):
+   Type: CNAME
+   Name: @
+   Value: hfrp-relief-git-main-danielweickdags-projects.vercel.app
+   TTL: Auto (or 3600)
+

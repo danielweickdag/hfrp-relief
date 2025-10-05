@@ -16,7 +16,7 @@ export default function CombinedRadioPlayer({
   className = "",
   defaultPlayer = "native",
   stationSlug = "fgm-radio-haiti",
-  streamUrl = "https://stream.zeno.fm/hls/wvdsqqn1cf9uv",
+  streamUrl = "https://stream.zeno.fm/hls/ttq4haexcf9uv",
   stationName = "HFRP Radio",
 }: CombinedRadioPlayerProps) {
   const [activePlayer, setActivePlayer] = useState<"native" | "embed">(

@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import type React from 'react';
+import { useState, useEffect } from 'react';
 import { Calendar, Clock, CheckCircle, AlertCircle, BarChart3, Settings, Play, Pause, RefreshCw } from 'lucide-react';
 
 interface BlogPost {

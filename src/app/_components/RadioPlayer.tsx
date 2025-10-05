@@ -141,15 +141,34 @@ export default function RadioPlayer({
       }
 
       // Enhanced stream URL options for better browser compatibility
-      // Prioritize reliable streams that don't require authentication
-      const streamUrls = [
-        // Primary HFRP Radio stream
-        "https://stream.zeno.fm/ttq4haexcf9uv",
-        "https://stream.live.vc/CRTV", // Caribbean Radio & TV
-        "https://s2.radio.co/s2b2b68744/listen", // Alternative Caribbean stream
-        // Only try original stream if it's different from our primary
-        ...(actualStreamUrl !== "https://stream.zeno.fm/ttq4haexcf9uv" ? [actualStreamUrl] : []),
-      ];
+      // Prefer HLS first for Safari/iOS, then MP3/AAC fallbacks
+      const zenoIdMatch = streamUrl.match(/zeno\.fm\/(?:hls\/)?([a-z0-9]+)$/);
+      const zenoId = zenoIdMatch?.[1] || "ttq4haexcf9uv";
+      const isSafari =
+        typeof navigator !== "undefined" &&
+        /safari/i.test(navigator.userAgent) &&
+        !/chrome|android/i.test(navigator.userAgent);
+
+      const mp3Primary = `https://stream.zeno.fm/${zenoId}`;
+      const hlsPrimary = `https://stream.zeno.fm/hls/${zenoId}`;
+
+      const streamUrls = isSafari
+        ? [
+            // Safari/iOS first: HLS
+            hlsPrimary,
+            mp3Primary,
+            "https://stream.live.vc/CRTV",
+            "https://s2.radio.co/s2b2b68744/listen",
+            ...(actualStreamUrl !== mp3Primary ? [actualStreamUrl] : []),
+          ]
+        : [
+            // Non-Safari first: MP3/AAC
+            mp3Primary,
+            "https://stream.live.vc/CRTV",
+            "https://s2.radio.co/s2b2b68744/listen",
+            hlsPrimary,
+            ...(actualStreamUrl !== mp3Primary ? [actualStreamUrl] : []),
+          ];
 
       let streamWorked = false;
 

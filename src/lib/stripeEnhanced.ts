@@ -86,7 +86,7 @@ export interface StripeSubscription {
   customerId: string;
   campaignId: string;
   amount: number;
-  interval: "month" | "year";
+  interval: "day" | "month" | "year";
   status: "active" | "cancelled" | "past_due";
   nextPayment: string;
   stripeSubscriptionId: string;
@@ -151,15 +151,39 @@ class EnhancedStripeService {
   private events: Map<string, StripeEvent> = new Map();
   private subscriptions: Map<string, StripeSubscription> = new Map();
   private donations: Map<string, StripeDonation> = new Map();
-  private plans: Map<string, any> = new Map();
-  private analytics = {
-    trackCheckoutCreated: (data: any) => {
+  // Plan type for subscription pricing metadata
+  private plans: Map<string, {
+    id: string;
+    name: string;
+    description: string;
+    amount: number;
+    currency: string;
+    interval: "day" | "month" | "year";
+    active: boolean;
+    campaignId: string;
+    stripePriceId?: string;
+    createdAt: string;
+    updatedAt: string;
+  }> = new Map();
+
+  private analytics: {
+    trackCheckoutCreated: (data: {
+      sessionId: string;
+      amount: number;
+      campaignId?: string;
+      eventId?: string;
+      mode?: string;
+    }) => void;
+    trackPaymentSuccess: (data: StripeDonation) => void;
+    trackCampaignCreated: (data: StripeCampaign) => void;
+  } = {
+    trackCheckoutCreated: (data) => {
       console.log("Analytics: Checkout created", data);
     },
-    trackPaymentSuccess: (data: any) => {
+    trackPaymentSuccess: (data) => {
       console.log("Analytics: Payment successful", data);
     },
-    trackCampaignCreated: (data: any) => {
+    trackCampaignCreated: (data) => {
       console.log("Analytics: Campaign created", data);
     },
   };
@@ -170,7 +194,7 @@ class EnhancedStripeService {
     // Initialize Stripe instance if secret key is available
     if (config.secretKey) {
       this.stripe = new Stripe(config.secretKey, {
-        apiVersion: "2025-07-30.basil",
+        apiVersion: "2025-08-27.basil",
       });
     }
 
@@ -503,7 +527,19 @@ class EnhancedStripeService {
 
   // Plan Management
   initializeDefaultPlans() {
-    const defaultPlans = [
+    const defaultPlans: Array<{
+      id: string;
+      name: string;
+      description: string;
+      amount: number;
+      currency: string;
+      interval: "day" | "month" | "year";
+      active: boolean;
+      campaignId: string;
+      stripePriceId?: string;
+      createdAt: string;
+      updatedAt: string;
+    }> = [
       {
         id: "daily-support",
         name: "Daily Support",
@@ -513,7 +549,7 @@ class EnhancedStripeService {
         interval: "day",
         active: true,
         campaignId: "haiti-relief-membership",
-        stripePriceId: "price_1RwDmqDdCPXUlYddrJDwTnCZ", // The daily 50¢ price we just created
+        stripePriceId: "price_1RwDmqDdCPXUlYddrJDwTnCZ",
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       },
@@ -524,15 +560,66 @@ class EnhancedStripeService {
     });
   }
 
-  getPlans(): any[] {
+  getPlans(): Array<{
+    id: string;
+    name: string;
+    description: string;
+    amount: number;
+    currency: string;
+    interval: "day" | "month" | "year";
+    active: boolean;
+    campaignId: string;
+    stripePriceId?: string;
+    createdAt: string;
+    updatedAt: string;
+  }> {
     return Array.from(this.plans.values());
   }
 
-  getPlan(id: string): any | undefined {
+  getPlan(id: string): {
+    id: string;
+    name: string;
+    description: string;
+    amount: number;
+    currency: string;
+    interval: "day" | "month" | "year";
+    active: boolean;
+    campaignId: string;
+    stripePriceId?: string;
+    createdAt: string;
+    updatedAt: string;
+  } | undefined {
     return this.plans.get(id);
   }
 
-  updatePlan(id: string, updates: any): any | null {
+  updatePlan(
+    id: string,
+    updates: Partial<{
+      id: string;
+      name: string;
+      description: string;
+      amount: number;
+      currency: string;
+      interval: "day" | "month" | "year";
+      active: boolean;
+      campaignId: string;
+      stripePriceId?: string;
+      createdAt: string;
+      updatedAt: string;
+    }>
+  ): {
+    id: string;
+    name: string;
+    description: string;
+    amount: number;
+    currency: string;
+    interval: "day" | "month" | "year";
+    active: boolean;
+    campaignId: string;
+    stripePriceId?: string;
+    createdAt: string;
+    updatedAt: string;
+  } | null {
     const plan = this.plans.get(id);
     if (!plan) return null;
 
@@ -560,17 +647,29 @@ class EnhancedStripeService {
         throw new Error("Failed to fetch plans from sync API");
       }
 
-      const syncedPlans = data.data;
+      const syncedPlans = data.data as Array<{
+        id: string;
+        name: string;
+        description: string;
+        amount: number;
+        currency: string;
+        interval: "day" | "month" | "year";
+        active: boolean;
+        campaignId: string;
+        stripePriceId?: string;
+        createdAt: string;
+        updatedAt: string;
+      }>;
       console.log(
         `📋 Found ${syncedPlans.length} synced plans:`,
-        syncedPlans.map((p: any) => ({
+        syncedPlans.map((p) => ({
           id: p.id,
           stripePriceId: p.stripePriceId,
         }))
       );
 
       // Update local plans with synced data
-      syncedPlans.forEach((plan: any) => {
+      syncedPlans.forEach((plan) => {
         this.plans.set(plan.id, plan);
       });
 
@@ -610,7 +709,7 @@ class EnhancedStripeService {
     campaignId: string;
     amount?: number;
     recurring?: boolean;
-    interval?: "month" | "year";
+    interval?: "day" | "month" | "year";
     successUrl?: string;
     cancelUrl?: string;
     metadata?: Record<string, string>;
@@ -844,7 +943,7 @@ class EnhancedStripeService {
   }
 
   // Get Stripe Checkout Session
-  async getCheckoutSession(sessionId: string): Promise<any> {
+  async getCheckoutSession(sessionId: string): Promise<Stripe.Checkout.Session> {
     // Check if Stripe is initialized
     if (!this.stripe) {
       throw new Error("Stripe is not initialized. Please check your API keys.");
@@ -956,7 +1055,7 @@ class EnhancedStripeService {
   async createSubscription(params: {
     campaignId: string;
     amount: number;
-    interval: "month" | "year";
+    interval: "day" | "month" | "year";
     customerId?: string;
     metadata?: Record<string, string>;
   }): Promise<StripeSubscription> {
@@ -981,11 +1080,11 @@ class EnhancedStripeService {
 
   // Webhook Processing
   async processWebhook(
-    payload: any,
+    payload: Stripe.Event,
     signature: string
   ): Promise<{
     success: boolean;
-    event?: any;
+    event?: Stripe.Event;
     error?: string;
   }> {
     try {
@@ -994,16 +1093,16 @@ class EnhancedStripeService {
 
       switch (payload.type) {
         case "payment_intent.succeeded":
-          await this.handlePaymentSuccess(payload.data.object);
+          await this.handlePaymentSuccess(payload.data.object as Stripe.PaymentIntent);
           break;
         case "payment_intent.payment_failed":
-          await this.handlePaymentFailure(payload.data.object);
+          await this.handlePaymentFailure(payload.data.object as Stripe.PaymentIntent);
           break;
         case "invoice.payment_succeeded":
-          await this.handleSubscriptionPayment(payload.data.object);
+          await this.handleSubscriptionPayment(payload.data.object as Stripe.Invoice);
           break;
         case "customer.subscription.deleted":
-          await this.handleSubscriptionCancellation(payload.data.object);
+          await this.handleSubscriptionCancellation(payload.data.object as Stripe.Subscription);
           break;
         default:
           console.log(`Unhandled webhook event: ${payload.type}`);
@@ -1017,7 +1116,7 @@ class EnhancedStripeService {
   }
 
   // Webhook Handlers
-  private async handlePaymentSuccess(paymentIntent: any) {
+  private async handlePaymentSuccess(paymentIntent: Stripe.PaymentIntent) {
     const donation: StripeDonation = {
       id: `don_${Date.now()}`,
       amount: this.parseAmount(paymentIntent.amount),
@@ -1046,17 +1145,17 @@ class EnhancedStripeService {
     console.log("Payment succeeded:", donation);
   }
 
-  private async handlePaymentFailure(paymentIntent: any) {
+  private async handlePaymentFailure(paymentIntent: Stripe.PaymentIntent) {
     console.log("Payment failed:", paymentIntent.id);
     // Handle failed payment logic
   }
 
-  private async handleSubscriptionPayment(invoice: any) {
+  private async handleSubscriptionPayment(invoice: Stripe.Invoice) {
     console.log("Subscription payment succeeded:", invoice.id);
     // Handle recurring payment logic
   }
 
-  private async handleSubscriptionCancellation(subscription: any) {
+  private async handleSubscriptionCancellation(subscription: Stripe.Subscription) {
     console.log("Subscription cancelled:", subscription.id);
     // Handle subscription cancellation logic
   }

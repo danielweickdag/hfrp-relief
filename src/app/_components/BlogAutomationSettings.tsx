@@ -272,7 +272,7 @@ export default function BlogAutomationSettings() {
                   id="minWordCount"
                   type="number"
                   value={settings.quality.minWordCount}
-                  onChange={(e) => updateSettings('quality', 'minWordCount', parseInt(e.target.value))}
+                  onChange={(e) => updateSettings('quality', 'minWordCount', Number.parseInt(e.target.value))}
                 />
               </div>
               <div className="space-y-2">
@@ -281,7 +281,7 @@ export default function BlogAutomationSettings() {
                   id="maxWordCount"
                   type="number"
                   value={settings.quality.maxWordCount}
-                  onChange={(e) => updateSettings('quality', 'maxWordCount', parseInt(e.target.value))}
+                  onChange={(e) => updateSettings('quality', 'maxWordCount', Number.parseInt(e.target.value))}
                 />
               </div>
             </div>
@@ -295,7 +295,7 @@ export default function BlogAutomationSettings() {
                   min="0"
                   max="100"
                   value={settings.quality.readabilityThreshold}
-                  onChange={(e) => updateSettings('quality', 'readabilityThreshold', parseInt(e.target.value))}
+                  onChange={(e) => updateSettings('quality', 'readabilityThreshold', Number.parseInt(e.target.value))}
                 />
               </div>
               <div className="space-y-2">
@@ -342,7 +342,7 @@ export default function BlogAutomationSettings() {
                   id="retentionDays"
                   type="number"
                   value={settings.backup.retentionDays}
-                  onChange={(e) => updateSettings('backup', 'retentionDays', parseInt(e.target.value))}
+                  onChange={(e) => updateSettings('backup', 'retentionDays', Number.parseInt(e.target.value))}
                 />
               </div>
               <div className="flex items-center space-x-2 pt-6">

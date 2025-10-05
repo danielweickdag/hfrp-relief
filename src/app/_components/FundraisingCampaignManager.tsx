@@ -32,6 +32,7 @@ interface CampaignTemplate {
     suggestedAmounts: number[];
     recurringOptions: boolean;
     minimumAmount: number;
+    defaultAmount?: number;
   };
 }
 
@@ -179,7 +180,7 @@ export default function FundraisingCampaignManager({
       );
     } catch (error) {
       alert(
-        "❌ Failed to create campaign. Please check your Donorbox settings."
+        "❌ Failed to create campaign. Please check your Stripe settings."
       );
     } finally {
       setIsCreating(false);
@@ -206,7 +207,7 @@ export default function FundraisingCampaignManager({
             ➕ Custom Campaign
           </button>
           <button
-            onClick={onDonorboxSync}
+            onClick={onStripeSync}
             className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center"
           >
             🔄 Sync Stripe
@@ -272,7 +273,7 @@ export default function FundraisingCampaignManager({
       {/* Stripe Integration Status */}
       <div className="bg-white rounded-lg shadow-sm p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-          🔗 Donorbox Integration Status
+          🔗 Stripe Integration Status
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
@@ -342,7 +343,11 @@ export default function FundraisingCampaignManager({
                     </div>
                     <div>
                       <strong>Default Amount:</strong> $
-                      {selectedTemplate.stripeSettings.defaultAmount}
+                      {
+                        selectedTemplate.stripeSettings.defaultAmount ??
+                          selectedTemplate.stripeSettings.suggestedAmounts[0] ??
+                          selectedTemplate.stripeSettings.minimumAmount
+                      }
                     </div>
                     <div>
                       <strong>Minimum:</strong> $
@@ -415,7 +420,7 @@ export default function FundraisingCampaignManager({
                           Creating your campaign...
                         </div>
                         <div className="text-sm text-blue-700">
-                          Setting up Donorbox integration and automation
+                          Setting up Stripe integration and automation
                           features
                         </div>
                       </div>

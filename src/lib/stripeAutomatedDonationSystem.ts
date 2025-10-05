@@ -132,7 +132,7 @@ class StripeAutomatedDonationSystem {
   private automationQueue: Array<() => Promise<void>> = [];
   private processingInterval: NodeJS.Timeout | null = null;
   private serverStorage: Map<string, string> = new Map();
-  private initialized: boolean = false;
+  private initialized = false;
 
   constructor() {
     this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {

@@ -1,29 +1,13 @@
 /* biome-disable no-dangerously-set-inner-html */
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import ClientBody from "./ClientBody";
-// import { Navbar } from "@/app/_components/Navbar";
-// import Footer from "@/app/_components/Footer";
+import { Navbar } from "@/app/_components/Navbar";
+import Footer from "@/app/_components/Footer";
 
-// Temporary placeholder components
-function Navbar() {
-  return (
-    <nav className="bg-red-600 text-white p-4">
-      <div className="container mx-auto">
-        <h1 className="text-xl font-bold">Haitian Family Relief Project</h1>
-      </div>
-    </nav>
-  );
-}
-
-function Footer() {
-  return (
-    <footer className="bg-gray-800 text-white p-4 text-center">
-      <p>&copy; 2024 Haitian Family Relief Project. All rights reserved.</p>
-    </footer>
-  );
-}
+// (Using real Navbar and Footer components)
 // import GoogleAnalytics from "@/app/_components/GoogleAnalytics";
 // import { AnalyticsProvider } from "@/app/_components/AnalyticsProvider";
 // import { ErrorBoundary } from "@/app/_components/ErrorBoundary";
@@ -178,6 +162,7 @@ export default function RootLayout({
                 <Footer />
               </ClientBody>
               <ErrorMonitor />
+              <SpeedInsights />
             </AnalyticsProvider>
           ) : (
             <>
@@ -187,6 +172,7 @@ export default function RootLayout({
                 <Footer />
               </ClientBody>
               <ErrorMonitor />
+              <SpeedInsights />
             </>
           )}
         </ErrorBoundary>

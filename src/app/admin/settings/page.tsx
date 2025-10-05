@@ -472,7 +472,7 @@ function SettingsContent() {
                           htmlFor="donorboxCampaignId"
                           className="block text-sm font-medium text-gray-700 mb-1"
                         >
-                          Donorbox Campaign ID
+                          Stripe Campaign ID
                         </label>
                         <input
                           type="text"
@@ -483,7 +483,7 @@ function SettingsContent() {
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                         <p className="mt-1 text-xs text-gray-500">
-                          The ID for your main Donorbox campaign
+                          The ID for your main Stripe campaign
                         </p>
                       </div>
 
@@ -532,7 +532,7 @@ function SettingsContent() {
                             <span className="text-green-600">Configured</span>
                           </div>
                           <div className="flex justify-between items-center py-2 border-b border-gray-200">
-                            <span>Donorbox</span>
+                            <span>Stripe</span>
                             <span className="text-green-600">Configured</span>
                           </div>
                           <div className="flex justify-between items-center py-2 border-b border-gray-200">

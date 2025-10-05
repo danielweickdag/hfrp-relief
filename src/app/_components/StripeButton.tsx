@@ -9,7 +9,7 @@ interface StripeButtonProps {
   campaignId: string;
   amount?: number;
   recurring?: boolean;
-  interval?: "month" | "year";
+  interval?: "day" | "month" | "year";
   variant?: "popup" | "redirect";
   disabled?: boolean;
   onSuccess?: () => void;
@@ -293,7 +293,7 @@ export default function StripeButton({
         {amount && (
           <div className="text-gray-500">
             {recurring
-              ? `$${amount}/${interval === "month" ? "month" : "year"}`
+              ? `$${amount}/${interval}`
               : `One-time: $${amount}`}
           </div>
         )}
