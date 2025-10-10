@@ -20,7 +20,7 @@ interface SettingsFormData {
   fbUrl: string;
   igUrl: string;
   twUrl: string;
-  donorboxCampaignId: string;
+  stripeCampaignId: string;
   enableDonationTest: boolean;
 }
 
@@ -43,7 +43,7 @@ function SettingsContent() {
     fbUrl: "https://facebook.com/haitianfamilyrelief",
     igUrl: "https://instagram.com/haitianfamilyrelief",
     twUrl: "https://twitter.com/hfrp_haiti",
-    donorboxCampaignId: "hfrp-haiti-relief-fund",
+    stripeCampaignId: "haiti-relief-main",
     enableDonationTest: false,
   });
 
@@ -469,16 +469,16 @@ function SettingsContent() {
                     <div className="space-y-4">
                       <div>
                         <label
-                          htmlFor="donorboxCampaignId"
+                          htmlFor="stripeCampaignId"
                           className="block text-sm font-medium text-gray-700 mb-1"
                         >
                           Stripe Campaign ID
                         </label>
                         <input
                           type="text"
-                          id="donorboxCampaignId"
-                          name="donorboxCampaignId"
-                          value={formData.donorboxCampaignId}
+                          id="stripeCampaignId"
+                          name="stripeCampaignId"
+                          value={formData.stripeCampaignId}
                           onChange={handleInputChange}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />

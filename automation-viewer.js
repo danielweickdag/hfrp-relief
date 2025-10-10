@@ -378,7 +378,7 @@ class AutomationViewer {
       "info"
     );
     this.log(
-      "   🔄 node donorbox-sync.js         - Sync Donorbox data",
+      "   🔄 ./stripe-sync.sh              - Sync Stripe campaigns",
       "info"
     );
     this.log("   📋 node data-viewer.js           - View synced data", "info");

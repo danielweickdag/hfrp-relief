@@ -261,12 +261,12 @@ export default function AdminPage() {
               </button>
               <button
                 onClick={() =>
-                  alert("Run: node donorbox-real-sync.js in terminal")
+                  alert("Run: ./stripe-automation-verify.sh in terminal")
                 }
                 className="bg-green-600 text-white p-4 rounded-lg hover:bg-green-700 text-left transition-colors"
               >
-                <h3 className="font-semibold">🔄 Sync Donorbox Data</h3>
-                <p className="text-sm opacity-90">Update campaign info</p>
+                <h3 className="font-semibold">🔄 Sync Stripe Campaigns</h3>
+                <p className="text-sm opacity-90">Update Stripe campaign info</p>
               </button>
               <button
                 onClick={() =>

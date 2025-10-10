@@ -2,9 +2,26 @@ import { type NextRequest, NextResponse } from "next/server";
 import { spawn } from "child_process";
 import path from "path";
 
+type WorkflowType = "development" | "staging" | "production" | "maintenance";
+type WorkflowOptions = {
+  continueOnError?: boolean;
+  verbose?: boolean;
+};
+type TaskResult = {
+  name: string;
+  success: boolean;
+  timestamp: string;
+};
+
 export async function POST(request: NextRequest) {
   try {
-    const { workflowType, options = {} } = await request.json();
+    // Safely parse request body and apply explicit types
+    const rawBody = (await request.json().catch(() => ({}))) as Partial<{
+      workflowType: WorkflowType;
+      options: WorkflowOptions;
+    }>;
+    const workflowType = rawBody.workflowType;
+    const options: WorkflowOptions = rawBody.options ?? {};
 
     if (!workflowType) {
       return NextResponse.json(
@@ -14,7 +31,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate workflow type
-    const allowedWorkflows = [
+    const allowedWorkflows: WorkflowType[] = [
       "development",
       "staging",
       "production",
@@ -33,10 +50,11 @@ export async function POST(request: NextRequest) {
     const result = await executeWorkflow(workflowType, options);
 
     return NextResponse.json(result);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Workflow execution error:", error);
+    const details = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
-      { error: "Failed to execute workflow", details: error.message },
+      { error: "Failed to execute workflow", details },
       { status: 500 }
     );
   }
@@ -47,16 +65,20 @@ export async function GET() {
     // Return available workflows and their status
     const status = await getWorkflowStatus();
     return NextResponse.json(status);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Status fetch error:", error);
+    const details = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
-      { error: "Failed to fetch workflow status" },
+      { error: "Failed to fetch workflow status", details },
       { status: 500 }
     );
   }
 }
 
-async function executeWorkflow(workflowType: string, options: any = {}) {
+async function executeWorkflow(
+  workflowType: WorkflowType,
+  options: WorkflowOptions = {}
+) {
   return new Promise((resolve, reject) => {
     const scriptPath = path.join(process.cwd(), "workflow-orchestrator.js");
     const args = [workflowType];
@@ -211,9 +233,9 @@ async function getWorkflowStatus() {
   });
 }
 
-function parseTasksFromOutput(output: string): any[] {
+function parseTasksFromOutput(output: string): TaskResult[] {
   // Simple parser to extract task information from output
-  const tasks = [];
+  const tasks: TaskResult[] = [];
   const lines = output.split("\n");
 
   for (const line of lines) {

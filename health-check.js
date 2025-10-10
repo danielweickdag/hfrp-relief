@@ -67,8 +67,9 @@ class HFRPHealthCheck {
 
   checkEnvVars() {
     const requiredVars = [
-      "NEXT_PUBLIC_DONATION_TEST_MODE",
-      "NEXT_PUBLIC_DONORBOX_MAIN_CAMPAIGN",
+      "NEXT_PUBLIC_STRIPE_TEST_MODE",
+      "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY",
+      "STRIPE_SECRET_KEY",
       "EMAIL_SERVICE",
     ];
 

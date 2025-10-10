@@ -36,14 +36,14 @@ class FinalDeployment {
 # Copy this to your deployment platform's environment settings
 
 # REQUIRED: Set these in your deployment platform
-DONORBOX_API_KEY=YOUR_PRODUCTION_API_KEY_HERE
-DONORBOX_ORG_ID=YOUR_PRODUCTION_ORG_ID_HERE
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=YOUR_STRIPE_PUBLISHABLE_KEY_HERE
+STRIPE_SECRET_KEY=YOUR_STRIPE_SECRET_KEY_HERE
+STRIPE_WEBHOOK_SECRET=YOUR_STRIPE_WEBHOOK_SECRET_HERE
 SESSION_SECRET=YOUR_SECURE_SESSION_SECRET_HERE
 
 # Application Settings
 NODE_ENV=production
 PORT=3002
-DONORBOX_EMAIL=w.regis@comcast.net
 
 # Optional: Database Configuration
 # DATABASE_URL=your-database-url
@@ -142,7 +142,7 @@ data/secrets.json
         "deploy:vercel": "vercel --prod",
         "deploy:netlify": "netlify deploy --prod",
         "health-check": "node health-check.js",
-        "sync-donorbox": "node donorbox-real-sync.js",
+        // removed Donorbox sync script in favor of Stripe
         "automation-status": "node automation-status.js",
       };
 

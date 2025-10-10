@@ -22,6 +22,52 @@ export function Navbar() {
     setIsMobileMenuOpen(false);
   };
 
+  const handlePrintClick = () => {
+    try {
+      const printable = document.querySelector<HTMLElement>("[data-printable]");
+      const title = printable?.getAttribute("data-print-title") || document.title || "Report";
+      const node = printable ?? document.body;
+
+      const printWindow = window.open("", "PRINT", "height=900,width=1200");
+      if (!printWindow) return;
+
+      const styles = Array.from(document.querySelectorAll('link[rel="stylesheet"], style'))
+        .map((el) => (el as HTMLElement).outerHTML)
+        .join("\n");
+
+      printWindow.document.write(`<!doctype html><html><head><title>${title}</title>${styles}</head><body>`);
+      printWindow.document.write(`<div class="p-6">`);
+      printWindow.document.write(`<h1 class="text-2xl font-bold mb-4">${title}</h1>`);
+      printWindow.document.write(node.innerHTML);
+      printWindow.document.write(`</div>`);
+      printWindow.document.write(`</body></html>`);
+      printWindow.document.close();
+      printWindow.focus();
+      setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+      }, 300);
+    } catch (e) {
+      console.warn("Print failed", e);
+    }
+  };
+
+  const handleEnableFeatures = () => {
+    try {
+      const w = window as Window & {
+        hfrpEnablePrintFeatures?: () => void;
+        hfrpEnableSiteFeatures?: () => void;
+      };
+      if (w.hfrpEnableSiteFeatures) {
+        w.hfrpEnableSiteFeatures();
+      } else {
+        w.hfrpEnablePrintFeatures?.();
+      }
+    } catch (e) {
+      console.warn("Enable features failed", e);
+    }
+  };
+
   const handleDonateClick = () => {
     console.log("🔴 NAVBAR DONATE BUTTON CLICKED!");
     console.log("Opening Stripe payment form directly");
@@ -94,6 +140,24 @@ export function Navbar() {
               Impact
             </Link>
             <Link
+              href="/programs"
+              className="text-white hover:text-gray-300 transition"
+            >
+              Programs
+            </Link>
+            <Link
+              href="/blog"
+              className="text-white hover:text-gray-300 transition"
+            >
+              Blog
+            </Link>
+            <Link
+              href="/about"
+              className="text-white hover:text-gray-300 transition"
+            >
+              About
+            </Link>
+            <Link
               href="/contact"
               className="text-white hover:text-gray-300 transition"
             >
@@ -131,6 +195,33 @@ export function Navbar() {
 
             {/* Vertical Divider */}
             <div className="hidden md:block w-px h-6 bg-white/30" />
+
+          {/* Print Report Button */}
+          <button
+            onClick={handlePrintClick}
+            className="hidden md:flex bg-gray-100 hover:bg-gray-200 text-gray-900 px-4 py-2 rounded-lg border border-gray-300 transition-colors items-center gap-2"
+            type="button"
+            title="Print report or current page"
+          >
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M6 2a2 2 0 00-2 2v2h12V4a2 2 0 00-2-2H6z" />
+              <path d="M4 8a2 2 0 00-2 2v3a2 2 0 002 2h2v3h8v-3h2a2 2 0 002-2v-3a2 2 0 00-2-2H4zm4 9v-5h4v5H8z" />
+            </svg>
+            Print
+          </button>
+
+          {/* Enable Features Button */}
+          <button
+            onClick={handleEnableFeatures}
+            className="hidden md:flex bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg border border-blue-700 transition-colors items-center gap-2"
+            type="button"
+            title="Enable features like print helpers and PWA"
+          >
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10 2a1 1 0 011 1v2a1 1 0 11-2 0V3a1 1 0 011-1zm6.364 3.636a1 1 0 011.414 1.414l-1.414 1.414a1 1 0 11-1.414-1.414l1.414-1.414zM18 11a1 1 0 110 2h-2a1 1 0 110-2h2zM4 11a1 1 0 110 2H2a1 1 0 110-2h2zm12.95 4.95a1 1 0 00-1.414-1.414l-1.414 1.414a1 1 0 001.414 1.414l1.414-1.414zM10 16a1 1 0 011 1v2a1 1 0 11-2 0v-2a1 1 0 011-1zM5.464 5.05A1 1 0 104.05 6.464l1.414 1.414A1 1 0 106.88 6.464L5.464 5.05z" />
+            </svg>
+            Enable Features
+          </button>
 
             {/* Social Media Icons */}
             <div className="hidden md:flex items-center space-x-3">
@@ -260,6 +351,34 @@ export function Navbar() {
                 Impact
               </Link>
               <Link
+                href="/programs"
+                onClick={closeMobileMenu}
+                className="block text-white hover:text-gray-300 transition py-2 text-lg"
+              >
+                Programs
+              </Link>
+              <Link
+                href="/blog"
+                onClick={closeMobileMenu}
+                className="block text-white hover:text-gray-300 transition py-2 text-lg"
+              >
+                Blog
+              </Link>
+              <Link
+                href="/about"
+                onClick={closeMobileMenu}
+                className="block text-white hover:text-gray-300 transition py-2 text-lg"
+              >
+                About
+              </Link>
+              <Link
+                href="/donate"
+                onClick={closeMobileMenu}
+                className="block text-white hover:text-gray-300 transition py-2 text-lg"
+              >
+                Donate
+              </Link>
+              <Link
                 href="/contact"
                 onClick={closeMobileMenu}
                 className="block text-white hover:text-gray-300 transition py-2 text-lg"
@@ -298,6 +417,51 @@ export function Navbar() {
                 className="transition-transform hover:scale-110"
               />
             </div>
+
+            {/* Mobile donate button */}
+            <button
+              onClick={() => {
+                handlePrintClick();
+                closeMobileMenu();
+              }}
+              className="w-full bg-gray-100 hover:bg-gray-200 text-gray-900 px-4 py-3 rounded-lg font-bold text-lg shadow transition-all flex items-center justify-center gap-2"
+              type="button"
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M6 2a2 2 0 00-2 2v2h12V4a2 2 0 00-2-2H6z" />
+                <path d="M4 8a2 2 0 00-2 2v3a2 2 0 002 2h2v3h8v-3h2a2 2 0 002-2v-3a2 2 0 00-2-2H4zm4 9v-5h4v5H8z" />
+              </svg>
+              Print
+            </button>
+
+            {/* Mobile enable features button */}
+            <button
+              onClick={() => {
+                handleEnableFeatures();
+                closeMobileMenu();
+              }}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg font-bold text-lg shadow transition-all flex items-center justify-center gap-2"
+              type="button"
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 2a1 1 0 011 1v2a1 1 0 11-2 0V3a1 1 0 011-1zm6.364 3.636a1 1 0 011.414 1.414l-1.414 1.414a1 1 0 11-1.414-1.414l1.414-1.414zM18 11a1 1 0 110 2h-2a1 1 0 110-2h2zM4 11a1 1 0 110 2H2a1 1 0 110-2h2zm12.95 4.95a1 1 0 00-1.414-1.414l-1.414 1.414a1 1 0 001.414 1.414l1.414-1.414zM10 16a1 1 0 011 1v2a1 1 0 11-2 0v-2a1 1 0 011-1zM5.464 5.05A1 1 0 104.05 6.464l1.414 1.414A1 1 0 106.88 6.464L5.464 5.05z" />
+              </svg>
+              Enable Features
+            </button>
+            
+            <button
+              onClick={() => {
+                closeMobileMenu();
+                router.push("/donate");
+              }}
+              className="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-lg font-bold text-lg shadow-lg transition-all flex items-center justify-center gap-2"
+              type="button"
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+              </svg>
+              Donate
+            </button>
 
             {/* Social Media Links */}
             <div className="flex items-center justify-center space-x-6 pt-4">

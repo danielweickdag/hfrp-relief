@@ -1,0 +1,25 @@
+name: Stripe Full Sync
+
+on:
+  schedule:
+    - cron: "0 6 * * *" # every day at 06:00 UTC
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger full sync
+        env:
+          API_URL: ${{ vars.PRODUCTION_API_URL }}
+        run: |
+          echo "Triggering Stripe full sync..."
+          if [ -z "$API_URL" ]; then
+            API_URL="https://www.familyreliefproject.org/api"
+          fi
+          curl -s -X POST "$API_URL/stripe/sync" \
+            -H "Content-Type: application/json" \
+            -d '{"action":"all"}' \
+            -o response.json
+          cat response.json
+          jq -e '.success == true' response.json || exit 1

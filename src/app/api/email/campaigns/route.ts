@@ -27,7 +27,7 @@ interface EmailTemplate {
 }
 
 interface CampaignRequest {
-  action: 'create' | 'schedule' | 'send' | 'list' | 'get_templates' | 'analytics';
+  action: 'create' | 'schedule' | 'send' | 'list' | 'get_templates' | 'analytics' | 'process_scheduled';
   campaign?: Partial<EmailCampaign>;
   campaignId?: string;
   templateId?: string;
@@ -59,6 +59,8 @@ export async function POST(request: NextRequest) {
         return await handleScheduleCampaign(campaignId!, campaign!);
       case 'send':
         return await handleSendCampaign(campaignId!);
+      case 'process_scheduled':
+        return await handleProcessScheduled();
       case 'list':
         return await handleListCampaigns();
       case 'get_templates':
@@ -300,6 +302,65 @@ async function saveAutomationSchedule(automationData: AutomationScheduleData) {
   
   schedules.push(automationData);
   fs.writeFileSync(schedulePath, JSON.stringify(schedules, null, 2));
+}
+
+async function handleProcessScheduled() {
+  const dataPath = path.join(process.cwd(), 'data', 'automation');
+  const schedulePath = path.join(dataPath, 'email_schedule.json');
+  const campaigns = await loadCampaigns();
+
+  if (!fs.existsSync(schedulePath)) {
+    return NextResponse.json({ processed: 0, message: 'No schedule found' });
+  }
+
+  const now = Date.now();
+  let schedules: AutomationScheduleData[] = [];
+  try {
+    schedules = JSON.parse(fs.readFileSync(schedulePath, 'utf8')) as AutomationScheduleData[];
+  } catch (error) {
+    console.error('Failed to read schedule file:', error);
+    return NextResponse.json({ error: 'Failed to read schedule' }, { status: 500 });
+  }
+
+  let processed = 0;
+  const remaining: AutomationScheduleData[] = [];
+
+  for (const item of schedules) {
+    const scheduledTime = Date.parse(item.scheduledFor);
+    const campaign = campaigns.find(c => c.id === item.campaignId);
+
+    if (!campaign) {
+      // Skip unknown campaigns but keep schedule for investigation
+      remaining.push(item);
+      continue;
+    }
+
+    if (campaign.status === 'sent') {
+      // Already sent; drop from schedule
+      continue;
+    }
+
+    if (Number.isFinite(scheduledTime) && scheduledTime <= now) {
+      // Send now
+      await handleSendCampaign(campaign.id);
+      processed += 1;
+    } else {
+      // Keep for future
+      remaining.push(item);
+    }
+  }
+
+  // Write back remaining schedules
+  try {
+    if (!fs.existsSync(dataPath)) {
+      fs.mkdirSync(dataPath, { recursive: true });
+    }
+    fs.writeFileSync(schedulePath, JSON.stringify(remaining, null, 2));
+  } catch (error) {
+    console.error('Failed to update schedule file:', error);
+  }
+
+  return NextResponse.json({ processed, remaining: remaining.length });
 }
 
 // Data persistence functions

@@ -59,7 +59,7 @@ class MasterAutomation {
       const campaignsPath = path.join(__dirname, "data", "campaigns_real.json");
       if (!fs.existsSync(campaignsPath)) {
         this.log("📥 No campaign data found, running sync first...", "warning");
-        await this.syncDonorboxData();
+        await this.syncStripeData();
       }
 
       // Load and analyze campaigns
@@ -381,13 +381,13 @@ class MasterAutomation {
     };
   }
 
-  async syncDonorboxData() {
-    this.log("\n📥 SYNCING DONORBOX DATA", "header");
+  async syncStripeData() {
+    this.log("\n📥 SYNCING STRIPE DATA", "header");
     this.log("═══════════════════════════════════════════════════", "info");
 
     const syncResult = await this.runCommand(
-      "node donorbox-real-sync.js",
-      "Donorbox data sync"
+      "./stripe-sync.sh",
+      "Stripe data sync"
     );
 
     if (syncResult.success) {
@@ -453,7 +453,7 @@ class MasterAutomation {
         "Execute social media content schedule",
         "Send email campaigns to donor segments",
         "Review automation performance metrics",
-        "Sync with Donorbox every 2 hours",
+        "Sync with Stripe via automated workflows",
       ],
 
       system_health: {

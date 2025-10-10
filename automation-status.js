@@ -146,43 +146,32 @@ class AutomationStatus {
   }
 
   displaySyncStatus() {
-    this.log("\n🔄 DONORBOX SYNC STATUS", "header");
+    this.log("\n🔄 STRIPE SYNC STATUS", "header");
     this.log(
       "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
       "info"
     );
 
     try {
-      const syncReportPath = path.join(
-        this.dataPath,
-        "donorbox_sync_report.json"
-      );
+      const syncReportPath = path.join(this.dataPath, "sync_summary.json");
       if (fs.existsSync(syncReportPath)) {
         const syncReport = JSON.parse(fs.readFileSync(syncReportPath, "utf8"));
 
-        this.log(`🌐 Connection: www.donorbox.com`, "success");
-        this.log(`🔐 Account: ${syncReport.credentials_used}`, "info");
+        this.log(`🌐 Provider: Stripe`, "success");
         this.log(
-          `📊 API Status: ${syncReport.api_status.toUpperCase()}`,
-          "success"
-        );
-        this.log(
-          `🎯 Campaigns Synced: ${syncReport.campaign_summary.campaigns_synced}`,
-          "success"
-        );
-        this.log(
-          `💰 Total Goal: ${new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(syncReport.campaign_summary.total_goal_amount)}`,
+          `🕐 Last Sync: ${new Date(syncReport.last_sync).toLocaleString()}`,
           "info"
         );
         this.log(
-          `📈 Total Raised: ${new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(syncReport.campaign_summary.total_raised_amount)}`,
+          `🎯 Campaigns Synced: ${syncReport.sync_results.campaigns}`,
           "success"
         );
+        this.log(`💰 Donations Synced: ${syncReport.sync_results.donations}`, "info");
+        this.log(`👥 Donors Synced: ${syncReport.sync_results.donors}`, "info");
         this.log(
-          `📊 Average Progress: ${syncReport.campaign_summary.average_progress}%`,
+          `🔄 Next Sync: Automated via workflows`,
           "warning"
         );
-        this.log(`🔄 Next Sync: Every 2 hours`, "warning");
       }
     } catch (error) {
       this.log("❌ Could not load sync status", "error");
@@ -203,9 +192,9 @@ class AutomationStatus {
         description: "Validates data integrity and calculations",
       },
       {
-        name: "Donorbox Sync Automation",
+        name: "Stripe Sync Automation",
         status: "✅ ACTIVE",
-        description: "Real-time sync with www.donorbox.com",
+        description: "Real-time sync with Stripe",
       },
       {
         name: "Social Media Content Generation",

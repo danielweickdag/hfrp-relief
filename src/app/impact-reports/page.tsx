@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import PrintSectionButton from "../../components/ui/PrintSectionButton";
 
 const reports = [
   {
@@ -123,7 +124,11 @@ export default function ImpactReportsPage() {
         </div>
 
         {/* Financial Overview */}
-        <div className="bg-white rounded-xl shadow-lg p-8 mb-12">
+        <div
+          className="bg-white rounded-xl shadow-lg p-8 mb-12"
+          data-printable
+          data-print-title="April 2024 Financial Overview"
+        >
           <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
             💰 April 2024 Financial Transparency
           </h2>
@@ -191,6 +196,7 @@ export default function ImpactReportsPage() {
           {reports.map((report) => (
             <div
               key={report.id}
+              id={`report-card-${report.id}`}
               className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300"
             >
               <div className="p-6">
@@ -250,25 +256,32 @@ export default function ImpactReportsPage() {
                     })}
                   </div>
 
-                  <button
-                    onClick={() => handleDownload(report.id, report.title)}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm flex items-center gap-2"
-                  >
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => handleDownload(report.id, report.title)}
+                      className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm flex items-center gap-2"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                      />
-                    </svg>
-                    Download PDF
-                  </button>
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                        />
+                      </svg>
+                      Download PDF
+                    </button>
+                    <PrintSectionButton
+                      targetId={`report-card-${report.id}`}
+                      label="Print"
+                      title={report.title}
+                    />
+                  </div>
                 </div>
               </div>
             </div>

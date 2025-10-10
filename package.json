@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbo -H 0.0.0.0",
+    "dev": "next dev --turbo -H 0.0.0.0 -p 3005",
     "build": "next build",
     "build:vercel": "SKIP_TYPE_CHECK=true next build",
     "start": "next start",
@@ -15,7 +15,7 @@
     "test-local": "npm run build && npm run dev",
     "deploy:vercel": "vercel --prod",
     "deploy:netlify": "netlify deploy --prod",
-    "sync-donorbox": "node donorbox-real-sync.js",
+    
     "automation-status": "node automation-status.js",
     "radio-setup": "./radio-setup-automation.sh",
     "workflow:dev": "node workflow-orchestrator.js development",

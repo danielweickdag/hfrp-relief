@@ -119,13 +119,13 @@ class DeploymentPrep {
         this.results.tests.errors.push("Health check failed");
       }
 
-      // Test Donorbox sync
+      // Test Stripe sync
       const syncResult = await this.runCommand(
-        "node donorbox-real-sync.js",
-        "Donorbox sync test"
+        "./stripe-sync.sh",
+        "Stripe sync test"
       );
       if (!syncResult.success) {
-        this.results.tests.errors.push("Donorbox sync test failed");
+        this.results.tests.errors.push("Stripe sync test failed");
       }
 
       this.results.tests.status =
@@ -213,10 +213,10 @@ class DeploymentPrep {
 NODE_ENV=production
 PORT=3002
 
-# Donorbox Configuration (Set these in your deployment platform)
-# DONORBOX_API_KEY=your-production-api-key
-# DONORBOX_ORG_ID=your-production-org-id
-DONORBOX_EMAIL=w.regis@comcast.net
+# Stripe Configuration (Set these in your deployment platform)
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your-stripe-publishable-key
+STRIPE_SECRET_KEY=your-stripe-secret-key
+STRIPE_WEBHOOK_SECRET=your-stripe-webhook-secret
 
 # Database URLs (if using databases)
 # DATABASE_URL=your-production-database-url

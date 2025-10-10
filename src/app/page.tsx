@@ -84,8 +84,11 @@ export default function HomePage() {
 
     // Choose a valid source proactively (checks local files & content-type), then test playability
     const chooseSource = async () => {
-      const primary = "/homepage-video.mp4";
-      const alt = "/haitian-family-project.mp4";
+      // Prefer the Haitian family project video as primary
+      const primary = "/Hatian%20family%20project.mp4";
+      const alt = "/homepage-video.mp4";
+      // Allow explicit local file from public folder via env var
+      const preferredLocal = process.env.NEXT_PUBLIC_BG_VIDEO_PATH?.trim();
       // Prefer env-provided remote video if available; otherwise use the provided Zig link
       const preferredRemote =
         (process.env.NEXT_PUBLIC_BG_VIDEO_URL?.trim() ??
@@ -115,26 +118,55 @@ export default function HomePage() {
       let chosen: string | null = null;
 
       try {
-        // 1) Try the preferred remote: use direct video if HEAD reports video
-        try {
-          const resRemote = await fetch(preferredRemote, { method: "HEAD" });
-          const ctRemote = resRemote.headers.get("content-type");
-          const headSaysVideo = resRemote.ok && isVideo(ctRemote);
+        // 0) Try explicit local path if provided (must be served from /public)
+        // Avoid HEAD to reduce noisy aborted network logs; trust local asset
+        if (preferredLocal) {
+          videoElement.src = preferredLocal;
+          chosen = preferredLocal;
+        }
 
-          if (headSaysVideo) {
-            const remoteOk = await tryCandidate(preferredRemote);
-            if (remoteOk) {
-              chosen = preferredRemote;
+        // 1) Try the preferred remote only if a source hasn't been chosen yet
+        if (!chosen) {
+          try {
+            const resRemote = await fetch(preferredRemote, { method: "HEAD" });
+            const ctRemote = resRemote.headers.get("content-type");
+            const headSaysVideo = resRemote.ok && isVideo(ctRemote);
+
+            if (headSaysVideo) {
+              const remoteOk = await tryCandidate(preferredRemote);
+              if (remoteOk) {
+                chosen = preferredRemote;
+              }
             }
-          }
 
-          // If HEAD didn't confirm a direct video, attempt resolver
-          if (!headSaysVideo && !chosen) {
-            console.log(
-              "📹 Preferred remote not confirmed as direct video; attempting resolver",
-              preferredRemote,
-              ctRemote
-            );
+            // If HEAD didn't confirm a direct video, attempt resolver
+            if (!headSaysVideo && !chosen) {
+              console.log(
+                "📹 Preferred remote not confirmed as direct video; attempting resolver",
+                preferredRemote,
+                ctRemote
+              );
+              try {
+                const resolveRes = await fetch(
+                  `/api/video-resolve?viewer=${encodeURIComponent(preferredRemote)}`,
+                  { method: "GET" }
+                );
+                if (resolveRes.ok) {
+                  const data = (await resolveRes.json()) as { mp4Url?: string };
+                  if (data?.mp4Url) {
+                    const ok = await tryCandidate(data.mp4Url);
+                    if (ok) {
+                      chosen = data.mp4Url;
+                    }
+                  }
+                }
+              } catch (e) {
+                console.log("📹 Resolver failed:", e);
+              }
+            }
+          } catch (e) {
+            // Network/CORS errors on HEAD — still try resolver before falling back
+            console.log("📹 HEAD check failed; attempting resolver:", e);
             try {
               const resolveRes = await fetch(
                 `/api/video-resolve?viewer=${encodeURIComponent(preferredRemote)}`,
@@ -149,52 +181,34 @@ export default function HomePage() {
                   }
                 }
               }
-            } catch (e) {
-              console.log("📹 Resolver failed:", e);
+            } catch (resolverErr) {
+              console.log("📹 Resolver also failed after HEAD error:", resolverErr);
             }
-          }
-        } catch (e) {
-          // Network/CORS errors on HEAD — still try resolver before falling back
-          console.log("📹 HEAD check failed; attempting resolver:", e);
-          try {
-            const resolveRes = await fetch(
-              `/api/video-resolve?viewer=${encodeURIComponent(preferredRemote)}`,
-              { method: "GET" }
-            );
-            if (resolveRes.ok) {
-              const data = (await resolveRes.json()) as { mp4Url?: string };
-              if (data?.mp4Url) {
-                const ok = await tryCandidate(data.mp4Url);
-                if (ok) {
-                  chosen = data.mp4Url;
-                }
-              }
-            }
-          } catch (resolverErr) {
-            console.log("📹 Resolver also failed after HEAD error:", resolverErr);
-          }
-        }
-
-        // 2) If not chosen, probe and try local primary
-        const res = await fetch(primary, { method: "HEAD" });
-        if (res.ok && isVideo(res.headers.get("content-type"))) {
-          const ok = await tryCandidate(primary);
-          if (ok) chosen = primary;
-        }
-
-        if (!chosen) {
-          const resAlt = await fetch(alt, { method: "HEAD" });
-          if (resAlt.ok && isVideo(resAlt.headers.get("content-type"))) {
-            const ok = await tryCandidate(alt);
-            if (ok) chosen = alt;
           }
         }
 
         if (!chosen) {
-          console.log("📹 Sources missing/invalid or not playable; using remote sample fallback");
-          videoElement.src = remoteSample;
-          videoElement.crossOrigin = "anonymous";
-          chosen = remoteSample;
+          // 2) If not chosen, probe and try local primary
+          const res = await fetch(primary, { method: "HEAD" });
+          if (res.ok && isVideo(res.headers.get("content-type"))) {
+            videoElement.src = primary;
+            chosen = primary;
+          }
+
+          if (!chosen) {
+            const resAlt = await fetch(alt, { method: "HEAD" });
+            if (resAlt.ok && isVideo(resAlt.headers.get("content-type"))) {
+              videoElement.src = alt;
+              chosen = alt;
+            }
+          }
+
+          if (!chosen) {
+            console.log("📹 Sources missing/invalid or not playable; using remote sample fallback");
+            videoElement.src = remoteSample;
+            videoElement.crossOrigin = "anonymous";
+            chosen = remoteSample;
+          }
         }
       } catch {
         // Network/CORS issues — use remote fallback so we don't stall
@@ -230,6 +244,8 @@ export default function HomePage() {
     // Ensure loop is explicitly set for all browsers
     videoElement.loop = true;
     videoElement.setAttribute("loop", "true");
+    // Mute to improve autoplay reliability across browsers
+    videoElement.muted = true;
     console.log("📹 Video loop explicitly set:", videoElement.loop);
 
     // Immediate play attempt
@@ -353,17 +369,8 @@ export default function HomePage() {
       }, 100);
     };
 
-    const handleError = (event: Event) => {
-      const target = event.target as HTMLVideoElement;
-      console.error("📹 Video error:", target.error);
-
-      // Try alternative video source if primary fails
-      if (target.src.includes("Hatian family project.mp4")) {
-        console.log("📹 Trying alternative video source");
-        target.src = "/homepage-video.mp4";
-        target.load();
-      }
-    };
+    // Note: rely on the <video onError> handler in JSX below to avoid
+    // double-handling errors that can cause aborted loads.
 
     const handlePause = () => {
       // Only restart if not paused intentionally and video should be playing
@@ -396,7 +403,7 @@ export default function HomePage() {
       videoElement.addEventListener("loadeddata", handleLoadedData);
       videoElement.addEventListener("canplay", handleCanPlay);
       videoElement.addEventListener("ended", handleEnded);
-      videoElement.addEventListener("error", handleError);
+      // Do not attach a duplicate error handler here; the JSX onError covers fallbacks
       videoElement.addEventListener("pause", handlePause);
       videoElement.addEventListener("timeupdate", handleTimeUpdate);
     }
@@ -422,7 +429,7 @@ export default function HomePage() {
         videoElement.removeEventListener("loadeddata", handleLoadedData);
         videoElement.removeEventListener("canplay", handleCanPlay);
         videoElement.removeEventListener("ended", handleEnded);
-        videoElement.removeEventListener("error", handleError);
+        // No error listener attached above
         videoElement.removeEventListener("pause", handlePause);
         videoElement.removeEventListener("timeupdate", handleTimeUpdate);
       }
@@ -515,12 +522,17 @@ export default function HomePage() {
                 return;
               }
 
-              // Try alternative local source once using currentSrc detection
+              // Try alternative local source once using robust currentSrc detection
               if (!video.dataset.fallbackTried) {
                 video.dataset.fallbackTried = "true";
-                const altSrc = currentSrc?.endsWith("/homepage-video.mp4")
-                  ? "/haitian-family-project.mp4"
-                  : "/homepage-video.mp4";
+                const isPrimary =
+                  !!currentSrc && (
+                    currentSrc.includes("/Hatian%20family%20project.mp4") ||
+                    currentSrc.includes("/Hatian family project.mp4")
+                  );
+                const altSrc = isPrimary
+                  ? "/homepage-video.mp4"
+                  : "/Hatian%20family%20project.mp4";
                 console.log("📹 Trying alternative local video source:", altSrc);
                 video.src = altSrc;
                 video.load();

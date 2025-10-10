@@ -7,7 +7,7 @@ echo "🚀 HFRP Relief - Stripe Campaign & Plan Sync Automation"
 echo "======================================================="
 
 # Configuration
-API_BASE_URL="http://localhost:3001"
+API_BASE_URL="http://localhost:3000"
 SYNC_ENDPOINT="$API_BASE_URL/api/stripe/sync"
 
 # Colors for output
@@ -43,7 +43,7 @@ check_server() {
         return 0
     else
         print_error "Development server is not running"
-        print_status "Please start the server with: bun run dev"
+        print_status "Please start the server with: npm run dev"
         return 1
     fi
 }
@@ -80,7 +80,7 @@ sync_stripe() {
     
     response=$(curl -s -X POST "$SYNC_ENDPOINT" \
         -H "Content-Type: application/json" \
-        -d '{}')
+        -d '{"action":"all"}')
     
     if [ $? -eq 0 ]; then
         success=$(echo "$response" | jq -r '.success' 2>/dev/null)
@@ -115,7 +115,7 @@ auto_sync() {
     
     response=$(curl -s -X POST "$SYNC_ENDPOINT" \
         -H "Content-Type: application/json" \
-        -d '{"autoSync": true}')
+        -d '{"action":"all"}')
     
     if [ $? -eq 0 ]; then
         success=$(echo "$response" | jq -r '.success' 2>/dev/null)

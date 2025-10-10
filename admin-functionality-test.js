@@ -75,10 +75,6 @@ class AdminFunctionalityTest {
         `${baseUrl}/api/stripe/analytics`,
         "Stripe Analytics API"
       );
-      await this.testEndpoint(
-        `${baseUrl}/api/donorbox-sync`,
-        "Donorbox Sync API"
-      );
     } catch (error) {
       this.log(`API endpoint test failed: ${error.message}`, "error");
     }

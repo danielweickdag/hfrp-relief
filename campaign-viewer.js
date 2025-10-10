@@ -281,25 +281,25 @@ class CampaignViewer {
     }
   }
 
-  displayDonorboxUrls() {
+  displayStripeCampaignUrls() {
     try {
-      const reportPath = path.join(this.dataPath, "donorbox_sync_report.json");
-      if (fs.existsSync(reportPath)) {
-        const report = JSON.parse(fs.readFileSync(reportPath, "utf8"));
+      const campaignsPath = path.join(this.dataPath, "campaigns_real.json");
+      if (fs.existsSync(campaignsPath)) {
+        const campaigns = JSON.parse(fs.readFileSync(campaignsPath, "utf8"));
 
-        this.log("\n🌐 DONORBOX CAMPAIGN URLS", "info");
+        this.log("\n🌐 STRIPE CAMPAIGN URLS", "info");
         this.log(
           "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
           "info"
         );
 
-        report.donorbox_urls.forEach((item, index) => {
-          this.log(`${index + 1}. ${item.name}`, "success");
-          this.log(`   🔗 ${item.url}`, "info");
+        campaigns.forEach((campaign, index) => {
+          this.log(`${index + 1}. ${campaign.name}`, "success");
+          this.log(`   🔗 ${campaign.url}`, "info");
         });
       }
     } catch (error) {
-      this.log("❌ Could not load Donorbox URLs", "error");
+      this.log("❌ Could not load campaign URLs", "error");
     }
   }
 
@@ -309,12 +309,12 @@ class CampaignViewer {
       "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
       "info"
     );
-    this.log("✅ Real-time sync with Donorbox", "success");
+    this.log("✅ Real-time sync with Stripe", "success");
     this.log("✅ Campaign progress tracking", "success");
     this.log("✅ Performance analytics", "success");
     this.log("✅ Donor segmentation", "success");
     this.log("✅ Automated reporting", "success");
-    this.log("🔄 Next sync: Every 2 hours", "warning");
+    this.log("🔄 Next sync: Automated via workflows", "warning");
   }
 
   displayFooter() {
@@ -331,14 +331,14 @@ class CampaignViewer {
       "header"
     );
     this.log("📋 Commands:", "info");
-    this.log("• node donorbox-real-sync.js    - Sync from Donorbox", "info");
-    this.log("• node donorbox-setup.js        - Configure API", "info");
+    this.log("• ./stripe-sync.sh              - Sync Stripe campaigns", "info");
+    this.log("• ./setup-stripe-automation.sh  - Configure Stripe automation", "info");
     this.log("• node campaign-viewer.js       - View this dashboard", "info");
     this.log("• node data-viewer.js           - View all data", "info");
 
     this.log("\n🌐 Links:", "info");
     this.log("• HFRP Admin: http://localhost:3002/admin", "success");
-    this.log("• Donorbox Login: https://donorbox.org/login", "info");
+    this.log("• Stripe Dashboard: https://dashboard.stripe.com/test", "info");
     this.log("• Account: w.regis@comcast.net", "warning");
     this.log(
       "═══════════════════════════════════════════════════════════",
@@ -352,7 +352,7 @@ class CampaignViewer {
     this.displayCampaignSummary();
     this.displayCampaignDetails();
     this.displayTopPerformers();
-    this.displayDonorboxUrls();
+    this.displayStripeCampaignUrls();
     this.displayAutomationStatus();
     this.displayFooter();
   }

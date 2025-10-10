@@ -14,6 +14,8 @@ const nextConfig = {
         hostname: "**",
       },
     ],
+    // Configure allowed qualities to silence Next.js 16 requirement warning
+    qualities: [95],
   },
   serverExternalPackages: ["nodemailer"],
   turbopack: {

@@ -173,6 +173,7 @@ class EnhancedStripeService {
       campaignId?: string;
       eventId?: string;
       mode?: string;
+      recurring?: boolean;
     }) => void;
     trackPaymentSuccess: (data: StripeDonation) => void;
     trackCampaignCreated: (data: StripeCampaign) => void;
@@ -339,8 +340,8 @@ class EnhancedStripeService {
     }
 
     // Live/Test mode validation with helpful messages
-    const isLiveKey = this.config.publishableKey.includes("live");
-    const isTestKey = this.config.publishableKey.includes("test");
+    const isLiveKey = this.config.publishableKey.startsWith("pk_live_");
+    const isTestKey = this.config.publishableKey.startsWith("pk_test_");
 
     if (this.config.testMode && isLiveKey) {
       errors.push(
@@ -348,9 +349,17 @@ class EnhancedStripeService {
       );
     }
 
+    // If a test key is detected while testMode is disabled, auto-correct
     if (!this.config.testMode && isTestKey) {
-      errors.push(
-        "Production mode enabled but using test key - No real payments will work"
+      // Switch to test mode automatically and persist
+      this.config.testMode = true;
+      try {
+        this.saveConfig();
+      } catch {
+        // ignore persistence issues silently
+      }
+      warnings.push(
+        "Test publishable key detected; switched to test mode automatically"
       );
     }
 
@@ -372,6 +381,10 @@ class EnhancedStripeService {
     // Test key specific validations
     if (isTestKey) {
       console.log("🧪 Test mode active - No real charges will be made");
+      // If a live secret key is set with a test publishable key, flag as warning
+      if (this.config.secretKey && this.config.secretKey.startsWith("sk_live_")) {
+        warnings.push("Live secret key configured with test publishable key");
+      }
     }
 
     // Validate currency format
@@ -638,9 +651,11 @@ class EnhancedStripeService {
       console.log("🔄 Syncing plans from API...");
 
       // Fetch plans from the sync API
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3001"}/api/stripe/sync?action=plans`
-      );
+      const siteUrl =
+        (typeof window !== "undefined" && window.location.origin) ||
+        process.env.NEXT_PUBLIC_SITE_URL ||
+        "http://localhost:3003";
+      const response = await fetch(`${siteUrl}/api/stripe/sync?action=plans`);
       const data = await response.json();
 
       if (!data.success || !data.data) {
@@ -1122,7 +1137,10 @@ class EnhancedStripeService {
       amount: this.parseAmount(paymentIntent.amount),
       currency: paymentIntent.currency.toUpperCase(),
       paymentIntentId: paymentIntent.id,
-      customerId: paymentIntent.customer,
+      customerId:
+        typeof paymentIntent.customer === "string"
+          ? paymentIntent.customer
+          : paymentIntent.customer?.id,
       campaignId: paymentIntent.metadata?.campaignId,
       eventId: paymentIntent.metadata?.eventId,
       status: "succeeded",

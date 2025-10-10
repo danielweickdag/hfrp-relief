@@ -1,0 +1,22 @@
+{
+  "workflow": "development",
+  "timestamp": "2025-10-06T05:06:52.667Z",
+  "duration": 22048,
+  "success": false,
+  "tasks": [
+    {
+      "name": "health-check",
+      "startTime": "2025-10-06T05:06:30.620Z",
+      "success": false,
+      "output": "",
+      "error": "Script health-check.js exited with code 1",
+      "endTime": "2025-10-06T05:06:52.667Z",
+      "duration": 22047
+    }
+  ],
+  "summary": {
+    "total": 1,
+    "successful": 0,
+    "failed": 1
+  }
+}

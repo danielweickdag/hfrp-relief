@@ -1,0 +1,24 @@
+{
+  "timestamp": "2025-10-06T04:58:26.393Z",
+  "rulesExecuted": 4,
+  "totalRecipients": 417,
+  "segmentBreakdown": {
+    "firstTime": 8,
+    "recurring": 11,
+    "majorGifts": 13,
+    "corporate": 1,
+    "lapsed": 8,
+    "vip": 9
+  },
+  "automationResults": {
+    "newDonorWelcome": 8,
+    "monthlyUpdates": 50,
+    "thankYouLetters": 24,
+    "taxReceipts": 282,
+    "birthdayMessages": 18,
+    "anniversaryReminders": 14,
+    "lapsedDonorReengagement": 8,
+    "majorGiftStewardship": 13
+  },
+  "nextScheduled": "2025-10-07T04:58:26.393Z"
+}

@@ -67,7 +67,10 @@ interface AnalyticsWindow {
 
 // Extend global Window interface
 declare global {
-  interface Window extends NextJSWindow, AnalyticsWindow {}
+  interface Window extends NextJSWindow, AnalyticsWindow {
+    hfrpEnablePrintFeatures?: () => void;
+    hfrpEnableSiteFeatures?: () => void;
+  }
 }
 
 export {};

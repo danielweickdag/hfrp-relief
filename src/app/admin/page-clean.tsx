@@ -50,7 +50,7 @@ export default function AdminDashboard() {
     {
       id: 1,
       type: "success",
-      message: "Donorbox sync completed successfully",
+      message: "Stripe sync completed successfully",
       time: "2 minutes ago",
     },
     {
@@ -272,11 +272,11 @@ export default function AdminDashboard() {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <button
-                onClick={() => alert("Running Donorbox sync...")}
+                onClick={() => alert("Running Stripe sync...")}
                 className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 text-left"
               >
                 <div className="font-semibold">🔄 Sync Data</div>
-                <div className="text-sm opacity-90">Update from Donorbox</div>
+                <div className="text-sm opacity-90">Update from Stripe</div>
               </button>
               <button
                 onClick={() => alert("Generating report...")}
@@ -303,12 +303,12 @@ export default function AdminDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <h3 className="text-lg font-semibold text-gray-700 mb-2">
-                  Donorbox Integration
+                  Stripe Integration
                 </h3>
                 <ul className="space-y-1 text-sm text-gray-600">
                   <li>✅ API Connection: Active</li>
-                  <li>✅ Account: w.regis@comcast.net</li>
-                  <li>✅ Sync Frequency: Every 2 hours</li>
+                  <li>✅ Publishable Key: Configured</li>
+                  <li>✅ Sync Frequency: Automated via workflows</li>
                   <li>✅ Last Sync: {new Date().toLocaleString()}</li>
                 </ul>
               </div>

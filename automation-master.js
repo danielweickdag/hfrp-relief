@@ -5,8 +5,9 @@
  * Automates and syncs all platform systems
  */
 
-const fs = require("fs").promises;
-const path = require("path");
+import { promises as fs } from "node:fs";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 class MasterAutomation {
   constructor() {
@@ -175,10 +176,10 @@ class MasterAutomation {
 
     try {
       // This would integrate with your Stripe service
-      const response = await fetch("http://localhost:3001/api/stripe/sync", {
+      const response = await fetch("http://localhost:3000/api/stripe/sync", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "full-sync" }),
+        body: JSON.stringify({ action: "all" }),
       });
 
       if (!response.ok) {
@@ -451,7 +452,16 @@ class MasterAutomation {
 }
 
 // CLI Interface
-if (require.main === module) {
+const isMain = (() => {
+  try {
+    const scriptUrl = pathToFileURL(process.argv[1]).href;
+    return import.meta.url === scriptUrl;
+  } catch {
+    return false;
+  }
+})();
+
+if (isMain) {
   const automation = new MasterAutomation();
 
   const command = process.argv[2];
@@ -498,4 +508,4 @@ Usage: node automation-master.js <command>
   }
 }
 
-module.exports = MasterAutomation;
+export default MasterAutomation;

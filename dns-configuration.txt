@@ -1,21 +1,30 @@
 🌐 DNS CONFIGURATION FOR familyreliefproject.org
 =====================================================
 
-Configure these DNS records with your domain registrar:
+Nameservers (set at registrar):
+ - aron.ns.cloudflare.com
+ - george.ns.cloudflare.com
 
-📍 A RECORD:
+Cloudflare DNS records (recommended):
+
+📍 CNAME (Flattened at Apex via Cloudflare)
    Name: @
-   Value: 76.76.19.61
+   Value: cname.vercel-dns.com
    TTL: Auto (or 3600)
 
-📍 CNAME RECORD:
+📍 CNAME
    Name: www
    Value: cname.vercel-dns.com
    TTL: Auto (or 3600)
 
-📍 ALTERNATIVE (if A record doesn't work):
-   Type: CNAME
+Alternative (if not using CNAME flattening):
+📍 A RECORD
    Name: @
-   Value: hfrp-relief-git-main-danielweickdags-projects.vercel.app
+   Value: 76.76.21.21
    TTL: Auto (or 3600)
+
+Notes:
+- Use CNAME flattening on Cloudflare for apex `@` pointing to `cname.vercel-dns.com`.
+- Ensure SSL/TLS mode is set to Full (strict) in Cloudflare.
+- Enable Always Use HTTPS and Automatic HTTPS Rewrites.
 

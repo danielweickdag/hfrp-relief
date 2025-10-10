@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useAdminAuth, WithPermission } from "./AdminAuth";
 // import BlogStatsDashboard from "./BlogStatsDashboard";
@@ -61,12 +61,43 @@ interface SocialContent {
   expectedEngagement: string;
 }
 
+interface AutomationRunResults {
+  processedScheduled: number;
+  processedThankYou: number;
+  processedQueue: number;
+  isDemoMode?: boolean;
+  persisted?: boolean;
+  message?: string;
+  error?: string;
+}
+
+// Scheduler types
+interface SchedulerJob {
+  status?: "running" | "stopped" | string;
+  lastRun?: string;
+  nextRun?: string;
+}
+
+interface SchedulerStatus {
+  isRunning: boolean;
+  totalJobs?: number;
+  jobs?: Record<string, SchedulerJob>;
+  [key: string]: unknown;
+}
+
 export default function AdminDashboard({ className = "" }: DashboardProps) {
   const { user, logout } = useAdminAuth();
   const [activeTab, setActiveTab] = useState<
     "overview" | "automation" | "content" | "analytics" | "gallery" | "settings"
   >("overview");
   const [loading, setLoading] = useState(false);
+  const [automationRunLoading, setAutomationRunLoading] = useState(false);
+  const [automationRunResults, setAutomationRunResults] = useState<AutomationRunResults | null>(null);
+  const [automationRunAt, setAutomationRunAt] = useState<string | null>(null);
+  const analyticsSectionRef = useRef<HTMLDivElement>(null);
+  // Scheduler state
+  const [schedulerStatus, setSchedulerStatus] = useState<SchedulerStatus | null>(null);
+  const [schedulerLoading, setSchedulerLoading] = useState(false);
 
   const [hfrpStats, setHfrpStats] = useState<HFRPStats>({
     totalDonations: 185750,
@@ -115,6 +146,120 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
       newUsers: Math.floor(hfrpStats.websiteVisitors * 0.46),
       avgSessionTime: "3m 42s",
     },
+  };
+
+  // Scheduler controls
+  const refreshSchedulerStatus = async () => {
+    try {
+      setSchedulerLoading(true);
+      const res = await fetch('/api/scheduler');
+      const data = await res.json().catch(() => ({}));
+      const parsed = (data?.status || data) as SchedulerStatus;
+      setSchedulerStatus(parsed);
+    } catch (error) {
+      console.error('Failed to load scheduler status', error);
+    } finally {
+      setSchedulerLoading(false);
+    }
+  };
+
+  const startScheduler = async () => {
+    try {
+      setSchedulerLoading(true);
+      await fetch('/api/scheduler', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'start' })
+      });
+      await refreshSchedulerStatus();
+    } catch (error) {
+      console.error('Failed to start scheduler', error);
+    } finally {
+      setSchedulerLoading(false);
+    }
+  };
+
+  const stopScheduler = async () => {
+    try {
+      setSchedulerLoading(true);
+      await fetch('/api/scheduler', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'stop' })
+      });
+      await refreshSchedulerStatus();
+    } catch (error) {
+      console.error('Failed to stop scheduler', error);
+    } finally {
+      setSchedulerLoading(false);
+    }
+  };
+
+  // Load scheduler status on mount
+  useEffect(() => {
+    refreshSchedulerStatus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const runEmailAutomation = async () => {
+    setAutomationRunLoading(true);
+    try {
+      const response = await fetch('/api/email/automation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'run' })
+      });
+
+      const json: unknown = await response.json();
+      if (!response.ok) {
+        const err = json as { error?: string };
+        throw new Error(err.error || 'Automation run failed');
+      }
+      const result = json as AutomationRunResults;
+      setAutomationRunResults(result);
+      const now = new Date().toISOString();
+      setAutomationRunAt(now);
+
+      alert(
+        `🤖 AUTOMATION RUN COMPLETED\n\n` +
+        `Scheduled Campaigns Processed: ${result.processedScheduled}\n` +
+        `Donation Thank-Yous Sent: ${result.processedThankYou}\n` +
+        `Queued Emails Sent: ${result.processedQueue}\n\n` +
+        `${result.isDemoMode ? '⚠️ Demo mode: email sending is simulated.' : '✅ Live mode: emails sent via Resend.'}`
+      );
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : 'Unknown error';
+      alert(`❌ Automation run failed: ${msg}`);
+    } finally {
+      setAutomationRunLoading(false);
+    }
+  };
+
+  const printAnalyticsReport = () => {
+    const node = analyticsSectionRef.current;
+    if (!node) return;
+
+    const printWindow = window.open("", "PRINT", "height=900,width=1200");
+    if (!printWindow) return;
+
+    const styles = Array.from(
+      document.querySelectorAll('link[rel="stylesheet"], style')
+    )
+      .map((el) => el.outerHTML)
+      .join("\n");
+
+    printWindow.document.write(`<!doctype html><html><head><title>Analytics Report</title>${styles}</head><body>`);
+    printWindow.document.write(`<div class="p-6">`);
+    printWindow.document.write(`<h1 class="text-2xl font-bold mb-4">Analytics Report</h1>`);
+    printWindow.document.write(node.innerHTML);
+    printWindow.document.write(`</div>`);
+    printWindow.document.write(`</body></html>`);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 300);
   };
 
   // Workflow Orchestration State
@@ -825,33 +970,7 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
     return null;
   }
 
-  const syncDonorboxData = async () => {
-    setLoading(true);
-    console.log("🔄 Syncing Donorbox data with HFRP systems...");
-
-    setTimeout(() => {
-      const newDonations = Math.floor(Math.random() * 2000) + 500;
-      const newDonors = Math.floor(Math.random() * 15) + 5;
-
-      setHfrpStats((prev) => ({
-        ...prev,
-        totalDonations: prev.totalDonations + newDonations,
-        totalDonors: prev.totalDonors + newDonors,
-      }));
-
-      alert(
-        `✅ DONORBOX SYNC COMPLETED\n\n` +
-          `📊 New Data Retrieved:\n` +
-          `• Donations: +$${newDonations.toLocaleString()}\n` +
-          `• New Donors: +${newDonors}\n` +
-          `• Recurring Subscriptions: Updated\n` +
-          `• Payment Methods: Synchronized\n` +
-          `• Tax Receipts: Generated\n\n` +
-          `🔄 Next auto-sync: In 6 hours`
-      );
-      setLoading(false);
-    }, 3000);
-  };
+  // Donorbox sync removed; Stripe is the sole donation provider.
 
   return (
     <div className={`min-h-screen bg-gray-100 pb-8 ${className}`}>
@@ -1159,6 +1278,12 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
                       → Backup & Restore
                     </Link>
                   </WithPermission>
+                  <Link
+                    href="/assistant"
+                    className="block text-sm text-blue-600 hover:text-blue-800"
+                  >
+                    → Open Assistant
+                  </Link>
                   <WithPermission permission="manage_users">
                     <Link
                       href="/admin/deploy"
@@ -1741,6 +1866,141 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
                   </div>
                 </div>
 
+                {/* Email Automation Runner */}
+                <div className="bg-gradient-to-br from-white to-blue-50 rounded-2xl shadow-xl ring-1 ring-blue-100 p-6 mb-8">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-2xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 flex items-center">
+                      <svg className="w-7 h-7 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                        <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                      </svg>
+                      Email Automation
+                    </h2>
+                    <button
+                      onClick={runEmailAutomation}
+                      disabled={automationRunLoading}
+                      className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-sm disabled:opacity-50"
+                    >
+                      {automationRunLoading ? (
+                        <span className="inline-flex items-center">
+                          <svg className="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                          </svg>
+                          Running…
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center">
+                          <svg className="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                          </svg>
+                          Run Now
+                        </span>
+                      )}
+                    </button>
+                  </div>
+
+                  <p className="text-gray-600 mb-4">Process scheduled campaigns, donation thank-you emails, and queued emails in one click.</p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-blue-50 rounded-lg p-4 shadow-sm ring-1 ring-inset ring-blue-100">
+                      <div className="text-sm text-blue-700">Scheduled Campaigns</div>
+                      <div className="text-2xl font-semibold text-blue-900">{automationRunResults?.processedScheduled ?? 0}</div>
+                    </div>
+                    <div className="bg-green-50 rounded-lg p-4 shadow-sm ring-1 ring-inset ring-green-100">
+                      <div className="text-sm text-green-700">Thank-You Emails</div>
+                      <div className="text-2xl font-semibold text-green-900">{automationRunResults?.processedThankYou ?? 0}</div>
+                    </div>
+                    <div className="bg-purple-50 rounded-lg p-4 shadow-sm ring-1 ring-inset ring-purple-100">
+                      <div className="text-sm text-purple-700">Queued Emails</div>
+                      <div className="text-2xl font-semibold text-purple-900">{automationRunResults?.processedQueue ?? 0}</div>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 text-sm text-gray-500">
+                    <span className="mr-2">Mode:</span>
+                    {automationRunResults?.isDemoMode ? (
+                      <span className="inline-flex items-center px-2 py-1 rounded bg-yellow-100 text-yellow-700">Demo</span>
+                    ) : (
+                      <span className="inline-flex items-center px-2 py-1 rounded bg-green-100 text-green-700">Live</span>
+                    )}
+                    {automationRunAt && (
+                      <span className="ml-4">Last run: {new Date(automationRunAt).toLocaleString()}</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Automation Scheduler */}
+                <div className="bg-gradient-to-br from-white to-purple-50 rounded-2xl shadow-xl ring-1 ring-purple-100 p-6 mb-8">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-2xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600 flex items-center">
+                      <svg className="w-7 h-7 text-purple-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M6 2a1 1 0 00-1 1v1H4a1 1 0 000 2h1v1a1 1 0 102 0V6h1a1 1 0 100-2H7V3a1 1 0 00-1-1zM4 12a1 1 0 011-1h1v-1a1 1 0 112 0v1h1a1 1 0 010 2H8v1a1 1 0 11-2 0v-1H5a1 1 0 01-1-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732L14.146 12.8l-1.179 4.456a1 1 0 01-1.934 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732L9.854 7.2l1.179-4.456A1 1 0 0112 2z" />
+                      </svg>
+                      Automation Scheduler
+                    </h2>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={refreshSchedulerStatus}
+                        className="bg-gray-100 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center border border-gray-200"
+                        title="Refresh scheduler status"
+                      >
+                        <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M4 4a8 8 0 0113.856 2.485 1 1 0 11-1.812.83A6 6 0 105 10h2l-3 3-3-3h2A8 8 0 014 4z" clipRule="evenodd" />
+                        </svg>
+                        Refresh
+                      </button>
+                      <button
+                        onClick={startScheduler}
+                        disabled={schedulerLoading}
+                        className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center"
+                      >
+                        <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M6 4l10 6-10 6V4z" />
+                        </svg>
+                        Start
+                      </button>
+                      <button
+                        onClick={stopScheduler}
+                        disabled={schedulerLoading}
+                        className="bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center"
+                      >
+                        <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M6 6h8v8H6z" />
+                        </svg>
+                        Stop
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-purple-50 rounded-lg p-4 shadow-sm ring-1 ring-inset ring-purple-100">
+                      <div className="text-sm text-purple-700">Status</div>
+                      <div className="text-2xl font-semibold text-purple-900 flex items-center gap-2">
+                        {schedulerLoading && (
+                          <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600"></span>
+                        )}
+                        {schedulerStatus?.isRunning ? 'Running' : 'Stopped'}
+                      </div>
+                    </div>
+                    <div className="bg-indigo-50 rounded-lg p-4 shadow-sm ring-1 ring-inset ring-indigo-100">
+                      <div className="text-sm text-indigo-700">Jobs</div>
+                      <div className="text-2xl font-semibold text-indigo-900">{schedulerStatus?.totalJobs ?? 0}</div>
+                    </div>
+                    <div className="bg-blue-50 rounded-lg p-4 shadow-sm ring-1 ring-inset ring-blue-100">
+                      <div className="text-sm text-blue-700">Active</div>
+                      <div className="text-2xl font-semibold text-blue-900">
+                        {(() => {
+                          try {
+                            const jobs = schedulerStatus?.jobs;
+                            return jobs ? Object.values(jobs).filter((j) => j?.status === 'running').length : 0;
+                          } catch { return 0; }
+                        })()}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Workflow Management Panel */}
                 <div className="bg-white rounded-xl shadow-lg p-6">
                   <div className="flex items-center justify-between mb-6">
@@ -1957,7 +2217,7 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
 
             {/* Analytics Dashboard */}
             {activeTab === "analytics" && (
-              <div className="space-y-6">
+              <div ref={analyticsSectionRef} className="space-y-6">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-2xl font-bold text-gray-900 flex items-center">
                     <svg
@@ -1969,19 +2229,32 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
                     </svg>
                     Analytics & Insights
                   </h2>
-                  <button
-                    onClick={generateAnalyticsReport}
-                    className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors flex items-center"
-                  >
-                    <svg
-                      className="w-5 h-5 mr-2"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={generateAnalyticsReport}
+                      className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors flex items-center"
                     >
-                      <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
-                    </svg>
-                    Generate Full Report
-                  </button>
+                      <svg
+                        className="w-5 h-5 mr-2"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
+                      </svg>
+                      Generate Full Report
+                    </button>
+                    <button
+                      onClick={printAnalyticsReport}
+                      className="bg-gray-100 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center border border-gray-200"
+                      title="Print analytics section as a report"
+                    >
+                      <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M6 2a2 2 0 00-2 2v2h12V4a2 2 0 00-2-2H6z" />
+                        <path d="M4 8a2 2 0 00-2 2v3a2 2 0 002 2h2v3h8v-3h2a2 2 0 002-2v-3a2 2 0 00-2-2H4zm4 9v-5h4v5H8z" />
+                      </svg>
+                      Print Report
+                    </button>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -2165,25 +2438,46 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
                   <h2 className="text-xl font-bold text-gray-900">
                     Content Management
                   </h2>
-                  <Link
-                    href="/admin/blog/posts"
-                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors flex items-center"
-                  >
-                    <svg
-                      className="w-5 h-5 mr-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
+                  <div className="flex items-center gap-3">
+                    <Link
+                      href="/admin/blog/posts"
+                      className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors flex items-center"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                      />
-                    </svg>
-                    Manage Blog Posts
-                  </Link>
+                      <svg
+                        className="w-5 h-5 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                        />
+                      </svg>
+                      Manage Blog Posts
+                    </Link>
+                    <Link
+                      href="/assistant?mode=blog"
+                      className="bg-sky-600 text-white px-4 py-2 rounded hover:bg-sky-700 transition-colors flex items-center"
+                    >
+                      <svg
+                        className="w-5 h-5 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 6v6l4 2M12 4a8 8 0 100 16 8 8 0 000-16z"
+                        />
+                      </svg>
+                      Open Blog Assistant
+                    </Link>
+                  </div>
                 </div>
 
                 {/* Blog Statistics */}

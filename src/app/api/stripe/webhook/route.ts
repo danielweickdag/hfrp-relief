@@ -1,6 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { headers } from "next/headers";
+import { promises as fs } from "node:fs";
+import path from "node:path";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-08-27.basil",
@@ -85,6 +87,9 @@ export async function POST(request: NextRequest) {
     } else {
       console.log(`Unhandled event type: ${event.type}`);
     }
+
+    // Persist the event to local JSON log for diagnostics and sync API
+    await saveWebhookEvent(event);
 
     return NextResponse.json({ received: true });
   } catch (error) {
@@ -172,7 +177,6 @@ async function handleInvoicePaymentSucceeded(event: Stripe.Event) {
     id: invoice.id,
     amount: invoice.amount_paid,
     customer: invoice.customer,
-    subscription: invoice.subscription,
   });
 
   // TODO: Handle recurring donation success
@@ -185,7 +189,6 @@ async function handleInvoicePaymentFailed(event: Stripe.Event) {
     id: invoice.id,
     amount: invoice.amount_due,
     customer: invoice.customer,
-    subscription: invoice.subscription,
   });
 
   // TODO: Handle recurring donation failure, send notification
@@ -198,7 +201,6 @@ async function handleSubscriptionCreated(event: Stripe.Event) {
     id: subscription.id,
     customer: subscription.customer,
     status: subscription.status,
-    currentPeriodEnd: subscription.current_period_end ? new Date(subscription.current_period_end * 1000) : null,
   });
 
   // TODO: Set up recurring donation tracking
@@ -211,7 +213,6 @@ async function handleSubscriptionUpdated(event: Stripe.Event) {
     id: subscription.id,
     customer: subscription.customer,
     status: subscription.status,
-    currentPeriodEnd: subscription.current_period_end ? new Date(subscription.current_period_end * 1000) : null,
   });
 
   // TODO: Update recurring donation status
@@ -259,5 +260,37 @@ async function logDonation(donation: {
     // In a real implementation, you would save to your database
   } catch (error) {
     console.error('Failed to log donation:', error);
+  }
+}
+
+// Persist webhook events to data/logs/stripe-events.json
+async function saveWebhookEvent(event: Stripe.Event) {
+  try {
+    const dir = path.join(process.cwd(), 'data', 'logs');
+    await fs.mkdir(dir, { recursive: true });
+    const filePath = path.join(dir, 'stripe-events.json');
+
+    let existing: unknown[] = [];
+    try {
+      const raw = await fs.readFile(filePath, 'utf8');
+      existing = JSON.parse(raw);
+      if (!Array.isArray(existing)) existing = [];
+    } catch {
+      // No existing file; start fresh
+      existing = [];
+    }
+
+    const entry = {
+      id: event.id,
+      type: event.type,
+      api_version: event.api_version,
+      createdAt: new Date().toISOString(),
+      data: event.data,
+    };
+
+    existing.push(entry);
+    await fs.writeFile(filePath, JSON.stringify(existing, null, 2));
+  } catch (err) {
+    console.error('Failed to persist webhook event:', err);
   }
 }

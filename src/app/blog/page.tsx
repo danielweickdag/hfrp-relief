@@ -2,109 +2,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-
-interface Post {
-  slug: string;
-  title: string;
-  date: string;
-  author?: string;
-  summary?: string;
-  image?: string;
-  category: "story" | "update" | "news" | "impact";
-  featured?: boolean;
-}
-
-async function fetchPosts(): Promise<Post[]> {
-  // Enhanced stories and updates for the blog
-  const posts: Post[] = [
-    {
-      slug: "welcomed-30-new-children",
-      title: "Welcomed 30 New Children to Our Safe Housing",
-      date: "2024-12-15",
-      summary:
-        "This month we opened our doors to 30 more children who needed safe shelter and care. Each child now has a bed, regular meals, and access to education.",
-      author: "HFRP Team",
-      image: "/images/gallery/children_gathering.jpg",
-      category: "story",
-      featured: true,
-    },
-    {
-      slug: "school-lunch-expansion",
-      title: "Launched School Lunch Expansion in Port-au-Prince",
-      date: "2024-12-10",
-      summary:
-        "Our feeding program has expanded to serve 500 additional children daily in three new schools across Port-au-Prince.",
-      author: "Marie Jean-Baptiste",
-      image: "/images/gallery/meals_served.jpg",
-      category: "update",
-      featured: true,
-    },
-    {
-      slug: "silver-gold-members-commitment",
-      title: "Thank You to Our New Silver and Gold Members",
-      date: "2024-12-05",
-      summary:
-        "We're grateful for the commitment of our new recurring donors who have joined our Silver and Gold membership tiers this month.",
-      author: "HFRP Team",
-      image: "/images/gallery/community_meeting.jpg",
-      category: "news",
-    },
-    {
-      slug: "medical-clinic-opens",
-      title: "New Medical Clinic Serves Rural Communities",
-      date: "2024-11-28",
-      summary:
-        "Our mobile medical clinic has established a permanent location in Jacmel, providing healthcare access to over 1,000 families.",
-      author: "Dr. Claude Moïse",
-      image: "/images/gallery/medical_clinic.jpg",
-      category: "impact",
-      featured: true,
-    },
-    {
-      slug: "education-program-results",
-      title: "Education Program Shows Remarkable Results",
-      date: "2024-11-20",
-      summary:
-        "95% of children in our education program have improved their reading skills, with 80% advancing to the next grade level.",
-      author: "Teacher Roseline",
-      image: "/images/gallery/school_supplies.jpg",
-      category: "impact",
-    },
-    {
-      slug: "community-kitchen-expansion",
-      title: "Community Kitchen Doubles Meal Production",
-      date: "2024-11-15",
-      summary:
-        "Thanks to new equipment and additional staff, our community kitchen now serves 850 meals daily, up from 400 just six months ago.",
-      author: "Chef Antoine",
-      image: "/images/gallery/cooking_rice.jpg",
-      category: "update",
-    },
-    {
-      slug: "volunteer-training-program",
-      title: "Local Volunteers Complete Leadership Training",
-      date: "2024-11-08",
-      summary:
-        "25 community volunteers graduated from our leadership training program, becoming certified to lead programs in their villages.",
-      author: "HFRP Team",
-      image: "/images/gallery/volunteer_leaders.jpg",
-      category: "story",
-    },
-    {
-      slug: "water-well-project",
-      title: "Clean Water Wells Benefit 500 Families",
-      date: "2024-10-30",
-      summary:
-        "Two new water wells were completed this month, providing clean drinking water access to families in remote areas.",
-      author: "Engineer Joseph",
-      image: "/images/gallery/community_building.jpg",
-      category: "impact",
-    },
-  ];
-  return posts.sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-  );
-}
+import { getPosts } from "./posts";
 
 function getCategoryColor(category: string): string {
   switch (category) {
@@ -122,13 +20,11 @@ function getCategoryColor(category: string): string {
 }
 
 export default function BlogPage() {
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<ReturnType<typeof getPosts>>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   useEffect(() => {
-    (async () => {
-      setPosts(await fetchPosts());
-    })();
+    setPosts(getPosts());
   }, []);
 
   const filteredPosts =

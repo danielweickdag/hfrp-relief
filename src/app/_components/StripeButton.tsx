@@ -120,41 +120,75 @@ export default function StripeButton({
         });
       }
 
-      // Create checkout session
-      const checkoutSession = await stripeEnhanced.createCampaignCheckout({
-        campaignId,
-        amount,
-        recurring,
-        interval,
-        successUrl: `${window.location.origin}${config.defaultSuccessUrl}?campaign=${campaignId}&amount=${amount}`,
-        cancelUrl: `${window.location.origin}${config.defaultCancelUrl}`,
-        metadata: {
-          source: "website",
-          buttonId,
-          campaign: targetCampaign.name,
-        },
-      });
+      // Create checkout session (live mode uses API; test mode uses simulation)
+      let checkoutUrl: string;
+      if (config.testMode) {
+        const checkoutSession = await stripeEnhanced.createCampaignCheckout({
+          campaignId,
+          amount,
+          recurring,
+          interval,
+          successUrl: `${window.location.origin}${config.defaultSuccessUrl}?campaign=${campaignId}&amount=${amount}`,
+          cancelUrl: `${window.location.origin}${config.defaultCancelUrl}`,
+          metadata: {
+            source: "website",
+            buttonId,
+            campaign: targetCampaign.name,
+          },
+        });
+        checkoutUrl = checkoutSession.url;
+      } else {
+        if (typeof amount !== "number" || !isFinite(amount) || amount <= 0) {
+          throw new Error("Please provide a valid donation amount");
+        }
 
-      console.log("🌐 Opening Stripe Checkout:", checkoutSession.url);
+        const response = await fetch("/api/stripe/checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            campaignId,
+            amount,
+            recurring,
+            interval,
+            successUrl: `${window.location.origin}${config.defaultSuccessUrl}?session_id={CHECKOUT_SESSION_ID}&campaign=${campaignId}&amount=${amount}`,
+            cancelUrl: `${window.location.origin}${config.defaultCancelUrl}`,
+            metadata: {
+              source: "website",
+              buttonId,
+              campaign: targetCampaign.name,
+            },
+          }),
+        });
+
+        const raw = await response.json().catch(() => null);
+        const data: { url?: string; id?: string; error?: string } =
+          raw && typeof raw === "object" ? (raw as { url?: string; id?: string; error?: string }) : {};
+        if (!response.ok || typeof data.url !== "string") {
+          throw new Error(data.error || "Failed to create Stripe checkout session");
+        }
+        checkoutUrl = data.url;
+      }
+
+      console.log("🌐 Opening Stripe Checkout:", checkoutUrl);
 
       // Handle different variants
       if (variant === "popup") {
         // Open in popup
         const popup = window.open(
-          checkoutSession.url,
+          checkoutUrl,
           "stripe-checkout",
           "width=800,height=600,scrollbars=yes,resizable=yes"
         );
 
         if (!popup) {
           console.warn("Popup blocked - redirecting to checkout");
-          window.location.href = checkoutSession.url;
+          window.location.href = checkoutUrl;
         } else {
           console.log("✅ Stripe Checkout opened in popup");
         }
       } else {
         // Redirect to checkout
-        window.location.href = checkoutSession.url;
+        window.location.href = checkoutUrl;
       }
 
       // Track successful checkout opening

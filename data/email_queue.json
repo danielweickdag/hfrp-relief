@@ -12,7 +12,8 @@
       "footer": "Haitian Family Relief Project | Bringing Hope to Haiti"
     },
     "scheduled_for": "2025-08-04T22:18:38.607Z",
-    "status": "queued"
+    "status": "sent",
+    "sent_at": "2025-10-05T19:23:18.975Z"
   },
   {
     "campaign": "Education Fund",
@@ -27,6 +28,7 @@
       "footer": "Haitian Family Relief Project | Bringing Hope to Haiti"
     },
     "scheduled_for": "2025-08-04T22:18:38.607Z",
-    "status": "queued"
+    "status": "sent",
+    "sent_at": "2025-10-05T19:23:18.975Z"
   }
 ]

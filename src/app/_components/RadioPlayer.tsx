@@ -152,9 +152,8 @@ export default function RadioPlayer({
       const mp3Primary = `https://stream.zeno.fm/${zenoId}`;
       const hlsPrimary = `https://stream.zeno.fm/hls/${zenoId}`;
 
-      const streamUrls = isSafari
+      const streamCandidates = isSafari
         ? [
-            // Safari/iOS first: HLS
             hlsPrimary,
             mp3Primary,
             "https://stream.live.vc/CRTV",
@@ -162,7 +161,6 @@ export default function RadioPlayer({
             ...(actualStreamUrl !== mp3Primary ? [actualStreamUrl] : []),
           ]
         : [
-            // Non-Safari first: MP3/AAC
             mp3Primary,
             "https://stream.live.vc/CRTV",
             "https://s2.radio.co/s2b2b68744/listen",
@@ -170,41 +168,33 @@ export default function RadioPlayer({
             ...(actualStreamUrl !== mp3Primary ? [actualStreamUrl] : []),
           ];
 
-      let streamWorked = false;
+      let candidateIndex = 0;
 
-      for (const url of streamUrls) {
-        try {
-          console.log("🎵 Trying stream URL:", url);
-          audioRef.current.src = url;
-          audioRef.current.preload = "none";
-          audioRef.current.crossOrigin = "anonymous";
-          audioRef.current.volume = volume;
+      const tryCandidate = (index: number) => {
+        const url = streamCandidates[index];
+        console.log("🎵 Trying stream URL:", url);
+        audioRef.current!.src = url;
+        audioRef.current!.preload = "none";
+        audioRef.current!.crossOrigin = "anonymous";
+        audioRef.current!.volume = volume;
+        // Attempt playback; browser will raise 'error' if unsupported/network issue
+        audioRef.current!.load();
+      };
 
-          // Test if the browser can play this format
-          const canPlay =
-            audioRef.current.canPlayType("audio/mpeg") ||
-            audioRef.current.canPlayType("audio/aac") ||
-            audioRef.current.canPlayType("audio/ogg") ||
-            audioRef.current.canPlayType("application/vnd.apple.mpegurl"); // HLS support
-
-          if (canPlay !== "") {
-            console.log("✅ Browser supports audio format:", canPlay);
-            streamWorked = true;
-            break;
-          }
-        } catch (urlError) {
-          console.warn("⚠️ Stream URL failed:", url, urlError);
-          continue;
+      // Advance to next candidate only on error, avoiding multiple aborted loads
+      audioRef.current.addEventListener("error", () => {
+        if (candidateIndex < streamCandidates.length - 1) {
+          candidateIndex += 1;
+          tryCandidate(candidateIndex);
+        } else {
+          setIsLoading(false);
+          setConnectionStatus("disconnected");
+          setError("Unable to play stream. Try external player.");
         }
-      }
+      });
 
-      if (!streamWorked) {
-        console.log("🎵 Using original stream URL as fallback");
-        audioRef.current.src = actualStreamUrl;
-        audioRef.current.preload = "none";
-        audioRef.current.crossOrigin = "anonymous";
-        audioRef.current.volume = volume;
-      }
+      // Start with first candidate
+      tryCandidate(candidateIndex);
 
       // Enhanced event listeners for better automation
       audioRef.current.addEventListener("loadstart", () => {
