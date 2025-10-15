@@ -345,6 +345,15 @@
       "timeout": 1800000,
       "retryAttempts": 1,
       "schedule": "weekly"
+    },
+    "ui-automation": {
+      "description": "Post-deployment UI automation workflow",
+      "tasks": [
+        "ui-automation"
+      ],
+      "timeout": 600000,
+      "retryAttempts": 2,
+      "requireApproval": false
     }
   },
 

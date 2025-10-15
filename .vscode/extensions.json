@@ -9,6 +9,7 @@
     "christian-kohler.path-intellisense",
     "ms-vscode.vscode-eslint",
     "yzhang.markdown-all-in-one",
-    "ms-vscode.vscode-css-peek"
+    "ms-vscode.vscode-css-peek",
+    "risalabs.cursor-auto-continue"
   ]
 }

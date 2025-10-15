@@ -224,14 +224,6 @@ export default function SimpleAdminPage() {
             </div>
           )}
 
-          <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded text-sm">
-            <p className="font-semibold mb-2">Test Credentials:</p>
-            <p>Super Admin: w.regis@comcast.net</p>
-            <p>Editor: editor@haitianfamilyrelief.org</p>
-            <p>Volunteer: volunteer@haitianfamilyrelief.org</p>
-            <p className="mt-2 font-semibold">Password: Melirosecherie58</p>
-          </div>
-
           <button
             type="submit"
             className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"

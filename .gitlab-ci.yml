@@ -1,0 +1,20 @@
+stages:
+- ai
+
+claude:
+  stage: ai
+  image: node:24-alpine3.21
+  rules:
+  - if: '$CI_PIPELINE_SOURCE == "web"'
+  - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  variables:
+    GIT_STRATEGY: fetch
+  before_script:
+  - apk update
+  - apk add --no-cache git curl bash
+  - npm install -g @anthropic-ai/claude-code
+  script:
+  - /bin/gitlab-mcp-server || true
+  - echo "$AI_FLOW_INPUT for $AI_FLOW_CONTEXT on $AI_FLOW_EVENT"
+  - >
+    claude -p "${AI_FLOW_INPUT:-'Review this MR and implement the requested changes'}" --permission-mode acceptEdits --allowedTools "Bash(*) Read(*) Edit(*) Write(*) mcp__gitlab" --debug

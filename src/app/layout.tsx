@@ -42,7 +42,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || "https://www.familyreliefproject.org"
+    process.env.NEXT_PUBLIC_SITE_URL || "https://www.familyreliefproject7.org"
   ),
   title: "Haitian Family Relief Project - Fighting Hunger, Providing Hope",
   description:
@@ -57,7 +57,7 @@ export const metadata: Metadata = {
     title: "Haitian Family Relief Project - Fighting Hunger, Providing Hope",
     description:
       "Join us in our mission to feed and empower Haitian orphans. Make a lasting difference with daily giving - as little as 16¢ can provide meals, shelter, education, and healthcare.",
-    url: "https://www.familyreliefproject.org",
+    url: "https://www.familyreliefproject7.org",
     siteName: "Haitian Family Relief Project",
     images: [
       {
@@ -92,7 +92,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <head>
-        <link rel="canonical" href="https://www.familyreliefproject.org" />
+        <link rel="canonical" href="https://www.familyreliefproject7.org" />
         <meta name="theme-color" content="#dc2626" />
         <script type="application/ld+json">
           {JSON.stringify({
@@ -101,8 +101,8 @@ export default function RootLayout({
             name: "Haitian Family Relief Project",
             description:
               "Join us in our mission to feed and empower Haitian orphans. Make a lasting difference with daily giving.",
-            url: "https://www.familyreliefproject.org",
-            logo: "https://www.familyreliefproject.org/hfrp-logo.png",
+            url: "https://www.familyreliefproject7.org",
+            logo: "https://www.familyreliefproject7.org/hfrp-logo.png",
             sameAs: [
               "https://facebook.com/familyreliefproject",
         "https://instagram.com/familyreliefproject",
@@ -111,7 +111,7 @@ export default function RootLayout({
             contactPoint: {
               "@type": "ContactPoint",
               contactType: "donations",
-              url: "https://www.familyreliefproject.org/donate",
+              url: "https://www.familyreliefproject7.org/donate",
             },
             foundingDate: "2020",
             location: {

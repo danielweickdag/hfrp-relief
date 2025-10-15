@@ -24,285 +24,258 @@ export function Navbar() {
 
   const handlePrintClick = () => {
     try {
-      const printable = document.querySelector<HTMLElement>("[data-printable]");
-      const title = printable?.getAttribute("data-print-title") || document.title || "Report";
-      const node = printable ?? document.body;
-
-      const printWindow = window.open("", "PRINT", "height=900,width=1200");
-      if (!printWindow) return;
-
-      const styles = Array.from(document.querySelectorAll('link[rel="stylesheet"], style'))
-        .map((el) => (el as HTMLElement).outerHTML)
-        .join("\n");
-
-      printWindow.document.write(`<!doctype html><html><head><title>${title}</title>${styles}</head><body>`);
-      printWindow.document.write(`<div class="p-6">`);
-      printWindow.document.write(`<h1 class="text-2xl font-bold mb-4">${title}</h1>`);
-      printWindow.document.write(node.innerHTML);
-      printWindow.document.write(`</div>`);
-      printWindow.document.write(`</body></html>`);
-      printWindow.document.close();
-      printWindow.focus();
+      // Enhanced print functionality with better page setup
+      const printStyles = `
+        <style>
+          @media print {
+            * {
+              visibility: hidden;
+            }
+            .printable, .printable * {
+              visibility: visible;
+            }
+            .printable {
+              position: absolute;
+              left: 0;
+              top: 0;
+              width: 100%;
+            }
+            body {
+              font-family: Arial, sans-serif;
+              font-size: 12pt;
+              line-height: 1.4;
+              color: #000;
+              background: #fff;
+            }
+            .no-print {
+              display: none !important;
+            }
+            .print-header {
+              display: block !important;
+              text-align: center;
+              margin-bottom: 20px;
+              border-bottom: 2px solid #000;
+              padding-bottom: 10px;
+            }
+            .print-logo {
+              max-height: 60px;
+              width: auto;
+              margin: 0 auto 10px;
+              display: block;
+            }
+            .print-title {
+              font-size: 18pt;
+              font-weight: bold;
+              margin: 0;
+            }
+            .print-subtitle {
+              font-size: 12pt;
+              color: #666;
+              margin: 5px 0 0 0;
+            }
+          }
+        </style>
+      `;
+      
+      // Add print styles to document head
+      const styleElement = document.createElement('style');
+      styleElement.innerHTML = printStyles;
+      document.head.appendChild(styleElement);
+      
+      // Add printable class to main content
+      const mainContent = document.querySelector('main') || document.body;
+      mainContent.classList.add('printable');
+      
+      // Create print header if it doesn't exist
+      let printHeader = document.querySelector('.print-header');
+      if (!printHeader) {
+        printHeader = document.createElement('div');
+        printHeader.className = 'print-header';
+        printHeader.innerHTML = `
+          <img src="/hfrp-logo.png" alt="HFRP Logo" class="print-logo">
+          <h1 class="print-title">Haitian Family Relief Project</h1>
+          <p class="print-subtitle">Relief Report - ${new Date().toLocaleDateString()}</p>
+        `;
+        mainContent.insertBefore(printHeader, mainContent.firstChild);
+      }
+      
+      // Trigger print
+      window.print();
+      
+      // Cleanup after print
       setTimeout(() => {
-        printWindow.print();
-        printWindow.close();
-      }, 300);
-    } catch (e) {
-      console.warn("Print failed", e);
+        document.head.removeChild(styleElement);
+        mainContent.classList.remove('printable');
+        if (printHeader && printHeader.parentNode) {
+          printHeader.parentNode.removeChild(printHeader);
+        }
+      }, 1000);
+      
+    } catch (error) {
+      console.error('Print functionality error:', error);
+      // Fallback to simple print
+      window.print();
     }
   };
 
   const handleEnableFeatures = () => {
     try {
-      const w = window as Window & {
-        hfrpEnablePrintFeatures?: () => void;
-        hfrpEnableSiteFeatures?: () => void;
-      };
-      if (w.hfrpEnableSiteFeatures) {
-        w.hfrpEnableSiteFeatures();
-      } else {
-        w.hfrpEnablePrintFeatures?.();
-      }
-    } catch (e) {
-      console.warn("Enable features failed", e);
+      // Enable advanced features
+      localStorage.setItem('hfrp_advanced_features', 'enabled');
+      
+      // Dispatch custom event for feature enablement
+      const event = new CustomEvent('hfrp:featuresEnabled', {
+        detail: { timestamp: Date.now() }
+      });
+      window.dispatchEvent(event);
+      
+      // Show confirmation
+      const notification = document.createElement('div');
+      notification.className = 'fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-all duration-300';
+      notification.innerHTML = `
+        <div class="flex items-center gap-2">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+          </svg>
+          <span>Advanced features enabled!</span>
+        </div>
+      `;
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+          }
+        }, 300);
+      }, 3000);
+      
+    } catch (error) {
+      console.error('Feature enablement error:', error);
     }
   };
 
   const handleDonateClick = () => {
-    console.log("🔴 NAVBAR DONATE BUTTON CLICKED!");
-    console.log("Opening Stripe payment form directly");
-
-    // Navigate to our Stripe-powered donation page
-    const isTestMode = process.env.NEXT_PUBLIC_STRIPE_TEST_MODE === "true";
-
-    if (isTestMode) {
-      console.log("🧪 Test mode: redirecting to donation page");
-    } else {
-      console.log("🌐 Production mode: opening live Stripe donation form");
-    }
-
-    // Always go to our donation page which has Stripe integration
     router.push("/donate");
-
-    console.log("✅ Navigated to Stripe donation page");
-
-    // Track with Google Analytics if available
-    if (window.gtag) {
-      window.gtag("event", "donate_button_click", {
-        event_category: "Donations",
-        event_label: "navbar_stripe_payment",
-        value: 15,
-        donation_type: "recurring",
-      });
-    }
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-sm border-b border-white/10">
+    <nav className="bg-black/90 backdrop-blur-md border-b border-white/10 sticky top-0 z-50 shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo/Brand */}
-          <div className="flex items-center">
-            <img
-              src="/hfrp-logo.png"
-              alt="HFRP Logo"
-              className="h-8 w-8 rounded-full mr-3"
-            />
-            <Link href="/" className="text-white font-bold text-xl">
-              Haitian Family Relief Project
+        <div className="flex justify-between items-center h-20">
+          {/* Logo Section - Better fitting with responsive design */}
+          <div className="flex items-center flex-shrink-0">
+            <Link href="/" className="flex items-center">
+              <img
+                src="/hfrp-logo.png"
+                alt="HFRP Logo"
+                className="h-8 w-8 sm:h-10 sm:w-10 rounded-full mr-2 sm:mr-3"
+              />
+              <span className="text-white font-bold text-sm sm:text-lg lg:text-xl leading-tight">
+                <span className="hidden sm:inline">Haitian Family Relief Project</span>
+                <span className="sm:hidden">HFRP</span>
+              </span>
             </Link>
           </div>
 
-          {/* Navigation Links */}
-          <div className="hidden md:flex items-center space-x-8">
-            <Link
-              href="/"
-              className="text-white hover:text-gray-300 transition"
-            >
-              Home
-            </Link>
-            <Link
-              href="/gallery"
-              className="text-white hover:text-gray-300 transition"
-            >
-              Gallery
-            </Link>
-            <Link
-              href="/radio"
-              className="text-white hover:text-gray-300 transition"
-            >
-              Radio
-            </Link>
-            <Link
-              href="/impact"
-              className="text-white hover:text-gray-300 transition"
-            >
-              Impact
-            </Link>
-            <Link
-              href="/programs"
-              className="text-white hover:text-gray-300 transition"
-            >
-              Programs
-            </Link>
-            <Link
-              href="/blog"
-              className="text-white hover:text-gray-300 transition"
-            >
-              Blog
-            </Link>
-            <Link
-              href="/about"
-              className="text-white hover:text-gray-300 transition"
-            >
-              About
-            </Link>
-            <Link
-              href="/contact"
-              className="text-white hover:text-gray-300 transition"
-            >
-              Contact
-            </Link>
-          </div>
+          {/* Desktop Navigation - Better balanced spacing */}
+          <div className="hidden md:flex items-center space-x-4 lg:space-x-6">
+            <div className="flex items-center space-x-4 lg:space-x-6">
+              <Link
+                href="/"
+                className="text-white hover:text-gray-300 transition-colors duration-200 font-medium text-sm lg:text-base"
+              >
+                Home
+              </Link>
+              <Link
+                href="/gallery"
+                className="text-white hover:text-gray-300 transition-colors duration-200 font-medium text-sm lg:text-base"
+              >
+                Gallery
+              </Link>
+              <Link
+                href="/radio"
+                className="text-white hover:text-gray-300 transition-colors duration-200 font-medium text-sm lg:text-base"
+              >
+                Radio
+              </Link>
+              <Link
+                href="/impact"
+                className="text-white hover:text-gray-300 transition-colors duration-200 font-medium text-sm lg:text-base"
+              >
+                Impact
+              </Link>
+              <Link
+                href="/programs"
+                className="text-white hover:text-gray-300 transition-colors duration-200 font-medium text-sm lg:text-base"
+              >
+                Programs
+              </Link>
+              <Link
+                href="/blog"
+                className="text-white hover:text-gray-300 transition-colors duration-200 font-medium text-sm lg:text-base"
+              >
+                Blog
+              </Link>
+              <Link
+                href="/about"
+                className="text-white hover:text-gray-300 transition-colors duration-200 font-medium"
+              >
+                About
+              </Link>
+              <Link
+                href="/contact"
+                className="text-white hover:text-gray-300 transition-colors duration-200 font-medium"
+              >
+                Contact
+              </Link>
+            </div>
 
-          {/* Right side: Social Media + Donate Button */}
-          <div className="flex items-center space-x-4">
-            {/* Quick Links (Admin + Radio) */}
-            <div className="hidden md:flex items-center space-x-3">
+            {/* Admin Login Button - Icon Only */}
+            <div className="flex items-center ml-6 lg:ml-8">
               <Link
                 href="/admin"
-                className="text-white hover:text-gray-300 transition text-sm"
-                title="Admin Dashboard"
+                className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg group"
+                title="Admin Login"
+                aria-label="Admin Login"
               >
-                <svg
-                  className="w-5 h-5"
-                  fill="currentColor"
+                <svg 
+                  className="w-5 h-5 transition-transform group-hover:scale-110" 
+                  fill="currentColor" 
                   viewBox="0 0 24 24"
+                  aria-hidden="true"
                 >
                   <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
                 </svg>
               </Link>
-
-              {/* Radio Player */}
-              <RadioPlayer
-                streamUrl="https://stream.zeno.fm/ttq4haexcf9uv"
-                stationName="HFRP Radio"
-                size="sm"
-                variant="icon"
-                className="transition-transform hover:scale-110"
-              />
             </div>
-
-            {/* Vertical Divider */}
-            <div className="hidden md:block w-px h-6 bg-white/30" />
-
-          {/* Print Report Button */}
-          <button
-            onClick={handlePrintClick}
-            className="hidden md:flex bg-gray-100 hover:bg-gray-200 text-gray-900 px-4 py-2 rounded-lg border border-gray-300 transition-colors items-center gap-2"
-            type="button"
-            title="Print report or current page"
-          >
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M6 2a2 2 0 00-2 2v2h12V4a2 2 0 00-2-2H6z" />
-              <path d="M4 8a2 2 0 00-2 2v3a2 2 0 002 2h2v3h8v-3h2a2 2 0 002-2v-3a2 2 0 00-2-2H4zm4 9v-5h4v5H8z" />
-            </svg>
-            Print
-          </button>
-
-          {/* Enable Features Button */}
-          <button
-            onClick={handleEnableFeatures}
-            className="hidden md:flex bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg border border-blue-700 transition-colors items-center gap-2"
-            type="button"
-            title="Enable features like print helpers and PWA"
-          >
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M10 2a1 1 0 011 1v2a1 1 0 11-2 0V3a1 1 0 011-1zm6.364 3.636a1 1 0 011.414 1.414l-1.414 1.414a1 1 0 11-1.414-1.414l1.414-1.414zM18 11a1 1 0 110 2h-2a1 1 0 110-2h2zM4 11a1 1 0 110 2H2a1 1 0 110-2h2zm12.95 4.95a1 1 0 00-1.414-1.414l-1.414 1.414a1 1 0 001.414 1.414l1.414-1.414zM10 16a1 1 0 011 1v2a1 1 0 11-2 0v-2a1 1 0 011-1zM5.464 5.05A1 1 0 104.05 6.464l1.414 1.414A1 1 0 106.88 6.464L5.464 5.05z" />
-            </svg>
-            Enable Features
-          </button>
-
-            {/* Social Media Icons */}
-            <div className="hidden md:flex items-center space-x-3">
-              {/* Facebook */}
-              <a
-                href="https://facebook.com/familyreliefproject"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white hover:text-blue-400 transition-colors duration-200"
-                aria-label="Follow us on Facebook"
-              >
-                <svg
-                  className="w-5 h-5"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                </svg>
-              </a>
-
-              {/* Twitter */}
-              <a
-                href="https://twitter.com/familyreliefproject"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white hover:text-blue-300 transition-colors duration-200"
-                aria-label="Follow us on Twitter"
-              >
-                <svg
-                  className="w-5 h-5"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                </svg>
-              </a>
-
-              {/* Instagram */}
-              <a
-                href="https://instagram.com/familyreliefproject"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white hover:text-pink-400 transition-colors duration-200"
-                aria-label="Follow us on Instagram"
-              >
-                <svg
-                  className="w-5 h-5"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 6.621 5.367 11.988 11.988 11.988c6.62 0 11.987-5.367 11.987-11.988C24.014 5.367 18.637.001 12.017.001zm6.624 13.684c-.003 1.518-.458 2.942-1.314 4.098-.859 1.159-2.051 2.015-3.438 2.468-1.388.452-2.876.452-4.264 0-1.387-.453-2.579-1.309-3.438-2.468-.856-1.156-1.311-2.58-1.314-4.098.003-1.518.458-2.942 1.314-4.098.859-1.159 2.051-2.015 3.438-2.468 1.388-.452 2.876-.452 4.264 0 1.387.453 2.579 1.309 3.438 2.468.856 1.156 1.311 2.58 1.314 4.098z" />
-                  <path d="M8.448 16.988c-1.297 0-2.448-1.151-2.448-2.448s1.151-2.448 2.448-2.448c1.297 0 2.448 1.151 2.448 2.448s-1.151 2.448-2.448 2.448zm7.104 0c-1.297 0-2.448-1.151-2.448-2.448s1.151-2.448 2.448-2.448c1.297 0 2.448 1.151 2.448 2.448s-1.151 2.448-2.448 2.448z" />
-                </svg>
-              </a>
-            </div>
-
-            {/* Primary Donate Button - Now opens payment form directly */}
-            <button
-              onClick={handleDonateClick}
-              className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold text-lg shadow-lg transition-all transform hover:scale-105 flex items-center gap-2 cursor-pointer"
-              type="button"
-            >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-              </svg>
-              Donate
-            </button>
           </div>
 
-          {/* Mobile menu button */}
-          <div className="md:hidden">
-            <button 
+          {/* Right side items for mobile */}
+          <div className="md:hidden flex items-center space-x-3">
+            {/* Radio Player */}
+            <RadioPlayer
+              streamUrl="https://stream.zeno.fm/ttq4haexcf9uv"
+              stationName="HFRP Radio"
+              size="sm"
+              variant="icon"
+              className="transition-transform hover:scale-110"
+            />
+
+            {/* Mobile menu button */}
+            <button
               onClick={toggleMobileMenu}
-              className="text-white hover:text-gray-300 transition-colors"
+              className="text-white hover:text-gray-300 transition-colors duration-200 p-2"
               aria-label="Toggle mobile menu"
+              aria-expanded={isMounted && isMobileMenuOpen}
             >
               <svg
                 className="h-6 w-6"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"
@@ -316,7 +289,7 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* Mobile menu dropdown */}
+      {/* Mobile menu dropdown - Enhanced */}
       {isMobileMenuOpen && (
         <div className="md:hidden bg-black/95 backdrop-blur-sm border-t border-white/10">
           <div className="px-4 py-4 space-y-4">
@@ -395,8 +368,9 @@ export function Navbar() {
               <Link
                 href="/admin"
                 onClick={closeMobileMenu}
-                className="text-white hover:text-gray-300 transition text-sm flex items-center gap-2"
-                title="Admin Dashboard"
+                className="text-white hover:text-gray-300 transition p-2 rounded-lg bg-blue-600 hover:bg-blue-700"
+                title="Admin Login"
+                aria-label="Admin Login"
               >
                 <svg
                   className="w-5 h-5"
@@ -405,7 +379,6 @@ export function Navbar() {
                 >
                   <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
                 </svg>
-                Admin
               </Link>
 
               {/* Radio Player */}
@@ -417,51 +390,6 @@ export function Navbar() {
                 className="transition-transform hover:scale-110"
               />
             </div>
-
-            {/* Mobile donate button */}
-            <button
-              onClick={() => {
-                handlePrintClick();
-                closeMobileMenu();
-              }}
-              className="w-full bg-gray-100 hover:bg-gray-200 text-gray-900 px-4 py-3 rounded-lg font-bold text-lg shadow transition-all flex items-center justify-center gap-2"
-              type="button"
-            >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M6 2a2 2 0 00-2 2v2h12V4a2 2 0 00-2-2H6z" />
-                <path d="M4 8a2 2 0 00-2 2v3a2 2 0 002 2h2v3h8v-3h2a2 2 0 002-2v-3a2 2 0 00-2-2H4zm4 9v-5h4v5H8z" />
-              </svg>
-              Print
-            </button>
-
-            {/* Mobile enable features button */}
-            <button
-              onClick={() => {
-                handleEnableFeatures();
-                closeMobileMenu();
-              }}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg font-bold text-lg shadow transition-all flex items-center justify-center gap-2"
-              type="button"
-            >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 2a1 1 0 011 1v2a1 1 0 11-2 0V3a1 1 0 011-1zm6.364 3.636a1 1 0 011.414 1.414l-1.414 1.414a1 1 0 11-1.414-1.414l1.414-1.414zM18 11a1 1 0 110 2h-2a1 1 0 110-2h2zM4 11a1 1 0 110 2H2a1 1 0 110-2h2zm12.95 4.95a1 1 0 00-1.414-1.414l-1.414 1.414a1 1 0 001.414 1.414l1.414-1.414zM10 16a1 1 0 011 1v2a1 1 0 11-2 0v-2a1 1 0 011-1zM5.464 5.05A1 1 0 104.05 6.464l1.414 1.414A1 1 0 106.88 6.464L5.464 5.05z" />
-              </svg>
-              Enable Features
-            </button>
-            
-            <button
-              onClick={() => {
-                closeMobileMenu();
-                router.push("/donate");
-              }}
-              className="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-lg font-bold text-lg shadow-lg transition-all flex items-center justify-center gap-2"
-              type="button"
-            >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-              </svg>
-              Donate
-            </button>
 
             {/* Social Media Links */}
             <div className="flex items-center justify-center space-x-6 pt-4">
@@ -476,6 +404,7 @@ export function Navbar() {
                   className="w-6 h-6"
                   fill="currentColor"
                   viewBox="0 0 24 24"
+                  aria-hidden="true"
                 >
                   <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                 </svg>
@@ -492,6 +421,7 @@ export function Navbar() {
                   className="w-6 h-6"
                   fill="currentColor"
                   viewBox="0 0 24 24"
+                  aria-hidden="true"
                 >
                   <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                 </svg>
@@ -508,28 +438,12 @@ export function Navbar() {
                   className="w-6 h-6"
                   fill="currentColor"
                   viewBox="0 0 24 24"
+                  aria-hidden="true"
                 >
                   <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 6.621 5.367 11.988 11.988 11.988c6.62 0 11.987-5.367 11.987-11.988C24.014 5.367 18.637.001 12.017.001zm6.624 13.684c-.003 1.518-.458 2.942-1.314 4.098-.859 1.159-2.051 2.015-3.438 2.468-1.388.452-2.876.452-4.264 0-1.387-.453-2.579-1.309-3.438-2.468-.856-1.156-1.311-2.58-1.314-4.098.003-1.518.458-2.942 1.314-4.098.859-1.159 2.051-2.015 3.438-2.468 1.388-.452 2.876-.452 4.264 0 1.387.453 2.579 1.309 3.438 2.468.856 1.156 1.311 2.58 1.314 4.098z" />
-                  <path d="M8.448 16.988c-1.297 0-2.448-1.151-2.448-2.448s1.151-2.448 2.448-2.448c1.297 0 2.448 1.151 2.448 2.448s-1.151 2.448-2.448 2.448zm7.104 0c-1.297 0-2.448-1.151-2.448-2.448s1.151-2.448 2.448-2.448c1.297 0 2.448 1.151 2.448 2.448s-1.151 2.448-2.448 2.448z" />
+                  <path d="M8.448 16.988c-1.297 0-2.448-1.151-2.448-2.448s1.151-2.448 2.448-2.448c1.297 0 2.448 1.151 2.448 2.448s-1.151-2.448-2.448 2.448zm7.104 0c-1.297 0-2.448-1.151-2.448-2.448s1.151-2.448 2.448-2.448c1.297 0 2.448 1.151 2.448 2.448s-1.151 2.448-2.448 2.448z" />
                 </svg>
               </a>
-            </div>
-
-            {/* Mobile Donate Button */}
-            <div className="pt-4">
-              <button
-                onClick={() => {
-                  handleDonateClick();
-                  closeMobileMenu();
-                }}
-                className="w-full bg-red-600 hover:bg-red-700 text-white px-6 py-4 rounded-lg font-bold text-lg shadow-lg transition-all flex items-center justify-center gap-2"
-                type="button"
-              >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                </svg>
-                Donate
-              </button>
             </div>
           </div>
         </div>

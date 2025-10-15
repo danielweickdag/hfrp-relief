@@ -4,24 +4,14 @@
   "liveServer.settings.CustomBrowser": "chrome",
   "liveServer.settings.AdvanceCustomBrowserCmdLine": "",
   "liveServer.settings.NoBrowser": false,
-  "liveServer.settings.ignoreFiles": [
-    ".vscode/**",
-    "**/*.scss",
-    "**/*.sass",
-    "**/*.ts",
-    "**/*.tsx",
-    "**/node_modules/**"
-  ],
+  "liveServer.settings.ignoreFiles": ["**/node_modules/**"],
   "liveServer.settings.donotShowInfoMsg": true,
   "liveServer.settings.donotVerifyTags": true,
   "liveServer.settings.host": "localhost",
   "liveServer.settings.proxy": {
-    "enable": false,
-    "baseUri": "/",
     "proxyUri": "http://127.0.0.1:80"
   },
   "emmet.includeLanguages": {
-    "javascript": "javascriptreact",
     "typescript": "typescriptreact"
   },
   "typescript.preferences.importModuleSpecifier": "relative",
@@ -49,5 +39,32 @@
   },
   "css.validate": false,
   "less.validate": false,
-  "scss.validate": false
+  "scss.validate": false,
+  "claude-code.environmentVariables": {
+    // Enable Amazon Bedrock integration: "1" or "true"
+    "CLAUDE_CODE_USE_BEDROCK": "true",
+
+    // Enable Google Vertex AI integration: "1" or "true"
+    "CLAUDE_CODE_USE_VERTEX": "true",
+
+    // API key (pull from your shell env)
+    "ANTHROPIC_API_KEY": "ASSIENE",
+
+    // AWS settings for Bedrock
+    "AWS_REGION": "us-east-2",
+    "AWS_PROFILE": "your-profile",
+
+    // Google Vertex AI
+    "CLOUD_ML_REGION": "global",
+    "ANTHROPIC_VERTEX_PROJECT_ID": "your-project-id",
+
+    // Model overrides
+    "ANTHROPIC_MODEL": "us.anthropic.claude-3-7-sonnet-20250219-v1:0",
+    "ANTHROPIC_SMALL_FAST_MODEL": "us.anthropic.claude-3-5-haiku-20241022-v1:0"
+  },
+  "codegpt.apiKey": "ASSIENE",
+  "codegpt.model": "claude-3-sonnet",
+  "editor.inlineSuggest.enabled": true,
+  "editor.suggest.preview": true,
+  "workbench.editor.enablePreview": true
 }

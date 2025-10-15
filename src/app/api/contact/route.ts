@@ -215,9 +215,9 @@ export async function POST(request: NextRequest) {
 
     // Prepare email content
     const fromEmail =
-      process.env.RESEND_FROM_EMAIL || "noreply@familyreliefproject.org";
-    const defaultToEmail =
-      process.env.RESEND_TO_EMAIL || "contact@familyreliefproject.org";
+      process.env.RESEND_FROM_EMAIL || "noreply@familyreliefproject7.org";
+  const toEmail =
+    process.env.RESEND_TO_EMAIL || "contact@familyreliefproject7.org";
     const toEmails = (process.env.RESEND_TO_EMAILS || "")
       .split(",")
       .map((s) => s.trim())
@@ -226,7 +226,7 @@ export async function POST(request: NextRequest) {
       .split(",")
       .map((s) => s.trim())
       .filter(Boolean);
-    const recipients = toEmails.length > 0 ? toEmails : [defaultToEmail];
+    const recipients = toEmails.length > 0 ? toEmails : [toEmail];
 
     const inquiryTypeLabels = {
       general: "General Inquiry",

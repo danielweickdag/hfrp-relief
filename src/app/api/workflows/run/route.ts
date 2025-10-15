@@ -1,8 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { spawn } from "child_process";
+import { exec } from "child_process";
 import path from "path";
 
-type WorkflowType = "development" | "staging" | "production" | "maintenance";
+type WorkflowType = "development" | "staging" | "production" | "maintenance" | "ui-automation";
 type WorkflowOptions = {
   continueOnError?: boolean;
   verbose?: boolean;
@@ -36,6 +36,7 @@ export async function POST(request: NextRequest) {
       "staging",
       "production",
       "maintenance",
+      "ui-automation",
     ];
     if (!allowedWorkflows.includes(workflowType)) {
       return NextResponse.json(
@@ -81,154 +82,139 @@ async function executeWorkflow(
 ) {
   return new Promise((resolve, reject) => {
     const scriptPath = path.join(process.cwd(), "workflow-orchestrator.js");
-    const args = [workflowType];
+    let command = `node "${scriptPath}" ${workflowType}`;
 
     if (options.continueOnError) {
-      args.push("--continue-on-error");
+      command += " --continue-on-error";
     }
 
     if (options.verbose) {
-      args.push("--verbose");
+      command += " --verbose";
     }
 
-    const child = spawn("node", [scriptPath, ...args], {
-      stdio: ["inherit", "pipe", "pipe"],
-      cwd: process.cwd(),
-    });
+    exec(command, { cwd: process.cwd() }, (error, stdout, stderr) => {
+      if (error) {
+        resolve({
+          success: false,
+          workflowType,
+          error: error.message,
+          output: stdout,
+        });
+        return;
+      }
 
-    let output = "";
-    let error = "";
-
-    child.stdout?.on("data", (data) => {
-      output += data.toString();
-    });
-
-    child.stderr?.on("data", (data) => {
-      error += data.toString();
-    });
-
-    child.on("close", (code) => {
       try {
         // Try to parse the output as JSON (workflow results)
-        const result = JSON.parse(output || "{}");
-
-        if (code === 0) {
-          resolve({
-            success: true,
-            workflowType,
-            result,
-            output,
-          });
-        } else {
-          resolve({
-            success: false,
-            workflowType,
-            error: error || `Workflow exited with code ${code}`,
-            output,
-          });
-        }
+        const result = JSON.parse(stdout || "{}");
+        resolve({
+          success: true,
+          workflowType,
+          result,
+          output: stdout,
+        });
       } catch (parseError) {
         // If output isn't JSON, return as text
-        if (code === 0) {
-          resolve({
-            success: true,
-            workflowType,
-            output,
-            tasks: parseTasksFromOutput(output),
-          });
-        } else {
-          reject(new Error(error || `Workflow exited with code ${code}`));
-        }
+        resolve({
+          success: true,
+          workflowType,
+          output: stdout,
+          tasks: parseTasksFromOutput(stdout),
+        });
       }
     });
-
-    child.on("error", (err) => {
-      reject(err);
-    });
-
-    // Timeout after 5 minutes
-    setTimeout(() => {
-      child.kill();
-      reject(new Error("Workflow timeout"));
-    }, 300000);
   });
 }
 
 async function getWorkflowStatus() {
   return new Promise((resolve, reject) => {
     const scriptPath = path.join(process.cwd(), "workflow-orchestrator.js");
+    const command = `node "${scriptPath}" status`;
 
-    const child = spawn("node", [scriptPath, "status"], {
-      stdio: ["inherit", "pipe", "pipe"],
-      cwd: process.cwd(),
-    });
-
-    let output = "";
-    let error = "";
-
-    child.stdout?.on("data", (data) => {
-      output += data.toString();
-    });
-
-    child.stderr?.on("data", (data) => {
-      error += data.toString();
-    });
-
-    child.on("close", (code) => {
-      if (code === 0) {
-        try {
-          const status = JSON.parse(output);
-          resolve({
-            status,
-            workflows: {
-              development: {
-                available: true,
-                description: "Test and build workflow",
-              },
-              staging: {
-                available: true,
-                description: "Deploy to staging environment",
-              },
-              production: {
-                available: true,
-                description: "Deploy to production environment",
-              },
-              maintenance: {
-                available: true,
-                description: "System maintenance and cleanup",
-              },
+    exec(command, { cwd: process.cwd() }, (error, stdout, stderr) => {
+      if (error) {
+        // If status command fails, return default status
+        resolve({
+          status: { message: "Status unavailable" },
+          workflows: {
+            development: {
+              available: true,
+              description: "Test and build workflow",
             },
-          });
-        } catch (parseError) {
-          resolve({
-            status: { message: "Status unavailable" },
-            workflows: {
-              development: {
-                available: true,
-                description: "Test and build workflow",
-              },
-              staging: {
-                available: true,
-                description: "Deploy to staging environment",
-              },
-              production: {
-                available: true,
-                description: "Deploy to production environment",
-              },
-              maintenance: {
-                available: true,
-                description: "System maintenance and cleanup",
-              },
+            staging: {
+              available: true,
+              description: "Deploy to staging environment",
             },
-          });
-        }
-      } else {
-        reject(new Error(error || `Status check failed with code ${code}`));
+            production: {
+              available: true,
+              description: "Deploy to production environment",
+            },
+            maintenance: {
+              available: true,
+              description: "System maintenance and cleanup",
+            },
+            "ui-automation": {
+              available: true,
+              description: "Post-deployment UI automation",
+            },
+          },
+        });
+        return;
       }
-    });
 
-    child.on("error", (err) => {
-      reject(err);
+      try {
+        const status = JSON.parse(stdout);
+        resolve({
+          status,
+          workflows: {
+            development: {
+              available: true,
+              description: "Test and build workflow",
+            },
+            staging: {
+              available: true,
+              description: "Deploy to staging environment",
+            },
+            production: {
+              available: true,
+              description: "Deploy to production environment",
+            },
+            maintenance: {
+              available: true,
+              description: "System maintenance and cleanup",
+            },
+            "ui-automation": {
+              available: true,
+              description: "Post-deployment UI automation",
+            },
+          },
+        });
+      } catch (parseError) {
+        resolve({
+          status: { message: "Status unavailable" },
+          workflows: {
+            development: {
+              available: true,
+              description: "Test and build workflow",
+            },
+            staging: {
+              available: true,
+              description: "Deploy to staging environment",
+            },
+            production: {
+              available: true,
+              description: "Deploy to production environment",
+            },
+            maintenance: {
+              available: true,
+              description: "System maintenance and cleanup",
+            },
+            "ui-automation": {
+              available: true,
+              description: "Post-deployment UI automation",
+            },
+          },
+        });
+      }
     });
   });
 }

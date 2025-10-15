@@ -3,8 +3,8 @@
   "buildCommand": "npm run build",
   "installCommand": "npm ci --include=dev",
   "env": {
-    "NEXT_PUBLIC_SITE_URL": "https://www.familyreliefproject.org",
-    "NEXT_PUBLIC_API_URL": "https://www.familyreliefproject.org/api",
+    "NEXT_PUBLIC_SITE_URL": "https://www.familyreliefproject7.org",
+    "NEXT_PUBLIC_API_URL": "https://www.familyreliefproject7.org/api",
     "NEXT_PUBLIC_DONATION_TEST_MODE": "false"
   },
   "functions": {
@@ -15,8 +15,8 @@
   "redirects": [
     {
       "source": "/(.*)",
-      "has": [{ "type": "host", "value": "familyreliefproject.org" }],
-      "destination": "https://www.familyreliefproject.org/$1",
+      "has": [{ "type": "host", "value": "familyreliefproject7.org" }],
+      "destination": "https://www.familyreliefproject7.org/$1",
       "permanent": true
     }
   ],

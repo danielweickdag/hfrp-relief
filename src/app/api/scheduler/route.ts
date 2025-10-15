@@ -1,14 +1,13 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { spawn } from "child_process";
+import { exec } from "child_process";
 import path from "path";
-import { fileURLToPath } from "url";
 
 // Ensure Node.js runtime so child_process is available
 export const runtime = "nodejs";
 
-function resolveScriptPath() {
-  // Turbopack can complain about server-relative imports; use CWD-based resolution consistently.
-  return path.resolve(process.cwd(), "automation-scheduler.js");
+// Function to get scheduler script path at runtime
+function getSchedulerScriptPath() {
+  return path.join(process.cwd(), "automation-scheduler.js");
 }
 
 type SchedulerAction = "start" | "stop" | "status";
@@ -21,13 +20,15 @@ export async function POST(request: NextRequest) {
     switch (action) {
       case "start": {
         // Start scheduler as a detached background process
-        const scriptPath = resolveScriptPath();
-        const child = spawn("node", [scriptPath, "start"], {
+        const scriptPath = getSchedulerScriptPath();
+        exec(`node "${scriptPath}" start`, {
           cwd: process.cwd(),
-          detached: true,
-          stdio: "ignore",
+        }, (error) => {
+          // Fire and forget - don't wait for completion
+          if (error) {
+            console.error("Scheduler start error:", error);
+          }
         });
-        child.unref();
         return NextResponse.json({ success: true, message: "Scheduler start initiated" });
       }
       case "stop": {
@@ -66,45 +67,25 @@ export async function GET() {
 
 async function runSchedulerCommand(command: SchedulerAction) {
   return new Promise((resolve, reject) => {
-    const scriptPath = resolveScriptPath();
-    const child = spawn("node", [scriptPath, command], {
-      stdio: ["ignore", "pipe", "pipe"],
+    const scriptPath = getSchedulerScriptPath();
+    const execCommand = `node "${scriptPath}" ${command}`;
+    
+    exec(execCommand, {
       cwd: process.cwd(),
-    });
+      timeout: 90000, // 90 second timeout
+    }, (error, stdout, stderr) => {
+      if (error) {
+        reject(new Error(stderr || error.message || `Scheduler command '${command}' failed`));
+        return;
+      }
 
-    let output = "";
-    let error = "";
-
-    child.stdout?.on("data", (data) => {
-      output += data.toString();
-    });
-
-    child.stderr?.on("data", (data) => {
-      error += data.toString();
-    });
-
-    child.on("close", (code) => {
-      if (code === 0) {
-        // status prints JSON; stop prints logs/string
-        try {
-          const parsed = JSON.parse(output);
-          resolve({ success: true, action: command, status: parsed });
-        } catch {
-          resolve({ success: true, action: command, output });
-        }
-      } else {
-        reject(new Error(error || `Scheduler command '${command}' failed with code ${code}`));
+      // status prints JSON; stop prints logs/string
+      try {
+        const parsed = JSON.parse(stdout);
+        resolve({ success: true, action: command, status: parsed });
+      } catch {
+        resolve({ success: true, action: command, output: stdout });
       }
     });
-
-    child.on("error", (err) => {
-      reject(err);
-    });
-
-    // Safety timeout: 90s
-    setTimeout(() => {
-      try { child.kill(); } catch {}
-      reject(new Error("Scheduler command timeout"));
-    }, 90000);
   });
 }

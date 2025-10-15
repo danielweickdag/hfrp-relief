@@ -10,7 +10,7 @@ Allow: /
 Disallow: /admin/
 
 # Sitemap location
-Sitemap: https://www.familyreliefproject.org/sitemap.xml
+Sitemap: https://www.familyreliefproject7.org/sitemap.xml
 
 # Crawl delay (optional - helps with server load)
 Crawl-delay: 1`;

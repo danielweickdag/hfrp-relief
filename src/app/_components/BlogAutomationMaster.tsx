@@ -525,8 +525,8 @@ const BlogAutomationMaster: React.FC = () => {
                       fill="#8884d8"
                       dataKey="views"
                     >
-                      {analyticsData.categoryPerformance.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      {analyticsData.categoryPerformance.map((entry) => (
+                        <Cell key={entry.category} fill={COLORS[analyticsData.categoryPerformance.indexOf(entry) % COLORS.length]} />
                       ))}
                     </Pie>
                     <Tooltip />
@@ -590,8 +590,8 @@ const BlogAutomationMaster: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {moderationSummary.commonIssues.map((issue, index) => (
-                    <div key={index} className="flex items-center space-x-2">
+                  {moderationSummary.commonIssues.map((issue) => (
+                    <div key={issue} className="flex items-center space-x-2">
                       <AlertTriangle className="h-4 w-4 text-yellow-500" />
                       <span className="text-sm">{issue}</span>
                     </div>

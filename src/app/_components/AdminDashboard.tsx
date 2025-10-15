@@ -1483,6 +1483,104 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
                           </div>
                         </Link>
                       </WithPermission>
+
+                      {/* Print Function */}
+                      <button
+                        onClick={() => {
+                          // Add print-specific CSS
+                          const printStyles = document.createElement('style');
+                          printStyles.textContent = `
+                            @media print {
+                              body * { visibility: hidden; }
+                              .print-content, .print-content * { visibility: visible; }
+                              .print-content { position: absolute; left: 0; top: 0; width: 100%; }
+                              .no-print { display: none !important; }
+                              .print-header { 
+                                display: flex !important; 
+                                align-items: center; 
+                                margin-bottom: 20px; 
+                                padding-bottom: 10px; 
+                                border-bottom: 2px solid #333; 
+                              }
+                              .print-logo { width: 60px; height: 60px; margin-right: 15px; }
+                              .print-title { font-size: 24px; font-weight: bold; }
+                              .print-date { font-size: 14px; color: #666; margin-top: 5px; }
+                            }
+                          `;
+                          document.head.appendChild(printStyles);
+
+                          // Create print content
+                          const printContent = document.createElement('div');
+                          printContent.className = 'print-content';
+                          printContent.innerHTML = `
+                            <div class="print-header">
+                              <img src="/hfrp-logo.svg" alt="HFRP Logo" class="print-logo" />
+                              <div>
+                                <div class="print-title">Haitian Family Relief Project</div>
+                                <div class="print-date">Admin Dashboard Report - ${new Date().toLocaleDateString()}</div>
+                              </div>
+                            </div>
+                            <div>
+                              <h2>Dashboard Overview</h2>
+                              <p>This report was generated from the HFRP Admin Dashboard.</p>
+                              <p>For more information, visit: haitianfamilyrelief.org</p>
+                            </div>
+                          `;
+                          document.body.appendChild(printContent);
+
+                          // Print and cleanup
+                          window.print();
+                          
+                          setTimeout(() => {
+                            document.head.removeChild(printStyles);
+                            document.body.removeChild(printContent);
+                          }, 1000);
+                        }}
+                        className="bg-gray-600 text-white p-4 rounded hover:bg-gray-700 text-left transition-colors"
+                      >
+                        <div className="text-2xl mb-2">🖨️</div>
+                        <div className="font-semibold">Print Report</div>
+                        <div className="text-xs opacity-75">
+                          Generate printout
+                        </div>
+                      </button>
+
+                      {/* Enable Features */}
+                      <button
+                        onClick={() => {
+                          // Enable features in localStorage
+                          localStorage.setItem('hfrp_features_enabled', 'true');
+                          
+                          // Dispatch custom event for feature enablement
+                          window.dispatchEvent(new CustomEvent('featuresEnabled', {
+                            detail: { enabled: true, timestamp: Date.now() }
+                          }));
+                          
+                          alert('Features have been enabled! The page will refresh to apply changes.');
+                          window.location.reload();
+                        }}
+                        className="bg-indigo-600 text-white p-4 rounded hover:bg-indigo-700 text-left transition-colors"
+                      >
+                        <div className="text-2xl mb-2">⚡</div>
+                        <div className="font-semibold">Enable Features</div>
+                        <div className="text-xs opacity-75">
+                          Activate advanced
+                        </div>
+                      </button>
+
+                      {/* Donate Function */}
+                      <button
+                        onClick={() => {
+                          window.open('https://donorbox.org/haitianfamilyrelief', '_blank');
+                        }}
+                        className="bg-red-600 text-white p-4 rounded hover:bg-red-700 text-left transition-colors"
+                      >
+                        <div className="text-2xl mb-2">❤️</div>
+                        <div className="font-semibold">Donate Now</div>
+                        <div className="text-xs opacity-75">
+                          Support our mission
+                        </div>
+                      </button>
                     </div>
                   </div>
 
@@ -2038,7 +2136,7 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
                   </div>
 
                   {/* Workflow Controls */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
                     <button
                       onClick={() => runWorkflow("development")}
                       disabled={workflowStatus.isRunning}
@@ -2110,6 +2208,26 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
                       </svg>
                       <span className="font-medium">Maintenance</span>
                       <span className="text-xs opacity-75">System Care</span>
+                    </button>
+
+                    <button
+                      onClick={() => runWorkflow("ui-automation")}
+                      disabled={workflowStatus.isRunning}
+                      className="bg-indigo-600 text-white px-4 py-3 rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex flex-col items-center text-center"
+                    >
+                      <svg
+                        className="w-6 h-6 mb-2"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      <span className="font-medium">UI Automation</span>
+                      <span className="text-xs opacity-75">Post-Deploy UI</span>
                     </button>
                   </div>
 

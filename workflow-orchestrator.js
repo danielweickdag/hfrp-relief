@@ -31,8 +31,10 @@ class WorkflowOrchestrator {
           "automation-sync",
           "final-validation",
           "deploy-production",
+          "ui-automation",
         ],
         maintenance: ["automation-sync", "health-monitor", "cleanup", "backup"],
+        "ui-automation": ["ui-automation"],
       },
     };
 
@@ -86,6 +88,7 @@ class WorkflowOrchestrator {
       "donor-segmentation": () => this.runScript("donor-segmentation.js"),
       "impact-reporting": () => this.runScript("impact-reporter.js"),
       "analytics-generation": () => this.runScript("analytics-generator.js"),
+      "ui-automation": () => this.runScript("post-deployment-ui-automation.js"),
     };
   }
 
@@ -668,6 +671,7 @@ Commands:
   staging        Run staging deployment workflow  
   production     Run production deployment workflow
   maintenance    Run maintenance workflow
+  ui-automation  Run post-deployment UI automation workflow
   status         Show current status
   help           Show this help
 

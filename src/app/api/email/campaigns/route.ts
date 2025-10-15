@@ -242,7 +242,7 @@ async function handleCampaignAnalytics() {
 // Email sending functions
 async function sendCampaignEmails(resend: Resend, campaign: EmailCampaign) {
   const results = [];
-  const fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@familyreliefproject.org';
+  const fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@familyreliefproject7.org';
   
   for (const recipient of campaign.recipients) {
     try {

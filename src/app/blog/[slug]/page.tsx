@@ -1,6 +1,6 @@
 import Image from "next/image";
 import BackButton from "./BackButton";
-import { getPostBySlug, getPosts, BlogPost } from "../posts";
+import { getPostBySlug, getPosts, type BlogPost } from "../posts";
 
 // Map BlogPost to the BackButton's expected PostData shape
 type BackButtonPostData = { [key: string]: string; content: string };
@@ -46,9 +46,9 @@ export async function generateMetadata({
         post.summary ||
         `Read ${post.title} - a story from the Haitian Family Relief Project`,
       type: "article",
-      url: `https://www.familyreliefproject.org/blog/${slug}`,
-      images: post.image
-        ? [`https://www.familyreliefproject.org${post.image}`]
+      url: `https://www.familyreliefproject7.org/blog/${slug}`,
+    images: post.image
+      ? [`https://www.familyreliefproject7.org${post.image}`]
         : [],
       article: {
         authors: [post.author || "HFRP Team"],
@@ -64,7 +64,7 @@ export async function generateMetadata({
         post.summary ||
         `Read ${post.title} - a story from the Haitian Family Relief Project`,
       images: post.image
-        ? [`https://www.familyreliefproject.org${post.image}`]
+        ? [`https://www.familyreliefproject7.org${post.image}`]
         : [],
     },
   };

@@ -1,0 +1,12 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Run linting before commit
+echo "🔍 Running linters..."
+bunx biome lint --write
+
+# Run TypeScript check (non-blocking)
+echo "📝 Checking TypeScript..."
+bunx tsc --noEmit || echo "⚠️  TypeScript errors found (non-blocking)"
+
+echo "✅ Pre-commit checks complete!"

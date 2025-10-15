@@ -178,7 +178,7 @@ function DonationSuccessContent() {
               <button
                 onClick={() => {
                   const text = `I just donated to help families in Haiti! 🇭🇹`;
-                  const url = "https://www.familyreliefproject.org";
+                  const url = "https://www.familyreliefproject7.org";
                   window.open(
                     `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`,
                     "_blank"

@@ -110,7 +110,7 @@ async function processDonationThankYous() {
   const resendKey = process.env.RESEND_API_KEY;
   const demoMode = !resendKey || resendKey.startsWith("re_demo_");
   const resend = demoMode ? null : new Resend(resendKey!);
-  const fromEmail = process.env.RESEND_FROM_EMAIL || "noreply@familyreliefproject.org";
+  const fromEmail = process.env.RESEND_FROM_EMAIL || "noreply@familyreliefproject7.org";
 
   let processed = 0;
   let updated = 0;
@@ -197,7 +197,7 @@ async function processEmailQueue() {
   const resendKey = process.env.RESEND_API_KEY;
   const demoMode = !resendKey || resendKey.startsWith("re_demo_");
   const resend = demoMode ? null : new Resend(resendKey!);
-  const fromEmail = process.env.RESEND_FROM_EMAIL || "noreply@familyreliefproject.org";
+  const fromEmail = process.env.RESEND_FROM_EMAIL || "noreply@familyreliefproject7.org";
   const now = Date.now();
 
   let processed = 0;

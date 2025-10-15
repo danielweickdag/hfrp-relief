@@ -85,24 +85,6 @@ function AdminLogin() {
             </div>
           )}
 
-          <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded text-sm">
-            <p className="font-semibold mb-2">👤 Admin Credentials:</p>
-            <div className="space-y-1">
-              <p>
-                <strong>Super Admin:</strong> w.regis@comcast.net
-              </p>
-              <p>
-                <strong>Editor:</strong> editor@haitianfamilyrelief.org
-              </p>
-              <p>
-                <strong>Volunteer:</strong> volunteer@haitianfamilyrelief.org
-              </p>
-              <p className="mt-2">
-                <strong>🔐 Password:</strong> Melirosecherie58
-              </p>
-            </div>
-          </div>
-
           <button
             type="submit"
             disabled={isLoading}

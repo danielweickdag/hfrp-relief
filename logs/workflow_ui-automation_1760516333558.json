@@ -1,0 +1,22 @@
+{
+  "workflow": "ui-automation",
+  "timestamp": "2025-10-15T08:18:53.557Z",
+  "duration": 5662,
+  "success": false,
+  "tasks": [
+    {
+      "name": "ui-automation",
+      "startTime": "2025-10-15T08:18:47.895Z",
+      "success": false,
+      "output": "",
+      "error": "(node:73168) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/blvckdlphn/projects/hfrp-relief/post-deployment-ui-automation.js is not specified and it doesn't parse as CommonJS.\nReparsing as ES module because module syntax was detected. This incurs a performance overhead.\nTo eliminate this warning, add \"type\": \"module\" to /Users/blvckdlphn/projects/hfrp-relief/package.json.\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
+      "endTime": "2025-10-15T08:18:53.557Z",
+      "duration": 5662
+    }
+  ],
+  "summary": {
+    "total": 1,
+    "successful": 0,
+    "failed": 1
+  }
+}

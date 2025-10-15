@@ -120,54 +120,36 @@ export default function StripeButton({
         });
       }
 
-      // Create checkout session (live mode uses API; test mode uses simulation)
-      let checkoutUrl: string;
-      if (config.testMode) {
-        const checkoutSession = await stripeEnhanced.createCampaignCheckout({
+      // Always use the real Stripe API for checkout sessions
+      if (typeof amount !== "number" || !isFinite(amount) || amount <= 0) {
+        throw new Error("Please provide a valid donation amount");
+      }
+
+      const response = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           campaignId,
           amount,
           recurring,
           interval,
-          successUrl: `${window.location.origin}${config.defaultSuccessUrl}?campaign=${campaignId}&amount=${amount}`,
+          successUrl: `${window.location.origin}${config.defaultSuccessUrl}?session_id={CHECKOUT_SESSION_ID}&campaign=${campaignId}&amount=${amount}`,
           cancelUrl: `${window.location.origin}${config.defaultCancelUrl}`,
           metadata: {
             source: "website",
             buttonId,
             campaign: targetCampaign.name,
           },
-        });
-        checkoutUrl = checkoutSession.url;
-      } else {
-        if (typeof amount !== "number" || !isFinite(amount) || amount <= 0) {
-          throw new Error("Please provide a valid donation amount");
-        }
+        }),
+      });
 
-        const response = await fetch("/api/stripe/checkout", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            campaignId,
-            amount,
-            recurring,
-            interval,
-            successUrl: `${window.location.origin}${config.defaultSuccessUrl}?session_id={CHECKOUT_SESSION_ID}&campaign=${campaignId}&amount=${amount}`,
-            cancelUrl: `${window.location.origin}${config.defaultCancelUrl}`,
-            metadata: {
-              source: "website",
-              buttonId,
-              campaign: targetCampaign.name,
-            },
-          }),
-        });
-
-        const raw = await response.json().catch(() => null);
-        const data: { url?: string; id?: string; error?: string } =
-          raw && typeof raw === "object" ? (raw as { url?: string; id?: string; error?: string }) : {};
-        if (!response.ok || typeof data.url !== "string") {
-          throw new Error(data.error || "Failed to create Stripe checkout session");
-        }
-        checkoutUrl = data.url;
+      const raw = await response.json().catch(() => null);
+      const data: { url?: string; id?: string; error?: string } =
+        raw && typeof raw === "object" ? (raw as { url?: string; id?: string; error?: string }) : {};
+      if (!response.ok || typeof data.url !== "string") {
+        throw new Error(data.error || "Failed to create Stripe checkout session");
       }
+      const checkoutUrl = data.url;
 
       console.log("🌐 Opening Stripe Checkout:", checkoutUrl);
 

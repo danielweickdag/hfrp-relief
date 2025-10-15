@@ -55,8 +55,8 @@ export default function ClientBody({
             `<h1 class="text-2xl font-bold mb-4">${title}</h1>`
           );
           printWindow.document.write(node.innerHTML);
-          printWindow.document.write(`</div>`);
-          printWindow.document.write(`</body></html>`);
+          printWindow.document.write("</div>");
+          printWindow.document.write("</body></html>");
           printWindow.document.close();
           printWindow.focus();
           setTimeout(() => {
