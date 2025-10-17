@@ -1,0 +1,75 @@
+{
+  "campaign_id": "hfrp_medical_2025",
+  "social_content": {
+    "progress_update": {
+      "facebook": "🎉 AMAZING NEWS! Our \"Medical Care & Supplies\" campaign is now 52% funded! We've raised $31,200.00 thanks to 203 incredible supporters. Only $28,800.00 left to reach our goal! Every donation makes a difference. 💙 #HFRP #HopeForHaiti",
+      "instagram": "✨ Progress Update: 52% complete! 📊\n\nMedical Care & Supplies is making real impact with $31,200.00 raised! 🙌\n\nStill need: $28,800.00\nDonors: 203 amazing people\n\n#HFRP #Haiti #Hope #Community #MakeADifference",
+      "twitter": "🚀 52% funded! \"Medical Care & Supplies\" has raised $31,200.00 from 203 donors. Help us reach $60,000.00! Every dollar creates hope. 💙 #HFRP #HaitiRelief"
+    },
+    "urgency": null
+  },
+  "email_template": {
+    "subject": "Medical Care & Supplies: 52% Funded - Your Impact is Growing!",
+    "html_content": "\n        <h2>Dear HFRP Supporter,</h2>\n        \n        <p>We have incredible news to share about our <strong>\"Medical Care & Supplies\"</strong> campaign!</p>\n        \n        <div style=\"background: #f0f8ff; padding: 20px; border-left: 4px solid #007bff;\">\n          <h3>📊 Progress Update</h3>\n          <ul>\n            <li><strong>Goal:</strong> $60,000.00</li>\n            <li><strong>Raised:</strong> $31,200.00 (52%)</li>\n            <li><strong>Donors:</strong> 203 amazing supporters</li>\n            <li><strong>Remaining:</strong> $28,800.00</li>\n          </ul>\n        </div>\n        \n        <p>Providing essential medical care and supplies to communities in Haiti</p>\n        \n        <p>Thanks to donors like you, we're making real progress! Every donation brings us closer to our goal and brings hope to families in Haiti.</p>\n        \n        <div style=\"text-align: center; margin: 30px 0;\">\n          <a href=\"https://donorbox.org/medical-care-haiti\" style=\"background: #007bff; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px;\">\n            🤝 Continue Supporting This Campaign\n          </a>\n        </div>\n        \n        <p>With gratitude,<br>The HFRP Team</p>\n      ",
+    "text_content": "\n        Dear HFRP Supporter,\n        \n        Medical Care & Supplies Progress Update:\n        - Goal: $60,000.00\n        - Raised: $31,200.00 (52%)\n        - Donors: 203\n        - Remaining: $28,800.00\n        \n        Providing essential medical care and supplies to communities in Haiti\n        \n        Support this campaign: https://donorbox.org/medical-care-haiti\n        \n        Thank you for your continued support!\n        The HFRP Team\n      "
+  },
+  "tracking_setup": {
+    "milestones": [
+      {
+        "percentage": 25,
+        "message": "Great start! 25% funded!",
+        "triggered": true
+      },
+      {
+        "percentage": 50,
+        "message": "Halfway there! 50% complete!",
+        "triggered": true
+      },
+      {
+        "percentage": 75,
+        "message": "Almost there! 75% funded!",
+        "triggered": false
+      },
+      {
+        "percentage": 100,
+        "message": "GOAL REACHED! Thank you!",
+        "triggered": false
+      }
+    ],
+    "alerts": {
+      "daily_update": true,
+      "weekly_summary": true,
+      "milestone_notifications": true,
+      "low_velocity_warning": false
+    },
+    "metrics_tracking": {
+      "conversion_rate": "1.54",
+      "funding_velocity": "200.00",
+      "momentum_score": "72",
+      "last_updated": "2025-08-04T14:22:12.162Z"
+    }
+  },
+  "donor_segments": {
+    "high_value": {
+      "criteria": "Donations >= $250",
+      "estimated_count": 20,
+      "engagement_strategy": "Personal thank you calls, exclusive updates"
+    },
+    "regular": {
+      "criteria": "Donations $50-$249",
+      "estimated_count": 121,
+      "engagement_strategy": "Monthly newsletters, impact stories"
+    },
+    "grassroots": {
+      "criteria": "Donations $1-$49",
+      "estimated_count": 60,
+      "engagement_strategy": "Social media engagement, community events"
+    },
+    "recurring": {
+      "criteria": "Monthly recurring donors",
+      "estimated_count": 30,
+      "engagement_strategy": "VIP treatment, early access to new campaigns"
+    }
+  },
+  "automated_at": "2025-08-04T14:22:12.162Z"
+}

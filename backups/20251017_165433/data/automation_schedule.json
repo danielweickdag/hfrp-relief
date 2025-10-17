@@ -1,0 +1,135 @@
+{
+  "version": "2.0",
+  "description": "HFRP Relief Automation Scheduler",
+  "schedule": {
+    "sync_interval": "5m",
+    "backup_interval": "1h",
+    "health_check_interval": "1m",
+    "analytics_update_interval": "10m"
+  },
+  "tasks": [
+    {
+      "id": "stripe-sync",
+      "name": "Stripe Data Sync",
+      "description": "Sync campaigns, plans, and payments with Stripe",
+      "schedule": "*/5 * * * *",
+      "enabled": true,
+      "priority": "high",
+      "timeout": 300000,
+      "retry_attempts": 3,
+      "endpoint": "/api/stripe/sync",
+      "method": "POST",
+      "payload": {
+        "action": "full-sync"
+      }
+    },
+    {
+      "id": "campaign-update",
+      "name": "Campaign Progress Update",
+      "description": "Update campaign progress and statistics",
+      "schedule": "*/10 * * * *",
+      "enabled": true,
+      "priority": "medium",
+      "timeout": 180000,
+      "retry_attempts": 2,
+      "endpoint": "/api/stripe/sync",
+      "method": "POST",
+      "payload": {
+        "action": "sync-campaigns"
+      }
+    },
+    {
+      "id": "analytics-refresh",
+      "name": "Analytics Refresh",
+      "description": "Update analytics and dashboard data",
+      "schedule": "*/10 * * * *",
+      "enabled": true,
+      "priority": "medium",
+      "timeout": 120000,
+      "retry_attempts": 2,
+      "endpoint": "/api/stripe/analytics",
+      "method": "GET"
+    },
+    {
+      "id": "health-monitor",
+      "name": "System Health Monitor",
+      "description": "Monitor system health and availability",
+      "schedule": "* * * * *",
+      "enabled": true,
+      "priority": "critical",
+      "timeout": 30000,
+      "retry_attempts": 1,
+      "endpoint": "/api/stripe/analytics",
+      "method": "GET"
+    },
+    {
+      "id": "webhook-processor",
+      "name": "Webhook Event Processor",
+      "description": "Process pending webhook events",
+      "schedule": "*/2 * * * *",
+      "enabled": true,
+      "priority": "high",
+      "timeout": 90000,
+      "retry_attempts": 3,
+      "endpoint": "/api/stripe/webhook",
+      "method": "GET"
+    }
+  ],
+  "legacy_tasks": {
+    "daily_tasks": [
+      {
+        "time": "09:00",
+        "task": "Check campaign progress and send alerts",
+        "automation": "progress_monitor"
+      },
+      {
+        "time": "15:00",
+        "task": "Generate social media content",
+        "automation": "content_generator"
+      }
+    ],
+    "weekly_tasks": [
+      {
+        "day": "Monday",
+        "task": "Generate comprehensive campaign reports",
+        "automation": "weekly_report"
+      },
+      {
+        "day": "Friday",
+        "task": "Analyze donor engagement and send recommendations",
+        "automation": "donor_analysis"
+      }
+    ],
+    "monthly_tasks": [
+      {
+        "task": "Full campaign performance review",
+        "automation": "monthly_review"
+      }
+    ]
+  },
+  "monitoring": {
+    "alerts": {
+      "email_enabled": false,
+      "webhook_enabled": true,
+      "webhook_url": "https://www.familyreliefproject.org/api/automation/alerts"
+    },
+    "thresholds": {
+      "error_rate": 10,
+      "response_time": 30000,
+      "consecutive_failures": 3
+    }
+  },
+  "logging": {
+    "level": "info",
+    "file": "./data/automation_scheduler.log",
+    "max_file_size": "10MB",
+    "max_files": 5
+  },
+  "metadata": {
+    "created": "2025-08-15T03:00:00.000Z",
+    "updated": "2025-08-15T03:00:00.000Z",
+    "version": "2.0.0",
+    "environment": "production",
+    "description": "Comprehensive automation schedule for HFRP Relief platform"
+  }
+}

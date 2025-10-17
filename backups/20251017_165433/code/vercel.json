@@ -1,0 +1,46 @@
+{
+  "version": 2,
+  "buildCommand": "npm run build",
+  "installCommand": "npm ci --include=dev",
+  "env": {
+    "NEXT_PUBLIC_SITE_URL": "https://www.familyreliefproject7.org",
+    "NEXT_PUBLIC_API_URL": "https://www.familyreliefproject7.org/api",
+    "NEXT_PUBLIC_DONATION_TEST_MODE": "false"
+  },
+  "functions": {
+    "app/api/**/*.js": {
+      "maxDuration": 10
+    }
+  },
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "familyreliefproject7.org" }],
+      "destination": "https://www.familyreliefproject7.org/$1",
+      "permanent": true
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "origin-when-cross-origin"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "timestamp": "2025-08-16T17:31:46.962Z",
+  "totalEmails": 78,
+  "segmentBreakdown": {
+    "firstTime": 1,
+    "recurring": 1,
+    "majorGifts": 2,
+    "corporate": 4,
+    "lapsed": 4,
+    "vip": 2
+  },
+  "typeBreakdown": {
+    "campaign": 10,
+    "event": 44,
+    "journey": 24
+  },
+  "scheduledEmails": 63,
+  "sentEmails": 0,
+  "failedEmails": 0
+}

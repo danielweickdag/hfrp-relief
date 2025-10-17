@@ -1,0 +1,37 @@
+{
+  "timestamp": "2025-08-15T18:55:54.896Z",
+  "duration": 379,
+  "results": {
+    "stripe": {
+      "success": false,
+      "error": "Stripe sync failed: Internal Server Error"
+    },
+    "campaigns": {
+      "success": true,
+      "count": 2
+    },
+    "donations": {
+      "success": true,
+      "count": 4
+    },
+    "analytics": {
+      "success": false,
+      "error": "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"
+    },
+    "webhooks": {
+      "success": true,
+      "processed": 0
+    }
+  },
+  "stats": {
+    "totalSyncs": 191,
+    "successfulSyncs": 191,
+    "errors": 0,
+    "lastError": null
+  },
+  "summary": {
+    "successful": 3,
+    "failed": 2,
+    "total": 5
+  }
+}

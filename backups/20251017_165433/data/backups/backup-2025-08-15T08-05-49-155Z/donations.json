@@ -1,0 +1,58 @@
+[
+  {
+    "id": "don_001",
+    "amount": 150,
+    "currency": "USD",
+    "donor_email": "john.doe@email.com",
+    "donor_name": "John Doe",
+    "campaign": "Emergency Relief",
+    "date": "2025-08-01T10:30:00Z",
+    "status": "completed",
+    "payment_method": "credit_card",
+    "synced_at": "2025-08-03T22:17:50.936Z",
+    "source": "donorbox",
+    "syncedAt": "2025-08-15T08:01:15.266Z"
+  },
+  {
+    "id": "don_002",
+    "amount": 75,
+    "currency": "USD",
+    "donor_email": "mary.smith@email.com",
+    "donor_name": "Mary Smith",
+    "campaign": "Education Fund",
+    "date": "2025-08-02T14:15:00Z",
+    "status": "completed",
+    "payment_method": "paypal",
+    "synced_at": "2025-08-03T22:17:50.936Z",
+    "source": "donorbox",
+    "syncedAt": "2025-08-15T08:01:15.266Z"
+  },
+  {
+    "id": "don_003",
+    "amount": 200,
+    "currency": "USD",
+    "donor_email": "robert.johnson@email.com",
+    "donor_name": "Robert Johnson",
+    "campaign": "Medical Care",
+    "date": "2025-08-03T09:45:00Z",
+    "status": "completed",
+    "payment_method": "bank_transfer",
+    "synced_at": "2025-08-03T22:17:50.936Z",
+    "source": "donorbox",
+    "syncedAt": "2025-08-15T08:01:15.266Z"
+  },
+  {
+    "id": "don_004",
+    "amount": 100,
+    "currency": "USD",
+    "donor_email": "sarah.wilson@email.com",
+    "donor_name": "Sarah Wilson",
+    "campaign": "Housing Initiative",
+    "date": "2025-08-03T16:20:00Z",
+    "status": "completed",
+    "payment_method": "credit_card",
+    "synced_at": "2025-08-03T22:17:50.936Z",
+    "source": "donorbox",
+    "syncedAt": "2025-08-15T08:01:15.266Z"
+  }
+]

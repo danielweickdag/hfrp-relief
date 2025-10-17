@@ -1,0 +1,22 @@
+{
+  "workflow": "ui-automation",
+  "timestamp": "2025-10-15T08:27:53.657Z",
+  "duration": 25519,
+  "success": true,
+  "tasks": [
+    {
+      "name": "ui-automation",
+      "startTime": "2025-10-15T08:27:28.138Z",
+      "success": true,
+      "output": "\u001b[36m[2025-10-15T08:27:28.334Z] 🚀 Starting Post-Deployment UI Automation\u001b[0m\n\u001b[36m[2025-10-15T08:27:28.334Z] ============================================================\u001b[0m\n\u001b[36m[2025-10-15T08:27:28.334Z] 🚀 Initializing post-deployment UI automation...\u001b[0m\n\u001b[32m[2025-10-15T08:27:29.810Z] ✅ Browser initialized successfully\u001b[0m\n\u001b[36m[2025-10-15T08:27:29.810Z] 🌐 Navigating to http://localhost:3005...\u001b[0m\n\u001b[32m[2025-10-15T08:27:34.289Z] ✅ Successfully navigated to site\u001b[0m\n\u001b[36m[2025-10-15T08:27:34.290Z] 🎯 Starting div element interactions...\u001b[0m\n\u001b[36m[2025-10-15T08:27:34.304Z] 📊 Found 0 interactive div elements\u001b[0m\n\u001b[36m[2025-10-15T08:27:34.305Z] 🎯 Starting button interactions...\u001b[0m\n\u001b[36m[2025-10-15T08:27:34.311Z] 📊 Found 6 button elements\u001b[0m\n\u001b[36m[2025-10-15T08:27:34.311Z] 🔄 Interacting with button 1: \u001b[0m\n\u001b[32m[2025-10-15T08:27:36.319Z] ✅ Successfully interacted with button 1\u001b[0m\n\u001b[36m[2025-10-15T08:27:36.322Z] 🔄 Page frame detached, creating new page...\u001b[0m\n\u001b[36m[2025-10-15T08:27:36.558Z] 🌐 Navigating to http://localhost:3005...\u001b[0m\n\u001b[32m[2025-10-15T08:27:40.822Z] ✅ Successfully navigated to site\u001b[0m\n\u001b[36m[2025-10-15T08:27:40.822Z] 🔄 Interacting with button 2: Print\u001b[0m\n\u001b[33m[2025-10-15T08:27:40.822Z] ⚠️ Failed to interact with button 2: Attempted to use detached Frame '65AD847C43F2FB76B98135A3A1F227ED'.\u001b[0m\n\u001b[36m[2025-10-15T08:27:40.822Z] 🔄 Page frame detached, creating new page...\u001b[0m\n\u001b[36m[2025-10-15T08:27:41.069Z] 🌐 Navigating to http://localhost:3005...\u001b[0m\n\u001b[32m[2025-10-15T08:27:45.243Z] ✅ Successfully navigated to site\u001b[0m\n\u001b[36m[2025-10-15T08:27:45.243Z] 🔄 Interacting with button 3: Enable Features\u001b[0m\n\u001b[32m[2025-10-15T08:27:47.250Z] ✅ Successfully interacted with button 3\u001b[0m\n\u001b[36m[2025-10-15T08:27:47.254Z] 🔄 Interacting with button 4: Donate\u001b[0m\n\u001b[32m[2025-10-15T08:27:49.262Z] ✅ Successfully interacted with button 4\u001b[0m\n\u001b[36m[2025-10-15T08:27:49.268Z] 🔄 Interacting with button 5: \u001b[0m\n\u001b[32m[2025-10-15T08:27:51.290Z] ✅ Successfully interacted with button 5\u001b[0m\n\u001b[36m[2025-10-15T08:27:51.293Z] 🔄 Interacting with button 6: Donate Now\u001b[0m\n\u001b[32m[2025-10-15T08:27:53.305Z] ✅ Successfully interacted with button 6\u001b[0m\n\u001b[36m[2025-10-15T08:27:53.310Z] 🎯 Performing specific post-deployment workflows...\u001b[0m\n\u001b[36m[2025-10-15T08:27:53.341Z] 💰 Found 2 donation-related elements\u001b[0m\n\u001b[36m[2025-10-15T08:27:53.342Z] 💰 Testing donation flow...\u001b[0m\n\u001b[33m[2025-10-15T08:27:53.355Z] ⚠️ Donation flow test failed: Node is either not clickable or not an Element\u001b[0m\n\u001b[36m[2025-10-15T08:27:53.357Z] 🧭 Testing navigation elements...\u001b[0m\n\u001b[36m[2025-10-15T08:27:53.364Z] 📊 Found 26 navigation links\u001b[0m\n\u001b[32m[2025-10-15T08:27:53.364Z] ✅ Navigation test completed\u001b[0m\n\u001b[32m[2025-10-15T08:27:53.367Z] 📊 UI Automation Report Generated\u001b[0m\n\u001b[36m[2025-10-15T08:27:53.367Z] 📁 Report saved to: /Users/blvckdlphn/projects/hfrp-relief/logs/ui-automation-report.json\u001b[0m\n\u001b[32m[2025-10-15T08:27:53.367Z] ✅ Success Rate: 83.33%\u001b[0m\n\u001b[36m[2025-10-15T08:27:53.367Z] 🎯 Total Interactions: 6\u001b[0m\n\u001b[32m[2025-10-15T08:27:53.367Z] ✅ Successful: 5\u001b[0m\n\u001b[32m[2025-10-15T08:27:53.367Z] ❌ Errors: 0\u001b[0m\n\u001b[36m[2025-10-15T08:27:53.367Z] ============================================================\u001b[0m\n\u001b[32m[2025-10-15T08:27:53.367Z] 🎉 Post-Deployment UI Automation Completed\u001b[0m\n\u001b[32m[2025-10-15T08:27:53.641Z] 🧹 Browser cleanup completed\u001b[0m\n",
+      "error": null,
+      "endTime": "2025-10-15T08:27:53.657Z",
+      "duration": 25519
+    }
+  ],
+  "summary": {
+    "total": 1,
+    "successful": 1,
+    "failed": 0
+  }
+}

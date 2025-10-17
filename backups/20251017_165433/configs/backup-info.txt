@@ -1,0 +1,11 @@
+Backup Date: Fri Oct 17 16:54:41 CDT 2025
+Website URL: https://www.familyreliefproject7.org
+Project Name: hfrp-relief
+Node Version: v24.10.0
+NPM Version: 11.6.0
+Website Status: OFFLINE
+Page /: ACCESSIBLE
+Page /about: ACCESSIBLE
+Page /donate: ACCESSIBLE
+Page /admin: ACCESSIBLE
+Compressed Backup: hfrp-backup-20251017_165442.tar.gz

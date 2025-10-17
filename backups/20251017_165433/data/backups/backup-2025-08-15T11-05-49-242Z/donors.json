@@ -1,0 +1,30 @@
+[
+  {
+    "id": "donor_001",
+    "email": "john.doe@email.com",
+    "name": "John Doe",
+    "phone": "+1-555-0123",
+    "address": "123 Main St, Boston, MA",
+    "total_donated": 450,
+    "donation_count": 3,
+    "first_donation": "2025-06-15T10:30:00Z",
+    "last_donation": "2025-08-01T10:30:00Z",
+    "status": "active",
+    "synced_at": "2025-08-03T22:17:51.438Z",
+    "source": "donorbox"
+  },
+  {
+    "id": "donor_002",
+    "email": "mary.smith@email.com",
+    "name": "Mary Smith",
+    "phone": "+1-555-0456",
+    "address": "456 Oak Ave, New York, NY",
+    "total_donated": 275,
+    "donation_count": 2,
+    "first_donation": "2025-07-10T14:15:00Z",
+    "last_donation": "2025-08-02T14:15:00Z",
+    "status": "active",
+    "synced_at": "2025-08-03T22:17:51.438Z",
+    "source": "donorbox"
+  }
+]

@@ -1,0 +1,34 @@
+[
+  {
+    "campaign": "Emergency Relief",
+    "type": "donor_appreciation",
+    "priority": "high",
+    "template": {
+      "subject": "Thank You for Your Generous Support of Emergency Relief!",
+      "greeting": "Dear Valued Supporter,",
+      "body": "\nWe are deeply grateful for your exceptional generosity toward our Emergency Relief campaign. \nYour contribution of over $283 places you among our most valued supporters.\n\nThanks to donors like you, we have already raised $12,750 toward our \ngoal of $50,000 - that's 25.5% complete!\n\nYour support is making a real difference in the lives of Haitian families. Every dollar helps \nprovide essential services, hope, and a brighter future.\n\nWe would love to keep you updated on how your donation is being used. Would you be interested \nin receiving a personalized impact report?\n\nWith heartfelt gratitude,\nThe HFRP Team\n      ",
+      "cta": "See Your Impact",
+      "link": "https://www.familyreliefproject.org/impact-report",
+      "footer": "Haitian Family Relief Project | Bringing Hope to Haiti"
+    },
+    "scheduled_for": "2025-08-04T22:18:38.607Z",
+    "status": "sent",
+    "sent_at": "2025-10-05T19:23:18.975Z"
+  },
+  {
+    "campaign": "Education Fund",
+    "type": "donor_appreciation",
+    "priority": "high",
+    "template": {
+      "subject": "Thank You for Your Generous Support of Education Fund!",
+      "greeting": "Dear Valued Supporter,",
+      "body": "\nWe are deeply grateful for your exceptional generosity toward our Education Fund campaign. \nYour contribution of over $318 places you among our most valued supporters.\n\nThanks to donors like you, we have already raised $8,900 toward our \ngoal of $25,000 - that's 35.6% complete!\n\nYour support is making a real difference in the lives of Haitian families. Every dollar helps \nprovide essential services, hope, and a brighter future.\n\nWe would love to keep you updated on how your donation is being used. Would you be interested \nin receiving a personalized impact report?\n\nWith heartfelt gratitude,\nThe HFRP Team\n      ",
+      "cta": "See Your Impact",
+      "link": "https://www.familyreliefproject.org/impact-report",
+      "footer": "Haitian Family Relief Project | Bringing Hope to Haiti"
+    },
+    "scheduled_for": "2025-08-04T22:18:38.607Z",
+    "status": "sent",
+    "sent_at": "2025-10-05T19:23:18.975Z"
+  }
+]
