@@ -34,6 +34,11 @@ export default function RadioPlayer({
     "disconnected" | "connecting" | "connected"
   >("disconnected");
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [currentStreamUrl, setCurrentStreamUrl] = useState<string>("");
+  const [retryCount, setRetryCount] = useState(0);
+  const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const maxRetries = 3;
 
   const sizeClasses = {
     sm: "w-8 h-8",
@@ -47,11 +52,178 @@ export default function RadioPlayer({
     lg: "w-8 h-8",
   };
 
-  // Auto-validate stream URL on mount
+  // Function to check if a Zeno.fm token is expired
+  const isTokenExpired = (url: string): boolean => {
+    if (!url.includes("?zt=")) return false;
+    
+    try {
+      const tokenMatch = url.match(/\?zt=([^&]+)/);
+      if (!tokenMatch) return false;
+      
+      const token = tokenMatch[1];
+      const parts = token.split('.');
+      if (parts.length !== 3) return false;
+      
+      const payload = JSON.parse(atob(parts[1]));
+      const now = Math.floor(Date.now() / 1000);
+      const expiresAt = payload.exp;
+      
+      // Consider token expired if it expires within the next 10 seconds
+      const isExpired = now >= (expiresAt - 10);
+      if (isExpired) {
+        console.log("⚠️ Token expired or expiring soon:", new Date(expiresAt * 1000));
+      }
+      return isExpired;
+    } catch (error) {
+      console.warn("⚠️ Could not parse token, assuming expired:", error);
+      return true;
+    }
+  };
+
+  // Function to check if a Zeno.fm token needs preemptive refresh (within 15 seconds of expiry)
+  const shouldRefreshTokenSoon = (url: string): boolean => {
+    if (!url.includes("?zt=")) return false;
+    
+    try {
+      const tokenMatch = url.match(/\?zt=([^&]+)/);
+      if (!tokenMatch) return false;
+      
+      const token = tokenMatch[1];
+      const parts = token.split('.');
+      if (parts.length !== 3) return false;
+      
+      const payload = JSON.parse(atob(parts[1]));
+      const now = Math.floor(Date.now() / 1000);
+      const expiresAt = payload.exp;
+      
+      // Refresh token if it expires within the next 15 seconds
+      const shouldRefresh = now >= (expiresAt - 15);
+      if (shouldRefresh) {
+        console.log("🔄 Token needs preemptive refresh, expires at:", new Date(expiresAt * 1000));
+      }
+      return shouldRefresh;
+    } catch (error) {
+      console.warn("⚠️ Could not parse token for preemptive refresh, assuming needs refresh:", error);
+      return true;
+    }
+  };
+
+  // Function to get fresh stream URL with new token
+  const getFreshStreamUrl = async (baseUrl: string): Promise<string> => {
+    try {
+      console.log("🔄 Getting fresh stream URL for:", baseUrl);
+      const response = await fetch(baseUrl, {
+        method: "HEAD",
+        redirect: "manual", // Don't follow redirects automatically
+      });
+      
+      // Zeno.fm returns a 302 redirect with the tokenized URL
+      const location = response.headers.get("location");
+      if (location) {
+        console.log("✅ Got fresh tokenized URL");
+        return location;
+      }
+      
+      // Fallback to original URL if no redirect
+      return baseUrl;
+    } catch (error) {
+      console.warn("⚠️ Failed to get fresh URL, using original:", error);
+      return baseUrl;
+    }
+  };
+
+  // Function to retry playback with exponential backoff
+  const retryPlayback = async (attempt: number = 0): Promise<void> => {
+    if (attempt >= maxRetries) {
+      console.error("❌ Max retry attempts reached");
+      setError("Unable to connect to radio stream after multiple attempts. Please try the external player.");
+      setIsLoading(false);
+      setConnectionStatus("disconnected");
+      setRetryCount(0);
+      return;
+    }
+
+    const delay = Math.min(1000 * Math.pow(2, attempt), 10000); // Exponential backoff, max 10 seconds
+    console.log(`🔄 Retrying playback in ${delay}ms (attempt ${attempt + 1}/${maxRetries})`);
+    
+    setRetryCount(attempt + 1);
+    
+    retryTimeoutRef.current = setTimeout(async () => {
+      try {
+        // For Zeno.fm streams, always get a fresh token before retry
+        if (streamUrl.includes("zeno.fm")) {
+          console.log("🔄 Getting fresh token for retry...");
+          const freshUrl = await getFreshStreamUrl(streamUrl);
+          setCurrentStreamUrl(freshUrl);
+          
+          if (audioRef.current) {
+            audioRef.current.src = freshUrl;
+            audioRef.current.load();
+            await audioRef.current.play();
+          }
+        } else {
+          // For other streams, just retry with current URL
+          if (audioRef.current) {
+            audioRef.current.load();
+            await audioRef.current.play();
+          }
+        }
+        
+        // Reset retry count on successful retry
+        setRetryCount(0);
+        console.log("✅ Retry successful");
+      } catch (error) {
+         console.warn(`⚠️ Retry attempt ${attempt + 1} failed:`, error);
+         await retryPlayback(attempt + 1);
+       }
+     }, delay);
+   };
+
+  // Function to refresh stream URL and update audio source
+  const refreshStream = async () => {
+    if (!audioRef.current || !isPlaying) return;
+    
+    try {
+      console.log("🔄 Refreshing stream to prevent token expiration...");
+      const freshUrl = await getFreshStreamUrl(streamUrl);
+      setCurrentStreamUrl(freshUrl);
+      
+      // Store current playback state
+      const wasPlaying = !audioRef.current.paused;
+      const currentTime = audioRef.current.currentTime;
+      
+      // Update source with fresh URL
+      audioRef.current.src = freshUrl;
+      audioRef.current.load();
+      
+      // Resume playback if it was playing
+      if (wasPlaying) {
+        try {
+          await audioRef.current.play();
+        } catch (playError) {
+          console.warn("⚠️ Could not resume playback after refresh:", playError);
+        }
+      }
+    } catch (error) {
+      console.error("❌ Failed to refresh stream:", error);
+    }
+  };
+
+  // Auto-validate stream URL on mount and set up refresh interval
   useEffect(() => {
     const validateStream = async () => {
       try {
         console.log("🔍 Validating HFRP Radio stream URL:", streamUrl);
+
+        // Get initial fresh URL for Zeno.fm streams
+        if (streamUrl.includes("zeno.fm")) {
+          console.log("🔄 Getting initial fresh token for Zeno.fm stream...");
+          const freshUrl = await getFreshStreamUrl(streamUrl);
+          setCurrentStreamUrl(freshUrl);
+          console.log("🎵 Using fresh tokenized URL for initial setup");
+        } else {
+          setCurrentStreamUrl(streamUrl);
+        }
 
         // Handle different stream formats
         if (streamUrl.includes("/hls/")) {
@@ -67,7 +239,7 @@ export default function RadioPlayer({
                 "🎵 Extracted stream URL from playlist:",
                 actualStreamUrl
               );
-              audioRef.current.src = actualStreamUrl;
+              setCurrentStreamUrl(actualStreamUrl);
             }
           } catch (playlistError) {
             console.warn(
@@ -76,15 +248,6 @@ export default function RadioPlayer({
             );
           }
         }
-
-        // Test the stream URL accessibility
-        const testUrl = streamUrl.endsWith(".pls")
-          ? streamUrl.replace(".pls", "")
-          : streamUrl;
-        const response = await fetch(testUrl, {
-          method: "HEAD",
-          mode: "no-cors", // Allow cross-origin requests
-        });
 
         console.log("✅ Stream URL accessible");
         setConnectionStatus("disconnected");
@@ -97,10 +260,49 @@ export default function RadioPlayer({
         // Don't set error for CORS issues - audio streams often block HEAD requests
         setConnectionStatus("disconnected");
         setError(null);
+        setCurrentStreamUrl(streamUrl);
       }
     };
 
     validateStream();
+  }, [streamUrl]);
+
+  // Set up automatic stream refresh for Zeno.fm streams
+  useEffect(() => {
+    if (streamUrl.includes("zeno.fm")) {
+      // Always refresh tokens every 30 seconds for Zeno.fm streams, regardless of play state
+      // This ensures we always have fresh tokens available (tokens expire every 60 seconds)
+      refreshIntervalRef.current = setInterval(async () => {
+        console.log("⏰ Proactive token refresh for Zeno.fm stream...");
+        try {
+          const freshUrl = await getFreshStreamUrl(streamUrl);
+          setCurrentStreamUrl(freshUrl);
+          console.log("✅ Token refreshed proactively");
+        } catch (error) {
+          console.warn("⚠️ Proactive token refresh failed:", error);
+        }
+      }, 30000);
+      console.log("⏰ Set up proactive token refresh every 30 seconds");
+    } else {
+      // Clear interval for non-Zeno.fm streams
+      if (refreshIntervalRef.current) {
+        clearInterval(refreshIntervalRef.current);
+        refreshIntervalRef.current = null;
+        console.log("⏹️ Cleared token refresh (not a Zeno.fm stream)");
+      }
+    }
+
+    // Cleanup on unmount
+    return () => {
+      if (refreshIntervalRef.current) {
+        clearInterval(refreshIntervalRef.current);
+        refreshIntervalRef.current = null;
+      }
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current);
+        retryTimeoutRef.current = null;
+      }
+    };
   }, [streamUrl]);
 
   useEffect(() => {
@@ -114,16 +316,24 @@ export default function RadioPlayer({
       console.log("🎵 Creating new audio element for HFRP Radio...");
       audioRef.current = new Audio();
 
-      // Handle different stream formats
-      let actualStreamUrl = streamUrl;
+      // Use the current stream URL (which may be tokenized for Zeno.fm)
+      let actualStreamUrl = currentStreamUrl || streamUrl;
+
+      // Ensure we have a fresh token for Zeno.fm streams
+      if (streamUrl.includes("zeno.fm")) {
+        if (!currentStreamUrl || isTokenExpired(currentStreamUrl) || shouldRefreshTokenSoon(currentStreamUrl)) {
+          console.log("🔄 Getting fresh token for playback (expired or expiring soon)...");
+          actualStreamUrl = await getFreshStreamUrl(streamUrl);
+          setCurrentStreamUrl(actualStreamUrl);
+        }
+      }
 
       if (streamUrl.includes("/hls/")) {
         // HLS stream - use directly for better compatibility
         console.log(
           "🎵 Using HLS stream for enhanced compatibility:",
-          streamUrl
+          actualStreamUrl
         );
-        actualStreamUrl = streamUrl;
       } else if (streamUrl.endsWith(".pls")) {
         // Playlist format - extract actual stream URL
         try {
@@ -149,30 +359,41 @@ export default function RadioPlayer({
         /safari/i.test(navigator.userAgent) &&
         !/chrome|android/i.test(navigator.userAgent);
 
-      const mp3Primary = `https://stream.zeno.fm/${zenoId}`;
-      const hlsPrimary = `https://stream.zeno.fm/hls/${zenoId}`;
-
-      const streamCandidates = isSafari
+      // For Zeno.fm streams, use the tokenized URL directly
+      const streamCandidates = streamUrl.includes("zeno.fm")
+        ? [actualStreamUrl] // Use the fresh tokenized URL
+        : isSafari
         ? [
-            hlsPrimary,
-            mp3Primary,
+            `https://stream.zeno.fm/hls/${zenoId}`,
+            `https://stream.zeno.fm/${zenoId}`,
             "https://stream.live.vc/CRTV",
             "https://s2.radio.co/s2b2b68744/listen",
-            ...(actualStreamUrl !== mp3Primary ? [actualStreamUrl] : []),
+            actualStreamUrl,
           ]
         : [
-            mp3Primary,
+            `https://stream.zeno.fm/${zenoId}`,
             "https://stream.live.vc/CRTV",
             "https://s2.radio.co/s2b2b68744/listen",
-            hlsPrimary,
-            ...(actualStreamUrl !== mp3Primary ? [actualStreamUrl] : []),
+            `https://stream.zeno.fm/hls/${zenoId}`,
+            actualStreamUrl,
           ];
 
       let candidateIndex = 0;
 
-      const tryCandidate = (index: number) => {
-        const url = streamCandidates[index];
-        console.log("🎵 Trying stream URL:", url);
+      const tryCandidate = async (index: number) => {
+        let url = streamCandidates[index];
+        
+        // For Zeno.fm URLs, always ensure we have a fresh token
+        if (url.includes("zeno.fm")) {
+          if (!url.includes("?zt=") || isTokenExpired(url) || shouldRefreshTokenSoon(url)) {
+            console.log("🔄 Getting fresh token for Zeno.fm stream (expired or expiring soon)...");
+            url = await getFreshStreamUrl(url.includes("?zt=") ? streamUrl : url);
+            // Update the current stream URL with the fresh token
+            setCurrentStreamUrl(url);
+          }
+        }
+        
+        console.log("🎵 Trying stream URL:", url.substring(0, 50) + "...");
         audioRef.current!.src = url;
         audioRef.current!.preload = "none";
         audioRef.current!.crossOrigin = "anonymous";
@@ -182,10 +403,11 @@ export default function RadioPlayer({
       };
 
       // Advance to next candidate only on error, avoiding multiple aborted loads
-      audioRef.current.addEventListener("error", () => {
+      audioRef.current.addEventListener("error", async () => {
+        console.log(`❌ Stream candidate ${candidateIndex + 1} failed`);
         if (candidateIndex < streamCandidates.length - 1) {
           candidateIndex += 1;
-          tryCandidate(candidateIndex);
+          await tryCandidate(candidateIndex);
         } else {
           setIsLoading(false);
           setConnectionStatus("disconnected");
@@ -194,7 +416,7 @@ export default function RadioPlayer({
       });
 
       // Start with first candidate
-      tryCandidate(candidateIndex);
+      await tryCandidate(candidateIndex);
 
       // Enhanced event listeners for better automation
       audioRef.current.addEventListener("loadstart", () => {
@@ -217,20 +439,28 @@ export default function RadioPlayer({
         console.log("🎶 HFRP Radio stream now playing");
       });
 
-      audioRef.current.addEventListener("error", (e) => {
+      audioRef.current.addEventListener("error", async (e) => {
         const audio = e.target as HTMLAudioElement;
         let errorMessage = "Failed to load radio stream";
         let suggestionMessage = "";
+        let shouldRetry = false;
 
         if (audio.error) {
           switch (audio.error.code) {
             case audio.error.MEDIA_ERR_ABORTED:
               errorMessage = "Stream playback was aborted";
-              suggestionMessage = "Try clicking play again or use the external player link below";
+              if (streamUrl.includes("zeno.fm")) {
+                suggestionMessage = "Token may have expired. Retrying with fresh token...";
+                shouldRetry = true;
+              } else {
+                suggestionMessage = "Connection interrupted. Retrying...";
+                shouldRetry = true;
+              }
               break;
             case audio.error.MEDIA_ERR_NETWORK:
               errorMessage = "Network error while loading stream";
-              suggestionMessage = "Check your internet connection and try again. Fallback streams will be attempted automatically";
+              suggestionMessage = "Connection lost. Attempting to reconnect...";
+              shouldRetry = true;
               break;
             case audio.error.MEDIA_ERR_DECODE:
               errorMessage = "Stream format not supported by your browser";
@@ -246,11 +476,22 @@ export default function RadioPlayer({
         }
 
         console.error("❌ HFRP Radio stream error:", errorMessage, audio.error);
-        console.log("🔄 Attempting fallback streams automatically...");
+        
+        // Use the new retry function for better error handling
+        if (shouldRetry && retryCount < maxRetries) {
+          console.log("🔄 Attempting automatic retry...");
+          setError(`${errorMessage}. ${suggestionMessage}`);
+          await retryPlayback(retryCount);
+          return;
+        }
+        
+        // If we've exhausted retries or shouldn't retry, show final error
+        console.log("❌ All retry attempts failed or not retryable error");
         setError(`${errorMessage}. ${suggestionMessage}`);
         setIsLoading(false);
         setIsPlaying(false);
         setConnectionStatus("disconnected");
+        setRetryCount(0);
       });
 
       audioRef.current.addEventListener("ended", () => {
