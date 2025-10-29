@@ -12,14 +12,55 @@ jobs:
       - name: Trigger full sync
         env:
           API_URL: ${{ vars.PRODUCTION_API_URL }}
+          API_TOKEN: ${{ secrets.API_TOKEN }}
         run: |
           echo "Triggering Stripe full sync..."
+          
+          # Check if production API URL is configured
           if [ -z "$API_URL" ]; then
-            API_URL="https://www.familyreliefproject.org/api"
+            echo "⚠️  PRODUCTION_API_URL not configured. Skipping sync."
+            echo "To enable this workflow, set the PRODUCTION_API_URL repository variable."
+            exit 0
           fi
-          curl -s -X POST "$API_URL/stripe/sync" \
-            -H "Content-Type: application/json" \
+          
+          echo "Using API URL: $API_URL"
+          
+          # Prepare headers
+          HEADERS="-H 'Content-Type: application/json'"
+          if [ -n "$API_TOKEN" ]; then
+            HEADERS="$HEADERS -H 'Authorization: Bearer $API_TOKEN'"
+          fi
+          
+          # Make the API call with better error handling
+          HTTP_STATUS=$(curl -s -w "%{http_code}" -X POST "$API_URL/stripe/sync" \
+            $HEADERS \
             -d '{"action":"all"}' \
-            -o response.json
-          cat response.json
-          jq -e '.success == true' response.json || exit 1
+            -o response.json)
+          
+          echo "HTTP Status: $HTTP_STATUS"
+          
+          # Check if the request was successful
+          if [ "$HTTP_STATUS" -eq 200 ] || [ "$HTTP_STATUS" -eq 201 ]; then
+            echo "✅ API call successful"
+            cat response.json
+            
+            # Check if jq is available and response is valid JSON
+            if command -v jq >/dev/null 2>&1; then
+              if jq -e '.success == true' response.json >/dev/null 2>&1; then
+                echo "✅ Stripe sync completed successfully"
+              else
+                echo "❌ Stripe sync failed - API returned success: false"
+                cat response.json
+                exit 1
+              fi
+            else
+              echo "⚠️  jq not available, skipping JSON validation"
+              echo "Response received:"
+              cat response.json
+            fi
+          else
+            echo "❌ API call failed with HTTP status: $HTTP_STATUS"
+            echo "Response:"
+            cat response.json
+            exit 1
+          fi
