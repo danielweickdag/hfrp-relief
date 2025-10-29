@@ -30,14 +30,15 @@ EVENTS=(
 
 echo "🚀 Creating Stripe webhook endpoint for: ${WEBHOOK_URL}"
 
-POST_DATA=("url=${WEBHOOK_URL}")
+# Build curl data parameters
+CURL_DATA="-d url=${WEBHOOK_URL}"
 for ev in "${EVENTS[@]}"; do
-  POST_DATA+=("enabled_events[]=${ev}")
+  CURL_DATA="${CURL_DATA} -d enabled_events[]=${ev}"
 done
 
 RESP=$(curl -s -X POST https://api.stripe.com/v1/webhook_endpoints \
-  -u ":${STRIPE_SECRET_KEY}" \
-  -d "${POST_DATA[0]}" $(printf ' -d %q' "${POST_DATA[@]:1}"))
+  -H "Authorization: Bearer ${STRIPE_SECRET_KEY}" \
+  ${CURL_DATA})
 
 SUCCESS=$(echo "$RESP" | jq -r '.id // empty')
 SECRET=$(echo "$RESP" | jq -r '.secret // empty')

@@ -3,6 +3,103 @@ import { Resend } from "resend";
 import fs from "fs";
 import path from "path";
 
+// Send confirmation email to the user
+async function sendConfirmationEmail(resend: Resend, userEmail: string, userName: string, subject: string) {
+  try {
+    const fromEmail = process.env.RESEND_FROM_EMAIL || "noreply@familyreliefproject7.org";
+    
+    const confirmationHTML = `
+      <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; text-align: center;">
+          <h1 style="color: white; margin: 0;">Thank You for Contacting Us!</h1>
+          <p style="color: rgba(255,255,255,0.9); margin: 5px 0;">Haitian Family Relief Project</p>
+        </div>
+
+        <div style="padding: 30px; background: white;">
+          <h2 style="color: #667eea;">Dear ${userName},</h2>
+          
+          <p>Thank you for reaching out to the Haitian Family Relief Project. We have received your message regarding "<strong>${subject}</strong>" and appreciate you taking the time to contact us.</p>
+          
+          <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 4px solid #667eea; margin: 20px 0;">
+            <h3 style="color: #667eea; margin-top: 0;">What happens next?</h3>
+            <ul style="margin: 0; padding-left: 20px;">
+              <li>Our team will review your message within 24-48 hours</li>
+              <li>We'll respond directly to this email address: <strong>${userEmail}</strong></li>
+              <li>For urgent matters, you can also call us at (224) 217-0230</li>
+            </ul>
+          </div>
+
+          <p>Your support and interest in our mission to provide relief and assistance to Haitian families means the world to us. Together, we can make a lasting difference in the lives of those who need it most.</p>
+
+          <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <h4 style="color: #1976d2; margin-top: 0;">Stay Connected</h4>
+            <p style="margin-bottom: 0;">Follow our impact and get updates on our relief efforts:</p>
+            <p style="margin: 10px 0;">
+              <a href="https://facebook.com/familyreliefproject" style="color: #1976d2; text-decoration: none;">📘 Facebook</a> | 
+              <a href="https://instagram.com/familyreliefproject" style="color: #1976d2; text-decoration: none;">📸 Instagram</a> | 
+              <a href="https://familyreliefproject7.org" style="color: #1976d2; text-decoration: none;">🌐 Website</a>
+            </p>
+          </div>
+        </div>
+
+        <div style="background: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #e0e0e0;">
+          <p style="margin: 0; color: #666; font-size: 14px;">
+            Haitian Family Relief Project<br>
+            Email: haitianfamilyrelief@gmail.com | Phone: (224) 217-0230<br>
+            <em>Bringing hope and relief to families in need</em>
+          </p>
+        </div>
+      </div>
+    `;
+
+    const confirmationText = `
+Dear ${userName},
+
+Thank you for contacting the Haitian Family Relief Project!
+
+We have received your message regarding "${subject}" and appreciate you reaching out to us.
+
+What happens next?
+- Our team will review your message within 24-48 hours
+- We'll respond directly to this email address: ${userEmail}
+- For urgent matters, you can also call us at (224) 217-0230
+
+Your support and interest in our mission means the world to us. Together, we can make a lasting difference in the lives of those who need it most.
+
+Stay connected with our impact:
+- Website: https://familyreliefproject7.org
+- Facebook: https://facebook.com/familyreliefproject
+- Instagram: https://instagram.com/familyreliefproject
+
+Best regards,
+Haitian Family Relief Project Team
+
+---
+Email: haitianfamilyrelief@gmail.com
+Phone: (224) 217-0230
+Bringing hope and relief to families in need
+    `;
+
+    const confirmationData = await resend.emails.send({
+      from: fromEmail,
+      to: userEmail,
+      subject: `Thank you for contacting HFRP - We received your message`,
+      html: confirmationHTML,
+      text: confirmationText,
+      tags: [
+        { name: "type", value: "confirmation_email" },
+        { name: "source", value: "contact_form" },
+      ],
+    });
+
+    console.log("✅ Confirmation email sent to user:", confirmationData.data?.id || "sent");
+    return confirmationData.data?.id || null;
+  } catch (error) {
+    console.error("⚠️ Failed to send confirmation email:", error);
+    return null;
+  }
+}
+
 // Optional Slack notifications for admin alerting
 async function notifySlack(record: ContactRecord, delivery: "demo" | "emailed") {
   try {
@@ -84,6 +181,7 @@ interface ContactRecord {
   timestamp: string;
   status: "received" | "emailed";
   emailId?: string | null;
+  confirmationEmailId?: string | null;
   recipients?: string[];
   cc?: string[];
   // Admin automation fields (optional)
@@ -333,11 +431,15 @@ Reply directly to this email to respond to ${name}.
       emailData.data?.id || "sent"
     );
 
+    // Send confirmation email to the user
+    const confirmationEmailId = await sendConfirmationEmail(resend, email, name, subject);
+
     // Persist successful submission
     appendContactLog({
       ...baseRecord,
       status: "emailed",
       emailId: emailData.data?.id || null,
+      confirmationEmailId,
       recipients,
       cc: ccEmails,
     });

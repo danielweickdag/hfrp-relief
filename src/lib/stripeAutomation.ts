@@ -1,8 +1,174 @@
-// 🚀 Comprehensive Stripe Automation System
-// Replaces Donorbox with full Stripe integration for campaigns, events, and donations
+// 🚀 Enhanced Stripe Automation System
+// Comprehensive automation for payments, webhooks, and error handling
 
 import Stripe from "stripe";
 import { stripeEnhanced } from "./stripeEnhanced";
+import { stripeConfigManager } from "./stripeConfigManager";
+
+// Error handling utilities
+interface RetryOptions {
+  maxRetries: number;
+  baseDelay: number;
+  maxDelay: number;
+  backoffMultiplier: number;
+}
+
+// Performance monitoring utilities
+interface PerformanceMetrics {
+  operationType: string;
+  startTime: number;
+  endTime?: number;
+  duration?: number;
+  success: boolean;
+  errorType?: string;
+  retryCount?: number;
+}
+
+class PerformanceMonitor {
+  private static metrics: PerformanceMetrics[] = [];
+  private static readonly MAX_METRICS = 1000; // Keep last 1000 operations
+
+  static startOperation(operationType: string): number {
+    const startTime = Date.now();
+    console.log(`🚀 Starting ${operationType} at ${new Date(startTime).toISOString()}`);
+    return startTime;
+  }
+
+  static endOperation(
+    operationType: string,
+    startTime: number,
+    success: boolean,
+    errorType?: string,
+    retryCount?: number
+  ): void {
+    const endTime = Date.now();
+    const duration = endTime - startTime;
+    
+    const metric: PerformanceMetrics = {
+      operationType,
+      startTime,
+      endTime,
+      duration,
+      success,
+      errorType,
+      retryCount
+    };
+
+    this.metrics.push(metric);
+    
+    // Keep only the last MAX_METRICS entries
+    if (this.metrics.length > this.MAX_METRICS) {
+      this.metrics = this.metrics.slice(-this.MAX_METRICS);
+    }
+
+    const status = success ? '✅' : '❌';
+    const retryInfo = retryCount ? ` (${retryCount} retries)` : '';
+    console.log(`${status} ${operationType} completed in ${duration}ms${retryInfo}`);
+    
+    if (!success && errorType) {
+      console.warn(`⚠️ Operation failed with error type: ${errorType}`);
+    }
+  }
+
+  static getMetrics(): PerformanceMetrics[] {
+    return [...this.metrics];
+  }
+
+  static getAverageOperationTime(operationType: string): number {
+    const operations = this.metrics.filter(m => m.operationType === operationType && m.success);
+    if (operations.length === 0) return 0;
+    
+    const totalTime = operations.reduce((sum, op) => sum + (op.duration || 0), 0);
+    return totalTime / operations.length;
+  }
+
+  static getSuccessRate(operationType: string): number {
+    const operations = this.metrics.filter(m => m.operationType === operationType);
+    if (operations.length === 0) return 0;
+    
+    const successful = operations.filter(op => op.success).length;
+    return (successful / operations.length) * 100;
+  }
+}
+
+class StripeError extends Error {
+  constructor(
+    message: string,
+    public code?: string,
+    public type?: string,
+    public statusCode?: number,
+    public originalError?: unknown
+  ) {
+    super(message);
+    this.name = 'StripeError';
+  }
+}
+
+// Retry utility with exponential backoff and performance monitoring
+async function withRetry<T>(
+  operation: () => Promise<T>,
+  options: RetryOptions = {
+    maxRetries: 3,
+    baseDelay: 1000,
+    maxDelay: 10000,
+    backoffMultiplier: 2
+  },
+  operationType: string = 'stripe_operation'
+): Promise<T> {
+  const startTime = PerformanceMonitor.startOperation(operationType);
+  let lastError: Error = new Error('Unknown error');
+  let retryCount = 0;
+  
+  for (let attempt = 0; attempt <= options.maxRetries; attempt++) {
+    try {
+      const result = await operation();
+      PerformanceMonitor.endOperation(operationType, startTime, true, undefined, retryCount);
+      return result;
+    } catch (error: unknown) {
+      const err = error as Error;
+      lastError = err;
+      retryCount = attempt;
+      
+      // Don't retry on certain error types
+      if (error instanceof Stripe.errors.StripeInvalidRequestError ||
+          error instanceof Stripe.errors.StripeAuthenticationError ||
+          error instanceof Stripe.errors.StripePermissionError) {
+        const stripeError = error as Stripe.errors.StripeError;
+        const errorType = err.constructor.name;
+        PerformanceMonitor.endOperation(operationType, startTime, false, errorType, retryCount);
+        throw new StripeError(
+          `Non-retryable Stripe error: ${err.message}`,
+          stripeError.code,
+          stripeError.type,
+          stripeError.statusCode,
+          error
+        );
+      }
+      
+      if (attempt === options.maxRetries) {
+        break;
+      }
+      
+      const delay = Math.min(
+        options.baseDelay * Math.pow(options.backoffMultiplier, attempt),
+        options.maxDelay
+      );
+      
+      console.warn(`Stripe operation failed (attempt ${attempt + 1}/${options.maxRetries + 1}), retrying in ${delay}ms:`, err.message);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+  
+  const errorType = lastError.constructor.name;
+  PerformanceMonitor.endOperation(operationType, startTime, false, errorType, retryCount);
+  throw new StripeError(
+    `Stripe operation failed after ${options.maxRetries + 1} attempts: ${lastError.message}`,
+    undefined,
+    'retry_exhausted',
+    undefined,
+    lastError
+  );
+}
 
 // Core interfaces for migration
 export interface CampaignSync {
@@ -67,7 +233,7 @@ class StripeAutomationService {
       throw new Error("Stripe secret key not configured");
     }
     this.stripe = new Stripe(secretKey, {
-      apiVersion: "2024-12-18.acacia",
+      apiVersion: "2025-08-27.basil",
     });
   }
 
@@ -82,8 +248,8 @@ class StripeAutomationService {
     console.log("🏗️ Creating new Stripe campaign:", campaignData.name);
 
     try {
-      // Create Stripe Product for campaign
-      const product = await this.stripe.products.create({
+      // Create Stripe Product for campaign with retry logic
+      const product = await withRetry(() => this.stripe.products.create({
         name: campaignData.name,
         description: campaignData.description,
         type: "service",
@@ -92,7 +258,7 @@ class StripeAutomationService {
           goalAmount: campaignData.goalAmount.toString(),
           automationEnabled: "true",
         },
-      });
+      }));
 
       console.log("✅ Created Stripe product:", product.id);
 
@@ -100,8 +266,8 @@ class StripeAutomationService {
       const priceIds: string[] = [];
 
       for (const amount of campaignData.suggestedAmounts) {
-        // One-time donation price
-        const oneTimePrice = await this.stripe.prices.create({
+        // One-time donation price with retry logic
+        const oneTimePrice = await withRetry(() => this.stripe.prices.create({
           product: product.id,
           unit_amount: amount * 100, // Convert to cents
           currency: "usd",
@@ -109,12 +275,12 @@ class StripeAutomationService {
             donationType: "one-time",
             suggestedAmount: amount.toString(),
           },
-        });
+        }));
         priceIds.push(oneTimePrice.id);
 
-        // Recurring monthly donation price (if enabled)
+        // Recurring monthly donation price (if enabled) with retry logic
         if (campaignData.enableRecurring) {
-          const recurringPrice = await this.stripe.prices.create({
+          const recurringPrice = await withRetry(() => this.stripe.prices.create({
             product: product.id,
             unit_amount: amount * 100,
             currency: "usd",
@@ -123,7 +289,7 @@ class StripeAutomationService {
               donationType: "recurring",
               suggestedAmount: amount.toString(),
             },
-          });
+          }));
           priceIds.push(recurringPrice.id);
         }
       }
@@ -248,9 +414,7 @@ class StripeAutomationService {
             {
               price_data: {
                 currency: "usd",
-                product_data: {
-                  name: `Monthly Donation${donationData.campaignId ? ` - ${donationData.campaignId}` : ""}`,
-                },
+                product: await this.getOrCreateProduct(`Monthly Donation${donationData.campaignId ? ` - ${donationData.campaignId}` : ""}`),
                 unit_amount: donationData.amount * 100,
                 recurring: { interval: "month" },
               },
@@ -516,10 +680,310 @@ class StripeAutomationService {
     return [];
   }
 
-  private async saveSyncReport(report: any) {
+  private async saveSyncReport(report: Record<string, unknown>) {
     if (typeof window !== "undefined") {
       localStorage.setItem("hfrp_sync_report", JSON.stringify(report));
     }
+  }
+
+  private async getOrCreateProduct(name: string): Promise<string> {
+    try {
+      // Search for existing product
+      const products = await this.stripe.products.list({
+        limit: 100,
+      });
+      
+      const existingProduct = products.data.find(p => p.name === name);
+      if (existingProduct) {
+        return existingProduct.id;
+      }
+
+      // Create new product
+      const product = await this.stripe.products.create({
+        name: name,
+        type: 'service',
+      });
+
+      return product.id;
+    } catch (error) {
+      console.error('Failed to get or create product:', error);
+      throw error;
+    }
+  }
+
+  // Enhanced webhook processing method with comprehensive error handling
+  async processWebhookAutomatically(
+    event: Stripe.Event,
+    signature: string,
+    rawBody: Buffer
+  ): Promise<{ success: boolean; eventType: string; processed: boolean; error?: string; retryScheduled?: boolean }> {
+    try {
+      console.log(`Processing webhook event: ${event.type} with automation`);
+      
+      // Validate event integrity
+      if (!event.id || !event.type || !event.data) {
+        throw new StripeError('Invalid webhook event structure', 'invalid_event', 'validation_error');
+      }
+      
+      // Process based on event type with retry logic
+      await withRetry(async () => {
+        switch (event.type) {
+          case 'payment_intent.succeeded':
+            await this.handleAutomatedPaymentSuccess(event.data.object as Stripe.PaymentIntent);
+            break;
+          case 'payment_intent.payment_failed':
+            await this.handleAutomatedPaymentFailure(event.data.object as Stripe.PaymentIntent);
+            break;
+          case 'checkout.session.completed':
+            await this.handleAutomatedCheckoutCompleted(event.data.object as Stripe.Checkout.Session);
+            break;
+          case 'customer.subscription.created':
+          case 'customer.subscription.updated':
+            await this.handleAutomatedSubscriptionChange(event.data.object as Stripe.Subscription);
+            break;
+          default:
+            console.log(`Automated processing not implemented for: ${event.type}`);
+            throw new StripeError(`Not implemented: ${event.type}`, 'not_implemented', 'processing_error');
+        }
+      }, { maxRetries: 2, baseDelay: 500, maxDelay: 5000, backoffMultiplier: 2 });
+
+      console.log(`✅ Successfully processed webhook event: ${event.type}`);
+      return { success: true, eventType: event.type, processed: true };
+    } catch (error) {
+      console.error(`❌ Automated webhook processing failed for ${event.type}:`, error);
+      
+      const isRetryable = !(error instanceof StripeError && 
+        (error.type === 'validation_error' || error.type === 'not_implemented'));
+      
+      return { 
+        success: false, 
+        eventType: event.type, 
+        processed: false, 
+        error: error instanceof Error ? error.message : 'Unknown error',
+        retryScheduled: isRetryable
+      };
+    }
+  }
+
+  private async handleAutomatedPaymentSuccess(paymentIntent: Stripe.PaymentIntent): Promise<void> {
+    console.log(`Automated payment success handling: ${paymentIntent.id}`);
+    // Add automated success handling logic here
+  }
+
+  private async handleAutomatedPaymentFailure(paymentIntent: Stripe.PaymentIntent): Promise<void> {
+    console.log(`Automated payment failure handling: ${paymentIntent.id}`);
+    // Add automated failure handling logic here
+  }
+
+  private async handleAutomatedCheckoutCompleted(session: Stripe.Checkout.Session): Promise<void> {
+    console.log(`Automated checkout completion handling: ${session.id}`);
+    // Add automated checkout completion logic here
+  }
+
+  private async handleAutomatedSubscriptionChange(subscription: Stripe.Subscription): Promise<void> {
+    console.log(`Automated subscription change handling: ${subscription.id}`);
+    // Add automated subscription change logic here
+  }
+
+  // Enhanced donation creation methods
+  async createOneTimeDonation(params: {
+    amount: number;
+    currency: string;
+    donorEmail: string;
+    campaignId: string;
+    metadata?: Record<string, string>;
+  }): Promise<{ id: string; paymentIntentId?: string }> {
+    try {
+      const { amount, currency, donorEmail, campaignId, metadata = {} } = params;
+      
+      // Validate input parameters
+      if (!amount || amount <= 0) {
+        throw new StripeError('Invalid donation amount', 'validation_error', 'validation_error', 400);
+      }
+      if (!donorEmail || !campaignId) {
+        throw new StripeError('Missing required donation parameters', 'validation_error', 'validation_error', 400);
+      }
+      
+      // Create payment intent for one-time donation with retry logic
+      const paymentIntent = await withRetry(
+        () => this.stripe.paymentIntents.create({
+          amount,
+          currency,
+          metadata: {
+            donation_type: 'one_time',
+            campaign_id: campaignId,
+            donor_email: donorEmail,
+            ...metadata
+          }
+        }),
+        {
+          maxRetries: 3,
+          baseDelay: 1000,
+          maxDelay: 5000,
+          backoffMultiplier: 2
+        },
+        'create_one_time_donation'
+      );
+
+      const donationId = `donation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      console.log(`Created one-time donation: ${donationId} for campaign: ${campaignId}`);
+      
+      return {
+        id: donationId,
+        paymentIntentId: paymentIntent.id
+      };
+    } catch (error) {
+      const stripeError = error instanceof StripeError ? error : 
+        new StripeError('Failed to create one-time donation', 'donation_creation_error', 'donation_creation_error', 500, error as Error);
+      
+      console.error('Failed to create one-time donation:', stripeError);
+      throw stripeError;
+    }
+  }
+
+  async createRecurringDonation(params: {
+    amount: number;
+    currency: string;
+    interval: 'day' | 'week' | 'month' | 'year';
+    donorEmail: string;
+    campaignId: string;
+    metadata?: Record<string, string>;
+  }): Promise<{ id: string; priceId: string; productId: string }> {
+    try {
+      const { amount, currency, interval, donorEmail, campaignId, metadata = {} } = params;
+      
+      // Validate input parameters
+      if (!amount || amount <= 0) {
+        throw new StripeError('Invalid donation amount', 'validation_error', 'validation_error', 400);
+      }
+      if (!donorEmail || !campaignId) {
+        throw new StripeError('Missing required donation parameters', 'validation_error', 'validation_error', 400);
+      }
+      if (!['day', 'week', 'month', 'year'].includes(interval)) {
+        throw new StripeError('Invalid recurring interval', 'validation_error', 'validation_error', 400);
+      }
+      
+      // Create or get product for the campaign with retry logic
+      const productId = await withRetry(
+        () => this.getOrCreateProduct(`Recurring Donation - ${campaignId}`),
+        {
+          maxRetries: 3,
+          baseDelay: 1000,
+          maxDelay: 5000,
+          backoffMultiplier: 2
+        },
+        'create_recurring_product'
+      );
+      
+      // Create price for recurring donation with retry logic
+      const price = await withRetry(
+        () => this.stripe.prices.create({
+          unit_amount: amount,
+          currency,
+          recurring: {
+            interval,
+            interval_count: 1,
+          },
+          product: productId,
+          metadata: {
+            donation_type: 'recurring',
+            campaign_id: campaignId,
+            donor_email: donorEmail,
+            ...metadata
+          }
+        }),
+        {
+          maxRetries: 3,
+          baseDelay: 1000,
+          maxDelay: 5000,
+          backoffMultiplier: 2
+        },
+        'create_recurring_price'
+      );
+
+      const donationId = `recurring_donation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      console.log(`Created recurring donation: ${donationId} for campaign: ${campaignId}`);
+      
+      return {
+        id: donationId,
+        priceId: price.id,
+        productId
+      };
+    } catch (error) {
+      const stripeError = error instanceof StripeError ? error : 
+        new StripeError('Failed to create recurring donation', 'donation_creation_error', 'donation_creation_error', 500, error as Error);
+      
+      console.error('Failed to create recurring donation:', stripeError);
+      throw stripeError;
+    }
+  }
+
+  // Performance monitoring methods
+  getPerformanceMetrics(): PerformanceMetrics[] {
+    return PerformanceMonitor.getMetrics();
+  }
+
+  getOperationStats(operationType?: string): {
+    averageTime: number;
+    successRate: number;
+    totalOperations: number;
+  } {
+    const metrics = PerformanceMonitor.getMetrics();
+    const filteredMetrics = operationType 
+      ? metrics.filter(m => m.operationType === operationType)
+      : metrics;
+
+    const totalOperations = filteredMetrics.length;
+    const successfulOperations = filteredMetrics.filter(m => m.success).length;
+    const totalTime = filteredMetrics
+      .filter(m => m.success && m.duration)
+      .reduce((sum, m) => sum + (m.duration || 0), 0);
+
+    return {
+      averageTime: successfulOperations > 0 ? totalTime / successfulOperations : 0,
+      successRate: totalOperations > 0 ? (successfulOperations / totalOperations) * 100 : 0,
+      totalOperations
+    };
+  }
+
+  getHealthStatus(): {
+    status: 'healthy' | 'degraded' | 'unhealthy';
+    metrics: {
+      recentSuccessRate: number;
+      averageResponseTime: number;
+      errorRate: number;
+    };
+  } {
+    const recentMetrics = PerformanceMonitor.getMetrics()
+      .slice(-50); // Last 50 operations
+
+    const totalRecent = recentMetrics.length;
+    const successfulRecent = recentMetrics.filter(m => m.success).length;
+    const recentSuccessRate = totalRecent > 0 ? (successfulRecent / totalRecent) * 100 : 100;
+    
+    const avgResponseTime = recentMetrics
+      .filter(m => m.success && m.duration)
+      .reduce((sum, m, _, arr) => sum + (m.duration || 0) / arr.length, 0);
+
+    const errorRate = 100 - recentSuccessRate;
+
+    let status: 'healthy' | 'degraded' | 'unhealthy' = 'healthy';
+    if (recentSuccessRate < 50 || avgResponseTime > 10000) {
+      status = 'unhealthy';
+    } else if (recentSuccessRate < 80 || avgResponseTime > 5000) {
+      status = 'degraded';
+    }
+
+    return {
+      status,
+      metrics: {
+        recentSuccessRate,
+        averageResponseTime: avgResponseTime,
+        errorRate
+      }
+    };
   }
 }
 

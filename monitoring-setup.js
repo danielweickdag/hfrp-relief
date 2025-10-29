@@ -1,14 +1,18 @@
 #!/usr/bin/env node
 
 /**
- * Website Monitoring Script for familyreliefproject7.org
- * Checks uptime, performance, SSL, and functionality
+ * Website Health Monitoring Script for familyreliefproject7.org
+ * Automated checks for uptime, SSL, performance, and functionality
  */
 
-const https = require('https');
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
+import https from 'https';
+import http from 'http';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const WEBSITE_URL = 'https://www.familyreliefproject7.org';
 const BACKUP_URL = 'https://familyreliefproject7.org';
@@ -293,10 +297,10 @@ class WebsiteMonitor {
   }
 }
 
-// Run monitoring if called directly
-if (require.main === module) {
+// Run if this file is executed directly
+if (import.meta.url === `file://${process.argv[1]}`) {
   const monitor = new WebsiteMonitor();
   monitor.runAllChecks().catch(console.error);
 }
 
-module.exports = WebsiteMonitor;
+export default WebsiteMonitor;

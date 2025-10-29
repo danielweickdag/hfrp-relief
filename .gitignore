@@ -48,5 +48,9 @@ temp_*
 *.log
 
 # Data files (sensitive)
+.env.live
+.env.vercel
+response.json
+response_local.json
 data/credentials.json
 data/secrets.json

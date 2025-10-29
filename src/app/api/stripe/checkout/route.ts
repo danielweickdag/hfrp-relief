@@ -1,19 +1,26 @@
 import { type NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
+import { stripeConfigManager } from "@/lib/stripeConfigManager";
+import { stripeAutomation } from "@/lib/stripeAutomation";
 
 export async function POST(request: NextRequest) {
   try {
-    const secret = process.env.STRIPE_SECRET_KEY;
-    if (!secret) {
+    // Use the new config manager for validation
+    const validation = await stripeConfigManager.validateConfiguration();
+    if (!validation.isValid) {
       return NextResponse.json(
-        { error: "Stripe is not configured (missing STRIPE_SECRET_KEY)" },
+        { error: "Stripe is not properly configured", details: validation.errors },
         { status: 503 }
       );
     }
 
-    const stripe = new Stripe(secret, {
-      apiVersion: "2025-08-27.basil",
-    });
+    const stripe = stripeConfigManager.getStripeInstance();
+    if (!stripe) {
+      return NextResponse.json(
+        { error: "Failed to initialize Stripe instance" },
+        { status: 503 }
+      );
+    }
 
     const body = await request.json().catch(() => ({}));
     const {
@@ -79,26 +86,82 @@ export async function POST(request: NextRequest) {
       };
     }
 
-    const session = await stripe.checkout.sessions.create({
-      mode: isRecurring ? "subscription" : "payment",
-      payment_method_types: ["card"],
-      line_items: [
-        {
-          price_data: priceData,
-          quantity: 1,
+    // Use automation system for enhanced donation creation
+    let session: Stripe.Checkout.Session;
+    
+    if (isRecurring) {
+      // Create recurring donation using automation
+      const donation = await stripeAutomation.createRecurringDonation({
+        amount: unitAmount,
+        currency,
+        interval,
+        donorEmail: '', // Will be collected during checkout
+        campaignId: campaignId || 'general',
+        metadata: {
+          ...metadata,
+          source: 'checkout_api'
+        }
+      });
+      
+      session = await stripe.checkout.sessions.create({
+        mode: "subscription",
+        payment_method_types: ["card"],
+        line_items: [
+          {
+            price: donation.priceId,
+            quantity: 1,
+          },
+        ],
+        success_url: resolvedSuccessUrl,
+        cancel_url: resolvedCancelUrl,
+        allow_promotion_codes: true,
+        metadata: {
+          ...(campaignId ? { campaignId } : {}),
+          donation_type: "recurring",
+          automation_id: donation.id,
+          ...metadata,
         },
-      ],
-      success_url: resolvedSuccessUrl,
-      cancel_url: resolvedCancelUrl,
-      allow_promotion_codes: true,
-      metadata: {
-        ...(campaignId ? { campaignId } : {}),
-        donation_type: isRecurring ? "recurring" : "one_time",
-        ...metadata,
-      },
-    });
+      });
+    } else {
+      // Create one-time donation using automation
+      const donation = await stripeAutomation.createOneTimeDonation({
+        amount: unitAmount,
+        currency,
+        donorEmail: '', // Will be collected during checkout
+        campaignId: campaignId || 'general',
+        metadata: {
+          ...metadata,
+          source: 'checkout_api'
+        }
+      });
 
-    return NextResponse.json({ url: session.url, id: session.id });
+      session = await stripe.checkout.sessions.create({
+        mode: "payment",
+        payment_method_types: ["card"],
+        line_items: [
+          {
+            price_data: priceData,
+            quantity: 1,
+          },
+        ],
+        success_url: resolvedSuccessUrl,
+        cancel_url: resolvedCancelUrl,
+        allow_promotion_codes: true,
+        metadata: {
+          ...(campaignId ? { campaignId } : {}),
+          donation_type: "one_time",
+          automation_id: donation.id,
+          ...metadata,
+        },
+      });
+    }
+
+    return NextResponse.json({ 
+      url: session.url, 
+      id: session.id,
+      automationEnabled: true,
+      donationType: isRecurring ? "recurring" : "one_time"
+    });
   } catch (error) {
     console.error("Stripe checkout POST error:", error);
     const message =

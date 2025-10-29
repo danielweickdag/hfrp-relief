@@ -81,7 +81,7 @@ export default function ClientBody({
       }
     };
 
-    // Expose manual enable function on window
+    // Expose manual enable/disable functions on window
     try {
       (window as Window & { hfrpEnablePrintFeatures?: () => void }).hfrpEnablePrintFeatures = () => {
         injectPrintButtons();
@@ -94,6 +94,27 @@ export default function ClientBody({
         injectPrintButtons();
         registerServiceWorker();
         console.log("HFRP: Site features enabled (print + PWA)");
+      };
+      (window as Window & { hfrpDisableSiteFeatures?: () => void }).hfrpDisableSiteFeatures = () => {
+        try {
+          localStorage.setItem("hfrp_features_enabled", "false");
+        } catch {}
+        // Unregister service worker
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(registrations => {
+            registrations.forEach(registration => {
+              registration.unregister();
+            });
+          });
+        }
+        console.log("HFRP: Site features disabled (PWA unregistered)");
+      };
+      (window as Window & { hfrpGetFeatureStatus?: () => boolean }).hfrpGetFeatureStatus = () => {
+        try {
+          return localStorage.getItem("hfrp_features_enabled") === "true";
+        } catch {
+          return false;
+        }
       };
     } catch {}
 

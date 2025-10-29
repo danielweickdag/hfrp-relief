@@ -6,7 +6,8 @@ export interface BlogPost {
   date: string; // ISO date string
   author?: string;
   summary?: string;
-  image?: string;
+  image?: string; // Featured/main image (backward compatibility)
+  images?: string[]; // Additional images for the post
   category: BlogCategory;
   featured?: boolean;
   content: string;

@@ -225,8 +225,21 @@ export default function FeedingProgramPage() {
             <h2 className="text-2xl font-bold text-gray-900 mb-4">
               Our Approach
             </h2>
+            
+            {/* Mission Statement */}
+            <div className="bg-gradient-to-r from-orange-50 to-red-50 border-l-4 border-orange-400 p-6 rounded-lg mb-6">
+              <p className="text-gray-800 font-medium leading-relaxed mb-3">
+                In Haiti, too many families and children go to bed and school hungry. 
+                That's why here at HFRP, <span className="text-orange-600 font-semibold">nutrition is one of our main focuses</span>.
+              </p>
+              <p className="text-gray-700 leading-relaxed">
+                We understand that countless challenges stem from malnutrition, which is why we work 
+                tirelessly to ensure that every person within our reach receives the nourishment they need to thrive.
+              </p>
+            </div>
+
             <p className="text-gray-700 leading-relaxed mb-6">
-              Our feeding program goes beyond simply providing meals. We focus
+              Our comprehensive feeding program goes far beyond simply providing meals. We focus
               on nutrition education, community empowerment, and sustainable
               food systems that help families become self-sufficient while
               ensuring no child goes hungry.

@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-10-17T22:30:07.284Z",
+  "timestamp": "2025-10-19T20:11:21.434Z",
   "checks": [
     {
       "category": "Uptime",
@@ -7,18 +7,18 @@
       "status": "PASS",
       "details": {
         "statusCode": 200,
-        "responseTime": 158,
+        "responseTime": 349,
         "headers": {
-          "date": "Fri, 17 Oct 2025 22:30:07 GMT",
+          "date": "Sun, 19 Oct 2025 20:11:21 GMT",
           "content-type": "text/html; charset=utf-8",
           "transfer-encoding": "chunked",
           "connection": "keep-alive",
           "access-control-allow-origin": "*",
-          "age": "471",
+          "age": "0",
           "cache-control": "public, max-age=0, must-revalidate",
           "content-disposition": "inline",
-          "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=pcqZB7x92hk8dZmjIEEuTypqt06vF%2BMyaGwWOxZMylhyMvP3%2FwBznFPne7fgPyeLcH1u%2FGFJYBKFfvgkO9o2N9wuK3IGkPbGojz%2B8c5zfAHMu3cka08BxZLTrk90tMsE2LOYV03vqNc%3D\"}]}",
-          "server-timing": "cfCacheStatus;desc=\"DYNAMIC\", cfEdge;dur=13,cfOrigin;dur=45",
+          "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=9n5yR5iU8Xfh3p5hLELQbx3fr5AQ6xc3cjtaiDjOTr%2BBSxQSUvFJFkBeqtdGb02dFZL0nOxbEALHMvcURk%2F6AVCw68VeZ4yCAqB%2BE3t9HVN6TbpDLGeilgtC2ACpTDF0F5ZhOVEzHTQ%3D\"}]}",
+          "server-timing": "cfCacheStatus;desc=\"DYNAMIC\", cfEdge;dur=22,cfOrigin;dur=187",
           "referrer-policy": "origin-when-cross-origin",
           "server": "cloudflare",
           "strict-transport-security": "max-age=63072000",
@@ -28,16 +28,16 @@
           "x-matched-path": "/",
           "x-nextjs-prerender": "1",
           "x-nextjs-stale-time": "300",
-          "x-vercel-cache": "HIT",
-          "x-vercel-id": "cle1::6mbm7-1760740207424-4bf24a11d8d3",
+          "x-vercel-cache": "PRERENDER",
+          "x-vercel-id": "cle1::lgjxj-1760904681693-b8e9f3550af6",
           "x-xss-protection": "1; mode=block",
           "cf-cache-status": "DYNAMIC",
           "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-          "cf-ray": "99033d182b60eaef-ORD",
+          "cf-ray": "9912ec943be1e938-ORD",
           "alt-svc": "h3=\":443\"; ma=86400"
         }
       },
-      "timestamp": "2025-10-17T22:30:07.446Z"
+      "timestamp": "2025-10-19T20:11:21.786Z"
     },
     {
       "category": "Uptime",
@@ -45,9 +45,9 @@
       "status": "PASS",
       "details": {
         "statusCode": 308,
-        "responseTime": 227,
+        "responseTime": 235,
         "headers": {
-          "date": "Fri, 17 Oct 2025 22:30:07 GMT",
+          "date": "Sun, 19 Oct 2025 20:11:22 GMT",
           "content-type": "text/plain",
           "transfer-encoding": "chunked",
           "connection": "keep-alive",
@@ -56,16 +56,16 @@
           "refresh": "0;url=https://www.familyreliefproject7.org/",
           "server": "cloudflare",
           "strict-transport-security": "max-age=63072000",
-          "x-vercel-id": "cle1::l87bc-1760740207659-9eed91bb7b5e",
+          "x-vercel-id": "cle1::zj5td-1760904682017-073fe9449517",
           "cf-cache-status": "DYNAMIC",
           "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-          "server-timing": "cfCacheStatus;desc=\"DYNAMIC\", cfEdge;dur=9,cfOrigin;dur=101",
-          "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=ePHFyiY95EaqihioJrcJ0L%2FlvDNDanVssQhMt4ea4eotBck6Do4NuTN37qe5GNKGnd9DSnxGs3Sg%2FQEoanqfj%2BkvyzMxeIgLhFaSfNAV%2FDVkKrZXSc%2BK6CuRv%2Fb%2Fy3rXVfn%2Fmw%3D%3D\"}]}",
-          "cf-ray": "99033d194df2863e-ORD",
+          "server-timing": "cfCacheStatus;desc=\"DYNAMIC\", cfEdge;dur=11,cfOrigin;dur=104",
+          "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=xghBLidkz20Ih8PfwChpJbVdDZ3MMq%2BHFnHl4NpIFo4CVt984%2F5SylKb8gGUkovH%2BJF77g9bR4AJJVIVrgle%2F8yWjS3OLCTAF9s3B9no7zZQitIFSJqLALfB57Z6RsarMCcW1Q%3D%3D\"}]}",
+          "cf-ray": "9912ec965ce786d4-ORD",
           "alt-svc": "h3=\":443\"; ma=86400"
         }
       },
-      "timestamp": "2025-10-17T22:30:07.674Z"
+      "timestamp": "2025-10-19T20:11:22.021Z"
     },
     {
       "category": "Uptime",
@@ -73,17 +73,17 @@
       "status": "PASS",
       "details": {
         "statusCode": 200,
-        "responseTime": 145,
+        "responseTime": 335,
         "headers": {
           "accept-ranges": "bytes",
           "access-control-allow-origin": "*",
-          "age": "471",
+          "age": "0",
           "cache-control": "public, max-age=0, must-revalidate",
           "content-disposition": "inline",
           "content-length": "44708",
           "content-type": "text/html; charset=utf-8",
-          "date": "Fri, 17 Oct 2025 22:30:07 GMT",
-          "etag": "\"272d06655a511f9f185b926cd6a6acc3\"",
+          "date": "Sun, 19 Oct 2025 20:11:22 GMT",
+          "etag": "\"50f7391a10c8454842bda92918543bf5\"",
           "referrer-policy": "origin-when-cross-origin",
           "server": "Vercel",
           "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
@@ -93,12 +93,12 @@
           "x-matched-path": "/",
           "x-nextjs-prerender": "1",
           "x-nextjs-stale-time": "300",
-          "x-vercel-cache": "HIT",
-          "x-vercel-id": "cle1::mvvhq-1760740207791-0bde6485d932",
+          "x-vercel-cache": "PRERENDER",
+          "x-vercel-id": "cle1::77sbn-1760904682314-fffd500e2fb5",
           "x-xss-protection": "1; mode=block"
         }
       },
-      "timestamp": "2025-10-17T22:30:07.819Z"
+      "timestamp": "2025-10-19T20:11:22.358Z"
     },
     {
       "category": "SSL",
@@ -112,19 +112,19 @@
         },
         "validFrom": "Oct 15 00:36:39 2025 GMT",
         "validTo": "Jan 13 01:24:09 2026 GMT",
-        "daysUntilExpiry": 87
+        "daysUntilExpiry": 85
       },
-      "timestamp": "2025-10-17T22:30:07.876Z"
+      "timestamp": "2025-10-19T20:11:22.411Z"
     },
     {
       "category": "Performance",
       "test": "Page Load Time",
       "status": "PASS",
       "details": {
-        "loadTime": 137,
+        "loadTime": 140,
         "server": "cloudflare"
       },
-      "timestamp": "2025-10-17T22:30:08.013Z"
+      "timestamp": "2025-10-19T20:11:22.552Z"
     },
     {
       "category": "Functionality",
@@ -132,9 +132,9 @@
       "status": "PASS",
       "details": {
         "statusCode": 200,
-        "responseTime": 43
+        "responseTime": 158
       },
-      "timestamp": "2025-10-17T22:30:08.057Z"
+      "timestamp": "2025-10-19T20:11:22.710Z"
     },
     {
       "category": "Functionality",
@@ -142,9 +142,9 @@
       "status": "PASS",
       "details": {
         "statusCode": 200,
-        "responseTime": 49
+        "responseTime": 205
       },
-      "timestamp": "2025-10-17T22:30:08.106Z"
+      "timestamp": "2025-10-19T20:11:22.916Z"
     },
     {
       "category": "Functionality",
@@ -152,19 +152,19 @@
       "status": "PASS",
       "details": {
         "statusCode": 200,
-        "responseTime": 45
+        "responseTime": 180
       },
-      "timestamp": "2025-10-17T22:30:08.152Z"
+      "timestamp": "2025-10-19T20:11:23.097Z"
     },
     {
       "category": "Functionality",
       "test": "Health API",
-      "status": "FAIL",
+      "status": "PASS",
       "details": {
-        "statusCode": 404,
-        "responseTime": 37
+        "statusCode": 200,
+        "responseTime": 329
       },
-      "timestamp": "2025-10-17T22:30:08.189Z"
+      "timestamp": "2025-10-19T20:11:23.426Z"
     },
     {
       "category": "Functionality",
@@ -172,9 +172,9 @@
       "status": "PASS",
       "details": {
         "statusCode": 200,
-        "responseTime": 42
+        "responseTime": 124
       },
-      "timestamp": "2025-10-17T22:30:08.231Z"
+      "timestamp": "2025-10-19T20:11:23.550Z"
     },
     {
       "category": "SEO",
@@ -183,7 +183,7 @@
       "details": {
         "found": true
       },
-      "timestamp": "2025-10-17T22:30:08.289Z"
+      "timestamp": "2025-10-19T20:11:23.597Z"
     },
     {
       "category": "SEO",
@@ -192,7 +192,7 @@
       "details": {
         "found": true
       },
-      "timestamp": "2025-10-17T22:30:08.289Z"
+      "timestamp": "2025-10-19T20:11:23.597Z"
     },
     {
       "category": "SEO",
@@ -201,7 +201,7 @@
       "details": {
         "found": true
       },
-      "timestamp": "2025-10-17T22:30:08.289Z"
+      "timestamp": "2025-10-19T20:11:23.597Z"
     },
     {
       "category": "SEO",
@@ -210,13 +210,13 @@
       "details": {
         "found": true
       },
-      "timestamp": "2025-10-17T22:30:08.289Z"
+      "timestamp": "2025-10-19T20:11:23.597Z"
     }
   ],
   "summary": {
     "total": 14,
-    "passed": 13,
-    "failed": 1,
+    "passed": 14,
+    "failed": 0,
     "warnings": 0
   }
 }

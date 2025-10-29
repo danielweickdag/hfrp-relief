@@ -3,6 +3,8 @@ import Stripe from "stripe";
 import { headers } from "next/headers";
 import { promises as fs } from "node:fs";
 import path from "node:path";
+import { stripeConfigManager } from "@/lib/stripeConfigManager";
+import { stripeAutomation } from "@/lib/stripeAutomation";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-08-27.basil",
@@ -40,8 +42,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!webhookSecret) {
-      console.error('Missing webhook secret');
+    // Validate configuration
+    const validation = await stripeConfigManager.validateConfiguration();
+    if (!validation.configStatus.webhookSecret) {
+      console.error('Webhook secret not properly configured');
       return NextResponse.json(
         { error: 'Webhook secret not configured' },
         { status: 500 }
@@ -51,11 +55,10 @@ export async function POST(request: NextRequest) {
     let event: Stripe.Event;
 
     try {
-      // Verify webhook signature
-      console.log('Webhook secret length:', webhookSecret.length);
-      console.log('Signature:', signature);
-      console.log('Body length:', body.length);
-      event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+      // Verify webhook signature using config manager
+      const config = stripeConfigManager.getConfig();
+      console.log('Processing webhook with enhanced automation...');
+      event = stripe.webhooks.constructEvent(body, signature, config.webhookSecret);
     } catch (err) {
       console.error('Webhook signature verification failed:', err);
       console.error('Error details:', {
@@ -71,27 +74,51 @@ export async function POST(request: NextRequest) {
 
     console.log(`Received webhook event: ${event.type}`);
 
-    // Handle the event
-    const handler = eventHandlers[event.type as keyof typeof eventHandlers];
-    if (handler) {
-      try {
-        await handler(event);
-        console.log(`Successfully handled ${event.type}`);
-      } catch (error) {
-        console.error(`Error handling ${event.type}:`, error);
-        return NextResponse.json(
-          { error: `Failed to handle ${event.type}` },
-          { status: 500 }
-        );
+    // Use enhanced automation system for processing
+    try {
+      const result = await stripeAutomation.processWebhookAutomatically(event, signature, body);
+      
+      if (result.success) {
+        console.log(`Successfully processed ${event.type} with automation`);
+      } else {
+        console.warn(`Automation processing failed for ${event.type}:`, result.error);
+        
+        // Fallback to legacy handlers if automation fails
+        const handler = eventHandlers[event.type as keyof typeof eventHandlers];
+        if (handler) {
+          await handler(event);
+          console.log(`Fallback handler succeeded for ${event.type}`);
+        }
       }
-    } else {
-      console.log(`Unhandled event type: ${event.type}`);
+    } catch (error) {
+      console.error(`Error in automated webhook processing for ${event.type}:`, error);
+      
+      // Fallback to legacy handlers
+      const handler = eventHandlers[event.type as keyof typeof eventHandlers];
+      if (handler) {
+        try {
+          await handler(event);
+          console.log(`Fallback handler succeeded for ${event.type}`);
+        } catch (fallbackError) {
+          console.error(`Both automation and fallback failed for ${event.type}:`, fallbackError);
+          return NextResponse.json(
+            { error: `Failed to handle ${event.type}` },
+            { status: 500 }
+          );
+        }
+      } else {
+        console.log(`Unhandled event type: ${event.type}`);
+      }
     }
 
     // Persist the event to local JSON log for diagnostics and sync API
     await saveWebhookEvent(event);
 
-    return NextResponse.json({ received: true });
+    return NextResponse.json({ 
+      received: true, 
+      processed: true,
+      automation: 'enhanced'
+    });
   } catch (error) {
     console.error('Webhook processing error:', error);
     return NextResponse.json(

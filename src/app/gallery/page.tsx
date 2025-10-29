@@ -560,6 +560,9 @@ export default function GalleryPage() {
                   className="object-cover group-hover:scale-110 transition-transform duration-300"
                   sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
                   quality={95}
+                  onError={(e) => {
+                    e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDQwMCA0MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yMDAgMTAwQzE3Mi4zODYgMTAwIDE1MCA3Ny42MTQyIDE1MCA1MFMxNzIuMzg2IDAgMjAwIDBTMjUwIDIyLjM4NTggMjUwIDUwUzIyNy42MTQgMTAwIDIwMCAxMDBaTTIwMCAyNTBDMTcyLjM4NiAyNTAgMTUwIDIyNy42MTQgMTUwIDIwMFMxNzIuMzg2IDE1MCAyMDAgMTUwUzI1MCAxNzIuMzg2IDI1MCAyMDBTMjI3LjYxNCAyNTAgMjAwIDI1MFoiIGZpbGw9IiM5Q0EzQUYiLz4KPHBhdGggZD0iTTEwMCAzMDBIMzAwVjM1MEgxMDBWMzAwWiIgZmlsbD0iIzlDQTNBRiIvPgo8L3N2Zz4K';
+                  }}
                 />
                 <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
                   <div className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -617,6 +620,9 @@ export default function GalleryPage() {
                   className="w-full h-auto max-h-[80vh] object-contain"
                   quality={100}
                   sizes="100vw"
+                  onError={(e) => {
+                    e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDQwMCA0MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yMDAgMTAwQzE3Mi4zODYgMTAwIDE1MCA3Ny42MTQyIDE1MCA1MFMxNzIuMzg2IDAgMjAwIDBTMjUwIDIyLjM4NTggMjUwIDUwUzIyNy42MTQgMTAwIDIwMCAxMDBaTTIwMCAyNTBDMTcyLjM4NiAyNTAgMTUwIDIyNy42MTQgMTUwIDIwMFMxNzIuMzg2IDE1MCAyMDAgMTUwUzI1MCAxNzIuMzg2IDI1MCAyMDBTMjI3LjYxNCAyNTAgMjAwIDI1MFoiIGZpbGw9IiM5Q0EzQUYiLz4KPHBhdGggZD0iTTEwMCAzMDBIMzAwVjM1MEgxMDBWMzAwWiIgZmlsbD0iIzlDQTNBRiIvPgo8L3N2Zz4K';
+                  }}
                 />
               </div>
             </div>
