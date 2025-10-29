@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { stripeConfigManager } from "@/lib/stripeConfigManager";
+import { getStripeConfigManager } from "@/lib/stripeConfigManager";
 import { stripeAutomation } from "@/lib/stripeAutomation";
 
 interface AutomationStats {
@@ -74,6 +74,13 @@ export default function StripeAutomationDashboard() {
     try {
       setIsLoading(true);
       setError(null);
+
+      // Get the config manager instance
+      const stripeConfigManager = getStripeConfigManager();
+      if (!stripeConfigManager) {
+        setError("Stripe service is not configured");
+        return;
+      }
 
       // Validate Stripe configuration
       const validation = await stripeConfigManager.validateConfiguration();

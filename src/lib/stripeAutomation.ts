@@ -3,7 +3,7 @@
 
 import Stripe from "stripe";
 import { stripeEnhanced } from "./stripeEnhanced";
-import { stripeConfigManager } from "./stripeConfigManager";
+import { getStripeConfigManager } from "./stripeConfigManager";
 
 // Error handling utilities
 interface RetryOptions {

@@ -1,10 +1,19 @@
 import { type NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { stripeConfigManager } from "@/lib/stripeConfigManager";
+import { getStripeConfigManager } from "@/lib/stripeConfigManager";
 import { stripeAutomation } from "@/lib/stripeAutomation";
 
 export async function POST(request: NextRequest) {
   try {
+    // Get the config manager instance
+    const stripeConfigManager = getStripeConfigManager();
+    if (!stripeConfigManager) {
+      return NextResponse.json(
+        { error: "Stripe service is not configured" },
+        { status: 503 }
+      );
+    }
+
     // Use the new config manager for validation
     const validation = await stripeConfigManager.validateConfiguration();
     if (!validation.isValid) {

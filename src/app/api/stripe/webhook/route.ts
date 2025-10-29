@@ -3,7 +3,7 @@ import Stripe from "stripe";
 import { headers } from "next/headers";
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { stripeConfigManager } from "@/lib/stripeConfigManager";
+import { getStripeConfigManager } from "@/lib/stripeConfigManager";
 import { stripeAutomation } from "@/lib/stripeAutomation";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -39,6 +39,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Missing Stripe signature' },
         { status: 400 }
+      );
+    }
+
+    // Get the config manager instance
+    const stripeConfigManager = getStripeConfigManager();
+    if (!stripeConfigManager) {
+      return NextResponse.json(
+        { error: "Stripe service is not configured" },
+        { status: 503 }
       );
     }
 

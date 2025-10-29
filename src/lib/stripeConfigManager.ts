@@ -253,6 +253,21 @@ class StripeConfigManager {
   }
 }
 
-// Export singleton instance
-export const stripeConfigManager = new StripeConfigManager();
-export default stripeConfigManager;
+// Lazy singleton instance
+let stripeConfigManagerInstance: StripeConfigManager | null = null;
+
+export function getStripeConfigManager(): StripeConfigManager | null {
+  // Return null if required environment variables are not available (e.g., in CI)
+  if (!process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY === 'your_stripe_secret_key_here') {
+    return null;
+  }
+  
+  if (!stripeConfigManagerInstance) {
+    stripeConfigManagerInstance = new StripeConfigManager();
+  }
+  
+  return stripeConfigManagerInstance;
+}
+
+// For backward compatibility, export the lazy getter as default
+export default getStripeConfigManager;
