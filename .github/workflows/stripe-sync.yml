@@ -12,14 +12,38 @@ jobs:
       - name: Trigger full sync
         env:
           API_URL: ${{ vars.PRODUCTION_API_URL }}
+          API_TOKEN: ${{ secrets.PRODUCTION_API_TOKEN }}
         run: |
           echo "Triggering Stripe full sync..."
           if [ -z "$API_URL" ]; then
             API_URL="https://www.familyreliefproject.org/api"
           fi
-          curl -s -X POST "$API_URL/stripe/sync" \
+
+          # Perform request, capture HTTP status and response body (token not printed)
+          http_status=$(curl -sS -o response.json -w "%{http_code}" -X POST "$API_URL/stripe/sync" \
             -H "Content-Type: application/json" \
-            -d '{"action":"all"}' \
-            -o response.json
-          cat response.json
+            -H "Authorization: Bearer $API_TOKEN" \
+            -d '{"action":"all"}' || echo "000")
+
+          echo "HTTP status: $http_status"
+
+          if [ -s response.json ]; then
+            # If response is JSON, pretty print; otherwise, show a brief snippet for debugging
+            if jq -e . >/dev/null 2>&1 < response.json; then
+              jq . response.json || true
+            else
+              echo "Response not valid JSON; showing first 80 lines:"
+              head -n 80 response.json
+            fi
+          else
+            echo "No response body"
+          fi
+
+          # Fail on non-2xx status
+          if [ "$http_status" -lt 200 ] || [ "$http_status" -ge 300 ]; then
+            echo "Request failed with HTTP $http_status"
+            exit 1
+          fi
+
+          # Assert JSON payload success
           jq -e '.success == true' response.json || exit 1
