@@ -94,7 +94,7 @@ jobs:
         node campaign-validation-test.js
         node campaign-viewer.js
 
-    - name: "\udfaf Campaign Milestone Tracking"
+    - name: "🎯 Campaign Milestone Tracking"
       run: node campaign-milestone-tracker.js
 
     - name: 📧 Donor Communication Automation
@@ -103,7 +103,7 @@ jobs:
     - name: 📱 Social Media Automation
       run: node social-media-automation.js
 
-    - name: "\ud83c� Health Monitor"
+    - name: "🏥 Health Monitor"
       run: node health-monitor.js
 
     - name: 📄 Generate Automation Report
