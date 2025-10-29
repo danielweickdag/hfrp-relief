@@ -1,8 +1,13 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 
-// Initialize Resend with API key from environment variables
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Initialize Resend with API key from environment variables (conditional for build time)
+const getResendClient = () => {
+  if (!process.env.RESEND_API_KEY) {
+    return null;
+  }
+  return new Resend(process.env.RESEND_API_KEY);
+};
 
 interface SingleEmailRequest {
   from: string;
@@ -83,6 +88,15 @@ export async function POST(request: NextRequest) {
 // Handle single email sending
 async function handleSendEmail(emailData: SingleEmailRequest) {
   try {
+    const resend = getResendClient();
+    if (!resend) {
+      return NextResponse.json({
+        success: false,
+        error: "Email service not configured",
+        isDemoMode: true
+      }, { status: 503 });
+    }
+
     // Set default from email if not provided
     const fromEmail = emailData.from || process.env.RESEND_FROM_EMAIL || 'noreply@familyreliefproject7.org';
     
@@ -130,7 +144,16 @@ async function handleSendEmail(emailData: SingleEmailRequest) {
 // Handle batch email sending
 async function handleBatchSend(batchData: BatchEmailRequest) {
   try {
-    const emailsToSend = batchData.emails.map(email => {
+    const resend = getResendClient();
+    if (!resend) {
+      return NextResponse.json({
+        success: false,
+        error: "Email service not configured",
+        isDemoMode: true
+      }, { status: 503 });
+    }
+
+    const emailsToSend = batchData.emails.map((email) => {
       const emailContent = {
         html: email.html,
         text: email.text || email.subject || 'No content provided'
@@ -179,6 +202,15 @@ async function handleBatchSend(batchData: BatchEmailRequest) {
 // Handle email status retrieval
 async function handleGetEmailStatus(statusData: EmailStatusRequest) {
   try {
+    const resend = getResendClient();
+    if (!resend) {
+      return NextResponse.json({
+        success: false,
+        error: "Email service not configured",
+        isDemoMode: true
+      }, { status: 503 });
+    }
+
     const result = await resend.emails.get(statusData.emailId);
 
     console.log('✅ Email status retrieved:', statusData.emailId);
@@ -205,6 +237,15 @@ async function handleGetEmailStatus(statusData: EmailStatusRequest) {
 // Handle email update (reschedule)
 async function handleUpdateEmail(updateData: EmailUpdateRequest) {
   try {
+    const resend = getResendClient();
+    if (!resend) {
+      return NextResponse.json({
+        success: false,
+        error: "Email service not configured",
+        isDemoMode: true
+      }, { status: 503 });
+    }
+
     const result = await resend.emails.update({
       id: updateData.emailId,
       scheduledAt: updateData.scheduledAt
@@ -235,6 +276,15 @@ async function handleUpdateEmail(updateData: EmailUpdateRequest) {
 // Handle email cancellation
 async function handleCancelEmail(cancelData: EmailCancelRequest) {
   try {
+    const resend = getResendClient();
+    if (!resend) {
+      return NextResponse.json({
+        success: false,
+        error: "Email service not configured",
+        isDemoMode: true
+      }, { status: 503 });
+    }
+
     const result = await resend.emails.cancel(cancelData.emailId);
 
     console.log('✅ Email cancelled successfully:', cancelData.emailId);
