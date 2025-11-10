@@ -139,7 +139,7 @@ class AutomationScheduler {
   }
 
   async runBackup() {
-    return this.executeScript("enhanced-deploy.js", ["--status"]);
+    return this.executeScript("enhanced-deploy.mjs", ["--status"]);
   }
 
   async runMaintenance() {

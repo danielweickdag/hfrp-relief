@@ -33,9 +33,9 @@
     "scheduler:start": "node automation-scheduler.js start",
     "scheduler:status": "node automation-scheduler.js status",
     "scheduler:stop": "node automation-scheduler.js stop",
-    "deploy:enhanced": "node enhanced-deploy.js",
-    "deploy:staging": "node enhanced-deploy.js staging",
-    "deploy:status": "node enhanced-deploy.js --status"
+    "deploy:enhanced": "node enhanced-deploy.mjs",
+    "deploy:staging": "node enhanced-deploy.mjs staging",
+    "deploy:status": "node enhanced-deploy.mjs --status"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.4",

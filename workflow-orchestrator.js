@@ -60,15 +60,15 @@ class WorkflowOrchestrator {
       "performance-tests": () => this.runScript("automation-test.js"),
       "smoke-tests": () => this.runScript("automation-test.js"),
       "automation-sync": () => this.runScript("master-automation.js"),
-      "deploy-staging": () => this.runScript("enhanced-deploy.js", ["staging"]),
+      "deploy-staging": () => this.runScript("enhanced-deploy.mjs", ["staging"]),
       "deploy-production": () =>
-        this.runScript("enhanced-deploy.js", ["production"]),
+        this.runScript("enhanced-deploy.mjs", ["production"]),
       "final-validation": () => this.runScript("final-validation.js"),
       "health-monitor": () => this.runScript("health-monitor.js"),
       "system-health-check": () => this.runScript("health-check.js"),
       "security-scan": () => this.runSecurityScan(),
       "backup-database": () =>
-        this.runScript("enhanced-deploy.js", ["--backup"]),
+        this.runScript("enhanced-deploy.mjs", ["--backup"]),
       "monitoring-setup": () => this.setupMonitoring(),
       cleanup: () => this.performCleanup(),
       "log-cleanup": () => this.performLogCleanup(),

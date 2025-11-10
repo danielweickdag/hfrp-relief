@@ -5,9 +5,13 @@
  * Integrates with workflow orchestrator for seamless deployments
  */
 
-const fs = require("fs").promises;
-const path = require("path");
-const { spawn } = require("child_process");
+import { promises as fs } from "node:fs";
+import path from "node:path";
+import { spawn } from "node:child_process";
+import { fileURLToPath } from "node:url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 class DeploymentAutomation {
   constructor() {
@@ -574,8 +578,8 @@ async function main() {
   }
 }
 
-if (require.main === module) {
+if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
   main().catch(console.error);
 }
 
-module.exports = DeploymentAutomation;
+export default DeploymentAutomation;

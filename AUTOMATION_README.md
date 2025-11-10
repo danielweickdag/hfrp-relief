@@ -219,7 +219,7 @@ The CI/CD pipeline includes:
    npm run deploy:status
 
    # Force deployment
-   node enhanced-deploy.js production --force
+ node enhanced-deploy.mjs production --force
    ```
 
 3. **Scheduler Not Running**

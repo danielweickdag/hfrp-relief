@@ -5,9 +5,14 @@
  * Run this after deployment to verify everything is working
  */
 
-const https = require('https');
-const fs = require('fs');
-const path = require('path');
+import http from 'node:http';
+import https from 'node:https';
+import { existsSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 const VERCEL_BYPASS_TOKEN = process.env.VERCEL_BYPASS_TOKEN || '';
@@ -36,13 +41,14 @@ async function testPage(url) {
     console.log(`Testing: ${requestUrl}`);
 
     const options = new URL(requestUrl);
+    const client = options.protocol === 'https:' ? https : http;
     if (VERCEL_BYPASS_TOKEN) {
       options.headers = {
         'x-vercel-protection-bypass': VERCEL_BYPASS_TOKEN,
       };
     }
 
-    const request = https.get(options, (res) => {
+    const request = client.get(options, (res) => {
       const success = res.statusCode >= 200 && res.statusCode < 400;
       console.log(`  ✅ Status: ${res.statusCode} ${success ? '(OK)' : '(ERROR)'}`);
       resolve({ url, status: res.statusCode, success });
@@ -106,7 +112,7 @@ async function checkBuildFiles() {
   ];
   
   buildFiles.forEach(file => {
-    const exists = fs.existsSync(path.join(__dirname, file));
+    const exists = existsSync(path.join(__dirname, file));
     console.log(`  ${exists ? '✅' : '❌'} ${file}: ${exists ? 'Exists' : 'Missing'}`);
   });
 }
@@ -154,8 +160,8 @@ async function runTests() {
   console.log('  □ Analytics tracking active');
 }
 
-if (require.main === module) {
+if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
   runTests().catch(console.error);
 }
 
-module.exports = { testPage, checkEnvironmentVariables, checkBuildFiles };
+export { testPage, checkEnvironmentVariables, checkBuildFiles };
