@@ -377,9 +377,13 @@ class DeploymentAutomation {
           "info"
         );
 
-        const response = await fetch(`${url}/api/health`).catch(() => {
-          // Fallback to checking homepage
-          return fetch(url);
+        const bypassToken = process.env.VERCEL_BYPASS_TOKEN || "";
+        const headers = bypassToken
+          ? { "x-vercel-protection-bypass": bypassToken }
+          : undefined;
+
+        const response = await fetch(`${url}/api/health`, { headers }).catch(() => {
+          return fetch(url, { headers });
         });
 
         if (response.ok) {

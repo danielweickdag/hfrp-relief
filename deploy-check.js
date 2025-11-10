@@ -10,6 +10,7 @@ const fs = require('fs');
 const path = require('path');
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+const VERCEL_BYPASS_TOKEN = process.env.VERCEL_BYPASS_TOKEN || '';
 
 console.log('🚀 HFRP Deployment Verification Starting...\n');
 
@@ -33,8 +34,15 @@ async function testPage(url) {
   return new Promise((resolve) => {
     const requestUrl = `${SITE_URL}${url}`;
     console.log(`Testing: ${requestUrl}`);
-    
-    const request = https.get(requestUrl, (res) => {
+
+    const options = new URL(requestUrl);
+    if (VERCEL_BYPASS_TOKEN) {
+      options.headers = {
+        'x-vercel-protection-bypass': VERCEL_BYPASS_TOKEN,
+      };
+    }
+
+    const request = https.get(options, (res) => {
       const success = res.statusCode >= 200 && res.statusCode < 400;
       console.log(`  ✅ Status: ${res.statusCode} ${success ? '(OK)' : '(ERROR)'}`);
       resolve({ url, status: res.statusCode, success });
