@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { stripeEnhanced } from "@/lib/stripeEnhanced";
+import { useState, useEffect } from "react";
+import { getStripeEnhanced } from "@/lib/stripeEnhanced";
 
 interface StripeButtonProps {
   className?: string;
@@ -29,6 +29,43 @@ export default function StripeButton({
   onError,
 }: StripeButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
+  // Initialize Stripe helper and hooks BEFORE any conditional returns
+  const stripeEnhanced = getStripeEnhanced();
+
+  // SSR-stable test mode: derive from env on first render; update after mount
+  const initialTestMode = (() => {
+    const key = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "";
+    const flag = process.env.NEXT_PUBLIC_STRIPE_TEST_MODE === "true";
+    if (key.startsWith("pk_live_")) return false;
+    if (key.startsWith("pk_test_")) return true;
+    return flag;
+  })();
+  const [testMode, setTestMode] = useState<boolean>(initialTestMode);
+
+  // Ensure latest config is loaded with env precedence (particularly after HMR)
+  // This avoids stale localStorage test settings overriding live env keys.
+  useEffect(() => {
+    try {
+      stripeEnhanced?.loadConfig();
+      const cfg = stripeEnhanced?.getConfig();
+      if (cfg) setTestMode(cfg.testMode);
+    } catch {}
+  }, [stripeEnhanced]);
+
+  // Fallback UI when Stripe is not configured
+  if (!stripeEnhanced) {
+    return (
+      <button className={`${className} opacity-50 cursor-not-allowed`} disabled>
+        Stripe not configured
+      </button>
+    );
+  }
+
+  // Also load immediately before reading config to avoid pre-mount stale values
+  try {
+    stripeEnhanced.loadConfig();
+  } catch {}
+
   const config = stripeEnhanced.getConfig();
   const campaign = stripeEnhanced.getCampaign(campaignId);
 
@@ -144,10 +181,18 @@ export default function StripeButton({
       });
 
       const raw = await response.json().catch(() => null);
-      const data: { url?: string; id?: string; error?: string } =
-        raw && typeof raw === "object" ? (raw as { url?: string; id?: string; error?: string }) : {};
+      const data: { url?: string; id?: string; error?: string; details?: string[] } =
+        raw && typeof raw === "object"
+          ? (raw as { url?: string; id?: string; error?: string; details?: string[] })
+          : {};
       if (!response.ok || typeof data.url !== "string") {
-        throw new Error(data.error || "Failed to create Stripe checkout session");
+        const serverDetails = Array.isArray(data.details) && data.details.length > 0
+          ? `\nDetails: ${data.details.join("; ")}`
+          : "";
+        const guidance = config.testMode
+          ? "\nTip: Ensure valid STRIPE_TEST keys are set in .env.local and restart dev server."
+          : "\nTip: Your Stripe keys may be invalid or expired. Update STRIPE_SECRET_KEY/NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY and restart.";
+        throw new Error(`${data.error || "Failed to create Stripe checkout session"}${serverDetails}${guidance}`);
       }
       const checkoutUrl = data.url;
 
@@ -194,7 +239,7 @@ export default function StripeButton({
       // User-friendly error handling
       if (config.testMode) {
         alert(
-          `Test mode error: ${errorMessage}\n\nThis is normal during development.`
+          `Test mode error: ${errorMessage}`
         );
       } else {
         const userConfirmed = confirm(
@@ -262,7 +307,7 @@ export default function StripeButton({
   return (
     <div className="relative">
       {/* Test Mode Badge */}
-      {config.testMode && (
+      {testMode && (
         <div className="absolute -top-2 -right-2 bg-yellow-400 text-yellow-800 text-xs font-bold px-2 py-1 rounded-full z-10">
           TEST
         </div>

@@ -1,10 +1,16 @@
 // Test script to verify campaign validation behavior
 // This tests for any remaining error-throwing behavior that needs to be fixed
 
-import { stripeEnhanced } from "./src/lib/stripeEnhanced.ts";
+import { getStripeEnhanced } from "./src/lib/stripeEnhanced.ts";
 
 async function testCampaignValidation() {
   console.log("🧪 Testing campaign validation behavior...\n");
+
+  const stripeEnhanced = getStripeEnhanced();
+  if (!stripeEnhanced) {
+    console.log("❌ FAIL - Stripe not configured, cannot run tests");
+    return;
+  }
 
   // Test cases for potentially problematic scenarios
   const testCases = [

@@ -33,6 +33,10 @@ function SettingsContent() {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [showSocialMediaLinks, setShowSocialMediaLinks] = useState(true);
 
+  // Direct Stripe Connect onboarding link provided by admin
+  const stripeConnectOnboardingUrl =
+    "https://connect.stripe.com/d/setup/e/_TO365uSkCCbOqJ0ITW8P4bEW5C/YWNjdF8xU1BNUEwyTGZScmJJTTdq/6a2d66962b0c34ff8";
+
   const [formData, setFormData] = useState<SettingsFormData>({
     siteTitle: "Haitian Family Relief Project",
     siteDescription:
@@ -144,6 +148,30 @@ function SettingsContent() {
             </svg>
             Back to Dashboard
           </Link>
+        </div>
+
+        {/* Stripe Connect Onboarding Quick Link */}
+        <div className="mb-6">
+          <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 flex items-center justify-between">
+            <div>
+              <h2 className="text-base font-semibold text-indigo-900">
+                Stripe Connect Onboarding
+              </h2>
+              <p className="text-sm text-indigo-700">
+                Use this link to complete or continue onboarding for Stripe
+                Connect. Opens in a new tab.
+              </p>
+            </div>
+            <a
+              href={stripeConnectOnboardingUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center px-4 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700"
+            >
+              <span className="mr-2">🔗</span>
+              Open Onboarding
+            </a>
+          </div>
         </div>
 
         <WithPermission

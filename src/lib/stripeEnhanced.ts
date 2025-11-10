@@ -107,42 +107,58 @@ export interface StripeDonation {
 }
 
 // Enhanced Stripe configuration
-const defaultConfig: StripeConfig = {
-  publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "",
-  secretKey: process.env.STRIPE_SECRET_KEY || "",
-  webhookSecret: process.env.STRIPE_WEBHOOK_SECRET || "",
-  testMode: process.env.NEXT_PUBLIC_STRIPE_TEST_MODE === "true",
-  currency: "USD",
-  minimumAmount: 1,
-  maximumAmount: 999999,
-  supportedPaymentMethods: ["card", "apple_pay", "google_pay"],
-  enableApplePay: true,
-  enableGooglePay: true,
-  enableSubscriptions: true,
-  defaultSuccessUrl: "/donation/success",
-  defaultCancelUrl: "/donation/cancelled",
-  // Enhanced defaults for donation system
-  enableAutomaticTax: false, // Typically not needed for donations
-  collectShippingAddress: false, // Not needed for digital donations
-  allowPromotionCodes: false, // Usually not appropriate for donations
-  submitType: "donate", // Optimized for donation flows
-  billingAddressCollection: "auto", // Let Stripe decide based on payment method
-  phoneNumberCollection: false, // Optional for donations
-  consentCollection: {
-    termsOfService: "none", // Handle separately if needed
-    promotions: "none", // Respect donor privacy
-  },
-  locale: "en", // Default to English, can be overridden
-  appearance: {
-    theme: "stripe", // Clean, professional theme for donations
-    variables: {
-      colorPrimary: "#2563eb", // Blue theme for Haiti Relief
-      colorBackground: "#ffffff",
-      colorText: "#1f2937",
-      borderRadius: "8px",
+function getDefaultConfig(): StripeConfig {
+  const cfg = {
+    publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "",
+    secretKey: process.env.STRIPE_SECRET_KEY || "",
+    webhookSecret: process.env.STRIPE_WEBHOOK_SECRET || "",
+    testMode: process.env.NEXT_PUBLIC_STRIPE_TEST_MODE === "true",
+    currency: "USD",
+    minimumAmount: 1,
+    maximumAmount: 999999,
+    supportedPaymentMethods: ["card", "apple_pay", "google_pay"],
+    enableApplePay: true,
+    enableGooglePay: true,
+    enableSubscriptions: true,
+    defaultSuccessUrl: "/donation/success",
+    defaultCancelUrl: "/donation/cancelled",
+    // Enhanced defaults for donation system
+    enableAutomaticTax: false, // Typically not needed for donations
+    collectShippingAddress: false, // Not needed for digital donations
+    allowPromotionCodes: false, // Usually not appropriate for donations
+    submitType: "donate", // Optimized for donation flows
+    billingAddressCollection: "auto", // Let Stripe decide based on payment method
+    phoneNumberCollection: false, // Optional for donations
+    consentCollection: {
+      termsOfService: "none", // Handle separately if needed
+      promotions: "none", // Respect donor privacy
     },
-  },
-};
+    locale: "en", // Default to English, can be overridden
+    appearance: {
+      theme: "stripe", // Clean, professional theme for donations
+      variables: {
+        colorPrimary: "#2563eb", // Blue theme for Haiti Relief
+        colorBackground: "#ffffff",
+        colorText: "#1f2937",
+        borderRadius: "8px",
+      },
+    },
+  } as StripeConfig;
+
+  // Debug current env-derived Stripe configuration (helps diagnose live vs test)
+  try {
+    const modeFromKey = cfg.publishableKey.startsWith("pk_live_")
+      ? "live"
+      : cfg.publishableKey.startsWith("pk_test_")
+      ? "test"
+      : "unknown";
+    console.log(
+      `🔎 Stripe env config: key=${modeFromKey}, testMode=${cfg.testMode}`
+    );
+  } catch {}
+
+  return cfg;
+}
 
 class EnhancedStripeService {
   private config: StripeConfig;
@@ -189,14 +205,12 @@ class EnhancedStripeService {
     },
   };
 
-  constructor(config: StripeConfig = defaultConfig) {
+  constructor(config: StripeConfig = getDefaultConfig()) {
     this.config = config;
 
     // Initialize Stripe instance if secret key is available
     if (config.secretKey) {
-      this.stripe = new Stripe(config.secretKey, {
-        apiVersion: "2025-08-27.basil",
-      });
+      this.stripe = new Stripe(config.secretKey);
     }
 
     this.initializeDefaultCampaigns();
@@ -315,12 +329,36 @@ class EnhancedStripeService {
   loadConfig() {
     if (typeof window !== "undefined") {
       const stored = localStorage.getItem("hfrp_stripe_config");
+      const envConfig = getDefaultConfig();
+
+      // Start from env defaults
+      this.config = { ...envConfig };
+
+      // Merge any stored overrides
       if (stored) {
         try {
-          this.config = { ...defaultConfig, ...JSON.parse(stored) };
+          const saved = JSON.parse(stored);
+          this.config = { ...envConfig, ...saved };
         } catch (error) {
           console.error("Failed to load Stripe config:", error);
         }
+      }
+
+      // If env is clearly configured for LIVE (live keys, testMode disabled),
+      // enforce env precedence over any stored test configuration.
+      const envIsLive =
+        !!envConfig.publishableKey && envConfig.publishableKey.startsWith("pk_live_") &&
+        !!envConfig.secretKey && envConfig.secretKey.startsWith("sk_live_") &&
+        envConfig.testMode === false;
+
+      if (envIsLive) {
+        try {
+          localStorage.removeItem("hfrp_stripe_config");
+        } catch {}
+        this.config.publishableKey = envConfig.publishableKey;
+        this.config.secretKey = envConfig.secretKey;
+        this.config.webhookSecret = envConfig.webhookSecret;
+        this.config.testMode = false;
       }
     }
   }
@@ -368,9 +406,12 @@ class EnhancedStripeService {
       warnings.push(
         "🚀 Live Stripe key detected - Real payments will be processed"
       );
-
-      if (!this.config.secretKey || !this.config.secretKey.includes("live")) {
-        errors.push("Live publishable key requires matching live secret key");
+      // Secret key pairing check should only run on the server.
+      // In the browser, secret keys are intentionally not exposed.
+      if (typeof window === "undefined") {
+        if (!this.config.secretKey || !this.config.secretKey.includes("live")) {
+          errors.push("Live publishable key requires matching live secret key");
+        }
       }
 
       if (!this.config.webhookSecret) {
@@ -382,7 +423,7 @@ class EnhancedStripeService {
     if (isTestKey) {
       console.log("🧪 Test mode active - No real charges will be made");
       // If a live secret key is set with a test publishable key, flag as warning
-      if (this.config.secretKey && this.config.secretKey.startsWith("sk_live_")) {
+      if (typeof window === "undefined" && this.config.secretKey && this.config.secretKey.startsWith("sk_live_")) {
         warnings.push("Live secret key configured with test publishable key");
       }
     }
@@ -1222,10 +1263,32 @@ class EnhancedStripeService {
   }
 }
 
-// Export singleton instance
-export const stripeEnhanced = new EnhancedStripeService();
+// Lazy initialization to prevent build-time failures
+let stripeEnhancedInstance: EnhancedStripeService | null = null;
 
-// Load configuration on initialization
-if (typeof window !== "undefined") {
-  stripeEnhanced.loadConfig();
+export function getStripeEnhanced(): EnhancedStripeService | null {
+  const isBrowser = typeof window !== "undefined";
+
+  // On the server, ensure secret key is configured; on the client, allow usage
+  if (!isBrowser) {
+    const secretKey = process.env.STRIPE_SECRET_KEY;
+    if (!secretKey || secretKey === "your_stripe_secret_key_here") {
+      return null;
+    }
+  }
+
+  // Create instance only when needed
+  if (!stripeEnhancedInstance) {
+    stripeEnhancedInstance = new EnhancedStripeService();
+
+    // Load configuration on initialization (only in browser)
+    if (isBrowser) {
+      stripeEnhancedInstance.loadConfig();
+    }
+  }
+
+  return stripeEnhancedInstance;
 }
+
+// Export default getter function
+export default getStripeEnhanced;

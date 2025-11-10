@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { Resend } from "resend";
+import { getResendEnhanced, getResendConfig, isResendDemoMode, sendEnhancedEmail } from "@/lib/resendEnhanced";
 import fs from "fs";
 import path from "path";
 
@@ -166,9 +166,10 @@ async function handleSendCampaign(campaignId: string) {
     return NextResponse.json({ error: 'Campaign not found' }, { status: 404 });
   }
 
-  // Check if email service is configured
-  if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY.startsWith('re_demo_')) {
-    // Demo mode - simulate sending
+  // Check for demo mode
+  if (isResendDemoMode()) {
+    console.log('📧 Demo Mode: Campaign would be sent to:', campaign.recipients);
+    
     const updatedCampaign = {
       ...campaign,
       status: 'sent' as const,
@@ -190,9 +191,8 @@ async function handleSendCampaign(campaignId: string) {
     });
   }
 
-  // Real email sending logic
-  const resend = new Resend(process.env.RESEND_API_KEY);
-  const results = await sendCampaignEmails(resend, campaign);
+  // Real email sending logic using enhanced utility
+  const results = await sendCampaignEmails(campaign);
   
   const updatedCampaign = {
     ...campaign,
@@ -240,26 +240,24 @@ async function handleCampaignAnalytics() {
 }
 
 // Email sending functions
-async function sendCampaignEmails(resend: Resend, campaign: EmailCampaign) {
+async function sendCampaignEmails(campaign: EmailCampaign) {
   const results = [];
-  const fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@familyreliefproject7.org';
   
   for (const recipient of campaign.recipients) {
-    try {
-      const result = await resend.emails.send({
-        from: fromEmail,
-        to: recipient,
-        subject: campaign.subject,
-        html: campaign.content,
-        tags: [
-          { name: 'campaign_id', value: campaign.id },
-          { name: 'campaign_name', value: campaign.name }
-        ]
-      });
-      
-      results.push({ recipient, success: true, id: result.data?.id });
-    } catch (error) {
-      results.push({ recipient, success: false, error: String(error) });
+    const result = await sendEnhancedEmail({
+      to: recipient,
+      subject: campaign.subject,
+      html: campaign.content,
+      tags: [
+        { name: 'campaign_id', value: campaign.id },
+        { name: 'campaign_name', value: campaign.name }
+      ]
+    });
+    
+    if (result.success) {
+      results.push({ recipient, success: true, id: result.messageId });
+    } else {
+      results.push({ recipient, success: false, error: result.error });
     }
   }
   

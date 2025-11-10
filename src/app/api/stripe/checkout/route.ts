@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
-import Stripe from "stripe";
+import type Stripe from "stripe";
 import { getStripeConfigManager } from "@/lib/stripeConfigManager";
-import { stripeAutomation } from "@/lib/stripeAutomation";
+import { getStripeAutomation } from "@/lib/stripeAutomation";
 
 export async function POST(request: NextRequest) {
   try {
@@ -96,6 +96,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Use automation system for enhanced donation creation
+    const stripeAutomation = getStripeAutomation();
+    if (!stripeAutomation) {
+      return NextResponse.json(
+        { error: "Stripe automation service is not available" },
+        { status: 503 }
+      );
+    }
+
     let session: Stripe.Checkout.Session;
     
     if (isRecurring) {
@@ -104,11 +112,12 @@ export async function POST(request: NextRequest) {
         amount: unitAmount,
         currency,
         interval,
-        donorEmail: '', // Will be collected during checkout
+        donorEmail: 'checkout@pending.com', // Placeholder - will be updated after checkout
         campaignId: campaignId || 'general',
         metadata: {
           ...metadata,
-          source: 'checkout_api'
+          source: 'checkout_api',
+          email_pending: 'true'
         }
       });
       
@@ -124,10 +133,18 @@ export async function POST(request: NextRequest) {
         success_url: resolvedSuccessUrl,
         cancel_url: resolvedCancelUrl,
         allow_promotion_codes: true,
+        automatic_tax: {
+          enabled: process.env.AUTO_CALCULATE_TAX === 'true',
+        },
+        tax_id_collection: {
+          enabled: false, // Typically not needed for charitable donations
+        },
         metadata: {
           ...(campaignId ? { campaignId } : {}),
           donation_type: "recurring",
           automation_id: donation.id,
+          tax_exempt: process.env.TAX_EXEMPT_STATUS || 'true',
+          tax_deductible: process.env.TAX_DEDUCTIBLE_DONATIONS || 'true',
           ...metadata,
         },
       });
@@ -136,11 +153,12 @@ export async function POST(request: NextRequest) {
       const donation = await stripeAutomation.createOneTimeDonation({
         amount: unitAmount,
         currency,
-        donorEmail: '', // Will be collected during checkout
+        donorEmail: 'checkout@pending.com', // Placeholder - will be updated after checkout
         campaignId: campaignId || 'general',
         metadata: {
           ...metadata,
-          source: 'checkout_api'
+          source: 'checkout_api',
+          email_pending: 'true'
         }
       });
 
@@ -156,10 +174,18 @@ export async function POST(request: NextRequest) {
         success_url: resolvedSuccessUrl,
         cancel_url: resolvedCancelUrl,
         allow_promotion_codes: true,
+        automatic_tax: {
+          enabled: process.env.AUTO_CALCULATE_TAX === 'true',
+        },
+        tax_id_collection: {
+          enabled: false, // Typically not needed for charitable donations
+        },
         metadata: {
           ...(campaignId ? { campaignId } : {}),
           donation_type: "one_time",
           automation_id: donation.id,
+          tax_exempt: process.env.TAX_EXEMPT_STATUS || 'true',
+          tax_deductible: process.env.TAX_DEDUCTIBLE_DONATIONS || 'true',
           ...metadata,
         },
       });

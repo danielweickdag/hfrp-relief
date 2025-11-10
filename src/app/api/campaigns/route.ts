@@ -1,8 +1,13 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { stripeEnhanced } from "@/lib/stripeEnhanced";
+import { getStripeEnhanced } from "@/lib/stripeEnhanced";
 
 export async function GET(_request: NextRequest) {
   try {
+    const stripeEnhanced = getStripeEnhanced();
+    if (!stripeEnhanced) {
+      return NextResponse.json({ success: false, error: "Stripe not configured" }, { status: 503 });
+    }
+    
     const campaigns = stripeEnhanced.getCampaigns();
     const plans = stripeEnhanced.getPlans();
     const events = stripeEnhanced.getEvents();
@@ -15,13 +20,18 @@ export async function GET(_request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const stripeEnhanced = getStripeEnhanced();
+    if (!stripeEnhanced) {
+      return NextResponse.json({ success: false, error: "Stripe not configured" }, { status: 503 });
+    }
+
     const raw = await request.json().catch(() => ({}));
     const body = raw as unknown;
     let campaign: unknown = undefined;
     if (typeof body === "object" && body !== null && "campaign" in body) {
       campaign = (body as Record<string, unknown>).campaign;
     }
-    if (!campaign || !campaign.id) {
+    if (!campaign || typeof campaign !== "object" || campaign === null || !("id" in campaign)) {
       return NextResponse.json(
         { success: false, error: "Missing campaign payload with id" },
         { status: 400 }

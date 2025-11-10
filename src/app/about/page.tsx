@@ -1,8 +1,11 @@
 "use client";
 
+import { BackToHome } from "../_components/BackNavigation";
+
 export default function AboutPage() {
   return (
     <section className="max-w-3xl mx-auto py-8">
+      <BackToHome className="mb-6" />
       <h2 className="text-3xl font-bold mb-4 text-center">About Us</h2>
       <p className="mb-6 text-lg text-zinc-700 text-center">
         Haitian Family Relief Project is a nonprofit organization dedicated to

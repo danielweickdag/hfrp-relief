@@ -1,10 +1,47 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getStripeEnhanced } from "@/lib/stripeEnhanced";
+import Link from "next/link";
 
 export default function WebhookTestPage() {
   const [testResult, setTestResult] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
+  const [webhookConfigured, setWebhookConfigured] = useState<boolean>(false);
+
+  // SSR-stable test mode indicator: derive from env, update after mount
+  const initialTestMode = (() => {
+    const key = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "";
+    const flag = process.env.NEXT_PUBLIC_STRIPE_TEST_MODE === "true";
+    if (key.startsWith("pk_live_")) return false;
+    if (key.startsWith("pk_test_")) return true;
+    return flag;
+  })();
+  const [testMode, setTestMode] = useState<boolean>(initialTestMode);
+
+  useEffect(() => {
+    const se = getStripeEnhanced();
+    if (!se) return;
+    try {
+      se.loadConfig();
+      const cfg = se.getConfig();
+      if (cfg && typeof cfg.testMode === "boolean") {
+        setTestMode(cfg.testMode);
+      }
+    } catch {}
+  }, []);
+
+  // Fetch server-computed webhook configuration status for SSR-stable rendering
+  useEffect(() => {
+    fetch('/api/stripe/webhook')
+      .then(res => res.json())
+      .then(data => {
+        if (typeof data.webhookSecretConfigured === 'boolean') {
+          setWebhookConfigured(data.webhookSecretConfigured);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const testWebhook = async () => {
     setIsLoading(true);
@@ -61,15 +98,11 @@ export default function WebhookTestPage() {
                 </p>
                 <p>
                   <strong>Status:</strong>{" "}
-                  {process.env.STRIPE_WEBHOOK_SECRET
-                    ? "✅ Configured"
-                    : "⚠️ Missing webhook secret"}
+                  {webhookConfigured ? "✅ Configured" : "⚠️ Missing webhook secret"}
                 </p>
                 <p>
                   <strong>Environment:</strong>{" "}
-                  {process.env.NEXT_PUBLIC_STRIPE_TEST_MODE === "true"
-                    ? "🧪 Test Mode"
-                    : "🔴 Live Mode"}
+                  {testMode ? "🧪 Test Mode" : "🔴 Live Mode"}
                 </p>
               </div>
             </div>
@@ -179,16 +212,8 @@ export default function WebhookTestPage() {
               <div className="space-y-1 text-sm">
                 <div className="flex justify-between">
                   <span>Stripe Test Mode:</span>
-                  <span
-                    className={
-                      process.env.NEXT_PUBLIC_STRIPE_TEST_MODE === "true"
-                        ? "text-yellow-600"
-                        : "text-red-600"
-                    }
-                  >
-                    {process.env.NEXT_PUBLIC_STRIPE_TEST_MODE === "true"
-                      ? "🧪 Enabled"
-                      : "🔴 Disabled (Live Mode)"}
+                  <span className={testMode ? "text-yellow-600" : "text-red-600"}>
+                    {testMode ? "🧪 Enabled" : "🔴 Disabled (Live Mode)"}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -197,18 +222,19 @@ export default function WebhookTestPage() {
                 </div>
                 <div className="flex justify-between">
                   <span>Webhook Secret:</span>
-                  <span
-                    className={
-                      process.env.STRIPE_WEBHOOK_SECRET
-                        ? "text-green-600"
-                        : "text-red-600"
-                    }
-                  >
-                    {process.env.STRIPE_WEBHOOK_SECRET
-                      ? "✅ Configured"
-                      : "❌ Missing"}
+                  <span className={webhookConfigured ? "text-green-600" : "text-red-600"}>
+                    {webhookConfigured ? "✅ Configured" : "❌ Missing"}
                   </span>
                 </div>
+              </div>
+              <div className="mt-4 flex justify-end">
+                <Link
+                  href="/admin/settings"
+                  className="inline-flex items-center px-3 py-2 rounded-md bg-gray-100 text-gray-800 hover:bg-gray-200"
+                >
+                  <span className="mr-2">⚙️</span>
+                  Manage in Admin Settings
+                </Link>
               </div>
             </div>
           </div>

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import {
-  stripeAutomation,
+  getStripeAutomation,
   type CampaignSync,
   type EventSync,
 } from "@/lib/stripeAutomation";

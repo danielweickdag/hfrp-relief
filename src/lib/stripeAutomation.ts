@@ -2,7 +2,6 @@
 // Comprehensive automation for payments, webhooks, and error handling
 
 import Stripe from "stripe";
-import { stripeEnhanced } from "./stripeEnhanced";
 import { getStripeConfigManager } from "./stripeConfigManager";
 
 // Error handling utilities
@@ -113,7 +112,7 @@ async function withRetry<T>(
     maxDelay: 10000,
     backoffMultiplier: 2
   },
-  operationType: string = 'stripe_operation'
+  operationType = 'stripe_operation'
 ): Promise<T> {
   const startTime = PerformanceMonitor.startOperation(operationType);
   let lastError: Error = new Error('Unknown error');
@@ -232,9 +231,7 @@ class StripeAutomationService {
     if (!secretKey) {
       throw new Error("Stripe secret key not configured");
     }
-    this.stripe = new Stripe(secretKey, {
-      apiVersion: "2025-08-27.basil",
-    });
+    this.stripe = new Stripe(secretKey);
   }
 
   // 🔄 CAMPAIGN MANAGEMENT & AUTOMATION
@@ -987,4 +984,23 @@ class StripeAutomationService {
   }
 }
 
-export const stripeAutomation = new StripeAutomationService();
+// Lazy initialization to prevent build-time failures
+let stripeAutomationInstance: StripeAutomationService | null = null;
+
+export function getStripeAutomation(): StripeAutomationService | null {
+  // Return null if STRIPE_SECRET_KEY is not set or is a placeholder
+  const secretKey = process.env.STRIPE_SECRET_KEY;
+  if (!secretKey || secretKey === "your_stripe_secret_key_here") {
+    return null;
+  }
+
+  // Create instance only when needed and environment is properly configured
+  if (!stripeAutomationInstance) {
+    stripeAutomationInstance = new StripeAutomationService();
+  }
+  
+  return stripeAutomationInstance;
+}
+
+// Export default getter function
+export default getStripeAutomation;

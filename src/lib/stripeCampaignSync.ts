@@ -3,7 +3,7 @@
 
 import Stripe from "stripe";
 import {
-  stripeEnhanced,
+  getStripeEnhanced,
   type StripeCampaign,
   StripeEvent,
 } from "./stripeEnhanced";
@@ -45,9 +45,7 @@ class StripeCampaignSync {
       throw new Error("STRIPE_SECRET_KEY environment variable is required");
     }
 
-    this.stripe = new Stripe(secretKey, {
-      apiVersion: "2025-07-30.basil",
-    });
+    this.stripe = new Stripe(secretKey);
 
     this.initializePlans();
   }
@@ -171,6 +169,10 @@ class StripeCampaignSync {
       console.log("🔄 Starting Stripe campaign and plan sync...");
 
       // Step 1: Sync campaigns as products
+      const stripeEnhanced = getStripeEnhanced();
+      if (!stripeEnhanced) {
+        throw new Error("StripeEnhanced not available");
+      }
       const campaigns = stripeEnhanced.getCampaigns();
       for (const campaign of campaigns) {
         try {
@@ -255,9 +257,12 @@ class StripeCampaignSync {
       });
 
       // Update campaign with Stripe product ID
-      stripeEnhanced.updateCampaign(campaign.id, {
-        stripeProductId: product.id,
-      });
+      const stripeEnhanced = getStripeEnhanced();
+      if (stripeEnhanced) {
+        stripeEnhanced.updateCampaign(campaign.id, {
+          stripeProductId: product.id,
+        });
+      }
 
       console.log(
         `✅ Created Stripe product ${product.id} for campaign ${campaign.id}`
@@ -290,10 +295,13 @@ class StripeCampaignSync {
       let productId = plan.stripeProductId;
 
       if (!productId && plan.campaignId) {
-        const campaign = stripeEnhanced.getCampaign(plan.campaignId);
-        if (campaign) {
-          const product = await this.syncCampaignAsProduct(campaign);
-          productId = product.id;
+        const stripeEnhanced = getStripeEnhanced();
+        if (stripeEnhanced) {
+          const campaign = stripeEnhanced.getCampaign(plan.campaignId);
+          if (campaign) {
+            const product = await this.syncCampaignAsProduct(campaign);
+            productId = product.id;
+          }
         }
       }
 
@@ -388,9 +396,10 @@ class StripeCampaignSync {
       const products = await this.stripe.products.list({ limit: 100 });
       const prices = await this.stripe.prices.list({ limit: 100 });
 
+      const stripeEnhanced = getStripeEnhanced();
       return {
         lastSync: new Date().toISOString(),
-        totalCampaigns: stripeEnhanced.getCampaigns().length,
+        totalCampaigns: stripeEnhanced ? stripeEnhanced.getCampaigns().length : 0,
         totalPlans: this.getPlans().length,
         stripeProducts: products.data.length,
         stripePrices: prices.data.length,
@@ -421,8 +430,23 @@ class StripeCampaignSync {
   }
 }
 
-// Create singleton instance
-export const stripeCampaignSync = new StripeCampaignSync();
+// Lazy initialization to prevent build-time failures
+let stripeCampaignSyncInstance: StripeCampaignSync | null = null;
 
-// Export default
-export default stripeCampaignSync;
+export function getStripeCampaignSync(): StripeCampaignSync | null {
+  // Return null if STRIPE_SECRET_KEY is not set or is a placeholder
+  const secretKey = process.env.STRIPE_SECRET_KEY;
+  if (!secretKey || secretKey === "your_stripe_secret_key_here") {
+    return null;
+  }
+
+  // Create instance only when needed and environment is properly configured
+  if (!stripeCampaignSyncInstance) {
+    stripeCampaignSyncInstance = new StripeCampaignSync();
+  }
+  
+  return stripeCampaignSyncInstance;
+}
+
+// Export default getter function
+export default getStripeCampaignSync;

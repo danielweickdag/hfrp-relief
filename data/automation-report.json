@@ -1,0 +1,13 @@
+{
+  "timestamp": "2025-11-03T10:17:09.362Z",
+  "configuration": {
+    "testMode": true,
+    "automationEnabled": true,
+    "webhookValidation": true,
+    "realtimeSync": true
+  },
+  "status": {
+    "configurationValid": true,
+    "webhookEndpointAccessible": false
+  }
+}

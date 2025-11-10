@@ -5,6 +5,7 @@ import { useState } from "react";
 // import BlogManager from "@/app/_components/BlogManager";
 // import BlogAutomationMaster from "@/app/_components/BlogAutomationMaster";
 import Link from "next/link";
+import { BackToAdmin } from "@/app/_components/BackNavigation";
 
 function AdminLogin() {
   const [email, setEmail] = useState("");
@@ -103,12 +104,7 @@ function BlogContent() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center">
-              <Link
-                href="/admin"
-                className="text-red-600 hover:text-red-700 mr-4"
-              >
-                ← Back to Dashboard
-              </Link>
+              <BackToAdmin className="mr-4" />
               <h1 className="text-2xl font-bold text-gray-900">
                 Blog Management
               </h1>

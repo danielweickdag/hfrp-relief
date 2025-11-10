@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { Resend } from "resend";
+import { getResendEnhanced, getResendConfig, isResendDemoMode, sendEnhancedEmail } from "@/lib/resendEnhanced";
 import fs from "fs";
 import path from "path";
 
@@ -107,10 +107,9 @@ async function processDonationThankYous() {
     return { processed: 0, error: "read_failed" };
   }
 
-  const resendKey = process.env.RESEND_API_KEY;
-  const demoMode = !resendKey || resendKey.startsWith("re_demo_");
-  const resend = demoMode ? null : new Resend(resendKey!);
-  const fromEmail = process.env.RESEND_FROM_EMAIL || "noreply@familyreliefproject7.org";
+  const demoMode = isResendDemoMode();
+  const config = getResendConfig();
+  const fromEmail = config?.fromEmail || "noreply@familyreliefproject7.org";
 
   let processed = 0;
   let updated = 0;
@@ -137,28 +136,31 @@ async function processDonationThankYous() {
     `;
     const text = `Thank you for your generous donation of ${donation.currency || "USD"} $${amountStr}. Your support makes a real difference.\n\n— The HFRP Team`;
 
-    try {
-      if (demoMode) {
-        // simulate
-      } else if (resend) {
-        await resend.emails.send({
-          from: fromEmail,
-          to: donation.donor_email,
-          subject,
-          html,
-          text,
-          tags: [
-            { name: "source", value: "donation_thank_you" },
-            { name: "donation_id", value: donation.id }
-          ]
-        });
-      }
-
+    if (demoMode) {
+      // simulate
       donation.thank_you_sent = true;
       donation.thank_you_sent_at = new Date().toISOString();
       updated += 1;
-    } catch (error) {
-      console.error(`Failed to send thank you for ${donation.id}:`, error);
+    } else {
+      const result = await sendEnhancedEmail({
+        from: fromEmail,
+        to: donation.donor_email,
+        subject,
+        html,
+        text,
+        tags: [
+          { name: "source", value: "donation_thank_you" },
+          { name: "donation_id", value: donation.id }
+        ]
+      });
+
+      if (result.success) {
+        donation.thank_you_sent = true;
+        donation.thank_you_sent_at = new Date().toISOString();
+        updated += 1;
+      } else {
+        console.error(`Failed to send thank you for ${donation.id}:`, result.error);
+      }
     }
 
     processed += 1;
@@ -194,10 +196,9 @@ async function processEmailQueue() {
     try { donations = JSON.parse(fs.readFileSync(donationsPath, "utf8")); } catch {}
   }
 
-  const resendKey = process.env.RESEND_API_KEY;
-  const demoMode = !resendKey || resendKey.startsWith("re_demo_");
-  const resend = demoMode ? null : new Resend(resendKey!);
-  const fromEmail = process.env.RESEND_FROM_EMAIL || "noreply@familyreliefproject7.org";
+  const demoMode = isResendDemoMode();
+  const config = getResendConfig();
+  const fromEmail = config?.fromEmail || "noreply@familyreliefproject7.org";
   const now = Date.now();
 
   let processed = 0;
@@ -228,27 +229,31 @@ async function processEmailQueue() {
     `;
     const text = `${item.template.greeting ? item.template.greeting + "\n\n" : ""}${item.template.body}\n\n${item.template.cta && item.template.link ? `${item.template.cta}: ${item.template.link}` : ""}`;
 
-    try {
-      if (demoMode) {
-        // simulate
-      } else if (resend) {
-        await resend.emails.send({
-          from: fromEmail,
-          to: recipients,
-          subject,
-          html,
-          text,
-          tags: [
-            { name: "source", value: "email_queue" },
-            { name: "campaign", value: item.campaign || "" }
-          ]
-        });
-      }
+    if (demoMode) {
+      // simulate
       item.status = "sent";
       item.sent_at = new Date().toISOString();
       updated += 1;
-    } catch (error) {
-      console.error("Failed to send queue item:", error);
+    } else {
+      const result = await sendEnhancedEmail({
+        from: fromEmail,
+        to: recipients,
+        subject,
+        html,
+        text,
+        tags: [
+          { name: "source", value: "email_queue" },
+          { name: "campaign", value: item.campaign || "" }
+        ]
+      });
+
+      if (result.success) {
+        item.status = "sent";
+        item.sent_at = new Date().toISOString();
+        updated += 1;
+      } else {
+        console.error("Failed to send queue item:", result.error);
+      }
     }
 
     processed += 1;

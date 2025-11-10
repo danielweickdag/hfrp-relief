@@ -94,7 +94,7 @@ export default function Footer() {
                   href="/membership"
                   className="text-gray-300 hover:text-white transition"
                 >
-                  Become a Member
+                  Join Our Community
                 </Link>
               </li>
               <li>

@@ -1,6 +1,5 @@
 import Stripe from "stripe";
 import { donationStorage } from "./donationStorage";
-import { stripeEnhanced } from "./stripeEnhanced";
 import type {
   Donation,
   Donor,
@@ -135,9 +134,12 @@ class StripeAutomatedDonationSystem {
   private initialized = false;
 
   constructor() {
-    this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-      apiVersion: "2025-08-27.basil",
-    });
+    const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+    if (!stripeSecretKey || stripeSecretKey === "your_stripe_secret_key_here") {
+      throw new Error("Stripe secret key not configured");
+    }
+
+    this.stripe = new Stripe(stripeSecretKey);
 
     // Start automation processing
     this.startAutomationProcessor();
@@ -663,7 +665,11 @@ class StripeAutomatedDonationSystem {
   private async handleRecurringPaymentSucceeded(
     invoice: Stripe.Invoice
   ): Promise<void> {
-    const subscriptionId = typeof invoice.subscription === 'string' ? invoice.subscription : invoice.subscription?.id;
+    const rawSubscription: any = (invoice as any).subscription;
+    const subscriptionId =
+      typeof rawSubscription === "string"
+        ? rawSubscription
+        : rawSubscription?.id;
     const campaignId = invoice.lines.data[0]?.metadata?.campaignId;
 
     if (!campaignId) return;
@@ -1043,7 +1049,32 @@ class StripeAutomatedDonationSystem {
   }
 }
 
-// Export singleton instance
-export const stripeAutomatedDonationSystem =
-  new StripeAutomatedDonationSystem();
+// Lazy initialization for stripeAutomatedDonationSystem
+let stripeAutomatedDonationSystemInstance: StripeAutomatedDonationSystem | null =
+  null;
+
+export function getStripeAutomatedDonationSystem(): StripeAutomatedDonationSystem | null {
+  const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+  if (!stripeSecretKey || stripeSecretKey === "your_stripe_secret_key_here") {
+    return null;
+  }
+
+  if (!stripeAutomatedDonationSystemInstance) {
+    try {
+      stripeAutomatedDonationSystemInstance =
+        new StripeAutomatedDonationSystem();
+    } catch (error) {
+      console.error(
+        "Failed to initialize StripeAutomatedDonationSystem:",
+        error
+      );
+      return null;
+    }
+  }
+
+  return stripeAutomatedDonationSystemInstance;
+}
+
+// Legacy export for backward compatibility (deprecated)
+export const stripeAutomatedDonationSystem = getStripeAutomatedDonationSystem();
 export default StripeAutomatedDonationSystem;

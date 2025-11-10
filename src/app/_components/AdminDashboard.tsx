@@ -1795,6 +1795,21 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
                         </Link>
                       </WithPermission>
 
+                      <WithPermission permission="manage_donations">
+                        <a
+                          href="https://connect.stripe.com/d/setup/e/_TO365uSkCCbOqJ0ITW8P4bEW5C/YWNjdF8xU1BNUEwyTGZScmJJTTdq/6a2d66962b0c34ff8"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="bg-indigo-600 text-white p-4 rounded hover:bg-indigo-700 text-left transition-colors block"
+                        >
+                          <div className="text-2xl mb-2">🔗</div>
+                          <div className="font-semibold">Stripe Connect Onboarding</div>
+                          <div className="text-xs opacity-75">
+                            Open external onboarding link
+                          </div>
+                        </a>
+                      </WithPermission>
+
                       {/* Print Function */}
                       <button
                         onClick={() => {

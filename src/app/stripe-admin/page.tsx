@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { getStripeEnhanced } from "@/lib/stripeEnhanced";
+import { getStripeCampaignSync } from "@/lib/stripeCampaignSync";
 import type { StripePlan, SyncResult } from "@/lib/stripeCampaignSync";
 import type { StripeCampaign, StripeEvent } from "@/lib/stripeEnhanced";
 
@@ -25,6 +27,9 @@ export default function StripeAdminPage() {
   const [campaigns, setCampaigns] = useState<StripeCampaign[]>([]);
   const [events, setEvents] = useState<StripeEvent[]>([]);
   const [lastResponse, setLastResponse] = useState<SyncResponse | null>(null);
+
+  const stripeConnectOnboardingUrl =
+    "https://connect.stripe.com/d/setup/e/_TO365uSkCCbOqJ0ITW8P4bEW5C/YWNjdF8xU1BNUEwyTGZScmJJTTdq/6a2d66962b0c34ff8";
 
   async function runSync() {
     setLoading("sync");
@@ -112,6 +117,27 @@ export default function StripeAdminPage() {
           <p className="text-gray-600 mt-2">
             Trigger syncs and review plans, campaigns, and events.
           </p>
+        </div>
+
+        {/* Stripe Connect Onboarding Quick Link */}
+        <div className="mb-6">
+          <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 flex items-center justify-between">
+            <div>
+              <h2 className="text-base font-semibold text-indigo-900">Stripe Connect Onboarding</h2>
+              <p className="text-sm text-indigo-700">
+                Open the onboarding flow to complete Stripe Connect setup.
+              </p>
+            </div>
+            <a
+              href={stripeConnectOnboardingUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center px-4 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700"
+            >
+              <span className="mr-2">🔗</span>
+              Open Onboarding
+            </a>
+          </div>
         </div>
 
         <div className="bg-white rounded-lg shadow-lg p-6">

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import {
-  stripeEnhanced,
+  getStripeEnhanced,
   type StripeCampaign,
   type StripeEvent,
 } from "@/lib/stripeEnhanced";
@@ -15,6 +15,7 @@ interface StripeDashboardProps {
 export default function StripeDashboard({
   className = "",
 }: StripeDashboardProps) {
+  const stripe = getStripeEnhanced();
   const [campaigns, setCampaigns] = useState<StripeCampaign[]>([]);
   const [stats, setStats] = useState({
     totalDonations: 0,
@@ -22,9 +23,21 @@ export default function StripeDashboard({
     totalDonors: 0,
     averageDonation: 0,
   });
-  const [config, setConfig] = useState(stripeEnhanced.getConfig());
+  const [config, setConfig] = useState(() =>
+    stripe?.getConfig() ?? ({ testMode: false } as any)
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCampaign, setSelectedCampaign] = useState<string>("");
+  
+  // SSR-stable test mode badge: derive from env, then update after mount
+  const initialTestMode = (() => {
+    const key = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "";
+    const flag = process.env.NEXT_PUBLIC_STRIPE_TEST_MODE === "true";
+    if (key.startsWith("pk_live_")) return false;
+    if (key.startsWith("pk_test_")) return true;
+    return flag;
+  })();
+  const [testMode, setTestMode] = useState<boolean>(initialTestMode);
 
   useEffect(() => {
     loadData();
@@ -33,12 +46,27 @@ export default function StripeDashboard({
   const loadData = () => {
     setIsLoading(true);
 
+    // Ensure latest config, then update SSR-stable testMode state
+    try {
+      stripe?.loadConfig();
+      const cfg = stripe?.getConfig();
+      if (cfg) {
+        setConfig(cfg);
+        setTestMode(cfg.testMode);
+      }
+    } catch {}
+
     // Load campaigns
-    const campaignData = stripeEnhanced.getCampaigns();
+    const campaignData = stripe?.getCampaigns() ?? [];
     setCampaigns(campaignData);
 
     // Update stats
-    const statsData = stripeEnhanced.getDonationStats();
+    const statsData = stripe?.getDonationStats() ?? {
+      totalDonations: 0,
+      totalAmount: 0,
+      totalDonors: 0,
+      averageDonation: 0,
+    };
     setStats(statsData);
 
     // Set default campaign
@@ -52,16 +80,27 @@ export default function StripeDashboard({
   const updateConfig = (updates: Partial<typeof config>) => {
     const newConfig = { ...config, ...updates };
     setConfig(newConfig);
-    stripeEnhanced.updateConfig(updates);
+    stripe?.updateConfig(updates);
   };
 
-  const validation = stripeEnhanced.validateConfig();
+  const validation = stripe?.validateConfig() ?? { isValid: false };
 
   if (isLoading) {
     return (
       <div className={`flex items-center justify-center p-8 ${className}`}>
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         <span className="ml-2">Loading Stripe Dashboard...</span>
+      </div>
+    );
+  }
+
+  if (!stripe) {
+    return (
+      <div className={`flex items-center justify-center p-8 ${className}`}>
+        <div className="bg-white rounded-lg shadow p-6 text-center">
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Stripe Not Configured</h2>
+          <p className="text-gray-600">Please check your Stripe environment variables and configuration.</p>
+        </div>
       </div>
     );
   }
@@ -80,7 +119,7 @@ export default function StripeDashboard({
             </p>
           </div>
           <div className="flex items-center space-x-2">
-            {config.testMode ? (
+            {testMode ? (
               <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
                 🧪 Test Mode
               </span>
@@ -300,7 +339,7 @@ export default function StripeDashboard({
             )}
 
             {/* Test Cards Info */}
-            {config.testMode && (
+            {testMode && (
               <div className="mt-6 p-4 bg-yellow-50 rounded-lg">
                 <h5 className="font-medium text-yellow-800 mb-2">Test Cards</h5>
                 <div className="text-sm text-yellow-700 space-y-1">

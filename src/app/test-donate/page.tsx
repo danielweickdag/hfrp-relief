@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { stripeEnhanced } from "@/lib/stripeEnhanced";
+import { getStripeEnhanced } from "@/lib/stripeEnhanced";
 
 interface TestResult {
   test: string;
@@ -169,6 +169,16 @@ export default function TestDonatePage() {
     const campaignId =
       process.env.NEXT_PUBLIC_STRIPE_MAIN_CAMPAIGN || "haiti-relief-main";
 
+    const stripeEnhanced = getStripeEnhanced();
+    if (!stripeEnhanced) {
+      addTestResult(
+        "Homepage Button Test",
+        "fail",
+        "Stripe not configured - cannot create checkout"
+      );
+      return;
+    }
+
     stripeEnhanced
       .createCampaignCheckout({
         campaignId,
@@ -243,6 +253,16 @@ export default function TestDonatePage() {
     const campaignId =
       process.env.NEXT_PUBLIC_STRIPE_MAIN_CAMPAIGN || "haiti-relief-main";
 
+    const stripeEnhanced = getStripeEnhanced();
+    if (!stripeEnhanced) {
+      addTestResult(
+        "Daily Giving Test",
+        "fail",
+        "Stripe not configured - cannot create checkout"
+      );
+      return;
+    }
+
     stripeEnhanced
       .createCampaignCheckout({
         campaignId,
@@ -253,7 +273,7 @@ export default function TestDonatePage() {
         cancelUrl: `${window.location.origin}/donation/cancelled`,
         metadata: { source: "test-daily-giving" },
       })
-      .then(({ url }) => {
+      .then(({ url }: { url: string }) => {
         console.log(
           "🌐 Opening 50¢ daily giving (Stripe monthly $15):",
           url
@@ -288,7 +308,7 @@ export default function TestDonatePage() {
           }
         }
       })
-      .catch((error) => {
+      .catch((error: unknown) => {
         addTestResult(
           "Daily Giving Test",
           "fail",

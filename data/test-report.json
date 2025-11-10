@@ -1,0 +1,92 @@
+{
+  "timestamp": "2025-11-03T10:14:35.448Z",
+  "summary": {
+    "total": 16,
+    "passed": 4,
+    "failed": 0,
+    "errors": 4,
+    "fixes": 1
+  },
+  "results": [
+    {
+      "timestamp": "2025-11-03T10:14:35.298Z",
+      "type": "INFO",
+      "message": "🧪 Starting Stripe Automation Dashboard Tests..."
+    },
+    {
+      "timestamp": "2025-11-03T10:14:35.306Z",
+      "type": "INFO",
+      "message": "🔍 Testing Stripe configuration..."
+    },
+    {
+      "timestamp": "2025-11-03T10:14:35.306Z",
+      "type": "PASS",
+      "message": "✅ Found environment variable: STRIPE_SECRET_KEY"
+    },
+    {
+      "timestamp": "2025-11-03T10:14:35.306Z",
+      "type": "PASS",
+      "message": "✅ Found environment variable: NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY"
+    },
+    {
+      "timestamp": "2025-11-03T10:14:35.306Z",
+      "type": "PASS",
+      "message": "✅ Found environment variable: NEXT_PUBLIC_STRIPE_TEST_MODE"
+    },
+    {
+      "timestamp": "2025-11-03T10:14:35.306Z",
+      "type": "INFO",
+      "message": "🌐 Testing dashboard endpoints..."
+    },
+    {
+      "timestamp": "2025-11-03T10:14:35.325Z",
+      "type": "ERROR",
+      "message": "❌ / - Error: Command failed: curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:3005/\""
+    },
+    {
+      "timestamp": "2025-11-03T10:14:35.341Z",
+      "type": "ERROR",
+      "message": "❌ /admin - Error: Command failed: curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:3005/admin\""
+    },
+    {
+      "timestamp": "2025-11-03T10:14:35.358Z",
+      "type": "ERROR",
+      "message": "❌ /api/stripe/webhook - Error: Command failed: curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:3005/api/stripe/webhook\""
+    },
+    {
+      "timestamp": "2025-11-03T10:14:35.392Z",
+      "type": "ERROR",
+      "message": "❌ /api/health - Error: Command failed: curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:3005/api/health\""
+    },
+    {
+      "timestamp": "2025-11-03T10:14:35.392Z",
+      "type": "INFO",
+      "message": "🔧 Attempting to fix common issues..."
+    },
+    {
+      "timestamp": "2025-11-03T10:14:35.393Z",
+      "type": "FIX",
+      "message": "✅ Updated webhook secret format"
+    },
+    {
+      "timestamp": "2025-11-03T10:14:35.393Z",
+      "type": "INFO",
+      "message": "⚙️ Testing Stripe automation service..."
+    },
+    {
+      "timestamp": "2025-11-03T10:14:35.446Z",
+      "type": "PASS",
+      "message": "✅ Stripe automation services are working"
+    },
+    {
+      "timestamp": "2025-11-03T10:14:35.447Z",
+      "type": "INFO",
+      "message": "🚀 Starting automation workflow..."
+    },
+    {
+      "timestamp": "2025-11-03T10:14:35.448Z",
+      "type": "SUCCESS",
+      "message": "✅ Automation workflow started in background"
+    }
+  ]
+}

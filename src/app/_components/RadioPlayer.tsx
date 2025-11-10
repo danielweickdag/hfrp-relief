@@ -23,6 +23,7 @@ export default function RadioPlayer({
   externalPlayerUrl = "https://listen.zeno.fm/player/family-relief-project-radio-station",
   showExternalLink = true,
 }: RadioPlayerProps) {
+  const radioEnabled = process.env.NEXT_PUBLIC_ENABLE_RADIO_STREAM !== "false";
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [volume, setVolume] = useState(0.7);
@@ -133,7 +134,7 @@ export default function RadioPlayer({
   };
 
   // Function to retry playback with exponential backoff
-  const retryPlayback = async (attempt: number = 0): Promise<void> => {
+  const retryPlayback = async (attempt = 0): Promise<void> => {
     if (attempt >= maxRetries) {
       console.error("❌ Max retry attempts reached");
       setError("Unable to connect to radio stream after multiple attempts. Please try the external player.");
@@ -211,6 +212,13 @@ export default function RadioPlayer({
 
   // Auto-validate stream URL on mount and set up refresh interval
   useEffect(() => {
+    if (!radioEnabled) {
+      // Skip any network requests in dev when radio is disabled
+      setCurrentStreamUrl(streamUrl);
+      setConnectionStatus("disconnected");
+      setError(null);
+      return;
+    }
     const validateStream = async () => {
       try {
         console.log("🔍 Validating HFRP Radio stream URL:", streamUrl);
@@ -265,15 +273,13 @@ export default function RadioPlayer({
     };
 
     validateStream();
-  }, [streamUrl]);
+  }, [streamUrl, radioEnabled]);
 
-  // Set up automatic stream refresh for Zeno.fm streams
+  // Set up automatic stream refresh for Zeno.fm streams only while playing
   useEffect(() => {
-    if (streamUrl.includes("zeno.fm")) {
-      // Always refresh tokens every 30 seconds for Zeno.fm streams, regardless of play state
-      // This ensures we always have fresh tokens available (tokens expire every 60 seconds)
+    if (radioEnabled && isPlaying && streamUrl.includes("zeno.fm")) {
       refreshIntervalRef.current = setInterval(async () => {
-        console.log("⏰ Proactive token refresh for Zeno.fm stream...");
+        console.log("⏰ Proactive token refresh for Zeno.fm stream (playing)...");
         try {
           const freshUrl = await getFreshStreamUrl(streamUrl);
           setCurrentStreamUrl(freshUrl);
@@ -282,13 +288,12 @@ export default function RadioPlayer({
           console.warn("⚠️ Proactive token refresh failed:", error);
         }
       }, 30000);
-      console.log("⏰ Set up proactive token refresh every 30 seconds");
+      console.log("⏰ Set up proactive token refresh every 30 seconds (playing)");
     } else {
-      // Clear interval for non-Zeno.fm streams
       if (refreshIntervalRef.current) {
         clearInterval(refreshIntervalRef.current);
         refreshIntervalRef.current = null;
-        console.log("⏹️ Cleared token refresh (not a Zeno.fm stream)");
+        console.log("⏹️ Cleared token refresh");
       }
     }
 
@@ -303,7 +308,7 @@ export default function RadioPlayer({
         retryTimeoutRef.current = null;
       }
     };
-  }, [streamUrl]);
+  }, [streamUrl, radioEnabled, isPlaying]);
 
   useEffect(() => {
     if (audioRef.current) {

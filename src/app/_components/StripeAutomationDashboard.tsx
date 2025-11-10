@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { getStripeConfigManager } from "@/lib/stripeConfigManager";
-import { stripeAutomation } from "@/lib/stripeAutomation";
+import { getStripeAutomation } from "@/lib/stripeAutomation";
 
 interface AutomationStats {
   totalDonations: number;
@@ -40,6 +40,15 @@ interface PerformanceMetrics {
 }
 
 export default function StripeAutomationDashboard() {
+  // SSR-stable initial stripeMode derived from environment
+  const initialStripeMode: 'test' | 'live' = (() => {
+    const key = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "";
+    const flag = process.env.NEXT_PUBLIC_STRIPE_TEST_MODE === 'true';
+    if (key.startsWith('pk_live_')) return 'live';
+    if (key.startsWith('pk_test_')) return 'test';
+    return flag ? 'test' : 'live';
+  })();
+
   const [stats, setStats] = useState<AutomationStats>({
     totalDonations: 0,
     recurringDonations: 0,
@@ -48,7 +57,7 @@ export default function StripeAutomationDashboard() {
     webhooksProcessed: 0,
     automationErrors: 0,
     lastSyncTime: new Date().toISOString(),
-    stripeMode: 'test',
+    stripeMode: initialStripeMode,
     configurationValid: false
   });
 
@@ -86,6 +95,12 @@ export default function StripeAutomationDashboard() {
       const validation = await stripeConfigManager.validateConfiguration();
       
       // Get performance metrics
+      const stripeAutomation = getStripeAutomation();
+      if (!stripeAutomation) {
+        setError("Stripe automation service is not available");
+        return;
+      }
+      
       const healthStatus = stripeAutomation.getHealthStatus();
       const overallStats = stripeAutomation.getOperationStats();
       
@@ -115,7 +130,7 @@ export default function StripeAutomationDashboard() {
         webhooksProcessed: 234,
         automationErrors: 3,
         lastSyncTime: new Date().toISOString(),
-        stripeMode: process.env.NEXT_PUBLIC_STRIPE_TEST_MODE === 'true' ? 'test' : 'live',
+        stripeMode: initialStripeMode,
         configurationValid: validation.isValid
       };
 

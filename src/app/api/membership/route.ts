@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import fs from "fs/promises";
 import path from "path";
 
@@ -8,25 +8,29 @@ interface Member {
   lastName: string;
   email: string;
   phone?: string;
-  membershipType: "hope" | "relief" | "transformation";
-  billingCycle: "monthly" | "annual";
+  membershipType: "community" | "hope" | "relief" | "transformation"; // Added community type for free membership
+  billingCycle: "free" | "monthly" | "annual"; // Added free option
   status: "active" | "inactive" | "cancelled";
   joinDate: string;
   lastPayment?: string;
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
-  preferences: {
-    emailUpdates: boolean;
-    smsUpdates: boolean;
+  interests: {
+    emergencyUpdates: boolean;
+    volunteerOpportunities: boolean;
     newsletter: boolean;
-    prayerRequests: boolean;
+    eventNotifications: boolean;
     impactReports: boolean;
   };
+  volunteerAreas: string[];
+  availability?: string;
   impactTracking: {
     totalContributed: number;
     familiesHelped: number;
     mealsProvided: number;
     programsSupported: string[];
+    volunteerHours?: number;
+    eventsAttended?: number;
   };
   metadata?: Record<string, string | number | boolean>;
 }
@@ -35,6 +39,7 @@ interface MembershipStats {
   totalMembers: number;
   activeMembers: number;
   membersByType: {
+    community: number;
     hope: number;
     relief: number;
     transformation: number;
@@ -48,6 +53,8 @@ interface MembershipStats {
     totalMealsProvided: number;
     totalContributions: number;
     activePrograms: number;
+    totalVolunteers: number;
+    totalVolunteerHours: number;
   };
 }
 
@@ -155,19 +162,21 @@ function generateStats(members: Member[]): MembershipStats {
   const churnRate = members.length > 0 ? (cancelledMembers / members.length) * 100 : 0;
   
   const membersByType = {
+    community: activeMembers.filter(m => m.membershipType === "community").length,
     hope: activeMembers.filter(m => m.membershipType === "hope").length,
     relief: activeMembers.filter(m => m.membershipType === "relief").length,
     transformation: activeMembers.filter(m => m.membershipType === "transformation").length,
   };
 
-  // Calculate revenue based on membership plans
+  // Calculate revenue based on membership plans (community is free)
   const monthlyRevenue = activeMembers.reduce((total, member) => {
+    if (member.membershipType === "community") return total; // Free membership
     const amounts = {
       hope: member.billingCycle === "monthly" ? 15 : 162 / 12,
       relief: member.billingCycle === "monthly" ? 35 : 378 / 12,
       transformation: member.billingCycle === "monthly" ? 75 : 810 / 12,
     };
-    return total + amounts[member.membershipType];
+    return total + (amounts[member.membershipType as keyof typeof amounts] || 0);
   }, 0);
 
   // Calculate impact metrics
@@ -176,6 +185,8 @@ function generateStats(members: Member[]): MembershipStats {
     totalMealsProvided: members.reduce((sum, member) => sum + (member.impactTracking?.mealsProvided || 0), 0),
     totalContributions: members.reduce((sum, member) => sum + (member.impactTracking?.totalContributed || 0), 0),
     activePrograms: 8, // Static for now - would be dynamic based on actual programs
+    totalVolunteers: activeMembers.filter(m => m.volunteerAreas && m.volunteerAreas.length > 0).length,
+    totalVolunteerHours: members.reduce((sum, member) => sum + (member.impactTracking?.volunteerHours || 0), 0),
   };
 
   return {
@@ -201,8 +212,8 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const action = searchParams.get("action");
-    const limit = parseInt(searchParams.get("limit") || "50");
-    const offset = parseInt(searchParams.get("offset") || "0");
+    const limit = Number.parseInt(searchParams.get("limit") || "50");
+    const offset = Number.parseInt(searchParams.get("offset") || "0");
 
     const members = await loadMembers();
 
@@ -240,7 +251,12 @@ export async function POST(request: NextRequest) {
       phone,
       membershipType,
       billingCycle,
-      preferences,
+      interests,
+      volunteerAreas,
+      availability,
+      emailUpdates,
+      smsUpdates,
+      newsletter,
     } = body;
 
     // Validate required fields
@@ -260,7 +276,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate membership type
-    if (!["hope", "relief", "transformation"].includes(membershipType)) {
+    if (!["community", "hope", "relief", "transformation"].includes(membershipType)) {
       return NextResponse.json(
         { success: false, error: "Invalid membership type" },
         { status: 400 }
@@ -268,7 +284,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate billing cycle
-    if (!["monthly", "annual"].includes(billingCycle)) {
+    if (!["free", "monthly", "annual"].includes(billingCycle)) {
       return NextResponse.json(
         { success: false, error: "Invalid billing cycle" },
         { status: 400 }
@@ -297,18 +313,22 @@ export async function POST(request: NextRequest) {
       billingCycle,
       status: "active",
       joinDate: new Date().toISOString(),
-      preferences: preferences || {
-        emailUpdates: true,
-        smsUpdates: false,
-        newsletter: true,
-        prayerRequests: true,
+      interests: {
+        emergencyUpdates: emailUpdates !== undefined ? emailUpdates : true,
+        volunteerOpportunities: true,
+        newsletter: newsletter !== undefined ? newsletter : true,
+        eventNotifications: emailUpdates !== undefined ? emailUpdates : true,
         impactReports: true,
       },
+      volunteerAreas: volunteerAreas || [],
+      availability: availability || "weekends",
       impactTracking: {
         totalContributed: 0,
         familiesHelped: 0,
         mealsProvided: 0,
         programsSupported: [],
+        volunteerHours: 0,
+        eventsAttended: 0,
       },
       metadata: {
         source: "website",

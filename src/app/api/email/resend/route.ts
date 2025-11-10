@@ -101,8 +101,13 @@ async function handleSendEmail(emailData: SingleEmailRequest) {
     const fromEmail = emailData.from || process.env.RESEND_FROM_EMAIL || 'noreply@familyreliefproject7.org';
     
     // Ensure we have at least text content
+    const ensuredHtml =
+      emailData.html ??
+      (emailData.text ? String(emailData.text) : undefined) ??
+      (emailData.subject ? `<p>${emailData.subject}</p>` : "<p></p>");
+
     const emailContent = {
-      html: emailData.html,
+      html: ensuredHtml,
       text: emailData.text || emailData.subject || 'No content provided'
     };
 
@@ -113,6 +118,7 @@ async function handleSendEmail(emailData: SingleEmailRequest) {
       ...emailContent,
       cc: emailData.cc,
       bcc: emailData.bcc,
+      // Use Resend's expected camelCase key
       replyTo: emailData.replyTo,
       tags: emailData.tags || [
         { name: 'source', value: 'admin_dashboard' },

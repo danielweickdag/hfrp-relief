@@ -1,6 +1,7 @@
 "use client";
 
-import { stripeEnhanced } from "@/lib/stripeEnhanced";
+import { useEffect, useState } from "react";
+import { getStripeEnhanced } from "@/lib/stripeEnhanced";
 
 interface StripeStatusProps {
   showDetails?: boolean;
@@ -11,8 +12,42 @@ export default function StripeStatus({
   showDetails = true,
   className = "",
 }: StripeStatusProps) {
+  const stripeEnhanced = getStripeEnhanced();
+  
+  // SSR-stable test mode: derive from env, then update after mount
+  const initialTestMode = (() => {
+    const key = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "";
+    const flag = process.env.NEXT_PUBLIC_STRIPE_TEST_MODE === "true";
+    if (key.startsWith("pk_live_")) return false;
+    if (key.startsWith("pk_test_")) return true;
+    return flag;
+  })();
+  const [testMode, setTestMode] = useState<boolean>(initialTestMode);
+  
+  if (!stripeEnhanced) {
+    return (
+      <div className={`bg-red-50 rounded-lg border border-red-200 p-4 ${className}`}>
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-lg">❌</span>
+          <h4 className="font-semibold text-red-900">Stripe Not Configured</h4>
+        </div>
+        <p className="text-red-800 text-sm">
+          Stripe integration is not available. Please configure your Stripe environment variables.
+        </p>
+      </div>
+    );
+  }
+
   const config = stripeEnhanced.getConfig();
   const validation = stripeEnhanced.validateConfig();
+
+  useEffect(() => {
+    try {
+      stripeEnhanced.loadConfig();
+      const cfg = stripeEnhanced.getConfig();
+      setTestMode(cfg.testMode);
+    } catch {}
+  }, []);
 
   return (
     <div className={`bg-gray-50 rounded-lg border border-gray-200 p-4 ${className}`}>
@@ -21,7 +56,7 @@ export default function StripeStatus({
           <span className="text-lg">💳</span>
           <h4 className="font-semibold text-gray-900">Stripe Integration Status</h4>
         </div>
-        {config.testMode ? (
+        {testMode ? (
           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
             Test Mode
           </span>
@@ -53,7 +88,7 @@ export default function StripeStatus({
             <div className="bg-red-50 border border-red-200 rounded-md p-3 text-sm text-red-800">
               <div className="font-semibold mb-1">Configuration Issues</div>
               <ul className="list-disc list-inside space-y-1">
-                {validation.errors.map((e, i) => (
+                {validation.errors.map((e: string, i: number) => (
                   <li key={i}>{e}</li>
                 ))}
               </ul>
@@ -68,7 +103,7 @@ export default function StripeStatus({
             <div className="mt-3 bg-yellow-50 border border-yellow-200 rounded-md p-3 text-sm text-yellow-800">
               <div className="font-semibold mb-1">Warnings</div>
               <ul className="list-disc list-inside space-y-1">
-                {validation.warnings.map((w, i) => (
+                {validation.warnings.map((w: string, i: number) => (
                   <li key={i}>{w}</li>
                 ))}
               </ul>

@@ -49,11 +49,24 @@ class StripeConfigManager {
   }
 
   private loadEnvironmentConfig(): StripeEnvironmentConfig {
+    const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '';
+    const testModeFlag = process.env.NEXT_PUBLIC_STRIPE_TEST_MODE === 'true';
+    // Prefer choosing a secret that matches the current publishable key mode
+    const webhookSecret = (() => {
+      const testSecret = process.env.STRIPE_WEBHOOK_SECRET_TEST || '';
+      const liveSecret = process.env.STRIPE_WEBHOOK_SECRET_LIVE || '';
+      const defaultSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
+      if (publishableKey.startsWith('pk_live_')) return liveSecret || defaultSecret;
+      if (publishableKey.startsWith('pk_test_')) return testSecret || defaultSecret;
+      // Fallback to flag when key prefix is ambiguous
+      return testModeFlag ? (testSecret || defaultSecret) : (liveSecret || defaultSecret);
+    })();
+
     return {
       secretKey: process.env.STRIPE_SECRET_KEY || '',
-      publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '',
-      webhookSecret: process.env.STRIPE_WEBHOOK_SECRET || '',
-      testMode: process.env.NEXT_PUBLIC_STRIPE_TEST_MODE === 'true',
+      publishableKey,
+      webhookSecret,
+      testMode: testModeFlag,
       environment: (process.env.NODE_ENV as 'development' | 'staging' | 'production') || 'development'
     };
   }
@@ -61,8 +74,8 @@ class StripeConfigManager {
   private loadAutomationConfig(): StripeAutomationConfig {
     return {
       enableAutoRetry: process.env.STRIPE_AUTO_RETRY !== 'false',
-      maxRetryAttempts: parseInt(process.env.STRIPE_MAX_RETRIES || '3'),
-      retryDelayMs: parseInt(process.env.STRIPE_RETRY_DELAY || '1000'),
+      maxRetryAttempts: Number.parseInt(process.env.STRIPE_MAX_RETRIES || '3'),
+      retryDelayMs: Number.parseInt(process.env.STRIPE_RETRY_DELAY || '1000'),
       enableWebhookValidation: process.env.STRIPE_WEBHOOK_VALIDATION !== 'false',
       enableRealTimeSync: process.env.STRIPE_REALTIME_SYNC !== 'false',
       enableAnalytics: process.env.STRIPE_ANALYTICS !== 'false',
@@ -77,7 +90,6 @@ class StripeConfigManager {
     if (this.config.secretKey && this.config.secretKey !== 'your_stripe_secret_key_here') {
       try {
         this.stripe = new Stripe(this.config.secretKey, {
-          apiVersion: "2025-08-27.basil",
           typescript: true,
         });
         this.isInitialized = true;

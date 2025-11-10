@@ -1,6 +1,7 @@
 "use client";
 
 import ContactForm from "../_components/ContactForm";
+import { BackToHome } from "../_components/BackNavigation";
 import {
   MapPinIcon,
   PhoneIcon,
@@ -18,6 +19,7 @@ export default function ContactPage() {
         <div className="absolute inset-0 bg-black opacity-30" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10">
           <div className="text-center">
+            <BackToHome className="mb-6 text-white hover:text-white/80" />
             <h1 className="text-4xl md:text-5xl font-bold mb-4">Contact Us</h1>
             <p className="text-lg md:text-xl max-w-3xl mx-auto text-white/90">
               We'd love to hear from you! Whether you have questions about our

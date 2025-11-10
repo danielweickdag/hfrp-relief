@@ -259,7 +259,7 @@ export default function ImpactPage() {
               href="/membership"
               className="bg-red-800 text-white px-8 py-4 rounded-lg font-bold hover:bg-red-900 transition-all transform hover:scale-105"
             >
-              Become a Member
+              Join Our Community
             </Link>
           </div>
         </div>

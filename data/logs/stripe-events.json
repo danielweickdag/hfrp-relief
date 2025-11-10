@@ -29,5 +29,36 @@
         "subscription": "sub_test_456"
       }
     }
+  },
+  {
+    "id": "evt_test_1762165782995",
+    "type": "payment_intent.succeeded",
+    "api_version": "test",
+    "createdAt": "2025-11-03T10:29:42.995Z",
+    "data": {
+      "object": {
+        "id": "pi_test_1762165782995",
+        "amount": 2500,
+        "currency": "usd",
+        "customer": "cus_test_123",
+        "metadata": {
+          "campaignId": "haiti-relief-membership"
+        }
+      }
+    }
+  },
+  {
+    "id": "evt_test_1762165782996",
+    "type": "invoice.payment_succeeded",
+    "api_version": "test",
+    "createdAt": "2025-11-03T10:29:42.995Z",
+    "data": {
+      "object": {
+        "id": "in_test_1762165782995",
+        "amount_paid": 1500,
+        "customer": "cus_test_123",
+        "subscription": "sub_test_456"
+      }
+    }
   }
 ]

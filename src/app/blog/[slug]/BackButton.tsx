@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
+import BackNavigation from "@/app/_components/BackNavigation";
 
 interface PostData {
   [key: string]: string | undefined;
@@ -43,7 +43,6 @@ function socialShareLinks({
 }
 
 export default function BackButton({ post }: { post: PostData }) {
-  const router = useRouter();
   const [copied, setCopied] = useState(false);
   const shareLinks = socialShareLinks({
     title: post.title,
@@ -61,12 +60,11 @@ export default function BackButton({ post }: { post: PostData }) {
 
   return (
     <>
-      <button
-        onClick={() => router.back()}
-        className="mb-4 text-blue-700 hover:underline"
-      >
-        ← Back to Blog
-      </button>
+      <BackNavigation
+        text="← Back to Blog"
+        href="/blog"
+        className="mb-4"
+      />
       <div className="flex gap-3 mb-5 mt-2">
         {shareLinks.map((link) => (
           <a

@@ -1,12 +1,13 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { Resend } from "resend";
+import { getResendEnhanced, getResendConfig, isResendDemoMode, sendEnhancedEmail } from "@/lib/resendEnhanced";
 import fs from "fs";
 import path from "path";
 
 // Send confirmation email to the user
-async function sendConfirmationEmail(resend: Resend, userEmail: string, userName: string, subject: string) {
+async function sendConfirmationEmail(userEmail: string, userName: string, subject: string) {
   try {
-    const fromEmail = process.env.RESEND_FROM_EMAIL || "noreply@familyreliefproject7.org";
+    const config = getResendConfig();
+    const fromEmail = config?.fromEmail || "noreply@familyreliefproject7.org";
     
     const confirmationHTML = `
       <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
@@ -80,7 +81,7 @@ Phone: (224) 217-0230
 Bringing hope and relief to families in need
     `;
 
-    const confirmationData = await resend.emails.send({
+    const confirmationResult = await sendEnhancedEmail({
       from: fromEmail,
       to: userEmail,
       subject: `Thank you for contacting HFRP - We received your message`,
@@ -92,8 +93,13 @@ Bringing hope and relief to families in need
       ],
     });
 
-    console.log("✅ Confirmation email sent to user:", confirmationData.data?.id || "sent");
-    return confirmationData.data?.id || null;
+    if (confirmationResult.success) {
+      console.log("✅ Confirmation email sent to user:", confirmationResult.messageId || "sent");
+      return confirmationResult.messageId || null;
+    } else {
+      console.error("⚠️ Failed to send confirmation email:", confirmationResult.error);
+      return null;
+    }
   } catch (error) {
     console.error("⚠️ Failed to send confirmation email:", error);
     return null;
@@ -243,11 +249,11 @@ export async function POST(request: NextRequest) {
       status: "received",
     };
 
-    // Initialize Resend inside the function to avoid build-time errors
-    if (
-      !process.env.RESEND_API_KEY ||
-      process.env.RESEND_API_KEY.startsWith("re_demo_")
-    ) {
+    // Check if Resend is configured using lazy initialization
+    const resend = getResendEnhanced();
+    const config = getResendConfig();
+    
+    if (!resend || isResendDemoMode()) {
       console.warn(
         "⚠️ RESEND_API_KEY not configured or using demo key, email will not be sent"
       );
@@ -264,8 +270,6 @@ export async function POST(request: NextRequest) {
         persisted: true,
       });
     }
-
-    const resend = new Resend(process.env.RESEND_API_KEY);
 
     // Validate required fields
     if (!name || !email || !subject || !message) {
@@ -410,8 +414,8 @@ This message was sent via the HFRP website contact form.
 Reply directly to this email to respond to ${name}.
     `;
 
-    // Send email using Resend
-    const emailData = await resend.emails.send({
+    // Send email using enhanced Resend
+    const emailResult = await sendEnhancedEmail({
       from: fromEmail,
       to: recipients,
       cc: ccEmails.length > 0 ? ccEmails : undefined,
@@ -426,19 +430,23 @@ Reply directly to this email to respond to ${name}.
       ],
     });
 
+    if (!emailResult.success) {
+      throw new Error(emailResult.error || "Failed to send email");
+    }
+
     console.log(
       "✅ Contact form email sent successfully:",
-      emailData.data?.id || "sent"
+      emailResult.messageId || "sent"
     );
 
     // Send confirmation email to the user
-    const confirmationEmailId = await sendConfirmationEmail(resend, email, name, subject);
+    const confirmationEmailId = await sendConfirmationEmail(email, name, subject);
 
     // Persist successful submission
     appendContactLog({
       ...baseRecord,
       status: "emailed",
-      emailId: emailData.data?.id || null,
+      emailId: emailResult.messageId || null,
       confirmationEmailId,
       recipients,
       cc: ccEmails,
@@ -448,7 +456,7 @@ Reply directly to this email to respond to ${name}.
     await notifySlack({
       ...baseRecord,
       status: "emailed",
-      emailId: emailData.data?.id || null,
+      emailId: emailResult.messageId || null,
       recipients,
       cc: ccEmails,
     }, "emailed");
@@ -464,7 +472,7 @@ Reply directly to this email to respond to ${name}.
     return NextResponse.json({
       success: true,
       message: "Message sent successfully",
-      id: emailData.data?.id || "sent",
+      id: emailResult.messageId || "sent",
       persisted: true,
     });
   } catch (error) {

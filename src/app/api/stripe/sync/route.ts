@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { stripeCampaignSync } from "@/lib/stripeCampaignSync";
-import { stripeEnhanced } from "@/lib/stripeEnhanced";
+import { getStripeCampaignSync } from "@/lib/stripeCampaignSync";
+import { getStripeEnhanced } from "@/lib/stripeEnhanced";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 
@@ -10,18 +10,30 @@ export async function GET(request: NextRequest) {
     const action = searchParams.get("action") || "status";
 
     switch (action) {
-      case "plans": {
-        const plans = stripeCampaignSync.getPlans();
-        return NextResponse.json({ success: true, data: plans });
-      }
-      case "status": {
-        const status = await stripeCampaignSync.getSyncStatus();
-        return NextResponse.json({ success: true, data: status });
-      }
-      case "campaigns": {
-        const campaigns = stripeEnhanced.getCampaigns();
-        return NextResponse.json({ success: true, data: campaigns });
-      }
+        case "plans": {
+          const stripeCampaignSync = getStripeCampaignSync();
+          if (!stripeCampaignSync) {
+            return NextResponse.json({ success: false, error: "Stripe not configured" }, { status: 503 });
+          }
+          const plans = stripeCampaignSync.getPlans();
+          return NextResponse.json({ success: true, data: plans });
+        }
+        case "status": {
+          const stripeCampaignSync = getStripeCampaignSync();
+          if (!stripeCampaignSync) {
+            return NextResponse.json({ success: false, error: "Stripe not configured" }, { status: 503 });
+          }
+          const status = await stripeCampaignSync.getSyncStatus();
+          return NextResponse.json({ success: true, data: status });
+        }
+        case "campaigns": {
+          const stripeEnhanced = getStripeEnhanced();
+          if (!stripeEnhanced) {
+            return NextResponse.json({ success: false, error: "Stripe not configured" }, { status: 503 });
+          }
+          const campaigns = stripeEnhanced.getCampaigns();
+          return NextResponse.json({ success: true, data: campaigns });
+        }
       case "events": {
         try {
           const filePath = path.join(process.cwd(), "data", "logs", "stripe-events.json");
@@ -57,11 +69,15 @@ export async function POST(request: NextRequest) {
     }
 
     switch (action) {
-      case "sync":
-      case "all": {
-        const result = await stripeCampaignSync.syncWithStripe();
-        return NextResponse.json({ success: result.success, data: result });
-      }
+        case "sync":
+        case "all": {
+          const stripeCampaignSync = getStripeCampaignSync();
+          if (!stripeCampaignSync) {
+            return NextResponse.json({ success: false, error: "Stripe not configured" }, { status: 503 });
+          }
+          const result = await stripeCampaignSync.syncWithStripe();
+          return NextResponse.json({ success: result.success, data: result });
+        }
       default: {
         return NextResponse.json(
           { success: false, error: `Unknown action: ${action}` },
