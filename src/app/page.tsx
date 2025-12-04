@@ -57,7 +57,11 @@ export default function HomePage() {
     const maxRetries = 3;
 
     // Utility: wait for a media event with timeout
-    const waitForEvent = (target: HTMLVideoElement, eventName: keyof HTMLMediaElementEventMap, timeoutMs = 1500) => {
+    const waitForEvent = (
+      target: HTMLVideoElement,
+      eventName: keyof HTMLMediaElementEventMap,
+      timeoutMs = 1500
+    ) => {
       return new Promise<boolean>((resolve) => {
         let done = false as boolean;
         const onEvent = () => {
@@ -91,8 +95,8 @@ export default function HomePage() {
       const preferredLocal = process.env.NEXT_PUBLIC_BG_VIDEO_PATH?.trim();
       // Prefer env-provided remote video if available; otherwise use the provided Zig link
       const preferredRemote =
-        (process.env.NEXT_PUBLIC_BG_VIDEO_URL?.trim() ??
-          "https://video.zig.ht/v/arx7xtmfj2ch5vy8dda2f");
+        process.env.NEXT_PUBLIC_BG_VIDEO_URL?.trim() ??
+        "https://video.zig.ht/v/arx7xtmfj2ch5vy8dda2f";
       const remoteSample =
         "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4";
 
@@ -182,7 +186,10 @@ export default function HomePage() {
                 }
               }
             } catch (resolverErr) {
-              console.log("📹 Resolver also failed after HEAD error:", resolverErr);
+              console.log(
+                "📹 Resolver also failed after HEAD error:",
+                resolverErr
+              );
             }
           }
         }
@@ -204,7 +211,9 @@ export default function HomePage() {
           }
 
           if (!chosen) {
-            console.log("📹 Sources missing/invalid or not playable; using remote sample fallback");
+            console.log(
+              "📹 Sources missing/invalid or not playable; using remote sample fallback"
+            );
             videoElement.src = remoteSample;
             videoElement.crossOrigin = "anonymous";
             chosen = remoteSample;
@@ -222,7 +231,9 @@ export default function HomePage() {
           setTimeout(() => {
             videoElement
               .play()
-              .then(() => console.log("✅ Video play nudged after source selection"))
+              .then(() =>
+                console.log("✅ Video play nudged after source selection")
+              )
               .catch((e) => console.log("📹 Play nudge failed:", e));
           }, 140);
         } catch {}
@@ -479,12 +490,12 @@ export default function HomePage() {
                 code === 1
                   ? "MEDIA_ERR_ABORTED"
                   : code === 2
-                  ? "MEDIA_ERR_NETWORK"
-                  : code === 3
-                  ? "MEDIA_ERR_DECODE"
-                  : code === 4
-                  ? "MEDIA_ERR_SRC_NOT_SUPPORTED"
-                  : "UNKNOWN";
+                    ? "MEDIA_ERR_NETWORK"
+                    : code === 3
+                      ? "MEDIA_ERR_DECODE"
+                      : code === 4
+                        ? "MEDIA_ERR_SRC_NOT_SUPPORTED"
+                        : "UNKNOWN";
 
               console.error(
                 `📹 Video failed to load: code=${code ?? "null"} name=${codeName} src=${currentSrc || "(none)"} networkState=${video.networkState} readyState=${video.readyState}`
@@ -498,17 +509,18 @@ export default function HomePage() {
               }
 
               // Prefer remote fallback if no source is set or src not supported
-              if (!video.dataset.remoteFallbackTried && (!hasSrc || code === 4)) {
+              if (
+                !video.dataset.remoteFallbackTried &&
+                (!hasSrc || code === 4)
+              ) {
                 video.dataset.remoteFallbackTried = "true";
                 const remoteSrc =
                   "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4";
                 console.log(
                   `📹 Using remote fallback due to ${!hasSrc ? "no src" : "SRC_NOT_SUPPORTED"}: ${remoteSrc}`
                 );
-                try {
-                  // Clear failing src to avoid stale errors
-                  video.src = "";
-                } catch {}
+                // Switch to remote fallback without clearing existing src to avoid
+                // triggering unnecessary aborted network errors in dev tools
                 video.src = remoteSrc;
                 video.crossOrigin = "anonymous";
                 try {
@@ -517,7 +529,9 @@ export default function HomePage() {
                     video
                       .play()
                       .then(() => console.log("✅ Remote fallback playing"))
-                      .catch((e) => console.log("📹 Remote fallback play failed:", e));
+                      .catch((e) =>
+                        console.log("📹 Remote fallback play failed:", e)
+                      );
                   }, 120);
                 } catch {}
                 return;
@@ -526,15 +540,12 @@ export default function HomePage() {
               // Try alternative local source once using robust currentSrc detection
               if (!video.dataset.fallbackTried) {
                 video.dataset.fallbackTried = "true";
-                const isPrimary =
-                  !!currentSrc && (
-                    currentSrc.includes("/Hatian%20family%20project.mp4") ||
-                    currentSrc.includes("/Hatian family project.mp4")
-                  );
-                const altSrc = isPrimary
-                  ? "/homepage-video.mp4"
-                  : "/Hatian%20family%20project.mp4";
-                console.log("📹 Trying alternative local video source:", altSrc);
+                // Always fall back to the known local homepage video
+                const altSrc = "/homepage-video.mp4";
+                console.log(
+                  "📹 Trying alternative local video source:",
+                  altSrc
+                );
                 video.src = altSrc;
                 video.load();
                 return; // Wait to see if the alternate source works
@@ -612,7 +623,7 @@ export default function HomePage() {
             aria-hidden="true"
           />
         )}
-        
+
         {/* Enhanced overlay with better gradient */}
         <div className="fixed inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70 z-[-5] pointer-events-none" />
 
@@ -630,7 +641,7 @@ export default function HomePage() {
                 priority
               />
             </div>
-            
+
             <div className="space-y-4">
               <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-white drop-shadow-2xl">
                 Haitian Family Relief Project
@@ -639,8 +650,10 @@ export default function HomePage() {
                 Spreading Love • Building Hope • Creating Joy
               </p>
               <p className="mt-4 max-w-2xl text-lg md:text-xl text-gray-100 drop-shadow-xl leading-relaxed">
-                Welcome to our family! We're bringing love, hope, and joy to beautiful families in Haiti. 
-                Every meal, every smile, every helping hand makes our world brighter—and you can be part of this incredible journey.
+                Welcome to our family! We're bringing love, hope, and joy to
+                beautiful families in Haiti. Every meal, every smile, every
+                helping hand makes our world brighter—and you can be part of
+                this incredible journey.
               </p>
             </div>
           </div>
@@ -652,12 +665,13 @@ export default function HomePage() {
                 🌟 Make an Impact Today
               </h2>
               <p className="text-red-100 text-lg md:text-xl mb-8 leading-relaxed">
-                Your donation directly supports families in Haiti with nutritious food, 
-                quality healthcare, educational opportunities, and safe housing.
+                Your donation directly supports families in Haiti with
+                nutritious food, quality healthcare, educational opportunities,
+                and safe housing.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <button
-                  onClick={() => router.push('/donate')}
+                  onClick={() => router.push("/donate")}
                   className="bg-white text-red-600 hover:bg-red-50 px-10 py-5 rounded-xl font-bold text-xl transition-all transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-3 cursor-pointer group"
                 >
                   <svg
@@ -689,37 +703,59 @@ export default function HomePage() {
               💝 Love in Action
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              See the incredible impact we're making together in Haiti. Every number represents a life touched, a family helped, and hope restored.
+              See the incredible impact we're making together in Haiti. Every
+              number represents a life touched, a family helped, and hope
+              restored.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl shadow-lg p-8 text-center border-t-4 border-blue-500 transform hover:scale-105 transition-all duration-300">
               <div className="text-5xl mb-4">🍽️</div>
-              <div className="text-3xl font-bold text-blue-600 mb-2">2,500+</div>
-              <div className="text-lg font-semibold text-blue-800 mb-2">Meals Shared</div>
-              <div className="text-sm text-gray-600">Bringing families together around nutritious meals daily</div>
+              <div className="text-3xl font-bold text-blue-600 mb-2">
+                2,500+
+              </div>
+              <div className="text-lg font-semibold text-blue-800 mb-2">
+                Meals Shared
+              </div>
+              <div className="text-sm text-gray-600">
+                Bringing families together around nutritious meals daily
+              </div>
             </div>
 
             <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl shadow-lg p-8 text-center border-t-4 border-green-500 transform hover:scale-105 transition-all duration-300">
               <div className="text-5xl mb-4">🏥</div>
               <div className="text-3xl font-bold text-green-600 mb-2">500+</div>
-              <div className="text-lg font-semibold text-green-800 mb-2">Lives Touched</div>
-              <div className="text-sm text-gray-600">Caring healthcare reaching families in their communities</div>
+              <div className="text-lg font-semibold text-green-800 mb-2">
+                Lives Touched
+              </div>
+              <div className="text-sm text-gray-600">
+                Caring healthcare reaching families in their communities
+              </div>
             </div>
 
             <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl shadow-lg p-8 text-center border-t-4 border-purple-500 transform hover:scale-105 transition-all duration-300">
               <div className="text-5xl mb-4">📚</div>
-              <div className="text-3xl font-bold text-purple-600 mb-2">200+</div>
-              <div className="text-lg font-semibold text-purple-800 mb-2">Dreams Nurtured</div>
-              <div className="text-sm text-gray-600">Educational opportunities helping children flourish</div>
+              <div className="text-3xl font-bold text-purple-600 mb-2">
+                200+
+              </div>
+              <div className="text-lg font-semibold text-purple-800 mb-2">
+                Dreams Nurtured
+              </div>
+              <div className="text-sm text-gray-600">
+                Educational opportunities helping children flourish
+              </div>
             </div>
 
             <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl shadow-lg p-8 text-center border-t-4 border-orange-500 transform hover:scale-105 transition-all duration-300">
               <div className="text-5xl mb-4">🏠</div>
               <div className="text-3xl font-bold text-orange-600 mb-2">15+</div>
-              <div className="text-lg font-semibold text-orange-800 mb-2">Families at Home</div>
-              <div className="text-sm text-gray-600">Creating safe, loving spaces where families thrive</div>
+              <div className="text-lg font-semibold text-orange-800 mb-2">
+                Families at Home
+              </div>
+              <div className="text-sm text-gray-600">
+                Creating safe, loving spaces where families thrive
+              </div>
             </div>
           </div>
         </div>
@@ -735,9 +771,11 @@ export default function HomePage() {
                   💙 Our Heart & Mission
                 </h2>
                 <p className="text-xl text-gray-700 leading-relaxed mb-6">
-                  We're here to bring hope, love, and essential support to families in Haiti. 
-                  Through building safe homes, providing mobile healthcare, serving nutritious meals, 
-                  and creating educational opportunities, we're building a brighter future together.
+                  We're here to bring hope, love, and essential support to
+                  families in Haiti. Through building safe homes, providing
+                  mobile healthcare, serving nutritious meals, and creating
+                  educational opportunities, we're building a brighter future
+                  together.
                 </p>
               </div>
 
@@ -745,7 +783,8 @@ export default function HomePage() {
                 <blockquote className="text-center">
                   <div className="text-2xl text-blue-600 mb-4">"</div>
                   <div className="italic text-lg text-gray-700 mb-4 leading-relaxed">
-                    The best way to find yourself is to lose yourself in the service of others.
+                    The best way to find yourself is to lose yourself in the
+                    service of others.
                   </div>
                   <div className="text-right font-semibold text-blue-700">
                     — Mahatma Gandhi
@@ -759,33 +798,39 @@ export default function HomePage() {
                 🤝 Join Our Family
               </h3>
               <p className="text-gray-700 text-lg leading-relaxed mb-8 text-center">
-                There's a place for everyone in our mission! Whether through donations, 
-                volunteering, or simply sharing our story, you can be part of bringing 
-                hope and joy to families in Haiti.
+                There's a place for everyone in our mission! Whether through
+                donations, volunteering, or simply sharing our story, you can be
+                part of bringing hope and joy to families in Haiti.
               </p>
-              
+
               <div className="space-y-4">
                 <div className="flex items-center gap-4 p-4 bg-purple-50 rounded-xl">
                   <span className="text-2xl">💰</span>
                   <div>
                     <div className="font-semibold text-purple-800">Donate</div>
-                    <div className="text-sm text-gray-600">Support families with essential needs</div>
+                    <div className="text-sm text-gray-600">
+                      Support families with essential needs
+                    </div>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-4 p-4 bg-blue-50 rounded-xl">
                   <span className="text-2xl">🙋‍♀️</span>
                   <div>
                     <div className="font-semibold text-blue-800">Volunteer</div>
-                    <div className="text-sm text-gray-600">Share your time and talents</div>
+                    <div className="text-sm text-gray-600">
+                      Share your time and talents
+                    </div>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-4 p-4 bg-green-50 rounded-xl">
                   <span className="text-2xl">📢</span>
                   <div>
                     <div className="font-semibold text-green-800">Share</div>
-                    <div className="text-sm text-gray-600">Spread awareness in your community</div>
+                    <div className="text-sm text-gray-600">
+                      Spread awareness in your community
+                    </div>
                   </div>
                 </div>
               </div>
@@ -803,12 +848,12 @@ export default function HomePage() {
                 🌟 Be Part of Something Beautiful
               </h2>
               <p className="text-xl md:text-2xl text-blue-100 leading-relaxed max-w-4xl mx-auto">
-                Your heart, your time, and your story can bring sunshine into someone's life. 
-                Join our amazing community of volunteers who are spreading love and making 
-                the world a little brighter every day!
+                Your heart, your time, and your story can bring sunshine into
+                someone's life. Join our amazing community of volunteers who are
+                spreading love and making the world a little brighter every day!
               </p>
             </div>
-            
+
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center pt-8">
               <Link
                 href="/contact"
@@ -817,7 +862,7 @@ export default function HomePage() {
                 <span className="text-2xl group-hover:animate-bounce">💫</span>
                 Join Our Team
               </Link>
-              
+
               <Link
                 href="/programs"
                 className="text-white hover:text-blue-100 px-8 py-4 rounded-xl font-semibold text-lg transition-all border-2 border-white/30 hover:border-white/50 backdrop-blur-sm"

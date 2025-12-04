@@ -42,7 +42,7 @@ export function BackgroundVideo({
         muted
         loop
         playsInline
-        preload="auto"
+        preload="metadata"
         onError={(e) => {
           console.error("Video failed to load:", e);
           // Hide video element on error

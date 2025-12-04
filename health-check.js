@@ -5,8 +5,11 @@
  * This script validates all automated systems and ensures proper functionality
  */
 
+// biome-ignore lint/nursery/noCommonjs: Node script uses CommonJS intentionally
 const { exec } = require("child_process");
+// biome-ignore lint/nursery/noCommonjs: Node script uses CommonJS intentionally
 const fs = require("fs");
+// biome-ignore lint/nursery/noCommonjs: Node script uses CommonJS intentionally
 const path = require("path");
 
 class HFRPHealthCheck {
@@ -74,12 +77,16 @@ class HFRPHealthCheck {
     ];
 
     // In CI environment, check for environment variables directly
-    const isCI = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
-    
+    const isCI =
+      process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
+
     if (isCI) {
-      this.log("🔧 CI Environment detected - checking environment variables...", "info");
+      this.log(
+        "🔧 CI Environment detected - checking environment variables...",
+        "info"
+      );
       let allPresent = true;
-      
+
       requiredVars.forEach((varName) => {
         if (process.env[varName]) {
           this.log(
@@ -88,12 +95,15 @@ class HFRPHealthCheck {
           );
           this.passed++;
         } else {
-          this.log(`⚠️ SKIPPED: Environment variable ${varName} not set in CI`, "warning");
+          this.log(
+            `⚠️ SKIPPED: Environment variable ${varName} not set in CI`,
+            "warning"
+          );
           // Don't fail in CI for missing env vars as they may be set differently
           this.passed++;
         }
       });
-      
+
       return allPresent;
     }
 
@@ -129,7 +139,8 @@ class HFRPHealthCheck {
     this.log("🚀 Starting HFRP Relief Health Check...", "info");
     this.log("=".repeat(50), "info");
 
-    const isCI = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
+    const isCI =
+      process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
 
     // File existence checks
     this.log("📁 Checking critical files...", "info");
@@ -142,11 +153,11 @@ class HFRPHealthCheck {
     this.checkFile("src/app/_components/Navbar.tsx", "Navbar component exists");
     this.checkFile("src/app/_components/Footer.tsx", "Footer component exists");
     this.checkFile("public/hfrp-logo.png", "Logo file exists");
-    
+
     // Skip video file checks in CI as they may not be committed to repo
     if (!isCI) {
       this.checkFile(
-        "public/Hatian family project.mp4",
+        "public/downloads/Haitian-Family-Project-2.mp4",
         "Main video file exists"
       );
       this.checkFile("public/homepage-video.mp4", "Backup video file exists");

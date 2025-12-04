@@ -5,7 +5,9 @@
  * Comprehensive debugging for admin automation system
  */
 
+// biome-ignore lint/nursery/noCommonjs: Node script uses CommonJS intentionally
 const fs = require("fs");
+// biome-ignore lint/nursery/noCommonjs: Node script uses CommonJS intentionally
 const path = require("path");
 
 class AdminDebugger {
@@ -259,7 +261,7 @@ export default function StripeConfig() {
 
     // Check for video files
     const videoFiles = [
-      "public/Hatian family project.mp4",
+      "public/downloads/Haitian-Family-Project-2.mp4",
       "public/homepage-video.mp4",
     ];
 
