@@ -36,6 +36,10 @@ jobs:
     steps:
     - name: 📥 Checkout Repository
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: 🔒 Configure git safe.directory
+      run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
     - name: 🟢 Setup Node.js
       uses: actions/setup-node@v4
@@ -77,6 +81,10 @@ jobs:
     steps:
     - name: 📥 Checkout Repository
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: 🔒 Configure git safe.directory
+      run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
     - name: 🟢 Setup Node.js & Bun
       uses: oven-sh/setup-bun@v1
@@ -132,6 +140,10 @@ jobs:
     steps:
     - name: 📥 Checkout Repository
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: 🔒 Configure git safe.directory
+      run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
     - name: 🟢 Setup Node.js & Bun
       uses: oven-sh/setup-bun@v1
@@ -161,6 +173,10 @@ jobs:
     steps:
     - name: 📥 Checkout Repository
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: 🔒 Configure git safe.directory
+      run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
     - name: 🟢 Setup Node.js & Bun
       uses: oven-sh/setup-bun@v1
@@ -196,6 +212,10 @@ jobs:
     steps:
     - name: 📥 Checkout Repository
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: 🔒 Configure git safe.directory
+      run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
     - name: 🟢 Setup Node.js & Bun
       uses: oven-sh/setup-bun@v1
