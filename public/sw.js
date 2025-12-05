@@ -91,12 +91,6 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Handle Donorbox requests
-  if (url.hostname === 'donorbox.org') {
-    event.respondWith(handleDonorboxRequest(request));
-    return;
-  }
-
   // Handle navigation requests
   if (request.mode === 'navigate') {
     event.respondWith(handleNavigationRequest(request));
@@ -145,30 +139,7 @@ async function handleNavigationRequest(request) {
   }
 }
 
-// Handle Donorbox requests with offline queuing
-async function handleDonorboxRequest(request) {
-  try {
-    return await fetch(request);
-  } catch (error) {
-    console.log('💳 Donorbox offline - queuing donation intent');
-
-    // Store donation intent for when online
-    await storeDonationIntent(request);
-
-    // Return offline donation page
-    const offlineDonationResponse = await caches.match('/offline-donation');
-    return offlineDonationResponse || new Response(
-      JSON.stringify({
-        error: 'offline',
-        message: 'Your donation intent has been saved. You will be notified when you can complete it online.'
-      }),
-      {
-        status: 202,
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
-  }
-}
+// Donorbox-specific handling removed; Stripe is the sole payment provider.
 
 // Handle offline donation form submission
 async function handleOfflineDonation(request) {

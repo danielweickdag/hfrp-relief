@@ -66,14 +66,15 @@ log_success "Environment variables validated"
 log_info "Step 2: Testing webhook endpoint..."
 
 # Start the development server if not running
-if ! curl -s http://localhost:3000/api/stripe/webhook-test > /dev/null 2>&1; then
+SERVER_URL="${NEXT_PUBLIC_SITE_URL:-http://localhost:3005}"
+if ! curl -s "$SERVER_URL/api/stripe/webhook-test" > /dev/null 2>&1; then
     log_warning "Development server not running. Starting..."
     npm run dev &
     SERVER_PID=$!
     sleep 5
     
     # Test again
-    if ! curl -s http://localhost:3000/api/stripe/webhook-test > /dev/null 2>&1; then
+if ! curl -s "$SERVER_URL/api/stripe/webhook-test" > /dev/null 2>&1; then
         log_error "Failed to start development server"
         kill $SERVER_PID 2>/dev/null || true
         exit 1
@@ -83,7 +84,7 @@ else
 fi
 
 # Test webhook endpoint
-WEBHOOK_RESPONSE=$(curl -s -X POST http://localhost:3000/api/stripe/webhook-test)
+WEBHOOK_RESPONSE=$(curl -s -X POST "$SERVER_URL/api/stripe/webhook-test")
 log_success "Webhook endpoint is accessible"
 echo "Response: $WEBHOOK_RESPONSE"
 

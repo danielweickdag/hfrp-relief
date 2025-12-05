@@ -17,7 +17,7 @@ class AdminTemplateFunctionalityVerifier {
         name: "Dashboard",
         expectedFeatures: [
           "Campaign quick setup",
-          "Donorbox integration",
+          "Stripe integration",
           "Statistics overview",
         ],
         requiredElements: ["button", "bg-gradient-to-r", "fundraising"],
@@ -25,10 +25,10 @@ class AdminTemplateFunctionalityVerifier {
       },
       campaigns: {
         name: "Campaign Manager",
-        expectedFeatures: ["Create campaign", "Sync Donorbox", "Campaign list"],
+        expectedFeatures: ["Create campaign", "Sync Stripe", "Campaign list"],
         requiredElements: [
           "Create Campaign",
-          "Sync Donorbox",
+          "Sync Stripe",
           "setShowNewCampaignForm",
         ],
         interactivity: "high",

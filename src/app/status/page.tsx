@@ -55,7 +55,7 @@ export default function StatusPage() {
     {
       name: "Automated Migration System",
       status: "completed",
-      description: "Seamless migration from Donorbox to Stripe",
+      description: "Seamless migration to Stripe",
       completedAt: "2025-01-14",
       improvements: [
         "✅ Zero-downtime migration",
@@ -121,6 +121,9 @@ export default function StatusPage() {
             We've successfully upgraded to a modern, secure, and feature-rich
             payment system powered by Stripe. Here's what's new and improved.
           </p>
+          <div className="mt-6 max-w-3xl mx-auto">
+            <HealthStatus />
+          </div>
         </div>
 
         {/* Progress Overview */}
@@ -291,3 +294,4 @@ export default function StatusPage() {
     </div>
   );
 }
+import HealthStatus from "../_components/HealthStatus";

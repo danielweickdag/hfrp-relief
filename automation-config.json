@@ -183,16 +183,6 @@
         "recurringReminders": true
       }
     },
-    "donorbox": {
-      "enabled": true,
-      "syncInterval": 1800000,
-      "apiEndpoint": "https://donorbox.org/api/v1",
-      "automation": {
-        "campaignUpdates": true,
-        "goalTracking": true,
-        "impactReports": true
-      }
-    },
     "social": {
       "enabled": true,
       "platforms": {

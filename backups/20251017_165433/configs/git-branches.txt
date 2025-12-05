@@ -1,6 +1,0 @@
-  feature-branch
-* main
-  your-feature-name
-  remotes/origin/HEAD -> origin/main
-  remotes/origin/main
-  remotes/origin/your-feature-name

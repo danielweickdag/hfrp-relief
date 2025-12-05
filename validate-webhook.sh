@@ -33,7 +33,7 @@ echo "🔍 HFRP Webhook Validation"
 echo "========================"
 
 # Check if server is running
-SERVER_URL="http://localhost:3000"
+SERVER_URL="${NEXT_PUBLIC_SITE_URL:-http://localhost:3005}"
 if ! curl -s "$SERVER_URL" > /dev/null 2>&1; then
     log_error "Development server is not running at $SERVER_URL"
     log_info "Please start the server with: npm run dev"
@@ -74,7 +74,7 @@ CHECKOUT_PAYLOAD='{
     "amount": 500,
     "campaignId": "haiti-relief-main",
     "customerEmail": "test@example.com",
-    "returnUrl": "http://localhost:3000/donation/success"
+    "returnUrl": "'"$SERVER_URL"'/donation/success"
 }'
 
 CHECKOUT_RESPONSE=$(curl -s -X POST "$SERVER_URL/api/stripe/checkout" \

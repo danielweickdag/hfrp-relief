@@ -2,21 +2,27 @@ name: Domain Verification
 
 on:
   schedule:
-    - cron: "*/30 * * * *" # every 30 minutes
+  - cron: "*/30 * * * *" # every 30 minutes
   workflow_dispatch:
+
 
 jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Configure git safe.directory
-        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
-      - name: Install dependencies for script
-        run: sudo apt-get update && sudo apt-get install -y dnsutils openssl curl
-      - name: Run verify-domain.sh in strict mode
-        run: |
-          bash verify-domain.sh --strict
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        submodules: false
+        fetch-depth: 0
+    - name: "Guard: Deinit any stale submodules"
+      run: |
+        git submodule deinit -f --all || true
+        test -f .gitmodules && rm -f .gitmodules || true
+    - name: Configure git safe.directory
+      run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+    - name: Install dependencies for script
+      run: sudo apt-get update && sudo apt-get install -y dnsutils openssl curl
+    - name: Run verify-domain.sh in strict mode
+      run: |
+        bash verify-domain.sh --strict

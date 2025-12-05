@@ -97,7 +97,7 @@ interface ResendEmail {
 
 interface ResendEmailStatus {
   id: string;
-  status: 'queued' | 'sent' | 'delivered' | 'bounced' | 'failed';
+  status: "queued" | "sent" | "delivered" | "bounced" | "failed";
   created_at: string;
   last_event?: string;
 }
@@ -105,30 +105,38 @@ interface ResendEmailStatus {
 export default function AdminDashboard({ className = "" }: DashboardProps) {
   const { user, logout } = useAdminAuth();
   const [activeTab, setActiveTab] = useState<
-    "overview" | "automation" | "content" | "analytics" | "gallery" | "settings" | "stripe"
+    | "overview"
+    | "automation"
+    | "content"
+    | "analytics"
+    | "gallery"
+    | "settings"
+    | "stripe"
   >("overview");
   const [loading, setLoading] = useState(false);
   const [automationRunLoading, setAutomationRunLoading] = useState(false);
-  const [automationRunResults, setAutomationRunResults] = useState<AutomationRunResults | null>(null);
+  const [automationRunResults, setAutomationRunResults] =
+    useState<AutomationRunResults | null>(null);
   const [automationRunAt, setAutomationRunAt] = useState<string | null>(null);
   const analyticsSectionRef = useRef<HTMLDivElement>(null);
   // Scheduler state
-  const [schedulerStatus, setSchedulerStatus] = useState<SchedulerStatus | null>(null);
+  const [schedulerStatus, setSchedulerStatus] =
+    useState<SchedulerStatus | null>(null);
   const [schedulerLoading, setSchedulerLoading] = useState(false);
   // Feature status state
   const [featuresEnabled, setFeaturesEnabled] = useState(false);
 
   // Resend Email Management State
   const [resendEmailForm, setResendEmailForm] = useState<ResendEmail>({
-    from: 'HFRP <noreply@familyreliefproject7.org>',
+    from: "HFRP <noreply@familyreliefproject7.org>",
     to: [],
-    subject: '',
-    html: '',
+    subject: "",
+    html: "",
   });
   const [batchEmails, setBatchEmails] = useState<ResendEmail[]>([]);
   const [emailStatuses, setEmailStatuses] = useState<ResendEmailStatus[]>([]);
   const [resendLoading, setResendLoading] = useState(false);
-  const [emailToTrack, setEmailToTrack] = useState('');
+  const [emailToTrack, setEmailToTrack] = useState("");
 
   const [hfrpStats, setHfrpStats] = useState<HFRPStats>({
     totalDonations: 185750,
@@ -183,12 +191,12 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
   const refreshSchedulerStatus = async () => {
     try {
       setSchedulerLoading(true);
-      const res = await fetch('/api/scheduler');
+      const res = await fetch("/api/scheduler");
       const data = await res.json().catch(() => ({}));
       const parsed = (data?.status || data) as SchedulerStatus;
       setSchedulerStatus(parsed);
     } catch (error) {
-      console.error('Failed to load scheduler status', error);
+      console.error("Failed to load scheduler status", error);
     } finally {
       setSchedulerLoading(false);
     }
@@ -197,14 +205,14 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
   const startScheduler = async () => {
     try {
       setSchedulerLoading(true);
-      await fetch('/api/scheduler', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'start' })
+      await fetch("/api/scheduler", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "start" }),
       });
       await refreshSchedulerStatus();
     } catch (error) {
-      console.error('Failed to start scheduler', error);
+      console.error("Failed to start scheduler", error);
     } finally {
       setSchedulerLoading(false);
     }
@@ -213,14 +221,14 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
   const stopScheduler = async () => {
     try {
       setSchedulerLoading(true);
-      await fetch('/api/scheduler', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'stop' })
+      await fetch("/api/scheduler", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "stop" }),
       });
       await refreshSchedulerStatus();
     } catch (error) {
-      console.error('Failed to stop scheduler', error);
+      console.error("Failed to stop scheduler", error);
     } finally {
       setSchedulerLoading(false);
     }
@@ -236,22 +244,21 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
     } catch {
       setFeaturesEnabled(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const runEmailAutomation = async () => {
     setAutomationRunLoading(true);
     try {
-      const response = await fetch('/api/email/automation', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'run' })
+      const response = await fetch("/api/email/automation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "run" }),
       });
 
       const json: unknown = await response.json();
       if (!response.ok) {
         const err = json as { error?: string };
-        throw new Error(err.error || 'Automation run failed');
+        throw new Error(err.error || "Automation run failed");
       }
       const result = json as AutomationRunResults;
       setAutomationRunResults(result);
@@ -260,13 +267,13 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
 
       alert(
         `🤖 AUTOMATION RUN COMPLETED\n\n` +
-        `Scheduled Campaigns Processed: ${result.processedScheduled}\n` +
-        `Donation Thank-Yous Sent: ${result.processedThankYou}\n` +
-        `Queued Emails Sent: ${result.processedQueue}\n\n` +
-        `${result.isDemoMode ? '⚠️ Demo mode: email sending is simulated.' : '✅ Live mode: emails sent via Resend.'}`
+          `Scheduled Campaigns Processed: ${result.processedScheduled}\n` +
+          `Donation Thank-Yous Sent: ${result.processedThankYou}\n` +
+          `Queued Emails Sent: ${result.processedQueue}\n\n` +
+          `${result.isDemoMode ? "⚠️ Demo mode: email sending is simulated." : "✅ Live mode: emails sent via Resend."}`
       );
     } catch (error) {
-      const msg = error instanceof Error ? error.message : 'Unknown error';
+      const msg = error instanceof Error ? error.message : "Unknown error";
       alert(`❌ Automation run failed: ${msg}`);
     } finally {
       setAutomationRunLoading(false);
@@ -286,9 +293,13 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
       .map((el) => el.outerHTML)
       .join("\n");
 
-    printWindow.document.write(`<!doctype html><html><head><title>Analytics Report</title>${styles}</head><body>`);
+    printWindow.document.write(
+      `<!doctype html><html><head><title>Analytics Report</title>${styles}</head><body>`
+    );
     printWindow.document.write(`<div class="p-6">`);
-    printWindow.document.write(`<h1 class="text-2xl font-bold mb-4">Analytics Report</h1>`);
+    printWindow.document.write(
+      `<h1 class="text-2xl font-bold mb-4">Analytics Report</h1>`
+    );
     printWindow.document.write(node.innerHTML);
     printWindow.document.write(`</div>`);
     printWindow.document.write(`</body></html>`);
@@ -314,10 +325,10 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
   const runWorkflow = async (workflowType: string, options = {}) => {
     setLoading(true);
     setWorkflowStatus((prev) => {
-      const updatedLogs = Array.isArray(prev.logs) 
+      const updatedLogs = Array.isArray(prev.logs)
         ? [...prev.logs, `🚀 Starting ${workflowType} workflow...`]
         : [`🚀 Starting ${workflowType} workflow...`];
-        
+
       return {
         ...prev,
         isRunning: true,
@@ -350,7 +361,8 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
         throw new Error("Workflow execution failed");
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       setWorkflowStatus((prev) => ({
         ...prev,
         logs: [
@@ -374,9 +386,9 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
       const response = await fetch("/api/analytics/reports", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          reportType: "comprehensive", 
-          period: "monthly" 
+        body: JSON.stringify({
+          reportType: "comprehensive",
+          period: "monthly",
         }),
       });
 
@@ -385,7 +397,7 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
         const report = result.report;
 
         // Update dashboard stats with real data
-        setHfrpStats(prev => ({
+        setHfrpStats((prev) => ({
           ...prev,
           totalDonations: Math.round(report.donations.total),
           totalDonors: report.donors.total,
@@ -407,9 +419,12 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
             `Returning: ${report.donors.returning}\n` +
             `Retention Rate: ${report.donors.retention}\n` +
             `Avg Lifetime Value: $${report.donors.averageLifetimeValue.toFixed(2)}\n\n` +
-            `🎯 TOP CAMPAIGNS\n${report.campaigns.topPerforming.map((c: Campaign) => 
-              `• ${c.name}: $${c.raised.toLocaleString()} (${c.progress}%)`
-            ).join("\n")}\n\n` +
+            `🎯 TOP CAMPAIGNS\n${report.campaigns.topPerforming
+              .map(
+                (c: Campaign) =>
+                  `• ${c.name}: $${c.raised.toLocaleString()} (${c.progress}%)`
+              )
+              .join("\n")}\n\n` +
             `🌐 WEBSITE TRAFFIC\n` +
             `Visitors: ${report.traffic.visitors.toLocaleString()}\n` +
             `Page Views: ${report.traffic.pageViews.toLocaleString()}\n` +
@@ -424,13 +439,15 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
         );
 
         // Trigger automated actions based on report
-        console.log("✅ Analytics report generated and automated actions triggered");
+        console.log(
+          "✅ Analytics report generated and automated actions triggered"
+        );
       } else {
         throw new Error("Failed to generate analytics report");
       }
     } catch (error) {
       console.error("❌ Analytics report generation failed:", error);
-      
+
       // Fallback to basic report
       const basicReport = {
         totalThisMonth: hfrpStats.totalDonations * 0.12,
@@ -461,10 +478,10 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
       const response = await fetch("/api/stripe/sync", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           action: "automation-sync",
           automateWorkflows: true,
-          generateReports: true 
+          generateReports: true,
         }),
       });
 
@@ -473,15 +490,19 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
         const automationReport = result.automationReport;
         const syncData = result.data;
 
-      // Update local stats with real sync data
-        setHfrpStats(prev => ({
+        // Update local stats with real sync data
+        setHfrpStats((prev) => ({
           ...prev,
-          totalDonations: prev.totalDonations + (automationReport.donations.totalAmount || 0),
-          totalDonors: prev.totalDonors + (automationReport.donations.synced || 0),
-          monthlyRecurring: Math.round((automationReport.donations.totalAmount || 0) * 0.4), // Estimate recurring
+          totalDonations:
+            prev.totalDonations + (automationReport.donations.totalAmount || 0),
+          totalDonors:
+            prev.totalDonors + (automationReport.donations.synced || 0),
+          monthlyRecurring: Math.round(
+            (automationReport.donations.totalAmount || 0) * 0.4
+          ), // Estimate recurring
         }));
 
-      // Show comprehensive sync report
+        // Show comprehensive sync report
         alert(
           `✅ ENHANCED STRIPE AUTOMATION SYNC COMPLETED\n\n` +
             `📊 SYNC SUMMARY\n` +
@@ -536,77 +557,7 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
     }
   };
 
-  const syncDonorboxData = async () => {
-    setLoading(true);
-    console.log("🔄 Syncing Donorbox data...");
-
-    try {
-      // Call the Donorbox sync API
-      const response = await fetch("/api/donorbox/sync", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          syncType: "full", 
-          includeRecurring: true,
-          updateCampaigns: true 
-        }),
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        
-        // Simulate sync data for demo
-        const syncedDonations = Math.floor(Math.random() * 50) + 20;
-        const syncedDonors = Math.floor(Math.random() * 30) + 10;
-        const updatedCampaigns = Math.floor(Math.random() * 5) + 3;
-
-        setHfrpStats((prev) => ({
-          ...prev,
-          totalDonations: prev.totalDonations + (syncedDonations * 50),
-          totalDonors: prev.totalDonors + syncedDonors,
-        }));
-
-        alert(
-          `📦 DONORBOX DATA SYNC COMPLETE\n\n` +
-            `📊 SYNC RESULTS\n` +
-            `Donations Synced: ${syncedDonations}\n` +
-            `New Donors: ${syncedDonors}\n` +
-            `Campaigns Updated: ${updatedCampaigns}\n` +
-            `Recurring Donations: ${Math.floor(syncedDonations * 0.4)}\n` +
-            `One-time Donations: ${Math.floor(syncedDonations * 0.6)}\n\n` +
-            `🔄 AUTOMATION TRIGGERED\n` +
-            `Thank You Emails: ${syncedDonors}\n` +
-            `Donor Segmentation: Updated\n` +
-            `Analytics Reports: Refreshed\n` +
-            `Campaign Progress: Recalculated\n\n` +
-            `✅ All Donorbox data synchronized successfully!\n` +
-            `🔗 Real-time sync active for future donations`
-        );
-
-        console.log("✅ Donorbox data sync completed");
-      } else {
-        throw new Error("Sync failed");
-      }
-    } catch (error) {
-      console.error("❌ Donorbox sync error:", error);
-      alert(
-        `⚠️ DONORBOX SYNC (Demo Mode)\n\n` +
-          `📊 SIMULATED SYNC DATA\n` +
-          `Donations: +25 transactions\n` +
-          `New Donors: +15\n` +
-          `Campaigns Updated: 4\n` +
-          `Sync Duration: 2.1s\n\n` +
-          `🤖 AUTOMATION SIMULATED\n` +
-          `Thank You Emails: 15\n` +
-          `Donor Updates: 25\n` +
-          `Analytics Refresh: Complete\n\n` +
-          `🔧 Full sync available in production\n` +
-          `⚠️ Check Donorbox API connection for live sync`
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Donorbox sync removed; Stripe is the sole donation provider.
 
   const generateSocialContent = async () => {
     setLoading(true);
@@ -627,10 +578,10 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
             medicalTreatments: hfrpStats.medicalTreatments,
             volunteersActive: hfrpStats.volunteersActive,
             totalDonations: hfrpStats.totalDonations,
-            newDonors: Math.floor(hfrpStats.totalDonors * 0.1)
+            newDonors: Math.floor(hfrpStats.totalDonors * 0.1),
           },
           automatePosting: true,
-          generateMultiple: true
+          generateMultiple: true,
         }),
       });
 
@@ -640,19 +591,22 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
         const automationReport = result.automationReport;
 
         // Show comprehensive content generation report
-        const contentSummary = content.map((c: SocialContent, index: number) => 
-          `${index + 1}. ${c.platform}: ${c.content.substring(0, 80)}...\n   📊 Reach: ${c.estimatedReach.toLocaleString()} | Engagement: ${c.expectedEngagement}`
-        ).join('\n\n');
+        const contentSummary = content
+          .map(
+            (c: SocialContent, index: number) =>
+              `${index + 1}. ${c.platform}: ${c.content.substring(0, 80)}...\n   📊 Reach: ${c.estimatedReach.toLocaleString()} | Engagement: ${c.expectedEngagement}`
+          )
+          .join("\n\n");
 
         alert(
           `🤖 AI SOCIAL CONTENT GENERATED & SCHEDULED\n\n` +
             `📱 CONTENT CREATED\n${contentSummary}\n\n` +
             `🚀 AUTOMATION REPORT\n` +
             `Posts Scheduled: ${automationReport.postsScheduled}\n` +
-            `Platforms: ${automationReport.platformsTargeted.join(', ')}\n` +
+            `Platforms: ${automationReport.platformsTargeted.join(", ")}\n` +
             `Total Estimated Reach: ${automationReport.totalEstimatedReach.toLocaleString()}\n` +
             `Automation ID: ${automationReport.automationId}\n\n` +
-            `⏰ POSTING SCHEDULE\n${automationReport.scheduledTimes.join('\n')}\n\n` +
+            `⏰ POSTING SCHEDULE\n${automationReport.scheduledTimes.join("\n")}\n\n` +
             `✅ All content optimized with real campaign data!\n` +
             `📈 AI-powered engagement optimization active`
         );
@@ -665,7 +619,13 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
       console.error("❌ AI social content generation failed:", error);
 
       // Fallback to enhanced demo content
-      const platforms = ["Facebook", "Instagram", "Twitter", "LinkedIn", "TikTok"];
+      const platforms = [
+        "Facebook",
+        "Instagram",
+        "Twitter",
+        "LinkedIn",
+        "TikTok",
+      ];
       const postsGenerated = Math.floor(Math.random() * 3) + 3;
       const totalReach = Math.floor(Math.random() * 5000) + 8000;
       const automationId = `social_${Date.now()}`;
@@ -674,7 +634,7 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
         `🤖 AI SOCIAL CONTENT (Demo Mode)\n\n` +
           `📱 CONTENT GENERATED\n` +
           `Posts Created: ${postsGenerated}\n` +
-          `Platforms: ${platforms.slice(0, postsGenerated).join(', ')}\n` +
+          `Platforms: ${platforms.slice(0, postsGenerated).join(", ")}\n` +
           `Content Type: Impact stories, education updates, urgent needs\n\n` +
           `🚀 AUTOMATION SIMULATED\n` +
           `Total Estimated Reach: ${totalReach.toLocaleString()}\n` +
@@ -696,134 +656,147 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
     setLoading(true);
     try {
       // Get email templates first
-      const templatesResponse = await fetch('/api/email/campaigns?action=templates');
+      const templatesResponse = await fetch(
+        "/api/email/campaigns?action=templates"
+      );
       const templatesData = await templatesResponse.json();
-      
+
       if (!templatesResponse.ok) {
-        throw new Error('Failed to fetch email templates');
+        throw new Error("Failed to fetch email templates");
       }
 
       // Select a random template
       const templates = templatesData.templates;
-      const selectedTemplate = templates[Math.floor(Math.random() * templates.length)];
-      
+      const selectedTemplate =
+        templates[Math.floor(Math.random() * templates.length)];
+
       // Generate recipient list based on current stats
-      const recipientCount = Math.floor(hfrpStats.totalDonors * (0.7 + Math.random() * 0.3));
-      const recipients = Array.from({ length: Math.min(recipientCount, 10) }, (_, i) => 
-        `donor${i + 1}@example.com`
+      const recipientCount = Math.floor(
+        hfrpStats.totalDonors * (0.7 + Math.random() * 0.3)
+      );
+      const recipients = Array.from(
+        { length: Math.min(recipientCount, 10) },
+        (_, i) => `donor${i + 1}@example.com`
       );
 
       // Create campaign
-      const createResponse = await fetch('/api/email/campaigns', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const createResponse = await fetch("/api/email/campaigns", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          action: 'create',
+          action: "create",
           campaign: {
             name: selectedTemplate.name,
             subject: selectedTemplate.subject,
             content: selectedTemplate.htmlContent,
             recipients,
-            scheduledFor: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // Tomorrow
-          }
-        })
+            scheduledFor: new Date(
+              Date.now() + 24 * 60 * 60 * 1000
+            ).toISOString(), // Tomorrow
+          },
+        }),
       });
 
       const createData = await createResponse.json();
-      
+
       if (!createResponse.ok) {
-        throw new Error(createData.error || 'Failed to create campaign');
+        throw new Error(createData.error || "Failed to create campaign");
       }
 
       // Schedule the campaign
-      const scheduleResponse = await fetch('/api/email/campaigns', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const scheduleResponse = await fetch("/api/email/campaigns", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          action: 'schedule',
+          action: "schedule",
           campaignId: createData.campaign.id,
           campaign: {
-            scheduledFor: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
-          }
-        })
+            scheduledFor: new Date(
+              Date.now() + 24 * 60 * 60 * 1000
+            ).toISOString(),
+          },
+        }),
       });
 
       const scheduleData = await scheduleResponse.json();
-      
+
       if (!scheduleResponse.ok) {
-        throw new Error(scheduleData.error || 'Failed to schedule campaign');
+        throw new Error(scheduleData.error || "Failed to schedule campaign");
       }
 
       // Send the campaign immediately for demo
-      const sendResponse = await fetch('/api/email/campaigns', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const sendResponse = await fetch("/api/email/campaigns", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          action: 'send',
-          campaignId: createData.campaign.id
-        })
+          action: "send",
+          campaignId: createData.campaign.id,
+        }),
       });
 
       const sendData = await sendResponse.json();
-      
+
       if (sendResponse.ok && sendData.automationReport) {
         const report = sendData.automationReport;
-        
+
         alert(
           `📧 EMAIL CAMPAIGN SENT SUCCESSFULLY\n\n` +
-          `Campaign: "${selectedTemplate.name}"\n` +
-          `Subject: ${selectedTemplate.subject}\n` +
-          `Recipients: ${recipients.length.toLocaleString()}\n` +
-          `Category: ${selectedTemplate.category.replace('_', ' ').toUpperCase()}\n\n` +
-          `📊 CAMPAIGN ANALYTICS\n` +
-          `Delivery Rate: ${(report.deliveryRate * 100).toFixed(1)}%\n` +
-          `Open Rate: ${(report.openRate * 100).toFixed(1)}%\n` +
-          `Click Rate: ${(report.clickRate * 100).toFixed(1)}%\n` +
-          `Unsubscribe Rate: ${(report.unsubscribeRate * 100).toFixed(2)}%\n\n` +
-          `🤖 AUTOMATION ACTIONS\n${report.automationActions.join('\n')}\n\n` +
-          `📅 Next Scheduled: ${report.nextScheduledDate ? new Date(report.nextScheduledDate).toLocaleDateString() : 'None'}\n\n` +
-          `✅ Campaign completed successfully!${sendData.isDemoMode ? ' (Demo Mode)' : ''}`
+            `Campaign: "${selectedTemplate.name}"\n` +
+            `Subject: ${selectedTemplate.subject}\n` +
+            `Recipients: ${recipients.length.toLocaleString()}\n` +
+            `Category: ${selectedTemplate.category.replace("_", " ").toUpperCase()}\n\n` +
+            `📊 CAMPAIGN ANALYTICS\n` +
+            `Delivery Rate: ${(report.deliveryRate * 100).toFixed(1)}%\n` +
+            `Open Rate: ${(report.openRate * 100).toFixed(1)}%\n` +
+            `Click Rate: ${(report.clickRate * 100).toFixed(1)}%\n` +
+            `Unsubscribe Rate: ${(report.unsubscribeRate * 100).toFixed(2)}%\n\n` +
+            `🤖 AUTOMATION ACTIONS\n${report.automationActions.join("\n")}\n\n` +
+            `📅 Next Scheduled: ${report.nextScheduledDate ? new Date(report.nextScheduledDate).toLocaleDateString() : "None"}\n\n` +
+            `✅ Campaign completed successfully!${sendData.isDemoMode ? " (Demo Mode)" : ""}`
         );
       } else {
-        throw new Error(sendData.error || 'Failed to send campaign');
+        throw new Error(sendData.error || "Failed to send campaign");
       }
     } catch (error) {
-      console.error('Email campaign error:', error);
-      
+      console.error("Email campaign error:", error);
+
       // Fallback to demo mode
       const demoTemplates = [
         {
           name: "Monthly Impact Newsletter",
           subject: "Your Support Changed Everything This Month ❤️",
-          category: "newsletter"
+          category: "newsletter",
         },
         {
           name: "Emergency Relief Appeal",
           subject: "Urgent: Emergency Relief Needed in Haiti",
-          category: "emergency_appeal"
+          category: "emergency_appeal",
         },
         {
           name: "Donation Thank You",
           subject: "Thank You for Your Generous Donation! 🙏",
-          category: "donation_thank_you"
-        }
+          category: "donation_thank_you",
+        },
       ];
-      
-      const demoTemplate = demoTemplates[Math.floor(Math.random() * demoTemplates.length)];
-      const demoRecipients = Math.floor(hfrpStats.totalDonors * (0.7 + Math.random() * 0.3));
-      
+
+      const demoTemplate =
+        demoTemplates[Math.floor(Math.random() * demoTemplates.length)];
+      const demoRecipients = Math.floor(
+        hfrpStats.totalDonors * (0.7 + Math.random() * 0.3)
+      );
+
       alert(
         `📧 EMAIL CAMPAIGN SCHEDULED (Demo Mode)\n\n` +
-        `Campaign: "${demoTemplate.name}"\n` +
-        `Subject: ${demoTemplate.subject}\n` +
-        `Recipients: ${demoRecipients.toLocaleString()}\n` +
-        `Category: ${demoTemplate.category.replace('_', ' ').toUpperCase()}\n\n` +
-        `📅 Scheduled: Tomorrow 10:00 AM EST\n` +
-        `📊 Expected open rate: 28-35%\n` +
-        `🎯 Expected click rate: 8-12%\n` +
-        `💰 Projected donations: $2,500-4,000\n\n` +
-        `⚠️ Demo mode - Email service not configured\n` +
-        `✅ Campaign queued in system!`
+          `Campaign: "${demoTemplate.name}"\n` +
+          `Subject: ${demoTemplate.subject}\n` +
+          `Recipients: ${demoRecipients.toLocaleString()}\n` +
+          `Category: ${demoTemplate.category.replace("_", " ").toUpperCase()}\n\n` +
+          `📅 Scheduled: Tomorrow 10:00 AM EST\n` +
+          `📊 Expected open rate: 28-35%\n` +
+          `🎯 Expected click rate: 8-12%\n` +
+          `💰 Projected donations: $2,500-4,000\n\n` +
+          `⚠️ Demo mode - Email service not configured\n` +
+          `✅ Campaign queued in system!`
       );
     } finally {
       setLoading(false);
@@ -879,117 +852,127 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
     setLoading(true);
     try {
       // Get available programs first
-      const programsResponse = await fetch('/api/volunteer/scheduler?action=programs');
+      const programsResponse = await fetch(
+        "/api/volunteer/scheduler?action=programs"
+      );
       const programsData = await programsResponse.json();
-      
+
       if (!programsResponse.ok) {
-        throw new Error('Failed to fetch volunteer programs');
+        throw new Error("Failed to fetch volunteer programs");
       }
 
       // Select a random program for auto-matching
       const programs = programsData.programs;
-      const selectedProgram = programs[Math.floor(Math.random() * programs.length)];
-      
+      const selectedProgram =
+        programs[Math.floor(Math.random() * programs.length)];
+
       // Auto-match volunteers to the selected program
-      const matchResponse = await fetch('/api/volunteer/scheduler', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const matchResponse = await fetch("/api/volunteer/scheduler", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          action: 'auto_match',
+          action: "auto_match",
           programId: selectedProgram.id,
           requiredSkills: selectedProgram.requiredSkills.slice(0, 2), // Use first 2 required skills
-          shiftDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // Next week
-        })
+          shiftDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+            .toISOString()
+            .split("T")[0], // Next week
+        }),
       });
 
       const matchData = await matchResponse.json();
-      
+
       if (!matchResponse.ok) {
-        throw new Error(matchData.error || 'Failed to auto-match volunteers');
+        throw new Error(matchData.error || "Failed to auto-match volunteers");
       }
 
       // Get analytics for additional context
-      const analyticsResponse = await fetch('/api/volunteer/scheduler', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'get_analytics' })
+      const analyticsResponse = await fetch("/api/volunteer/scheduler", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "get_analytics" }),
       });
 
       const analyticsData = await analyticsResponse.json();
-      
+
       if (matchResponse.ok && matchData.automationReport) {
         const report = matchData.automationReport;
-        const analytics = analyticsData.success ? analyticsData.analytics : null;
-        
+        const analytics = analyticsData.success
+          ? analyticsData.analytics
+          : null;
+
         alert(
           `👥 VOLUNTEER AUTOMATION COMPLETE\n\n` +
-          `📋 Program: "${selectedProgram.name}"\n` +
-          `📍 Location: ${selectedProgram.location}\n` +
-          `👤 Coordinator: ${selectedProgram.coordinator}\n\n` +
-          `🎯 MATCHING RESULTS\n` +
-          `Potential Matches: ${report.matchesFound}\n` +
-          `Shifts Scheduled: ${report.shiftsScheduled}\n` +
-          `Volunteers Notified: ${report.volunteersNotified}\n` +
-          `Success Rate: ${(report.successRate * 100).toFixed(1)}%\n\n` +
-          `🤖 AUTOMATION ACTIONS\n${report.automationActions.join('\n')}\n\n` +
-          `📊 SYSTEM ANALYTICS\n` +
-          `Active Volunteers: ${analytics ? analytics.activeVolunteers : 'N/A'}\n` +
-          `Upcoming Shifts: ${analytics ? analytics.upcomingShifts : 'N/A'}\n` +
-          `Automation Efficiency: ${analytics ? analytics.automationEfficiency + '%' : 'N/A'}\n\n` +
-          `📅 Next Auto-Match: ${report.nextScheduledDate ? new Date(report.nextScheduledDate).toLocaleDateString() : 'TBD'}\n\n` +
-          `✅ Volunteer scheduling automation completed!${report.isDemoMode ? ' (Demo Mode)' : ''}`
+            `📋 Program: "${selectedProgram.name}"\n` +
+            `📍 Location: ${selectedProgram.location}\n` +
+            `👤 Coordinator: ${selectedProgram.coordinator}\n\n` +
+            `🎯 MATCHING RESULTS\n` +
+            `Potential Matches: ${report.matchesFound}\n` +
+            `Shifts Scheduled: ${report.shiftsScheduled}\n` +
+            `Volunteers Notified: ${report.volunteersNotified}\n` +
+            `Success Rate: ${(report.successRate * 100).toFixed(1)}%\n\n` +
+            `🤖 AUTOMATION ACTIONS\n${report.automationActions.join("\n")}\n\n` +
+            `📊 SYSTEM ANALYTICS\n` +
+            `Active Volunteers: ${analytics ? analytics.activeVolunteers : "N/A"}\n` +
+            `Upcoming Shifts: ${analytics ? analytics.upcomingShifts : "N/A"}\n` +
+            `Automation Efficiency: ${analytics ? analytics.automationEfficiency + "%" : "N/A"}\n\n` +
+            `📅 Next Auto-Match: ${report.nextScheduledDate ? new Date(report.nextScheduledDate).toLocaleDateString() : "TBD"}\n\n` +
+            `✅ Volunteer scheduling automation completed!${report.isDemoMode ? " (Demo Mode)" : ""}`
         );
       } else {
-        throw new Error(matchData.error || 'Failed to complete volunteer automation');
+        throw new Error(
+          matchData.error || "Failed to complete volunteer automation"
+        );
       }
     } catch (error) {
-      console.error('Volunteer automation error:', error);
-      
+      console.error("Volunteer automation error:", error);
+
       // Fallback to demo mode
       const demoPrograms = [
         {
           name: "Community Meal Program",
           location: "HFRP Community Kitchen",
-          coordinator: "Joseph Pierre"
+          coordinator: "Joseph Pierre",
         },
         {
           name: "Education Support",
           location: "Port-au-Prince Education Center",
-          coordinator: "Marie Laurent"
+          coordinator: "Marie Laurent",
         },
         {
           name: "Healthcare Assistance",
           location: "Mobile Health Clinic",
-          coordinator: "Dr. Jean Baptiste"
-        }
+          coordinator: "Dr. Jean Baptiste",
+        },
       ];
-      
-      const demoProgram = demoPrograms[Math.floor(Math.random() * demoPrograms.length)];
+
+      const demoProgram =
+        demoPrograms[Math.floor(Math.random() * demoPrograms.length)];
       const demoMatches = Math.floor(Math.random() * 8) + 3; // 3-10 matches
       const demoScheduled = Math.min(demoMatches, 3); // Max 3 scheduled
-      
+
       alert(
         `👥 VOLUNTEER AUTOMATION COMPLETE (Demo Mode)\n\n` +
-        `📋 Program: "${demoProgram.name}"\n` +
-        `📍 Location: ${demoProgram.location}\n` +
-        `👤 Coordinator: ${demoProgram.coordinator}\n\n` +
-        `🎯 MATCHING RESULTS\n` +
-        `Potential Matches: ${demoMatches}\n` +
-        `Shifts Scheduled: ${demoScheduled}\n` +
-        `Volunteers Notified: ${demoScheduled}\n` +
-        `Success Rate: 95.2%\n\n` +
-        `🤖 AUTOMATION ACTIONS\n` +
-        `✅ Analyzed volunteer skills and availability\n` +
-        `📅 Scheduled optimal shift assignments\n` +
-        `📧 Sent notifications to matched volunteers\n` +
-        `📱 Created calendar invites for all shifts\n` +
-        `🔔 Set up automated reminder system\n\n` +
-        `📊 SYSTEM ANALYTICS\n` +
-        `Active Volunteers: ${hfrpStats.totalDonors}\n` +
-        `Upcoming Shifts: 12\n` +
-        `Automation Efficiency: 92.3%\n\n` +
-        `⚠️ Demo mode - Volunteer system not configured\n` +
-        `✅ Volunteer scheduling automation completed!`
+          `📋 Program: "${demoProgram.name}"\n` +
+          `📍 Location: ${demoProgram.location}\n` +
+          `👤 Coordinator: ${demoProgram.coordinator}\n\n` +
+          `🎯 MATCHING RESULTS\n` +
+          `Potential Matches: ${demoMatches}\n` +
+          `Shifts Scheduled: ${demoScheduled}\n` +
+          `Volunteers Notified: ${demoScheduled}\n` +
+          `Success Rate: 95.2%\n\n` +
+          `🤖 AUTOMATION ACTIONS\n` +
+          `✅ Analyzed volunteer skills and availability\n` +
+          `📅 Scheduled optimal shift assignments\n` +
+          `📧 Sent notifications to matched volunteers\n` +
+          `📱 Created calendar invites for all shifts\n` +
+          `🔔 Set up automated reminder system\n\n` +
+          `📊 SYSTEM ANALYTICS\n` +
+          `Active Volunteers: ${hfrpStats.totalDonors}\n` +
+          `Upcoming Shifts: 12\n` +
+          `Automation Efficiency: 92.3%\n\n` +
+          `⚠️ Demo mode - Volunteer system not configured\n` +
+          `✅ Volunteer scheduling automation completed!`
       );
     } finally {
       setLoading(false);
@@ -998,15 +981,15 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
 
   const manageDonorCommunication = async () => {
     setLoading(true);
-    console.log('🔄 Executing donor communication automation...');
+    console.log("🔄 Executing donor communication automation...");
 
     try {
       // Call the new donor communication API
-      const response = await fetch('/api/donor/communication', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          action: 'automate_outreach'
+      const response = await fetch("/api/donor/communication", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "automate_outreach",
         }),
       });
 
@@ -1041,13 +1024,13 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
             `📊 AI personalization and tracking active`
         );
 
-        console.log('✅ Donor communication automation completed successfully');
+        console.log("✅ Donor communication automation completed successfully");
       } else {
-        throw new Error('Failed to execute donor communication automation');
+        throw new Error("Failed to execute donor communication automation");
       }
     } catch (error) {
-      console.error('Donor communication automation error:', error);
-      
+      console.error("Donor communication automation error:", error);
+
       // Fallback to demo mode
       const communication = {
         newDonorWelcome: 8,
@@ -1078,38 +1061,47 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
 
   // Resend Email Management Functions
   const sendSingleEmail = async () => {
-    if (!resendEmailForm.to.length || !resendEmailForm.subject || !resendEmailForm.html) {
-      alert('Please fill in all required fields (recipients, subject, and content)');
+    if (
+      !resendEmailForm.to.length ||
+      !resendEmailForm.subject ||
+      !resendEmailForm.html
+    ) {
+      alert(
+        "Please fill in all required fields (recipients, subject, and content)"
+      );
       return;
     }
 
     setResendLoading(true);
     try {
-      const response = await fetch('/api/email/resend', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/email/resend", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          action: 'send',
-          email: resendEmailForm
-        })
+          action: "send",
+          email: resendEmailForm,
+        }),
       });
 
       const result = await response.json();
-      
+
       if (response.ok) {
-        alert(`✅ Email sent successfully!\nEmail ID: ${result.id}\nStatus: ${result.status}`);
+        alert(
+          `✅ Email sent successfully!\nEmail ID: ${result.id}\nStatus: ${result.status}`
+        );
         // Reset form
         setResendEmailForm({
-          from: 'HFRP <noreply@familyreliefproject7.org>',
+          from: "HFRP <noreply@familyreliefproject7.org>",
           to: [],
-          subject: '',
-          html: '',
+          subject: "",
+          html: "",
         });
       } else {
-        throw new Error(result.error || 'Failed to send email');
+        throw new Error(result.error || "Failed to send email");
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       alert(`❌ Failed to send email: ${errorMessage}`);
     } finally {
       setResendLoading(false);
@@ -1118,32 +1110,35 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
 
   const sendBatchEmails = async () => {
     if (batchEmails.length === 0) {
-      alert('Please add at least one email to the batch');
+      alert("Please add at least one email to the batch");
       return;
     }
 
     setResendLoading(true);
     try {
-      const response = await fetch('/api/email/resend', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/email/resend", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          action: 'batch',
-          emails: batchEmails
-        })
+          action: "batch",
+          emails: batchEmails,
+        }),
       });
 
       const result = await response.json();
-      
+
       if (response.ok) {
-        alert(`✅ Batch emails sent successfully!\nEmails sent: ${result.data.length}\nFirst email ID: ${result.data[0]?.id}`);
+        alert(
+          `✅ Batch emails sent successfully!\nEmails sent: ${result.data.length}\nFirst email ID: ${result.data[0]?.id}`
+        );
         // Reset batch
         setBatchEmails([]);
       } else {
-        throw new Error(result.error || 'Failed to send batch emails');
+        throw new Error(result.error || "Failed to send batch emails");
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       alert(`❌ Failed to send batch emails: ${errorMessage}`);
     } finally {
       setResendLoading(false);
@@ -1152,23 +1147,28 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
 
   const trackEmailStatus = async () => {
     if (!emailToTrack) {
-      alert('Please enter an email ID to track');
+      alert("Please enter an email ID to track");
       return;
     }
 
     setResendLoading(true);
     try {
-      const response = await fetch(`/api/email/resend?action=status&emailId=${emailToTrack}`);
+      const response = await fetch(
+        `/api/email/resend?action=status&emailId=${emailToTrack}`
+      );
       const result = await response.json();
-      
+
       if (response.ok) {
         setEmailStatuses([result.data]);
-        alert(`📧 Email Status Retrieved\nID: ${result.data.id}\nStatus: ${result.data.status}\nCreated: ${new Date(result.data.created_at).toLocaleString()}`);
+        alert(
+          `📧 Email Status Retrieved\nID: ${result.data.id}\nStatus: ${result.data.status}\nCreated: ${new Date(result.data.created_at).toLocaleString()}`
+        );
       } else {
-        throw new Error(result.error || 'Failed to get email status');
+        throw new Error(result.error || "Failed to get email status");
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       alert(`❌ Failed to track email: ${errorMessage}`);
     } finally {
       setResendLoading(false);
@@ -1176,30 +1176,35 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
   };
 
   const updateScheduledEmail = async (emailId: string) => {
-    const newScheduleTime = prompt('Enter new schedule time (ISO format, e.g., 2024-01-01T10:00:00Z):');
+    const newScheduleTime = prompt(
+      "Enter new schedule time (ISO format, e.g., 2024-01-01T10:00:00Z):"
+    );
     if (!newScheduleTime) return;
 
     setResendLoading(true);
     try {
-      const response = await fetch('/api/email/resend', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/email/resend", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          action: 'update',
+          action: "update",
           emailId,
-          scheduledAt: newScheduleTime
-        })
+          scheduledAt: newScheduleTime,
+        }),
       });
 
       const result = await response.json();
-      
+
       if (response.ok) {
-        alert(`✅ Email schedule updated successfully!\nNew schedule: ${newScheduleTime}`);
+        alert(
+          `✅ Email schedule updated successfully!\nNew schedule: ${newScheduleTime}`
+        );
       } else {
-        throw new Error(result.error || 'Failed to update email schedule');
+        throw new Error(result.error || "Failed to update email schedule");
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       alert(`❌ Failed to update email: ${errorMessage}`);
     } finally {
       setResendLoading(false);
@@ -1207,28 +1212,30 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
   };
 
   const cancelScheduledEmail = async (emailId: string) => {
-    if (!confirm('Are you sure you want to cancel this scheduled email?')) return;
+    if (!confirm("Are you sure you want to cancel this scheduled email?"))
+      return;
 
     setResendLoading(true);
     try {
-      const response = await fetch('/api/email/resend', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/email/resend", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          action: 'cancel',
-          emailId
-        })
+          action: "cancel",
+          emailId,
+        }),
       });
 
       const result = await response.json();
-      
+
       if (response.ok) {
         alert(`✅ Email cancelled successfully!`);
       } else {
-        throw new Error(result.error || 'Failed to cancel email');
+        throw new Error(result.error || "Failed to cancel email");
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       alert(`❌ Failed to cancel email: ${errorMessage}`);
     } finally {
       setResendLoading(false);
@@ -1236,20 +1243,24 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
   };
 
   const addToBatch = () => {
-    if (!resendEmailForm.to.length || !resendEmailForm.subject || !resendEmailForm.html) {
-      alert('Please fill in all required fields before adding to batch');
+    if (
+      !resendEmailForm.to.length ||
+      !resendEmailForm.subject ||
+      !resendEmailForm.html
+    ) {
+      alert("Please fill in all required fields before adding to batch");
       return;
     }
 
     setBatchEmails([...batchEmails, { ...resendEmailForm }]);
     // Reset form for next email
     setResendEmailForm({
-      from: 'HFRP <noreply@familyreliefproject7.org>',
+      from: "HFRP <noreply@familyreliefproject7.org>",
       to: [],
-      subject: '',
-      html: '',
+      subject: "",
+      html: "",
     });
-    alert('Email added to batch!');
+    alert("Email added to batch!");
   };
 
   if (!user) {
@@ -1803,7 +1814,9 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
                           className="bg-indigo-600 text-white p-4 rounded hover:bg-indigo-700 text-left transition-colors block"
                         >
                           <div className="text-2xl mb-2">🔗</div>
-                          <div className="font-semibold">Stripe Connect Onboarding</div>
+                          <div className="font-semibold">
+                            Stripe Connect Onboarding
+                          </div>
                           <div className="text-xs opacity-75">
                             Open external onboarding link
                           </div>
@@ -1814,7 +1827,7 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
                       <button
                         onClick={() => {
                           // Add print-specific CSS
-                          const printStyles = document.createElement('style');
+                          const printStyles = document.createElement("style");
                           printStyles.textContent = `
                             @media print {
                               body * { visibility: hidden; }
@@ -1836,8 +1849,8 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
                           document.head.appendChild(printStyles);
 
                           // Create print content
-                          const printContent = document.createElement('div');
-                          printContent.className = 'print-content';
+                          const printContent = document.createElement("div");
+                          printContent.className = "print-content";
                           printContent.innerHTML = `
                             <div class="print-header">
                               <img src="/hfrp-logo.svg" alt="HFRP Logo" class="print-logo" />
@@ -1856,7 +1869,7 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
 
                           // Print and cleanup
                           window.print();
-                          
+
                           setTimeout(() => {
                             document.head.removeChild(printStyles);
                             document.body.removeChild(printContent);
@@ -1875,63 +1888,111 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
                       <button
                         onClick={() => {
                           const newStatus = !featuresEnabled;
-                          
+
                           if (newStatus) {
                             // Enable features
-                            localStorage.setItem('hfrp_features_enabled', 'true');
-                            
+                            localStorage.setItem(
+                              "hfrp_features_enabled",
+                              "true"
+                            );
+
                             // Use window function if available
-                             if (typeof window !== 'undefined' && (window as Window & { hfrpEnableSiteFeatures?: () => void }).hfrpEnableSiteFeatures) {
-                               (window as Window & { hfrpEnableSiteFeatures?: () => void }).hfrpEnableSiteFeatures?.();
-                             }
-                            
+                            if (
+                              typeof window !== "undefined" &&
+                              (
+                                window as Window & {
+                                  hfrpEnableSiteFeatures?: () => void;
+                                }
+                              ).hfrpEnableSiteFeatures
+                            ) {
+                              (
+                                window as Window & {
+                                  hfrpEnableSiteFeatures?: () => void;
+                                }
+                              ).hfrpEnableSiteFeatures?.();
+                            }
+
                             // Dispatch custom event for feature enablement
-                            window.dispatchEvent(new CustomEvent('featuresEnabled', {
-                              detail: { enabled: true, timestamp: Date.now() }
-                            }));
-                            
-                            alert('Advanced features have been enabled! PWA and automation features are now active.');
+                            window.dispatchEvent(
+                              new CustomEvent("featuresEnabled", {
+                                detail: {
+                                  enabled: true,
+                                  timestamp: Date.now(),
+                                },
+                              })
+                            );
+
+                            alert(
+                              "Advanced features have been enabled! PWA and automation features are now active."
+                            );
                           } else {
                             // Disable features
-                            localStorage.setItem('hfrp_features_enabled', 'false');
-                            
+                            localStorage.setItem(
+                              "hfrp_features_enabled",
+                              "false"
+                            );
+
                             // Use window function if available
-                             if (typeof window !== 'undefined' && (window as Window & { hfrpDisableSiteFeatures?: () => void }).hfrpDisableSiteFeatures) {
-                               (window as Window & { hfrpDisableSiteFeatures?: () => void }).hfrpDisableSiteFeatures?.();
-                             }
-                            
+                            if (
+                              typeof window !== "undefined" &&
+                              (
+                                window as Window & {
+                                  hfrpDisableSiteFeatures?: () => void;
+                                }
+                              ).hfrpDisableSiteFeatures
+                            ) {
+                              (
+                                window as Window & {
+                                  hfrpDisableSiteFeatures?: () => void;
+                                }
+                              ).hfrpDisableSiteFeatures?.();
+                            }
+
                             // Dispatch custom event for feature disablement
-                            window.dispatchEvent(new CustomEvent('featuresDisabled', {
-                              detail: { enabled: false, timestamp: Date.now() }
-                            }));
-                            
-                            alert('Advanced features have been disabled. PWA has been unregistered.');
+                            window.dispatchEvent(
+                              new CustomEvent("featuresDisabled", {
+                                detail: {
+                                  enabled: false,
+                                  timestamp: Date.now(),
+                                },
+                              })
+                            );
+
+                            alert(
+                              "Advanced features have been disabled. PWA has been unregistered."
+                            );
                           }
-                          
+
                           setFeaturesEnabled(newStatus);
                         }}
                         className={`${
-                          featuresEnabled 
-                            ? 'bg-green-600 hover:bg-green-700' 
-                            : 'bg-indigo-600 hover:bg-indigo-700'
+                          featuresEnabled
+                            ? "bg-green-600 hover:bg-green-700"
+                            : "bg-indigo-600 hover:bg-indigo-700"
                         } text-white p-4 rounded text-left transition-colors`}
                       >
-                        <div className="text-2xl mb-2">{featuresEnabled ? '✅' : '⚡'}</div>
+                        <div className="text-2xl mb-2">
+                          {featuresEnabled ? "✅" : "⚡"}
+                        </div>
                         <div className="font-semibold">
-                          {featuresEnabled ? 'Disable Features' : 'Enable Features'}
+                          {featuresEnabled
+                            ? "Disable Features"
+                            : "Enable Features"}
                         </div>
                         <div className="text-xs opacity-75">
-                          {featuresEnabled ? 'Turn off advanced' : 'Activate advanced'}
+                          {featuresEnabled
+                            ? "Turn off advanced"
+                            : "Activate advanced"}
                         </div>
                         <div className="text-xs mt-1 font-medium">
-                          Status: {featuresEnabled ? 'ON' : 'OFF'}
+                          Status: {featuresEnabled ? "ON" : "OFF"}
                         </div>
                       </button>
 
                       {/* Donate Function */}
                       <button
                         onClick={() => {
-                          window.open('https://donorbox.org/haitianfamilyrelief', '_blank');
+                          window.open("/donate", "_self");
                         }}
                         className="bg-red-600 text-white p-4 rounded hover:bg-red-700 text-left transition-colors"
                       >
@@ -2253,26 +2314,6 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
                       </button>
 
                       <button
-                        onClick={syncDonorboxData}
-                        disabled={loading}
-                        className="bg-teal-500 hover:bg-teal-600 text-white p-4 rounded-lg transition-colors text-center disabled:opacity-50"
-                      >
-                        <svg
-                          className="w-8 h-8 mx-auto mb-2"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-                        </svg>
-                        <div className="font-semibold">
-                          {loading ? "Syncing..." : "Sync Donorbox"}
-                        </div>
-                        <div className="text-xs opacity-75">
-                          Sync donation data
-                        </div>
-                      </button>
-
-                      <button
                         onClick={generateSocialContent}
                         className="bg-purple-500 hover:bg-purple-600 text-white p-4 rounded-lg transition-colors text-center"
                       >
@@ -2348,7 +2389,11 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
                 <div className="bg-gradient-to-br from-white to-blue-50 rounded-2xl shadow-xl ring-1 ring-blue-100 p-6 mb-8">
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-2xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 flex items-center">
-                      <svg className="w-7 h-7 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <svg
+                        className="w-7 h-7 text-blue-600 mr-2"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
                         <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
                         <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
                       </svg>
@@ -2361,15 +2406,34 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
                     >
                       {automationRunLoading ? (
                         <span className="inline-flex items-center">
-                          <svg className="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                          <svg
+                            className="animate-spin h-4 w-4 mr-2"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                              fill="none"
+                            />
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                            />
                           </svg>
                           Running…
                         </span>
                       ) : (
                         <span className="inline-flex items-center">
-                          <svg className="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                          <svg
+                            className="h-4 w-4 mr-2"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
                             <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
                           </svg>
                           Run Now
@@ -2378,32 +2442,53 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
                     </button>
                   </div>
 
-                  <p className="text-gray-600 mb-4">Process scheduled campaigns, donation thank-you emails, and queued emails in one click.</p>
+                  <p className="text-gray-600 mb-4">
+                    Process scheduled campaigns, donation thank-you emails, and
+                    queued emails in one click.
+                  </p>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="bg-blue-50 rounded-lg p-4 shadow-sm ring-1 ring-inset ring-blue-100">
-                      <div className="text-sm text-blue-700">Scheduled Campaigns</div>
-                      <div className="text-2xl font-semibold text-blue-900">{automationRunResults?.processedScheduled ?? 0}</div>
+                      <div className="text-sm text-blue-700">
+                        Scheduled Campaigns
+                      </div>
+                      <div className="text-2xl font-semibold text-blue-900">
+                        {automationRunResults?.processedScheduled ?? 0}
+                      </div>
                     </div>
                     <div className="bg-green-50 rounded-lg p-4 shadow-sm ring-1 ring-inset ring-green-100">
-                      <div className="text-sm text-green-700">Thank-You Emails</div>
-                      <div className="text-2xl font-semibold text-green-900">{automationRunResults?.processedThankYou ?? 0}</div>
+                      <div className="text-sm text-green-700">
+                        Thank-You Emails
+                      </div>
+                      <div className="text-2xl font-semibold text-green-900">
+                        {automationRunResults?.processedThankYou ?? 0}
+                      </div>
                     </div>
                     <div className="bg-purple-50 rounded-lg p-4 shadow-sm ring-1 ring-inset ring-purple-100">
-                      <div className="text-sm text-purple-700">Queued Emails</div>
-                      <div className="text-2xl font-semibold text-purple-900">{automationRunResults?.processedQueue ?? 0}</div>
+                      <div className="text-sm text-purple-700">
+                        Queued Emails
+                      </div>
+                      <div className="text-2xl font-semibold text-purple-900">
+                        {automationRunResults?.processedQueue ?? 0}
+                      </div>
                     </div>
                   </div>
 
                   <div className="mt-4 text-sm text-gray-500">
                     <span className="mr-2">Mode:</span>
                     {automationRunResults?.isDemoMode ? (
-                      <span className="inline-flex items-center px-2 py-1 rounded bg-yellow-100 text-yellow-700">Demo</span>
+                      <span className="inline-flex items-center px-2 py-1 rounded bg-yellow-100 text-yellow-700">
+                        Demo
+                      </span>
                     ) : (
-                      <span className="inline-flex items-center px-2 py-1 rounded bg-green-100 text-green-700">Live</span>
+                      <span className="inline-flex items-center px-2 py-1 rounded bg-green-100 text-green-700">
+                        Live
+                      </span>
                     )}
                     {automationRunAt && (
-                      <span className="ml-4">Last run: {new Date(automationRunAt).toLocaleString()}</span>
+                      <span className="ml-4">
+                        Last run: {new Date(automationRunAt).toLocaleString()}
+                      </span>
                     )}
                   </div>
                 </div>
@@ -2412,7 +2497,11 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
                 <div className="bg-gradient-to-br from-white to-purple-50 rounded-2xl shadow-xl ring-1 ring-purple-100 p-6 mb-8">
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-2xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600 flex items-center">
-                      <svg className="w-7 h-7 text-purple-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <svg
+                        className="w-7 h-7 text-purple-600 mr-2"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
                         <path d="M6 2a1 1 0 00-1 1v1H4a1 1 0 000 2h1v1a1 1 0 102 0V6h1a1 1 0 100-2H7V3a1 1 0 00-1-1zM4 12a1 1 0 011-1h1v-1a1 1 0 112 0v1h1a1 1 0 010 2H8v1a1 1 0 11-2 0v-1H5a1 1 0 01-1-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732L14.146 12.8l-1.179 4.456a1 1 0 01-1.934 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732L9.854 7.2l1.179-4.456A1 1 0 0112 2z" />
                       </svg>
                       Automation Scheduler
@@ -2423,8 +2512,16 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
                         className="bg-gray-100 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center border border-gray-200"
                         title="Refresh scheduler status"
                       >
-                        <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M4 4a8 8 0 0113.856 2.485 1 1 0 11-1.812.83A6 6 0 105 10h2l-3 3-3-3h2A8 8 0 014 4z" clipRule="evenodd" />
+                        <svg
+                          className="w-5 h-5 mr-2"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M4 4a8 8 0 0113.856 2.485 1 1 0 11-1.812.83A6 6 0 105 10h2l-3 3-3-3h2A8 8 0 014 4z"
+                            clipRule="evenodd"
+                          />
                         </svg>
                         Refresh
                       </button>
@@ -2433,7 +2530,11 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
                         disabled={schedulerLoading}
                         className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center"
                       >
-                        <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <svg
+                          className="w-5 h-5 mr-2"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
                           <path d="M6 4l10 6-10 6V4z" />
                         </svg>
                         Start
@@ -2443,7 +2544,11 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
                         disabled={schedulerLoading}
                         className="bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center"
                       >
-                        <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <svg
+                          className="w-5 h-5 mr-2"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
                           <path d="M6 6h8v8H6z" />
                         </svg>
                         Stop
@@ -2458,12 +2563,14 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
                         {schedulerLoading && (
                           <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600"></span>
                         )}
-                        {schedulerStatus?.isRunning ? 'Running' : 'Stopped'}
+                        {schedulerStatus?.isRunning ? "Running" : "Stopped"}
                       </div>
                     </div>
                     <div className="bg-indigo-50 rounded-lg p-4 shadow-sm ring-1 ring-inset ring-indigo-100">
                       <div className="text-sm text-indigo-700">Jobs</div>
-                      <div className="text-2xl font-semibold text-indigo-900">{schedulerStatus?.totalJobs ?? 0}</div>
+                      <div className="text-2xl font-semibold text-indigo-900">
+                        {schedulerStatus?.totalJobs ?? 0}
+                      </div>
                     </div>
                     <div className="bg-blue-50 rounded-lg p-4 shadow-sm ring-1 ring-inset ring-blue-100">
                       <div className="text-sm text-blue-700">Active</div>
@@ -2471,8 +2578,14 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
                         {(() => {
                           try {
                             const jobs = schedulerStatus?.jobs;
-                            return jobs ? Object.values(jobs).filter((j) => j?.status === 'running').length : 0;
-                          } catch { return 0; }
+                            return jobs
+                              ? Object.values(jobs).filter(
+                                  (j) => j?.status === "running"
+                                ).length
+                              : 0;
+                          } catch {
+                            return 0;
+                          }
                         })()}
                       </div>
                     </div>
@@ -2717,62 +2830,111 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
             {activeTab === "automation" && (
               <div className="bg-white rounded-lg shadow-md p-6 mb-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                  <svg className="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  <svg
+                    className="w-5 h-5 mr-2 text-blue-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    />
                   </svg>
                   Resend Email Management
                 </h3>
 
                 {/* Single Email Form */}
                 <div className="mb-6">
-                  <h4 className="text-md font-medium text-gray-800 mb-3">Send Single Email</h4>
+                  <h4 className="text-md font-medium text-gray-800 mb-3">
+                    Send Single Email
+                  </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">From</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        From
+                      </label>
                       <input
                         type="email"
                         value={resendEmailForm.from}
-                        onChange={(e) => setResendEmailForm({...resendEmailForm, from: e.target.value})}
+                        onChange={(e) =>
+                          setResendEmailForm({
+                            ...resendEmailForm,
+                            from: e.target.value,
+                          })
+                        }
                         placeholder="sender@yourdomain.com"
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">To (comma-separated)</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        To (comma-separated)
+                      </label>
                       <input
                         type="text"
-                        value={resendEmailForm.to.join(', ')}
-                        onChange={(e) => setResendEmailForm({...resendEmailForm, to: e.target.value.split(',').map(email => email.trim())})}
+                        value={resendEmailForm.to.join(", ")}
+                        onChange={(e) =>
+                          setResendEmailForm({
+                            ...resendEmailForm,
+                            to: e.target.value
+                              .split(",")
+                              .map((email) => email.trim()),
+                          })
+                        }
                         placeholder="recipient1@email.com, recipient2@email.com"
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Subject</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Subject
+                      </label>
                       <input
                         type="text"
                         value={resendEmailForm.subject}
-                        onChange={(e) => setResendEmailForm({...resendEmailForm, subject: e.target.value})}
+                        onChange={(e) =>
+                          setResendEmailForm({
+                            ...resendEmailForm,
+                            subject: e.target.value,
+                          })
+                        }
                         placeholder="Email subject"
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">HTML Content</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        HTML Content
+                      </label>
                       <textarea
                         value={resendEmailForm.html}
-                        onChange={(e) => setResendEmailForm({...resendEmailForm, html: e.target.value})}
+                        onChange={(e) =>
+                          setResendEmailForm({
+                            ...resendEmailForm,
+                            html: e.target.value,
+                          })
+                        }
                         placeholder="<p>Your email content here...</p>"
                         rows={4}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Schedule At (optional)</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Schedule At (optional)
+                      </label>
                       <input
                         type="datetime-local"
-                        value={resendEmailForm.scheduledAt || ''}
-                        onChange={(e) => setResendEmailForm({...resendEmailForm, scheduledAt: e.target.value})}
+                        value={resendEmailForm.scheduledAt || ""}
+                        onChange={(e) =>
+                          setResendEmailForm({
+                            ...resendEmailForm,
+                            scheduledAt: e.target.value,
+                          })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
@@ -2785,7 +2947,7 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
                         {resendLoading ? (
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                         ) : (
-                          'Send Email'
+                          "Send Email"
                         )}
                       </button>
                     </div>
@@ -2794,7 +2956,9 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
 
                 {/* Batch Email Management */}
                 <div className="mb-6">
-                  <h4 className="text-md font-medium text-gray-800 mb-3">Batch Email Management</h4>
+                  <h4 className="text-md font-medium text-gray-800 mb-3">
+                    Batch Email Management
+                  </h4>
                   <div className="flex gap-2 mb-4">
                     <button
                       onClick={addToBatch}
@@ -2816,18 +2980,30 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
                       Clear Batch
                     </button>
                   </div>
-                  
+
                   {batchEmails.length > 0 && (
                     <div className="bg-gray-50 p-4 rounded-md">
-                      <h5 className="font-medium text-gray-800 mb-2">Batch Queue ({batchEmails.length} emails)</h5>
+                      <h5 className="font-medium text-gray-800 mb-2">
+                        Batch Queue ({batchEmails.length} emails)
+                      </h5>
                       <div className="space-y-2 max-h-40 overflow-y-auto">
                         {batchEmails.map((email, index) => (
-                          <div key={index} className="flex justify-between items-center bg-white p-2 rounded border">
+                          <div
+                            key={index}
+                            className="flex justify-between items-center bg-white p-2 rounded border"
+                          >
                             <div className="text-sm">
-                              <span className="font-medium">{email.subject}</span> → {email.to.join(', ')}
+                              <span className="font-medium">
+                                {email.subject}
+                              </span>{" "}
+                              → {email.to.join(", ")}
                             </div>
                             <button
-                              onClick={() => setBatchEmails(batchEmails.filter((_, i) => i !== index))}
+                              onClick={() =>
+                                setBatchEmails(
+                                  batchEmails.filter((_, i) => i !== index)
+                                )
+                              }
                               className="text-red-600 hover:text-red-800"
                             >
                               Remove
@@ -2841,7 +3017,9 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
 
                 {/* Email Status Tracking */}
                 <div className="mb-6">
-                  <h4 className="text-md font-medium text-gray-800 mb-3">Email Status Tracking</h4>
+                  <h4 className="text-md font-medium text-gray-800 mb-3">
+                    Email Status Tracking
+                  </h4>
                   <div className="flex gap-2 mb-4">
                     <input
                       type="text"
@@ -2861,19 +3039,31 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
 
                   {emailStatuses.length > 0 && (
                     <div className="bg-gray-50 p-4 rounded-md">
-                      <h5 className="font-medium text-gray-800 mb-2">Email Status History</h5>
+                      <h5 className="font-medium text-gray-800 mb-2">
+                        Email Status History
+                      </h5>
                       <div className="space-y-2 max-h-40 overflow-y-auto">
                         {emailStatuses.map((status, index) => (
-                          <div key={index} className="flex justify-between items-center bg-white p-2 rounded border">
+                          <div
+                            key={index}
+                            className="flex justify-between items-center bg-white p-2 rounded border"
+                          >
                             <div className="text-sm">
                               <span className="font-medium">{status.id}</span>
-                              <span className={`ml-2 px-2 py-1 rounded text-xs ${
-                                status.status === 'delivered' ? 'bg-green-100 text-green-800' :
-                                status.status === 'sent' ? 'bg-blue-100 text-blue-800' :
-                                status.status === 'queued' ? 'bg-yellow-100 text-yellow-800' :
-                                status.status === 'failed' || status.status === 'bounced' ? 'bg-red-100 text-red-800' :
-                                'bg-gray-100 text-gray-800'
-                              }`}>
+                              <span
+                                className={`ml-2 px-2 py-1 rounded text-xs ${
+                                  status.status === "delivered"
+                                    ? "bg-green-100 text-green-800"
+                                    : status.status === "sent"
+                                      ? "bg-blue-100 text-blue-800"
+                                      : status.status === "queued"
+                                        ? "bg-yellow-100 text-yellow-800"
+                                        : status.status === "failed" ||
+                                            status.status === "bounced"
+                                          ? "bg-red-100 text-red-800"
+                                          : "bg-gray-100 text-gray-800"
+                                }`}
+                              >
                                 {status.status}
                               </span>
                             </div>
@@ -2889,10 +3079,14 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
 
                 {/* Email Management Actions */}
                 <div className="mb-6">
-                  <h4 className="text-md font-medium text-gray-800 mb-3">Email Management Actions</h4>
+                  <h4 className="text-md font-medium text-gray-800 mb-3">
+                    Email Management Actions
+                  </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Email ID for Update/Cancel</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Email ID for Update/Cancel
+                      </label>
                       <input
                         type="text"
                         value={emailToTrack}
@@ -2902,17 +3096,28 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">New Schedule Time (for update)</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        New Schedule Time (for update)
+                      </label>
                       <input
                         type="datetime-local"
-                        value={resendEmailForm.scheduledAt || ''}
-                        onChange={(e) => setResendEmailForm({...resendEmailForm, scheduledAt: e.target.value})}
+                        value={resendEmailForm.scheduledAt || ""}
+                        onChange={(e) =>
+                          setResendEmailForm({
+                            ...resendEmailForm,
+                            scheduledAt: e.target.value,
+                          })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
                     <button
                       onClick={() => updateScheduledEmail(emailToTrack)}
-                      disabled={!emailToTrack || !resendEmailForm.scheduledAt || resendLoading}
+                      disabled={
+                        !emailToTrack ||
+                        !resendEmailForm.scheduledAt ||
+                        resendLoading
+                      }
                       className="bg-orange-600 text-white px-4 py-2 rounded-md hover:bg-orange-700 disabled:opacity-50"
                     >
                       Update Schedule
@@ -2962,7 +3167,11 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
                       className="bg-gray-100 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center border border-gray-200"
                       title="Print analytics section as a report"
                     >
-                      <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <svg
+                        className="w-5 h-5 mr-2"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
                         <path d="M6 2a2 2 0 00-2 2v2h12V4a2 2 0 00-2-2H6z" />
                         <path d="M4 8a2 2 0 00-2 2v3a2 2 0 002 2h2v3h8v-3h2a2 2 0 002-2v-3a2 2 0 00-2-2H4zm4 9v-5h4v5H8z" />
                       </svg>

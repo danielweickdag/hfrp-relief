@@ -4,11 +4,12 @@
 
 ### 📋 Required Setup
 - [ ] **Environment Variables Configured**
-  - [ ] DONORBOX_API_KEY set in deployment platform
-  - [ ] DONORBOX_ORG_ID set in deployment platform  
   - [ ] SESSION_SECRET generated and set
   - [ ] NODE_ENV=production
   - [ ] PORT=3002 (or platform default)
+  - [ ] STRIPE_SECRET_KEY set in deployment platform
+  - [ ] NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY set
+  - [ ] STRIPE_WEBHOOK_SECRET configured (test/live as applicable)
 
 - [ ] **Security Verified**
   - [ ] No hardcoded credentials in source code
@@ -63,9 +64,9 @@
   - [ ] Login: w.regis@comcast.net / Melirosecherie58
   - [ ] All admin features work
 
-- [ ] **Donorbox Integration**
-  - [ ] Campaign data syncs correctly
-  - [ ] Real-time updates working
+- [ ] **Stripe Integration**
+  - [ ] Payment processing works (card, Apple Pay, Google Pay)
+  - [ ] Webhooks configured and firing
   - [ ] Automation features active
 
 #### Automation Features
@@ -131,7 +132,7 @@
 - [ ] **Support Contacts**
   - [ ] Primary Admin: w.regis@comcast.net
   - [ ] Technical Support: [Your contact]
-  - [ ] Donorbox Support: support@donorbox.org
+  - [ ] Stripe Support: https://support.stripe.com
 
 ## ✅ Sign-off
 - [ ] **Technical Lead Sign-off**: _________________ Date: _______

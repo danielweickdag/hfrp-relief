@@ -14,15 +14,24 @@ Add these events to your Stripe webhook in the dashboard:
 
 ## Webhook Endpoint URL
 
-When you deploy to production, your webhook URL will be:
+Use a single endpoint for both modes:
 
-- **Production**: `https://www.familyreliefproject.org/api/stripe/webhook`
+- **Production**: `https://www.familyreliefproject7.org/api/stripe/webhook`
+- **Local (dev)**: `http://localhost:3005/api/stripe/webhook`
 - **Vercel**: `https://your-domain.vercel.app/api/stripe/webhook`
 - **Netlify**: `https://your-domain.netlify.app/api/stripe/webhook`
+
+The handler supports dual-secret verification and will validate signatures using the appropriate test/live secret.
 
 ## Security Note
 
 The webhook signing secret (whsec\_...) is different from your API keys and is required for webhook verification.
+
+Recommended environment variables:
+
+- `STRIPE_WEBHOOK_SECRET_TEST=whsec_AHCGaRg47FuDA2VUCoPqRsbzZLJa7I7p`
+- `STRIPE_WEBHOOK_SECRET_LIVE=whsec_sHMNL4Kcwnm4RruqDQh67IzP3q817Hiv`
+- Optional `STRIPE_WEBHOOK_SECRET` (set to live in production)
 
 ## Testing Webhooks Locally
 
@@ -30,7 +39,7 @@ For local testing, you can use Stripe CLI:
 
 ```bash
 stripe login
-stripe listen --forward-to localhost:3001/api/stripe/webhook
+stripe listen --forward-to http://localhost:3005/api/stripe/webhook
 ```
 
 This will give you a test webhook secret starting with `whsec_test_...`

@@ -4,6 +4,7 @@
 export const dynamic = "force-dynamic";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 
 export default function AdminPage() {
   const [email, setEmail] = useState("w.regis@comcast.net");
@@ -37,7 +38,7 @@ export default function AdminPage() {
       localStorage.setItem("hfrp-admin-email", email);
     } else {
       setError(
-        "Invalid credentials. Use: w.regis@comcast.net / Melirosecherie58",
+        "Invalid credentials. Use: w.regis@comcast.net / Melirosecherie58"
       );
     }
     setIsLoading(false);
@@ -206,7 +207,7 @@ export default function AdminPage() {
               <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
                 <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                 <span className="text-sm font-medium">
-                  Donorbox Sync Automation
+                  Stripe Sync Automation
                 </span>
               </div>
               <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
@@ -266,7 +267,9 @@ export default function AdminPage() {
                 className="bg-green-600 text-white p-4 rounded-lg hover:bg-green-700 text-left transition-colors"
               >
                 <h3 className="font-semibold">🔄 Sync Stripe Campaigns</h3>
-                <p className="text-sm opacity-90">Update Stripe campaign info</p>
+                <p className="text-sm opacity-90">
+                  Update Stripe campaign info
+                </p>
               </button>
               <button
                 onClick={() =>
@@ -290,13 +293,13 @@ export default function AdminPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <h3 className="text-lg font-semibold text-gray-700 mb-2">
-                  Donorbox Integration
+                  Stripe Integration
                 </h3>
                 <ul className="space-y-1 text-sm text-gray-600">
                   <li>✅ API Connection: Active</li>
-                  <li>✅ Account: w.regis@comcast.net</li>
-                  <li>✅ Sync Frequency: Every 2 hours</li>
-                  <li>✅ Last Sync: {new Date().toLocaleString()}</li>
+                  <li>✅ Stripe Account: w.regis@comcast.net</li>
+                  <li>✅ Webhooks: Configured</li>
+                  <li>✅ Last Webhook Event: {new Date().toLocaleString()}</li>
                 </ul>
               </div>
               <div>
@@ -323,9 +326,9 @@ export default function AdminPage() {
               {localStorage.getItem("hfrp-admin-email")}
             </p>
             <p className="mt-2">
-              <a href="/" className="text-blue-600 hover:text-blue-800">
+              <Link href="/" className="text-blue-600 hover:text-blue-800">
                 ← Back to Homepage
-              </a>
+              </Link>
             </p>
           </div>
         </div>
@@ -407,9 +410,9 @@ export default function AdminPage() {
         <div className="mt-6 text-center text-sm text-gray-500">
           <p>Need help? The credentials are shown above.</p>
           <p className="mt-2">
-            <a href="/" className="text-blue-600 hover:text-blue-800">
+            <Link href="/" className="text-blue-600 hover:text-blue-800">
               ← Back to Homepage
-            </a>
+            </Link>
           </p>
         </div>
       </div>

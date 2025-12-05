@@ -5,8 +5,11 @@
  * Debug campaigns and automate all HFRP systems
  */
 
+// biome-ignore lint/nursery/noCommonjs: Node CLI script uses CommonJS modules
 const fs = require("fs");
+// biome-ignore lint/nursery/noCommonjs: Node CLI script uses CommonJS modules
 const path = require("path");
+// biome-ignore lint/nursery/noCommonjs: Node CLI script uses CommonJS modules
 const { exec } = require("child_process");
 
 class MasterAutomation {
@@ -542,7 +545,7 @@ class MasterAutomation {
     this.log("  • Review campaign performance daily", "info");
     this.log("  • Execute automated social media posts", "info");
     this.log("  • Send email campaigns to donor segments", "info");
-    this.log("  • Monitor Donorbox sync status", "info");
+    this.log("  • Monitor Stripe sync status", "info");
 
     this.log("\n🌐 Quick Access:", "info");
     this.log("  • Admin Dashboard: http://localhost:3002/admin", "success");
@@ -567,8 +570,8 @@ class MasterAutomation {
     );
 
     try {
-      // Step 1: Sync Donorbox data
-      const syncSuccess = await this.syncDonorboxData();
+      // Step 1: Sync Stripe data
+      const syncSuccess = await this.syncStripeData();
 
       // Step 2: Debug and automate campaigns
       const campaignsSuccess = await this.debugCampaigns();

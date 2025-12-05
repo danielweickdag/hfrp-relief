@@ -1,5 +1,5 @@
 {
-  "generated_at": "2025-08-04T14:22:12.234Z",
+  "generated_at": "2025-12-05T15:28:54.482Z",
   "automation_summary": {
     "campaigns_processed": 4,
     "campaigns_automated": 4,
@@ -28,7 +28,7 @@
     "Execute social media content schedule",
     "Send email campaigns to donor segments",
     "Review automation performance metrics",
-    "Sync with Donorbox every 2 hours"
+    "Sync with Stripe via automated workflows"
   ],
   "system_health": {
     "campaigns": "healthy",
