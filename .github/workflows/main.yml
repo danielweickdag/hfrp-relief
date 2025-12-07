@@ -21,7 +21,7 @@ on:
         - development
 
 env:
-  NODE_VERSION: '18'
+  NODE_VERSION: '20'
   DEPLOYMENT_URL: ${{ secrets.DEPLOYMENT_URL }}
   STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
   RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
