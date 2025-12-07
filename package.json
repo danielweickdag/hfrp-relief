@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "bunx biome lint --write && bunx tsc --noEmit",
     "format": "bunx biome format --write",
-    "health-check": "node health-check.js",
+    "health-check": "node health-check.mjs",
     "deploy": "node deploy.js",
     "deploy-safe": "npm run health-check && npm run deploy",
     "test-local": "npm run build && npm run dev",

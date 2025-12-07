@@ -63,7 +63,7 @@ jobs:
     - name: 🔍 Run Health Check
       id: health
       run: |
-        node health-check.js
+        node health-check.mjs
         echo "ready=true" >> $GITHUB_OUTPUT
       continue-on-error: false
 
@@ -204,7 +204,7 @@ jobs:
       run: bun run build
 
     - name: 🔍 Final Production Health Check
-      run: node health-check.js
+      run: node health-check.mjs
 
     - name: 🚀 Deploy to Vercel Production
       uses: amondnet/vercel-action@v25
