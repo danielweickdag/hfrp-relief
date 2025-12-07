@@ -14,6 +14,7 @@ class HFRPHealthCheck {
     this.checks = [];
     this.passed = 0;
     this.failed = 0;
+    this.results = [];
   }
 
   log(message, type = "info") {
@@ -37,10 +38,16 @@ class HFRPHealthCheck {
         if (error) {
           this.log(`❌ FAILED: ${description} - ${error.message}`, "error");
           this.failed++;
+          this.results.push({
+            description,
+            status: "failed",
+            detail: error.message,
+          });
           resolve(false);
         } else {
           this.log(`✅ PASSED: ${description}`, "success");
           this.passed++;
+          this.results.push({ description, status: "passed" });
           resolve(true);
         }
       });
@@ -52,15 +59,26 @@ class HFRPHealthCheck {
       if (fs.existsSync(filePath)) {
         this.log(`✅ PASSED: ${description}`, "success");
         this.passed++;
+        this.results.push({ description, status: "passed" });
         return true;
       } else {
         this.log(`❌ FAILED: ${description} - File not found`, "error");
         this.failed++;
+        this.results.push({
+          description,
+          status: "failed",
+          detail: "File not found",
+        });
         return false;
       }
     } catch (error) {
       this.log(`❌ FAILED: ${description} - ${error.message}`, "error");
       this.failed++;
+      this.results.push({
+        description,
+        status: "failed",
+        detail: error.message,
+      });
       return false;
     }
   }
@@ -91,6 +109,10 @@ class HFRPHealthCheck {
             "success"
           );
           this.passed++;
+          this.results.push({
+            description: `Env ${varName}`,
+            status: "passed",
+          });
         } else {
           this.log(
             `⚠️ SKIPPED: Environment variable ${varName} not set in CI`,
@@ -98,6 +120,10 @@ class HFRPHealthCheck {
           );
           // Don't fail in CI for missing env vars as they may be set differently
           this.passed++;
+          this.results.push({
+            description: `Env ${varName}`,
+            status: "skipped",
+          });
         }
       });
 
@@ -122,9 +148,15 @@ class HFRPHealthCheck {
           "success"
         );
         this.passed++;
+        this.results.push({ description: `Env ${varName}`, status: "passed" });
       } else {
         this.log(`❌ FAILED: Environment variable ${varName} missing`, "error");
         this.failed++;
+        this.results.push({
+          description: `Env ${varName}`,
+          status: "failed",
+          detail: "Missing in .env.local",
+        });
         allPresent = false;
       }
     });
@@ -161,6 +193,14 @@ class HFRPHealthCheck {
     } else {
       this.log("⚠️ SKIPPED: Video file checks in CI environment", "warning");
       this.passed += 2; // Count as passed to not fail the build
+      this.results.push({
+        description: "Main video file exists",
+        status: "skipped",
+      });
+      this.results.push({
+        description: "Backup video file exists",
+        status: "skipped",
+      });
     }
 
     // Environment variables check
@@ -175,6 +215,10 @@ class HFRPHealthCheck {
         "warning"
       );
       this.passed++;
+      this.results.push({
+        description: "Next.js build compilation",
+        status: "skipped",
+      });
     } else {
       await this.runCommand("npm run build", "Next.js build compilation");
     }
@@ -186,6 +230,10 @@ class HFRPHealthCheck {
     } else {
       this.log("⚠️ SKIPPED: Vercel CLI check in CI environment", "warning");
       this.passed++; // Count as passed to not fail the build
+      this.results.push({
+        description: "Vercel CLI availability",
+        status: "skipped",
+      });
     }
 
     // API endpoint checks
@@ -203,6 +251,30 @@ class HFRPHealthCheck {
       `❌ Failed: ${this.failed}`,
       this.failed > 0 ? "error" : "success"
     );
+
+    // Write step summary when running in GitHub Actions
+    const summaryPath = process.env.GITHUB_STEP_SUMMARY;
+    if (summaryPath) {
+      const lines = [];
+      lines.push(`# 🔍 Health Check Summary`);
+      lines.push("");
+      lines.push(`- ✅ Passed: ${this.passed}`);
+      lines.push(`- ❌ Failed: ${this.failed}`);
+      lines.push("");
+      lines.push(`## Details`);
+      this.results.forEach((r) => {
+        const icon =
+          r.status === "passed" ? "✅" : r.status === "failed" ? "❌" : "⚠️";
+        lines.push(
+          `- ${icon} ${r.description}${r.detail ? ` — ${r.detail}` : ""}`
+        );
+      });
+      try {
+        fs.appendFileSync(summaryPath, lines.join("\n") + "\n");
+      } catch (e) {
+        // ignore summary write errors
+      }
+    }
 
     if (this.failed === 0) {
       this.log("🎉 All automated systems are working properly!", "success");
