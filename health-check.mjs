@@ -92,8 +92,7 @@ class HFRPHealthCheck {
     ];
 
     // In CI environment, check for environment variables directly
-    const isCI =
-      process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
+    const isCI = !!process.env.CI || !!process.env.GITHUB_ACTIONS;
 
     if (isCI) {
       this.log(
@@ -168,8 +167,8 @@ class HFRPHealthCheck {
     this.log("🚀 Starting HFRP Relief Health Check...", "info");
     this.log("=".repeat(50), "info");
 
-    const isCI =
-      process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
+    const isCI = !!process.env.CI || !!process.env.GITHUB_ACTIONS;
+    this.log(`CI environment detected: ${isCI ? "yes" : "no"}`, "info");
 
     // File existence checks
     this.log("📁 Checking critical files...", "info");
