@@ -252,7 +252,7 @@ export default function CampaignSyncManager() {
                         <li key={index} className="text-red-600">
                           {error}
                         </li>
-                      )
+                      ),
                     )}
                   </ul>
                 </div>

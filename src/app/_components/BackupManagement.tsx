@@ -51,7 +51,7 @@ export default function BackupManagement({
   const [encryptionPassword, setEncryptionPassword] = useState("");
   const [useEncryption, setUseEncryption] = useState(false);
   const [cloudConfig, setCloudConfig] = useState<CloudStorageConfig | null>(
-    null
+    null,
   );
   const [createScheduleModal, setCreateScheduleModal] = useState(false);
 
@@ -143,7 +143,7 @@ export default function BackupManagement({
       const backupData = await backupStorage.uploadBackup(selectedFile);
       const result = await backupStorage.restoreFromBackup(
         backupData,
-        restoreOptions
+        restoreOptions,
       );
 
       if (result.success) {
@@ -172,7 +172,7 @@ Restored:
   const handleClearData = async (dataType: string) => {
     if (
       !confirm(
-        `Are you sure you want to clear all ${dataType} data? This action cannot be undone.`
+        `Are you sure you want to clear all ${dataType} data? This action cannot be undone.`,
       )
     ) {
       return;
@@ -287,7 +287,7 @@ Restored:
                             {formatBytes(size)}
                           </span>
                         </div>
-                      )
+                      ),
                     )}
                   </div>
                 </div>
@@ -511,7 +511,7 @@ Restored:
                         <input
                           type="checkbox"
                           checked={restoreOptions.selectedDataTypes.includes(
-                            type
+                            type,
                           )}
                           onChange={(e) => {
                             if (e.target.checked) {
@@ -527,7 +527,7 @@ Restored:
                                 ...restoreOptions,
                                 selectedDataTypes:
                                   restoreOptions.selectedDataTypes.filter(
-                                    (t) => t !== type
+                                    (t) => t !== type,
                                   ),
                               });
                             }

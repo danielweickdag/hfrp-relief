@@ -29,7 +29,9 @@ class PerformanceMonitor {
 
   static startOperation(operationType: string): number {
     const startTime = Date.now();
-    console.log(`🚀 Starting ${operationType} at ${new Date(startTime).toISOString()}`);
+    console.log(
+      `🚀 Starting ${operationType} at ${new Date(startTime).toISOString()}`,
+    );
     return startTime;
   }
 
@@ -38,11 +40,11 @@ class PerformanceMonitor {
     startTime: number,
     success: boolean,
     errorType?: string,
-    retryCount?: number
+    retryCount?: number,
   ): void {
     const endTime = Date.now();
     const duration = endTime - startTime;
-    
+
     const metric: PerformanceMetrics = {
       operationType,
       startTime,
@@ -50,20 +52,22 @@ class PerformanceMonitor {
       duration,
       success,
       errorType,
-      retryCount
+      retryCount,
     };
 
     this.metrics.push(metric);
-    
+
     // Keep only the last MAX_METRICS entries
     if (this.metrics.length > this.MAX_METRICS) {
       this.metrics = this.metrics.slice(-this.MAX_METRICS);
     }
 
-    const status = success ? '✅' : '❌';
-    const retryInfo = retryCount ? ` (${retryCount} retries)` : '';
-    console.log(`${status} ${operationType} completed in ${duration}ms${retryInfo}`);
-    
+    const status = success ? "✅" : "❌";
+    const retryInfo = retryCount ? ` (${retryCount} retries)` : "";
+    console.log(
+      `${status} ${operationType} completed in ${duration}ms${retryInfo}`,
+    );
+
     if (!success && errorType) {
       console.warn(`⚠️ Operation failed with error type: ${errorType}`);
     }
@@ -74,18 +78,25 @@ class PerformanceMonitor {
   }
 
   static getAverageOperationTime(operationType: string): number {
-    const operations = this.metrics.filter(m => m.operationType === operationType && m.success);
+    const operations = this.metrics.filter(
+      (m) => m.operationType === operationType && m.success,
+    );
     if (operations.length === 0) return 0;
-    
-    const totalTime = operations.reduce((sum, op) => sum + (op.duration || 0), 0);
+
+    const totalTime = operations.reduce(
+      (sum, op) => sum + (op.duration || 0),
+      0,
+    );
     return totalTime / operations.length;
   }
 
   static getSuccessRate(operationType: string): number {
-    const operations = this.metrics.filter(m => m.operationType === operationType);
+    const operations = this.metrics.filter(
+      (m) => m.operationType === operationType,
+    );
     if (operations.length === 0) return 0;
-    
-    const successful = operations.filter(op => op.success).length;
+
+    const successful = operations.filter((op) => op.success).length;
     return (successful / operations.length) * 100;
   }
 }
@@ -96,10 +107,10 @@ class StripeError extends Error {
     public code?: string,
     public type?: string,
     public statusCode?: number,
-    public originalError?: unknown
+    public originalError?: unknown,
   ) {
     super(message);
-    this.name = 'StripeError';
+    this.name = "StripeError";
   }
 }
 
@@ -110,62 +121,85 @@ async function withRetry<T>(
     maxRetries: 3,
     baseDelay: 1000,
     maxDelay: 10000,
-    backoffMultiplier: 2
+    backoffMultiplier: 2,
   },
-  operationType = 'stripe_operation'
+  operationType = "stripe_operation",
 ): Promise<T> {
   const startTime = PerformanceMonitor.startOperation(operationType);
-  let lastError: Error = new Error('Unknown error');
+  let lastError: Error = new Error("Unknown error");
   let retryCount = 0;
-  
+
   for (let attempt = 0; attempt <= options.maxRetries; attempt++) {
     try {
       const result = await operation();
-      PerformanceMonitor.endOperation(operationType, startTime, true, undefined, retryCount);
+      PerformanceMonitor.endOperation(
+        operationType,
+        startTime,
+        true,
+        undefined,
+        retryCount,
+      );
       return result;
     } catch (error: unknown) {
       const err = error as Error;
       lastError = err;
       retryCount = attempt;
-      
+
       // Don't retry on certain error types
-      if (error instanceof Stripe.errors.StripeInvalidRequestError ||
-          error instanceof Stripe.errors.StripeAuthenticationError ||
-          error instanceof Stripe.errors.StripePermissionError) {
+      if (
+        error instanceof Stripe.errors.StripeInvalidRequestError ||
+        error instanceof Stripe.errors.StripeAuthenticationError ||
+        error instanceof Stripe.errors.StripePermissionError
+      ) {
         const stripeError = error as Stripe.errors.StripeError;
         const errorType = err.constructor.name;
-        PerformanceMonitor.endOperation(operationType, startTime, false, errorType, retryCount);
+        PerformanceMonitor.endOperation(
+          operationType,
+          startTime,
+          false,
+          errorType,
+          retryCount,
+        );
         throw new StripeError(
           `Non-retryable Stripe error: ${err.message}`,
           stripeError.code,
           stripeError.type,
           stripeError.statusCode,
-          error
+          error,
         );
       }
-      
+
       if (attempt === options.maxRetries) {
         break;
       }
-      
+
       const delay = Math.min(
         options.baseDelay * Math.pow(options.backoffMultiplier, attempt),
-        options.maxDelay
+        options.maxDelay,
       );
-      
-      console.warn(`Stripe operation failed (attempt ${attempt + 1}/${options.maxRetries + 1}), retrying in ${delay}ms:`, err.message);
-      await new Promise(resolve => setTimeout(resolve, delay));
+
+      console.warn(
+        `Stripe operation failed (attempt ${attempt + 1}/${options.maxRetries + 1}), retrying in ${delay}ms:`,
+        err.message,
+      );
+      await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }
-  
+
   const errorType = lastError.constructor.name;
-  PerformanceMonitor.endOperation(operationType, startTime, false, errorType, retryCount);
+  PerformanceMonitor.endOperation(
+    operationType,
+    startTime,
+    false,
+    errorType,
+    retryCount,
+  );
   throw new StripeError(
     `Stripe operation failed after ${options.maxRetries + 1} attempts: ${lastError.message}`,
     undefined,
-    'retry_exhausted',
+    "retry_exhausted",
     undefined,
-    lastError
+    lastError,
   );
 }
 
@@ -246,16 +280,18 @@ class StripeAutomationService {
 
     try {
       // Create Stripe Product for campaign with retry logic
-      const product = await withRetry(() => this.stripe.products.create({
-        name: campaignData.name,
-        description: campaignData.description,
-        type: "service",
-        metadata: {
-          campaignType: "donation",
-          goalAmount: campaignData.goalAmount.toString(),
-          automationEnabled: "true",
-        },
-      }));
+      const product = await withRetry(() =>
+        this.stripe.products.create({
+          name: campaignData.name,
+          description: campaignData.description,
+          type: "service",
+          metadata: {
+            campaignType: "donation",
+            goalAmount: campaignData.goalAmount.toString(),
+            automationEnabled: "true",
+          },
+        }),
+      );
 
       console.log("✅ Created Stripe product:", product.id);
 
@@ -264,29 +300,33 @@ class StripeAutomationService {
 
       for (const amount of campaignData.suggestedAmounts) {
         // One-time donation price with retry logic
-        const oneTimePrice = await withRetry(() => this.stripe.prices.create({
-          product: product.id,
-          unit_amount: amount * 100, // Convert to cents
-          currency: "usd",
-          metadata: {
-            donationType: "one-time",
-            suggestedAmount: amount.toString(),
-          },
-        }));
+        const oneTimePrice = await withRetry(() =>
+          this.stripe.prices.create({
+            product: product.id,
+            unit_amount: amount * 100, // Convert to cents
+            currency: "usd",
+            metadata: {
+              donationType: "one-time",
+              suggestedAmount: amount.toString(),
+            },
+          }),
+        );
         priceIds.push(oneTimePrice.id);
 
         // Recurring monthly donation price (if enabled) with retry logic
         if (campaignData.enableRecurring) {
-          const recurringPrice = await withRetry(() => this.stripe.prices.create({
-            product: product.id,
-            unit_amount: amount * 100,
-            currency: "usd",
-            recurring: { interval: "month" },
-            metadata: {
-              donationType: "recurring",
-              suggestedAmount: amount.toString(),
-            },
-          }));
+          const recurringPrice = await withRetry(() =>
+            this.stripe.prices.create({
+              product: product.id,
+              unit_amount: amount * 100,
+              currency: "usd",
+              recurring: { interval: "month" },
+              metadata: {
+                donationType: "recurring",
+                suggestedAmount: amount.toString(),
+              },
+            }),
+          );
           priceIds.push(recurringPrice.id);
         }
       }
@@ -398,7 +438,7 @@ class StripeAutomationService {
       // Create or retrieve Stripe customer
       const customer = await this.getOrCreateCustomer(
         donationData.donorEmail,
-        donationData.donorName
+        donationData.donorName,
       );
 
       let stripeSubscriptionId: string | undefined;
@@ -411,7 +451,9 @@ class StripeAutomationService {
             {
               price_data: {
                 currency: "usd",
-                product: await this.getOrCreateProduct(`Monthly Donation${donationData.campaignId ? ` - ${donationData.campaignId}` : ""}`),
+                product: await this.getOrCreateProduct(
+                  `Monthly Donation${donationData.campaignId ? ` - ${donationData.campaignId}` : ""}`,
+                ),
                 unit_amount: donationData.amount * 100,
                 recurring: { interval: "month" },
               },
@@ -560,7 +602,7 @@ class StripeAutomationService {
   // 🔧 HELPER METHODS
   private async getOrCreateCustomer(
     email: string,
-    name?: string
+    name?: string,
   ): Promise<Stripe.Customer> {
     // Try to find existing customer
     const existingCustomers = await this.stripe.customers.list({ email });
@@ -607,7 +649,7 @@ class StripeAutomationService {
       await this.saveCampaignData(campaign);
 
       console.log(
-        `📈 Updated campaign ${campaignId}: $${campaign.currentAmount}/$${campaign.goalAmount}`
+        `📈 Updated campaign ${campaignId}: $${campaign.currentAmount}/$${campaign.goalAmount}`,
       );
     }
   }
@@ -689,8 +731,8 @@ class StripeAutomationService {
       const products = await this.stripe.products.list({
         limit: 100,
       });
-      
-      const existingProduct = products.data.find(p => p.name === name);
+
+      const existingProduct = products.data.find((p) => p.name === name);
       if (existingProduct) {
         return existingProduct.id;
       }
@@ -698,12 +740,12 @@ class StripeAutomationService {
       // Create new product
       const product = await this.stripe.products.create({
         name: name,
-        type: 'service',
+        type: "service",
       });
 
       return product.id;
     } catch (error) {
-      console.error('Failed to get or create product:', error);
+      console.error("Failed to get or create product:", error);
       throw error;
     }
   }
@@ -712,72 +754,112 @@ class StripeAutomationService {
   async processWebhookAutomatically(
     event: Stripe.Event,
     signature: string,
-    rawBody: Buffer
-  ): Promise<{ success: boolean; eventType: string; processed: boolean; error?: string; retryScheduled?: boolean }> {
+    rawBody: Buffer,
+  ): Promise<{
+    success: boolean;
+    eventType: string;
+    processed: boolean;
+    error?: string;
+    retryScheduled?: boolean;
+  }> {
     try {
       console.log(`Processing webhook event: ${event.type} with automation`);
-      
+
       // Validate event integrity
       if (!event.id || !event.type || !event.data) {
-        throw new StripeError('Invalid webhook event structure', 'invalid_event', 'validation_error');
+        throw new StripeError(
+          "Invalid webhook event structure",
+          "invalid_event",
+          "validation_error",
+        );
       }
-      
+
       // Process based on event type with retry logic
-      await withRetry(async () => {
-        switch (event.type) {
-          case 'payment_intent.succeeded':
-            await this.handleAutomatedPaymentSuccess(event.data.object as Stripe.PaymentIntent);
-            break;
-          case 'payment_intent.payment_failed':
-            await this.handleAutomatedPaymentFailure(event.data.object as Stripe.PaymentIntent);
-            break;
-          case 'checkout.session.completed':
-            await this.handleAutomatedCheckoutCompleted(event.data.object as Stripe.Checkout.Session);
-            break;
-          case 'customer.subscription.created':
-          case 'customer.subscription.updated':
-            await this.handleAutomatedSubscriptionChange(event.data.object as Stripe.Subscription);
-            break;
-          default:
-            console.log(`Automated processing not implemented for: ${event.type}`);
-            throw new StripeError(`Not implemented: ${event.type}`, 'not_implemented', 'processing_error');
-        }
-      }, { maxRetries: 2, baseDelay: 500, maxDelay: 5000, backoffMultiplier: 2 });
+      await withRetry(
+        async () => {
+          switch (event.type) {
+            case "payment_intent.succeeded":
+              await this.handleAutomatedPaymentSuccess(
+                event.data.object as Stripe.PaymentIntent,
+              );
+              break;
+            case "payment_intent.payment_failed":
+              await this.handleAutomatedPaymentFailure(
+                event.data.object as Stripe.PaymentIntent,
+              );
+              break;
+            case "checkout.session.completed":
+              await this.handleAutomatedCheckoutCompleted(
+                event.data.object as Stripe.Checkout.Session,
+              );
+              break;
+            case "customer.subscription.created":
+            case "customer.subscription.updated":
+              await this.handleAutomatedSubscriptionChange(
+                event.data.object as Stripe.Subscription,
+              );
+              break;
+            default:
+              console.log(
+                `Automated processing not implemented for: ${event.type}`,
+              );
+              throw new StripeError(
+                `Not implemented: ${event.type}`,
+                "not_implemented",
+                "processing_error",
+              );
+          }
+        },
+        { maxRetries: 2, baseDelay: 500, maxDelay: 5000, backoffMultiplier: 2 },
+      );
 
       console.log(`✅ Successfully processed webhook event: ${event.type}`);
       return { success: true, eventType: event.type, processed: true };
     } catch (error) {
-      console.error(`❌ Automated webhook processing failed for ${event.type}:`, error);
-      
-      const isRetryable = !(error instanceof StripeError && 
-        (error.type === 'validation_error' || error.type === 'not_implemented'));
-      
-      return { 
-        success: false, 
-        eventType: event.type, 
-        processed: false, 
-        error: error instanceof Error ? error.message : 'Unknown error',
-        retryScheduled: isRetryable
+      console.error(
+        `❌ Automated webhook processing failed for ${event.type}:`,
+        error,
+      );
+
+      const isRetryable = !(
+        error instanceof StripeError &&
+        (error.type === "validation_error" || error.type === "not_implemented")
+      );
+
+      return {
+        success: false,
+        eventType: event.type,
+        processed: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+        retryScheduled: isRetryable,
       };
     }
   }
 
-  private async handleAutomatedPaymentSuccess(paymentIntent: Stripe.PaymentIntent): Promise<void> {
+  private async handleAutomatedPaymentSuccess(
+    paymentIntent: Stripe.PaymentIntent,
+  ): Promise<void> {
     console.log(`Automated payment success handling: ${paymentIntent.id}`);
     // Add automated success handling logic here
   }
 
-  private async handleAutomatedPaymentFailure(paymentIntent: Stripe.PaymentIntent): Promise<void> {
+  private async handleAutomatedPaymentFailure(
+    paymentIntent: Stripe.PaymentIntent,
+  ): Promise<void> {
     console.log(`Automated payment failure handling: ${paymentIntent.id}`);
     // Add automated failure handling logic here
   }
 
-  private async handleAutomatedCheckoutCompleted(session: Stripe.Checkout.Session): Promise<void> {
+  private async handleAutomatedCheckoutCompleted(
+    session: Stripe.Checkout.Session,
+  ): Promise<void> {
     console.log(`Automated checkout completion handling: ${session.id}`);
     // Add automated checkout completion logic here
   }
 
-  private async handleAutomatedSubscriptionChange(subscription: Stripe.Subscription): Promise<void> {
+  private async handleAutomatedSubscriptionChange(
+    subscription: Stripe.Subscription,
+  ): Promise<void> {
     console.log(`Automated subscription change handling: ${subscription.id}`);
     // Add automated subscription change logic here
   }
@@ -791,50 +873,77 @@ class StripeAutomationService {
     metadata?: Record<string, string>;
   }): Promise<{ id: string; paymentIntentId?: string }> {
     try {
-      const { amount, currency, donorEmail, campaignId, metadata = {} } = params;
-      
+      const {
+        amount,
+        currency,
+        donorEmail,
+        campaignId,
+        metadata = {},
+      } = params;
+
       // Validate input parameters
       if (!amount || amount <= 0) {
-        throw new StripeError('Invalid donation amount', 'validation_error', 'validation_error', 400);
+        throw new StripeError(
+          "Invalid donation amount",
+          "validation_error",
+          "validation_error",
+          400,
+        );
       }
       if (!donorEmail || !campaignId) {
-        throw new StripeError('Missing required donation parameters', 'validation_error', 'validation_error', 400);
+        throw new StripeError(
+          "Missing required donation parameters",
+          "validation_error",
+          "validation_error",
+          400,
+        );
       }
-      
+
       // Create payment intent for one-time donation with retry logic
       const paymentIntent = await withRetry(
-        () => this.stripe.paymentIntents.create({
-          amount,
-          currency,
-          metadata: {
-            donation_type: 'one_time',
-            campaign_id: campaignId,
-            donor_email: donorEmail,
-            ...metadata
-          }
-        }),
+        () =>
+          this.stripe.paymentIntents.create({
+            amount,
+            currency,
+            metadata: {
+              donation_type: "one_time",
+              campaign_id: campaignId,
+              donor_email: donorEmail,
+              ...metadata,
+            },
+          }),
         {
           maxRetries: 3,
           baseDelay: 1000,
           maxDelay: 5000,
-          backoffMultiplier: 2
+          backoffMultiplier: 2,
         },
-        'create_one_time_donation'
+        "create_one_time_donation",
       );
 
       const donationId = `donation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      
-      console.log(`Created one-time donation: ${donationId} for campaign: ${campaignId}`);
-      
+
+      console.log(
+        `Created one-time donation: ${donationId} for campaign: ${campaignId}`,
+      );
+
       return {
         id: donationId,
-        paymentIntentId: paymentIntent.id
+        paymentIntentId: paymentIntent.id,
       };
     } catch (error) {
-      const stripeError = error instanceof StripeError ? error : 
-        new StripeError('Failed to create one-time donation', 'donation_creation_error', 'donation_creation_error', 500, error as Error);
-      
-      console.error('Failed to create one-time donation:', stripeError);
+      const stripeError =
+        error instanceof StripeError
+          ? error
+          : new StripeError(
+              "Failed to create one-time donation",
+              "donation_creation_error",
+              "donation_creation_error",
+              500,
+              error as Error,
+            );
+
+      console.error("Failed to create one-time donation:", stripeError);
       throw stripeError;
     }
   }
@@ -842,25 +951,47 @@ class StripeAutomationService {
   async createRecurringDonation(params: {
     amount: number;
     currency: string;
-    interval: 'day' | 'week' | 'month' | 'year';
+    interval: "day" | "week" | "month" | "year";
     donorEmail: string;
     campaignId: string;
     metadata?: Record<string, string>;
   }): Promise<{ id: string; priceId: string; productId: string }> {
     try {
-      const { amount, currency, interval, donorEmail, campaignId, metadata = {} } = params;
-      
+      const {
+        amount,
+        currency,
+        interval,
+        donorEmail,
+        campaignId,
+        metadata = {},
+      } = params;
+
       // Validate input parameters
       if (!amount || amount <= 0) {
-        throw new StripeError('Invalid donation amount', 'validation_error', 'validation_error', 400);
+        throw new StripeError(
+          "Invalid donation amount",
+          "validation_error",
+          "validation_error",
+          400,
+        );
       }
       if (!donorEmail || !campaignId) {
-        throw new StripeError('Missing required donation parameters', 'validation_error', 'validation_error', 400);
+        throw new StripeError(
+          "Missing required donation parameters",
+          "validation_error",
+          "validation_error",
+          400,
+        );
       }
-      if (!['day', 'week', 'month', 'year'].includes(interval)) {
-        throw new StripeError('Invalid recurring interval', 'validation_error', 'validation_error', 400);
+      if (!["day", "week", "month", "year"].includes(interval)) {
+        throw new StripeError(
+          "Invalid recurring interval",
+          "validation_error",
+          "validation_error",
+          400,
+        );
       }
-      
+
       // Create or get product for the campaign with retry logic
       const productId = await withRetry(
         () => this.getOrCreateProduct(`Recurring Donation - ${campaignId}`),
@@ -868,51 +999,62 @@ class StripeAutomationService {
           maxRetries: 3,
           baseDelay: 1000,
           maxDelay: 5000,
-          backoffMultiplier: 2
+          backoffMultiplier: 2,
         },
-        'create_recurring_product'
+        "create_recurring_product",
       );
-      
+
       // Create price for recurring donation with retry logic
       const price = await withRetry(
-        () => this.stripe.prices.create({
-          unit_amount: amount,
-          currency,
-          recurring: {
-            interval,
-            interval_count: 1,
-          },
-          product: productId,
-          metadata: {
-            donation_type: 'recurring',
-            campaign_id: campaignId,
-            donor_email: donorEmail,
-            ...metadata
-          }
-        }),
+        () =>
+          this.stripe.prices.create({
+            unit_amount: amount,
+            currency,
+            recurring: {
+              interval,
+              interval_count: 1,
+            },
+            product: productId,
+            metadata: {
+              donation_type: "recurring",
+              campaign_id: campaignId,
+              donor_email: donorEmail,
+              ...metadata,
+            },
+          }),
         {
           maxRetries: 3,
           baseDelay: 1000,
           maxDelay: 5000,
-          backoffMultiplier: 2
+          backoffMultiplier: 2,
         },
-        'create_recurring_price'
+        "create_recurring_price",
       );
 
       const donationId = `recurring_donation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      
-      console.log(`Created recurring donation: ${donationId} for campaign: ${campaignId}`);
-      
+
+      console.log(
+        `Created recurring donation: ${donationId} for campaign: ${campaignId}`,
+      );
+
       return {
         id: donationId,
         priceId: price.id,
-        productId
+        productId,
       };
     } catch (error) {
-      const stripeError = error instanceof StripeError ? error : 
-        new StripeError('Failed to create recurring donation', 'donation_creation_error', 'donation_creation_error', 500, error as Error);
-      
-      console.error('Failed to create recurring donation:', stripeError);
+      const stripeError =
+        error instanceof StripeError
+          ? error
+          : new StripeError(
+              "Failed to create recurring donation",
+              "donation_creation_error",
+              "donation_creation_error",
+              500,
+              error as Error,
+            );
+
+      console.error("Failed to create recurring donation:", stripeError);
       throw stripeError;
     }
   }
@@ -928,49 +1070,55 @@ class StripeAutomationService {
     totalOperations: number;
   } {
     const metrics = PerformanceMonitor.getMetrics();
-    const filteredMetrics = operationType 
-      ? metrics.filter(m => m.operationType === operationType)
+    const filteredMetrics = operationType
+      ? metrics.filter((m) => m.operationType === operationType)
       : metrics;
 
     const totalOperations = filteredMetrics.length;
-    const successfulOperations = filteredMetrics.filter(m => m.success).length;
+    const successfulOperations = filteredMetrics.filter(
+      (m) => m.success,
+    ).length;
     const totalTime = filteredMetrics
-      .filter(m => m.success && m.duration)
+      .filter((m) => m.success && m.duration)
       .reduce((sum, m) => sum + (m.duration || 0), 0);
 
     return {
-      averageTime: successfulOperations > 0 ? totalTime / successfulOperations : 0,
-      successRate: totalOperations > 0 ? (successfulOperations / totalOperations) * 100 : 0,
-      totalOperations
+      averageTime:
+        successfulOperations > 0 ? totalTime / successfulOperations : 0,
+      successRate:
+        totalOperations > 0
+          ? (successfulOperations / totalOperations) * 100
+          : 0,
+      totalOperations,
     };
   }
 
   getHealthStatus(): {
-    status: 'healthy' | 'degraded' | 'unhealthy';
+    status: "healthy" | "degraded" | "unhealthy";
     metrics: {
       recentSuccessRate: number;
       averageResponseTime: number;
       errorRate: number;
     };
   } {
-    const recentMetrics = PerformanceMonitor.getMetrics()
-      .slice(-50); // Last 50 operations
+    const recentMetrics = PerformanceMonitor.getMetrics().slice(-50); // Last 50 operations
 
     const totalRecent = recentMetrics.length;
-    const successfulRecent = recentMetrics.filter(m => m.success).length;
-    const recentSuccessRate = totalRecent > 0 ? (successfulRecent / totalRecent) * 100 : 100;
-    
+    const successfulRecent = recentMetrics.filter((m) => m.success).length;
+    const recentSuccessRate =
+      totalRecent > 0 ? (successfulRecent / totalRecent) * 100 : 100;
+
     const avgResponseTime = recentMetrics
-      .filter(m => m.success && m.duration)
+      .filter((m) => m.success && m.duration)
       .reduce((sum, m, _, arr) => sum + (m.duration || 0) / arr.length, 0);
 
     const errorRate = 100 - recentSuccessRate;
 
-    let status: 'healthy' | 'degraded' | 'unhealthy' = 'healthy';
+    let status: "healthy" | "degraded" | "unhealthy" = "healthy";
     if (recentSuccessRate < 50 || avgResponseTime > 10000) {
-      status = 'unhealthy';
+      status = "unhealthy";
     } else if (recentSuccessRate < 80 || avgResponseTime > 5000) {
-      status = 'degraded';
+      status = "degraded";
     }
 
     return {
@@ -978,8 +1126,8 @@ class StripeAutomationService {
       metrics: {
         recentSuccessRate,
         averageResponseTime: avgResponseTime,
-        errorRate
-      }
+        errorRate,
+      },
     };
   }
 }
@@ -998,7 +1146,7 @@ export function getStripeAutomation(): StripeAutomationService | null {
   if (!stripeAutomationInstance) {
     stripeAutomationInstance = new StripeAutomationService();
   }
-  
+
   return stripeAutomationInstance;
 }
 

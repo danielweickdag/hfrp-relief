@@ -5,16 +5,26 @@ export async function GET(_request: NextRequest) {
   try {
     const stripeEnhanced = getStripeEnhanced();
     if (!stripeEnhanced) {
-      return NextResponse.json({ success: false, error: "Stripe not configured" }, { status: 503 });
+      return NextResponse.json(
+        { success: false, error: "Stripe not configured" },
+        { status: 503 },
+      );
     }
-    
+
     const campaigns = stripeEnhanced.getCampaigns();
     const plans = stripeEnhanced.getPlans();
     const events = stripeEnhanced.getEvents();
-    return NextResponse.json({ success: true, data: { campaigns, plans, events } });
+    return NextResponse.json({
+      success: true,
+      data: { campaigns, plans, events },
+    });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "Failed to load campaigns";
-    return NextResponse.json({ success: false, error: message }, { status: 500 });
+    const message =
+      error instanceof Error ? error.message : "Failed to load campaigns";
+    return NextResponse.json(
+      { success: false, error: message },
+      { status: 500 },
+    );
   }
 }
 
@@ -22,7 +32,10 @@ export async function POST(request: NextRequest) {
   try {
     const stripeEnhanced = getStripeEnhanced();
     if (!stripeEnhanced) {
-      return NextResponse.json({ success: false, error: "Stripe not configured" }, { status: 503 });
+      return NextResponse.json(
+        { success: false, error: "Stripe not configured" },
+        { status: 503 },
+      );
     }
 
     const raw = await request.json().catch(() => ({}));
@@ -31,16 +44,25 @@ export async function POST(request: NextRequest) {
     if (typeof body === "object" && body !== null && "campaign" in body) {
       campaign = (body as Record<string, unknown>).campaign;
     }
-    if (!campaign || typeof campaign !== "object" || campaign === null || !("id" in campaign)) {
+    if (
+      !campaign ||
+      typeof campaign !== "object" ||
+      campaign === null ||
+      !("id" in campaign)
+    ) {
       return NextResponse.json(
         { success: false, error: "Missing campaign payload with id" },
-        { status: 400 }
+        { status: 400 },
       );
     }
     const created = stripeEnhanced.createCampaign(campaign as any);
     return NextResponse.json({ success: true, data: created });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "Failed to create campaign";
-    return NextResponse.json({ success: false, error: message }, { status: 500 });
+    const message =
+      error instanceof Error ? error.message : "Failed to create campaign";
+    return NextResponse.json(
+      { success: false, error: message },
+      { status: 500 },
+    );
   }
 }

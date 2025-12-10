@@ -47,8 +47,8 @@ export async function generateMetadata({
         `Read ${post.title} - a story from the Haitian Family Relief Project`,
       type: "article",
       url: `https://www.familyreliefproject7.org/blog/${slug}`,
-    images: post.image
-      ? [`https://www.familyreliefproject7.org${post.image}`]
+      images: post.image
+        ? [`https://www.familyreliefproject7.org${post.image}`]
         : [],
       article: {
         authors: [post.author || "HFRP Team"],

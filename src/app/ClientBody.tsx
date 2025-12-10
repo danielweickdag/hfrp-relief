@@ -15,7 +15,7 @@ export default function ClientBody({
     // Auto-inject print buttons into any element marked as data-printable
     const injectPrintButtons = () => {
       const printableNodes = Array.from(
-        document.querySelectorAll<HTMLElement>("[data-printable]")
+        document.querySelectorAll<HTMLElement>("[data-printable]"),
       );
 
       printableNodes.forEach((node, idx) => {
@@ -42,17 +42,17 @@ export default function ClientBody({
           if (!printWindow) return;
 
           const styles = Array.from(
-            document.querySelectorAll('link[rel="stylesheet"], style')
+            document.querySelectorAll('link[rel="stylesheet"], style'),
           )
             .map((el) => (el as HTMLElement).outerHTML)
             .join("\n");
 
           printWindow.document.write(
-            `<!doctype html><html><head><title>${title}</title>${styles}</head><body>`
+            `<!doctype html><html><head><title>${title}</title>${styles}</head><body>`,
           );
           printWindow.document.write(`<div class="p-6">`);
           printWindow.document.write(
-            `<h1 class="text-2xl font-bold mb-4">${title}</h1>`
+            `<h1 class="text-2xl font-bold mb-4">${title}</h1>`,
           );
           printWindow.document.write(node.innerHTML);
           printWindow.document.write("</div>");
@@ -83,11 +83,15 @@ export default function ClientBody({
 
     // Expose manual enable/disable functions on window
     try {
-      (window as Window & { hfrpEnablePrintFeatures?: () => void }).hfrpEnablePrintFeatures = () => {
+      (
+        window as Window & { hfrpEnablePrintFeatures?: () => void }
+      ).hfrpEnablePrintFeatures = () => {
         injectPrintButtons();
         console.log("HFRP: Print features enabled (buttons injected)");
       };
-      (window as Window & { hfrpEnableSiteFeatures?: () => void }).hfrpEnableSiteFeatures = () => {
+      (
+        window as Window & { hfrpEnableSiteFeatures?: () => void }
+      ).hfrpEnableSiteFeatures = () => {
         try {
           localStorage.setItem("hfrp_features_enabled", "true");
         } catch {}
@@ -95,21 +99,25 @@ export default function ClientBody({
         registerServiceWorker();
         console.log("HFRP: Site features enabled (print + PWA)");
       };
-      (window as Window & { hfrpDisableSiteFeatures?: () => void }).hfrpDisableSiteFeatures = () => {
+      (
+        window as Window & { hfrpDisableSiteFeatures?: () => void }
+      ).hfrpDisableSiteFeatures = () => {
         try {
           localStorage.setItem("hfrp_features_enabled", "false");
         } catch {}
         // Unregister service worker
-        if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.getRegistrations().then(registrations => {
-            registrations.forEach(registration => {
+        if ("serviceWorker" in navigator) {
+          navigator.serviceWorker.getRegistrations().then((registrations) => {
+            registrations.forEach((registration) => {
               registration.unregister();
             });
           });
         }
         console.log("HFRP: Site features disabled (PWA unregistered)");
       };
-      (window as Window & { hfrpGetFeatureStatus?: () => boolean }).hfrpGetFeatureStatus = () => {
+      (
+        window as Window & { hfrpGetFeatureStatus?: () => boolean }
+      ).hfrpGetFeatureStatus = () => {
         try {
           return localStorage.getItem("hfrp_features_enabled") === "true";
         } catch {

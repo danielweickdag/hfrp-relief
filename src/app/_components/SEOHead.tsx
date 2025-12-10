@@ -101,8 +101,8 @@ export default function SEOHead({
           logo: fullImage,
           sameAs: [
             "https://facebook.com/familyreliefproject",
-        "https://instagram.com/familyreliefproject",
-        "https://twitter.com/familyreliefproject",
+            "https://instagram.com/familyreliefproject",
+            "https://twitter.com/familyreliefproject",
           ],
           contactPoint: {
             "@type": "ContactPoint",

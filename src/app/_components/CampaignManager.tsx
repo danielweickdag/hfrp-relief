@@ -208,7 +208,7 @@ export default function CampaignManager() {
                 <p className="text-sm text-muted-foreground">Total Goal</p>
                 <p className="text-2xl font-bold">
                   {formatCurrency(
-                    campaigns.reduce((sum, c) => sum + c.goal, 0)
+                    campaigns.reduce((sum, c) => sum + c.goal, 0),
                   )}
                 </p>
               </div>
@@ -224,7 +224,7 @@ export default function CampaignManager() {
                 <p className="text-sm text-muted-foreground">Total Raised</p>
                 <p className="text-2xl font-bold">
                   {formatCurrency(
-                    campaigns.reduce((sum, c) => sum + c.raised, 0)
+                    campaigns.reduce((sum, c) => sum + c.raised, 0),
                   )}
                 </p>
               </div>
@@ -459,8 +459,8 @@ export default function CampaignManager() {
                           {Math.round(
                             getProgressPercentage(
                               campaign.raised,
-                              campaign.goal
-                            )
+                              campaign.goal,
+                            ),
                           )}
                           % complete
                         </span>

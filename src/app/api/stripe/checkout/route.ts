@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     if (!stripeConfigManager) {
       return NextResponse.json(
         { error: "Stripe service is not configured" },
-        { status: 503 }
+        { status: 503 },
       );
     }
 
@@ -18,8 +18,11 @@ export async function POST(request: NextRequest) {
     const validation = await stripeConfigManager.validateConfiguration();
     if (!validation.isValid) {
       return NextResponse.json(
-        { error: "Stripe is not properly configured", details: validation.errors },
-        { status: 503 }
+        {
+          error: "Stripe is not properly configured",
+          details: validation.errors,
+        },
+        { status: 503 },
       );
     }
 
@@ -27,7 +30,7 @@ export async function POST(request: NextRequest) {
     if (!stripe) {
       return NextResponse.json(
         { error: "Failed to initialize Stripe instance" },
-        { status: 503 }
+        { status: 503 },
       );
     }
 
@@ -55,7 +58,7 @@ export async function POST(request: NextRequest) {
     if (typeof amount !== "number" || !isFinite(amount) || amount <= 0) {
       return NextResponse.json(
         { error: "Valid amount is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -64,13 +67,13 @@ export async function POST(request: NextRequest) {
       typeof successUrl === "string" && successUrl.length > 0
         ? successUrl
         : `${origin}/donation/success?session_id={CHECKOUT_SESSION_ID}&campaign=${encodeURIComponent(
-            campaignId || "general"
+            campaignId || "general",
           )}&amount=${encodeURIComponent(String(amount))}`;
     const resolvedCancelUrl =
       typeof cancelUrl === "string" && cancelUrl.length > 0
         ? cancelUrl
         : `${origin}/donation/cancelled?campaign=${encodeURIComponent(
-            campaignId || "general"
+            campaignId || "general",
           )}`;
 
     const unitAmount = Math.round(amount * 100);
@@ -80,9 +83,7 @@ export async function POST(request: NextRequest) {
       currency,
       unit_amount: unitAmount,
       product_data: {
-        name: campaignId
-          ? `Donation to ${campaignId}`
-          : "HFRP Donation",
+        name: campaignId ? `Donation to ${campaignId}` : "HFRP Donation",
       },
     };
 
@@ -100,27 +101,27 @@ export async function POST(request: NextRequest) {
     if (!stripeAutomation) {
       return NextResponse.json(
         { error: "Stripe automation service is not available" },
-        { status: 503 }
+        { status: 503 },
       );
     }
 
     let session: Stripe.Checkout.Session;
-    
+
     if (isRecurring) {
       // Create recurring donation using automation
       const donation = await stripeAutomation.createRecurringDonation({
         amount: unitAmount,
         currency,
         interval,
-        donorEmail: 'checkout@pending.com', // Placeholder - will be updated after checkout
-        campaignId: campaignId || 'general',
+        donorEmail: "checkout@pending.com", // Placeholder - will be updated after checkout
+        campaignId: campaignId || "general",
         metadata: {
           ...metadata,
-          source: 'checkout_api',
-          email_pending: 'true'
-        }
+          source: "checkout_api",
+          email_pending: "true",
+        },
       });
-      
+
       session = await stripe.checkout.sessions.create({
         mode: "subscription",
         payment_method_types: ["card"],
@@ -135,7 +136,7 @@ export async function POST(request: NextRequest) {
         cancel_url: resolvedCancelUrl,
         allow_promotion_codes: true,
         automatic_tax: {
-          enabled: process.env.AUTO_CALCULATE_TAX === 'true',
+          enabled: process.env.AUTO_CALCULATE_TAX === "true",
         },
         tax_id_collection: {
           enabled: false, // Typically not needed for charitable donations
@@ -144,8 +145,8 @@ export async function POST(request: NextRequest) {
           ...(campaignId ? { campaignId } : {}),
           donation_type: "recurring",
           automation_id: donation.id,
-          tax_exempt: process.env.TAX_EXEMPT_STATUS || 'true',
-          tax_deductible: process.env.TAX_DEDUCTIBLE_DONATIONS || 'true',
+          tax_exempt: process.env.TAX_EXEMPT_STATUS || "true",
+          tax_deductible: process.env.TAX_DEDUCTIBLE_DONATIONS || "true",
           ...metadata,
         },
       });
@@ -154,13 +155,13 @@ export async function POST(request: NextRequest) {
       const donation = await stripeAutomation.createOneTimeDonation({
         amount: unitAmount,
         currency,
-        donorEmail: 'checkout@pending.com', // Placeholder - will be updated after checkout
-        campaignId: campaignId || 'general',
+        donorEmail: "checkout@pending.com", // Placeholder - will be updated after checkout
+        campaignId: campaignId || "general",
         metadata: {
           ...metadata,
-          source: 'checkout_api',
-          email_pending: 'true'
-        }
+          source: "checkout_api",
+          email_pending: "true",
+        },
       });
 
       session = await stripe.checkout.sessions.create({
@@ -177,7 +178,7 @@ export async function POST(request: NextRequest) {
         cancel_url: resolvedCancelUrl,
         allow_promotion_codes: true,
         automatic_tax: {
-          enabled: process.env.AUTO_CALCULATE_TAX === 'true',
+          enabled: process.env.AUTO_CALCULATE_TAX === "true",
         },
         tax_id_collection: {
           enabled: false, // Typically not needed for charitable donations
@@ -186,23 +187,25 @@ export async function POST(request: NextRequest) {
           ...(campaignId ? { campaignId } : {}),
           donation_type: "one_time",
           automation_id: donation.id,
-          tax_exempt: process.env.TAX_EXEMPT_STATUS || 'true',
-          tax_deductible: process.env.TAX_DEDUCTIBLE_DONATIONS || 'true',
+          tax_exempt: process.env.TAX_EXEMPT_STATUS || "true",
+          tax_deductible: process.env.TAX_DEDUCTIBLE_DONATIONS || "true",
           ...metadata,
         },
       });
     }
 
-    return NextResponse.json({ 
-      url: session.url, 
+    return NextResponse.json({
+      url: session.url,
       id: session.id,
       automationEnabled: true,
-      donationType: isRecurring ? "recurring" : "one_time"
+      donationType: isRecurring ? "recurring" : "one_time",
     });
   } catch (error) {
     console.error("Stripe checkout POST error:", error);
     const message =
-      error instanceof Error ? error.message : "Failed to create checkout session";
+      error instanceof Error
+        ? error.message
+        : "Failed to create checkout session";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

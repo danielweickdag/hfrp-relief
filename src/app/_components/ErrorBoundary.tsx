@@ -111,7 +111,7 @@ export class AdminErrorBoundary extends Component<
   AdminErrorBoundaryProps,
   AdminErrorBoundaryState
 > {
-  state = { hasError: false };
+  state: AdminErrorBoundaryState = { hasError: false };
 
   static getDerivedStateFromError(error: Error): AdminErrorBoundaryState {
     return { hasError: true, error };

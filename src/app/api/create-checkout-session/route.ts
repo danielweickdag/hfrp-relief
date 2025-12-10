@@ -1,5 +1,5 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import Stripe from 'stripe';
+import { type NextRequest, NextResponse } from "next/server";
+import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
         unitAmount?: number;
         productName?: string;
         taxCode?: string;
-        taxBehavior?: 'exclusive' | 'inclusive' | 'unspecified';
+        taxBehavior?: "exclusive" | "inclusive" | "unspecified";
         quantity?: number;
       };
     };
@@ -37,25 +37,31 @@ export async function POST(request: NextRequest) {
     const accountIdFinal = accountId || defaultAccountId;
 
     // Validate required fields for either priceId or inline priceData
-    const hasInlinePrice = !!priceData && typeof priceData === 'object';
-    const quantity = hasInlinePrice && priceData?.quantity && priceData.quantity > 0 ? priceData.quantity : 1;
+    const hasInlinePrice = !!priceData && typeof priceData === "object";
+    const quantity =
+      hasInlinePrice && priceData?.quantity && priceData.quantity > 0
+        ? priceData.quantity
+        : 1;
     if (!accountIdFinal) {
       return NextResponse.json(
-        { error: 'Account ID is required' },
-        { status: 400 }
+        { error: "Account ID is required" },
+        { status: 400 },
       );
     }
     if (!priceId && !hasInlinePrice) {
       return NextResponse.json(
-        { error: 'Either priceId or priceData is required' },
-        { status: 400 }
+        { error: "Either priceId or priceData is required" },
+        { status: 400 },
       );
     }
 
     // Get the domain from environment or use localhost for development
-    const domain = process.env.DOMAIN || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3005';
+    const domain =
+      process.env.DOMAIN ||
+      process.env.NEXT_PUBLIC_SITE_URL ||
+      "http://localhost:3005";
 
-    let mode: 'payment' | 'subscription' = 'payment';
+    let mode: "payment" | "subscription" = "payment";
     let lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
 
     if (priceId) {
@@ -63,7 +69,7 @@ export async function POST(request: NextRequest) {
       const price = await stripe.prices.retrieve(priceId, {
         stripeAccount: accountIdFinal,
       });
-      mode = price.type === 'recurring' ? 'subscription' : 'payment';
+      mode = price.type === "recurring" ? "subscription" : "payment";
       lineItems = [
         {
           price: priceId,
@@ -80,8 +86,11 @@ export async function POST(request: NextRequest) {
 
       if (!currency || !unitAmount || !productName) {
         return NextResponse.json(
-          { error: 'priceData.currency, priceData.unitAmount, and priceData.productName are required' },
-          { status: 400 }
+          {
+            error:
+              "priceData.currency, priceData.unitAmount, and priceData.productName are required",
+          },
+          { status: 400 },
         );
       }
 
@@ -99,7 +108,7 @@ export async function POST(request: NextRequest) {
           quantity,
         },
       ];
-      mode = 'payment';
+      mode = "payment";
     }
 
     // Base session parameters
@@ -108,14 +117,20 @@ export async function POST(request: NextRequest) {
       mode,
       success_url: `${domain}/admin/connect/success?session_id={CHECKOUT_SESSION_ID}&accountId=${accountIdFinal}`,
       cancel_url: `${domain}/admin/connect`,
-      ...(automaticTaxEnabled ?? true ? { automatic_tax: { enabled: true } } : {}),
+      ...((automaticTaxEnabled ?? true)
+        ? { automatic_tax: { enabled: true } }
+        : {}),
     };
 
     // Add application fee for payment mode (not supported for subscriptions on connected accounts)
-    if (mode === 'payment' && applicationFeeAmount !== undefined && applicationFeeAmount !== null) {
+    if (
+      mode === "payment" &&
+      applicationFeeAmount !== undefined &&
+      applicationFeeAmount !== null
+    ) {
       const feeAmount =
-        typeof applicationFeeAmount === 'string'
-          ? parseInt(applicationFeeAmount, 10)
+        typeof applicationFeeAmount === "string"
+          ? Number.parseInt(applicationFeeAmount, 10)
           : Math.trunc(applicationFeeAmount);
       if (Number.isFinite(feeAmount) && feeAmount > 0) {
         sessionParams.payment_intent_data = {
@@ -125,10 +140,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Create checkout session on the connected account
-    const session = await stripe.checkout.sessions.create(
-      sessionParams,
-      { stripeAccount: accountIdFinal, ...(requestId ? { idempotencyKey: String(requestId) } : {}) }
-    );
+    const session = await stripe.checkout.sessions.create(sessionParams, {
+      stripeAccount: accountIdFinal,
+      ...(requestId ? { idempotencyKey: String(requestId) } : {}),
+    });
 
     return NextResponse.json({
       success: true,
@@ -137,20 +152,19 @@ export async function POST(request: NextRequest) {
       mode: mode,
       accountId: accountIdFinal,
     });
-
   } catch (error) {
-    console.error('Create checkout session error:', error);
-    
+    console.error("Create checkout session error:", error);
+
     if (error instanceof Stripe.errors.StripeError) {
       return NextResponse.json(
         { error: error.message },
-        { status: error.statusCode || 500 }
+        { status: error.statusCode || 500 },
       );
     }
 
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+      { error: "Internal server error" },
+      { status: 500 },
     );
   }
 }

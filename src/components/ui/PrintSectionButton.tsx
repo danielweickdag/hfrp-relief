@@ -23,17 +23,17 @@ export default function PrintSectionButton({
     if (!printWindow) return;
 
     const styles = Array.from(
-      document.querySelectorAll('link[rel="stylesheet"], style')
+      document.querySelectorAll('link[rel="stylesheet"], style'),
     )
       .map((el) => (el as HTMLElement).outerHTML)
       .join("\n");
 
     printWindow.document.write(
-      `<!doctype html><html><head><title>${title}</title>${styles}</head><body>`
+      `<!doctype html><html><head><title>${title}</title>${styles}</head><body>`,
     );
     printWindow.document.write(`<div class="p-6">`);
     printWindow.document.write(
-      `<h1 class="text-2xl font-bold mb-4">${title}</h1>`
+      `<h1 class="text-2xl font-bold mb-4">${title}</h1>`,
     );
     printWindow.document.write(node.innerHTML);
     printWindow.document.write(`</div>`);

@@ -71,6 +71,9 @@ jobs:
       run: |
         bun run lint
 
+    - name: 🔐 Check Webhook Env
+      run: node scripts/check-webhook-env.mjs
+
     - name: 🏗️ Test Build
       run: bun run build
 

@@ -152,10 +152,7 @@ export function useSocialMedia() {
           "_blank",
         ),
       instagram: () =>
-        window.open(
-          "https://instagram.com/familyreliefproject",
-          "_blank",
-        ),
+        window.open("https://instagram.com/familyreliefproject", "_blank"),
       whatsapp: () =>
         window.open(
           `https://wa.me/?text=${encodeURIComponent(`${story.title} ${shareUrl}`)}`,
@@ -166,10 +163,11 @@ export function useSocialMedia() {
 
   const followUs = {
     facebook: () =>
-        window.open("https://facebook.com/familyreliefproject", "_blank"),
-      twitter: () => window.open("https://twitter.com/familyreliefproject", "_blank"),
-      instagram: () =>
-        window.open("https://instagram.com/familyreliefproject", "_blank"),
+      window.open("https://facebook.com/familyreliefproject", "_blank"),
+    twitter: () =>
+      window.open("https://twitter.com/familyreliefproject", "_blank"),
+    instagram: () =>
+      window.open("https://instagram.com/familyreliefproject", "_blank"),
   };
 
   return { shareStory, followUs };

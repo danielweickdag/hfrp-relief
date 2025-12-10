@@ -16,8 +16,14 @@ export default function CampaignSyncPage() {
         </div>
 
         <div className="bg-white rounded-lg shadow p-6">
-          <p className="text-gray-600">Campaign sync management is temporarily unavailable during deployment.</p>
-          <Link href="/admin" className="text-blue-600 hover:underline mt-4 inline-block">
+          <p className="text-gray-600">
+            Campaign sync management is temporarily unavailable during
+            deployment.
+          </p>
+          <Link
+            href="/admin"
+            className="text-blue-600 hover:underline mt-4 inline-block"
+          >
             ← Back to Admin Dashboard
           </Link>
         </div>

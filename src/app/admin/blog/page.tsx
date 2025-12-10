@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useAdminAuth } from "@/app/_components/AdminAuth";
 // import AdminAuthProvider, { useAdminAuth } from "@/app/_components/AdminAuth";
 // import BlogManager from "@/app/_components/BlogManager";
 // import BlogAutomationMaster from "@/app/_components/BlogAutomationMaster";
@@ -112,13 +113,15 @@ function BlogContent() {
           </div>
         </div>
       </div>
-      
+
       {/* Content */}
       <div className="p-8">
         <div className="max-w-6xl mx-auto space-y-8">
           <div className="p-8 text-center">
             <h2 className="text-xl font-semibold mb-4">Blog Management</h2>
-            <p className="text-gray-600">Blog management is temporarily unavailable during deployment.</p>
+            <p className="text-gray-600">
+              Blog management is temporarily unavailable during deployment.
+            </p>
           </div>
         </div>
       </div>
@@ -153,8 +156,13 @@ export default function BlogPage() {
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold mb-6">Admin Blog</h1>
         <div className="bg-white rounded-lg shadow p-6">
-          <p className="text-gray-600">Blog management is temporarily unavailable during deployment.</p>
-          <Link href="/admin" className="text-blue-600 hover:underline mt-4 inline-block">
+          <p className="text-gray-600">
+            Blog management is temporarily unavailable during deployment.
+          </p>
+          <Link
+            href="/admin"
+            className="text-blue-600 hover:underline mt-4 inline-block"
+          >
             ← Back to Admin Dashboard
           </Link>
         </div>

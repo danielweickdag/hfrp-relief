@@ -23,10 +23,14 @@ function getStripe(): Stripe | null {
 
 function getSiteUrl(req?: NextRequest): string {
   // Prefer explicit env; fallback to localhost with dev port
-  const envUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.DOMAIN;
+  const envUrl = process.env.NEXT_PUBLIC_SITE_URL;
   if (envUrl) return envUrl;
   // Try to infer from request headers (for preview/local)
   const host = req?.headers.get("host") || "localhost:3005";
+  // In production on Vercel, avoid ephemeral deployment domains
+  if (process.env.NODE_ENV === "production" && host.endsWith(".vercel.app")) {
+    return "https://www.familyreliefproject7.org";
+  }
   const protocol = host.includes("localhost") ? "http" : "https";
   return `${protocol}://${host}`;
 }
@@ -67,11 +71,13 @@ export async function GET(req: NextRequest) {
   if (!stripe) {
     return NextResponse.json(
       { error: "Stripe not configured", configured: false },
-      { status: 503 }
+      { status: 503 },
     );
   }
 
-  const siteUrl = getSiteUrl(req);
+  const urlObj = new URL(req.url);
+  const override = urlObj.searchParams.get("target");
+  const siteUrl = override || getSiteUrl(req);
   const targetUrl = `${siteUrl}/api/stripe/webhook`;
 
   try {
@@ -97,7 +103,7 @@ export async function GET(req: NextRequest) {
             ? error.message
             : "Failed to list webhook endpoints",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -107,7 +113,7 @@ export async function POST(req: NextRequest) {
   if (!stripe) {
     return NextResponse.json(
       { error: "Stripe not configured", configured: false },
-      { status: 503 }
+      { status: 503 },
     );
   }
 
@@ -119,7 +125,9 @@ export async function POST(req: NextRequest) {
   }
 
   const enabled_events = validateEvents(payload.events);
-  const siteUrl = getSiteUrl(req);
+  const urlObj = new URL(req.url);
+  const override = urlObj.searchParams.get("target");
+  const siteUrl = override || getSiteUrl(req);
   const targetUrl = `${siteUrl}/api/stripe/webhook`;
 
   // In development/local environments, Stripe cannot create webhook endpoints
@@ -178,7 +186,83 @@ export async function POST(req: NextRequest) {
             ? error.message
             : "Failed to configure webhook endpoint",
       },
-      { status: 500 }
+      { status: 500 },
+    );
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  const stripe = getStripe();
+  if (!stripe) {
+    return NextResponse.json(
+      { error: "Stripe not configured", configured: false },
+      { status: 503 },
+    );
+  }
+
+  // In non-production, avoid destructive actions and provide guidance
+  if (process.env.NODE_ENV !== "production") {
+    return NextResponse.json({
+      dev_mode: true,
+      action: "noop",
+      message:
+        "Deletion is disabled in non-production. Use Stripe Dashboard to manage endpoints or run in production.",
+      docs: {
+        webhooks: "https://stripe.com/docs/webhooks",
+      },
+    });
+  }
+
+  const urlObj = new URL(req.url);
+  const override = urlObj.searchParams.get("target");
+  const cleanup = urlObj.searchParams.get("cleanup") === "true";
+  const siteUrl = override || getSiteUrl(req);
+  const targetUrl = `${siteUrl}/api/stripe/webhook`;
+
+  try {
+    const endpoints = await stripe.webhookEndpoints.list({ limit: 100 });
+
+    // Determine which endpoints to delete
+    const toDelete = cleanup
+      ? endpoints.data.filter((e) => {
+          try {
+            const u = new URL(e.url);
+            return (
+              u.hostname.endsWith(".vercel.app") &&
+              u.pathname.endsWith("/api/stripe/webhook")
+            );
+          } catch {
+            return false;
+          }
+        })
+      : endpoints.data.filter((e) => e.url === targetUrl);
+
+    // Delete selected endpoints
+    const results: { id: string; deleted: boolean }[] = [];
+    for (const ep of toDelete) {
+      try {
+        const del = await stripe.webhookEndpoints.del(ep.id);
+        results.push({ id: ep.id, deleted: del.deleted });
+      } catch (err) {
+        results.push({ id: ep.id, deleted: false });
+      }
+    }
+
+    return NextResponse.json({
+      action: cleanup ? "cleanup" : "delete",
+      targetUrl,
+      requested_count: toDelete.length,
+      results,
+    });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to delete webhook endpoint(s)",
+      },
+      { status: 500 },
     );
   }
 }

@@ -15,7 +15,7 @@ export default function SimpleAdminPage() {
   const handleQuickAction = async (action: string) => {
     setIsLoading(true);
     setActionFeedback("");
-    
+
     try {
       switch (action) {
         case "blog":
@@ -111,28 +111,28 @@ export default function SimpleAdminPage() {
               Quick Actions
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <button 
+              <button
                 onClick={() => handleQuickAction("blog")}
                 disabled={isLoading}
                 className="bg-blue-600 text-white p-4 rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
               >
                 📝 Create Blog Post
               </button>
-              <button 
+              <button
                 onClick={() => handleQuickAction("analytics")}
                 disabled={isLoading}
                 className="bg-green-600 text-white p-4 rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
               >
                 📊 View Analytics
               </button>
-              <button 
+              <button
                 onClick={() => handleQuickAction("volunteers")}
                 disabled={isLoading}
                 className="bg-purple-600 text-white p-4 rounded hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
               >
                 👥 Manage Volunteers
               </button>
-              <button 
+              <button
                 onClick={() => handleQuickAction("settings")}
                 disabled={isLoading}
                 className="bg-orange-600 text-white p-4 rounded hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
@@ -140,7 +140,7 @@ export default function SimpleAdminPage() {
                 ⚙️ Settings
               </button>
             </div>
-            
+
             {/* Action Feedback */}
             {(isLoading || actionFeedback) && (
               <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
@@ -148,7 +148,9 @@ export default function SimpleAdminPage() {
                   {isLoading && (
                     <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
                   )}
-                  <span className="text-blue-800 text-sm">{actionFeedback || "Processing..."}</span>
+                  <span className="text-blue-800 text-sm">
+                    {actionFeedback || "Processing..."}
+                  </span>
                 </div>
               </div>
             )}

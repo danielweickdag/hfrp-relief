@@ -161,7 +161,7 @@ function DonationSuccessContent() {
                   const text = `I just donated to help families in Haiti! Join me in supporting @HaitianFamilyReliefProject 🇭🇹 #Haiti #Charity`;
                   window.open(
                     `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`,
-                    "_blank"
+                    "_blank",
                   );
                 }}
                 className="text-blue-400 hover:text-blue-500 transition-colors"
@@ -181,7 +181,7 @@ function DonationSuccessContent() {
                   const url = "https://www.familyreliefproject7.org";
                   window.open(
                     `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`,
-                    "_blank"
+                    "_blank",
                   );
                 }}
                 className="text-blue-600 hover:text-blue-700 transition-colors"

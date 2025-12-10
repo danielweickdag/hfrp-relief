@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useAdminAuth } from "@/app/_components/AdminAuth";
 // import AdminAuthProvider, { useAdminAuth } from "@/app/_components/AdminAuth";
 // import BackupManagement from "@/app/_components/BackupManagement";
 import Link from "next/link";
@@ -101,7 +102,9 @@ function BackupContent() {
           >
             ← Back to Dashboard
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">Backup Management</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Backup Management
+          </h1>
           <p className="text-gray-600 mt-2">
             Create, restore, and manage system backups
           </p>
@@ -110,7 +113,9 @@ function BackupContent() {
         {/* Backup Management Component */}
         <div className="p-8 text-center">
           <h2 className="text-xl font-semibold mb-4">Backup Management</h2>
-          <p className="text-gray-600">Backup management is temporarily unavailable during deployment.</p>
+          <p className="text-gray-600">
+            Backup management is temporarily unavailable during deployment.
+          </p>
         </div>
       </div>
     </div>
@@ -123,8 +128,13 @@ export default function BackupPage() {
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold mb-6">Admin Backup</h1>
         <div className="bg-white rounded-lg shadow p-6">
-          <p className="text-gray-600">Backup management is temporarily unavailable during deployment.</p>
-          <Link href="/admin" className="text-blue-600 hover:underline mt-4 inline-block">
+          <p className="text-gray-600">
+            Backup management is temporarily unavailable during deployment.
+          </p>
+          <Link
+            href="/admin"
+            className="text-blue-600 hover:underline mt-4 inline-block"
+          >
             ← Back to Admin Dashboard
           </Link>
         </div>

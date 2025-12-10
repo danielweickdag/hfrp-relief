@@ -38,7 +38,7 @@ export default function TestDonatePage() {
     console.log = (...args: unknown[]) => {
       const message = args
         .map((arg) =>
-          typeof arg === "object" ? JSON.stringify(arg) : String(arg)
+          typeof arg === "object" ? JSON.stringify(arg) : String(arg),
         )
         .join(" ");
 
@@ -93,7 +93,7 @@ export default function TestDonatePage() {
         addTestResult(
           "Analytics Event Fired",
           "pass",
-          `Event: ${args[1]} with data: ${JSON.stringify(args[2] || {})}`
+          `Event: ${args[1]} with data: ${JSON.stringify(args[2] || {})}`,
         );
       }
 
@@ -112,7 +112,7 @@ export default function TestDonatePage() {
   const addTestResult = (
     test: string,
     status: TestResult["status"],
-    message: string
+    message: string,
   ) => {
     const result: TestResult = {
       test,
@@ -135,7 +135,7 @@ export default function TestDonatePage() {
     addTestResult(
       "Navbar Button Test",
       "info",
-      "Testing navbar donate button..."
+      "Testing navbar donate button...",
     );
 
     // Simulate navbar button click logic
@@ -160,7 +160,7 @@ export default function TestDonatePage() {
     addTestResult(
       "Homepage Button Test",
       "info",
-      "Testing homepage donate button..."
+      "Testing homepage donate button...",
     );
 
     console.log("🔴 HOMEPAGE DONATE BUTTON CLICKED - TEST!");
@@ -174,7 +174,7 @@ export default function TestDonatePage() {
       addTestResult(
         "Homepage Button Test",
         "fail",
-        "Stripe not configured - cannot create checkout"
+        "Stripe not configured - cannot create checkout",
       );
       return;
     }
@@ -194,7 +194,7 @@ export default function TestDonatePage() {
         const newWindow = window.open(
           url,
           "stripe-checkout",
-          "noopener,noreferrer,width=800,height=700"
+          "noopener,noreferrer,width=800,height=700",
         );
 
         if (!newWindow) {
@@ -202,7 +202,7 @@ export default function TestDonatePage() {
           addTestResult(
             "Homepage Button Test",
             "info",
-            "Popup blocked - redirecting"
+            "Popup blocked - redirecting",
           );
           window.location.href = url;
         } else {
@@ -210,7 +210,7 @@ export default function TestDonatePage() {
           addTestResult(
             "Homepage Button Test",
             "pass",
-            "Stripe checkout popup opened successfully"
+            "Stripe checkout popup opened successfully",
           );
 
           setTimeout(() => {
@@ -218,7 +218,7 @@ export default function TestDonatePage() {
             addTestResult(
               "Homepage Button Test",
               "info",
-              "Test popup closed automatically"
+              "Test popup closed automatically",
             );
           }, 2000);
         }
@@ -237,7 +237,7 @@ export default function TestDonatePage() {
         addTestResult(
           "Homepage Button Test",
           "fail",
-          `Stripe checkout error: ${error instanceof Error ? error.message : String(error)}`
+          `Stripe checkout error: ${error instanceof Error ? error.message : String(error)}`,
         );
       });
   };
@@ -247,7 +247,7 @@ export default function TestDonatePage() {
     addTestResult(
       "Daily Giving Test",
       "info",
-      "Testing 50¢ daily giving option..."
+      "Testing 50¢ daily giving option...",
     );
 
     const campaignId =
@@ -258,7 +258,7 @@ export default function TestDonatePage() {
       addTestResult(
         "Daily Giving Test",
         "fail",
-        "Stripe not configured - cannot create checkout"
+        "Stripe not configured - cannot create checkout",
       );
       return;
     }
@@ -274,27 +274,24 @@ export default function TestDonatePage() {
         metadata: { source: "test-daily-giving" },
       })
       .then(({ url }: { url: string }) => {
-        console.log(
-          "🌐 Opening 50¢ daily giving (Stripe monthly $15):",
-          url
-        );
+        console.log("🌐 Opening 50¢ daily giving (Stripe monthly $15):", url);
         const newWindow = window.open(
           url,
           "stripe-checkout",
-          "noopener,noreferrer,width=800,height=700"
+          "noopener,noreferrer,width=800,height=700",
         );
 
         if (!newWindow) {
           addTestResult(
             "Daily Giving Test",
             "fail",
-            "Could not open Stripe checkout for daily giving"
+            "Could not open Stripe checkout for daily giving",
           );
         } else {
           addTestResult(
             "Daily Giving Test",
             "pass",
-            "Stripe checkout opened - complete transaction in popup"
+            "Stripe checkout opened - complete transaction in popup",
           );
 
           if (window.gtag) {
@@ -312,7 +309,7 @@ export default function TestDonatePage() {
         addTestResult(
           "Daily Giving Test",
           "fail",
-          `Stripe error: ${error instanceof Error ? error.message : String(error)}`
+          `Stripe error: ${error instanceof Error ? error.message : String(error)}`,
         );
       });
   };
@@ -322,7 +319,7 @@ export default function TestDonatePage() {
     addTestResult(
       "Popup Blocking Test",
       "info",
-      "Testing popup blocking simulation..."
+      "Testing popup blocking simulation...",
     );
 
     // Override window.open to simulate blocked popup
@@ -335,7 +332,7 @@ export default function TestDonatePage() {
     addTestResult(
       "Popup Blocking Test",
       "pass",
-      "Popup blocking simulated - should redirect to /donate"
+      "Popup blocking simulated - should redirect to /donate",
     );
 
     // Restore original window.open after test
@@ -344,7 +341,7 @@ export default function TestDonatePage() {
       addTestResult(
         "Popup Blocking Test",
         "info",
-        "window.open restored to normal"
+        "window.open restored to normal",
       );
     }, 1000);
 
@@ -359,7 +356,7 @@ export default function TestDonatePage() {
     addTestResult(
       "Full Test Suite",
       "info",
-      "Starting comprehensive donate button testing..."
+      "Starting comprehensive donate button testing...",
     );
 
     setTimeout(() => testNavbarButton(), 500);

@@ -4,7 +4,7 @@ import path from "node:path";
 
 export async function POST(request: NextRequest) {
   try {
-    const raw = await request.json().catch(() => ({} as unknown));
+    const raw = await request.json().catch(() => ({}) as unknown);
     let action: string | undefined;
     if (typeof raw === "object" && raw !== null && "action" in raw) {
       const val = (raw as { action?: unknown }).action;
@@ -58,7 +58,10 @@ export async function POST(request: NextRequest) {
         existing = [];
       }
 
-      await fs.writeFile(filePath, JSON.stringify([...existing, ...sampleEvents], null, 2));
+      await fs.writeFile(
+        filePath,
+        JSON.stringify([...existing, ...sampleEvents], null, 2),
+      );
 
       return NextResponse.json({
         message: "Generated sample webhook events",
@@ -92,7 +95,7 @@ export async function POST(request: NextRequest) {
         error: "Webhook test failed",
         details: error instanceof Error ? error.message : "Unknown error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

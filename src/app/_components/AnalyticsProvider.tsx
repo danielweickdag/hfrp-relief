@@ -138,17 +138,21 @@ export function AnalyticsProvider({
         params?: Record<string, unknown>,
       ) => void;
       gtag("js", new Date(), {});
-      if (measurementId && measurementId !== "" && measurementId !== "G-XXXXXXXXXX") {
-          window.gtag("config", measurementId, {
-        // Enhanced ecommerce settings
-        send_page_view: false, // We'll send manually for better control
-        custom_map: {
-          custom_parameter_1: "donation_type",
-          custom_parameter_2: "amount_category",
-          custom_parameter_3: "user_journey_stage",
-          custom_parameter_4: "page_source",
-        },
-      });
+      if (
+        measurementId &&
+        measurementId !== "" &&
+        measurementId !== "G-XXXXXXXXXX"
+      ) {
+        window.gtag("config", measurementId, {
+          // Enhanced ecommerce settings
+          send_page_view: false, // We'll send manually for better control
+          custom_map: {
+            custom_parameter_1: "donation_type",
+            custom_parameter_2: "amount_category",
+            custom_parameter_3: "user_journey_stage",
+            custom_parameter_4: "page_source",
+          },
+        });
       }
 
       setIsAnalyticsEnabled(true);
@@ -228,7 +232,11 @@ export function AnalyticsProvider({
       );
     }
 
-    if (measurementId && measurementId !== "" && measurementId !== "G-XXXXXXXXXX") {
+    if (
+      measurementId &&
+      measurementId !== "" &&
+      measurementId !== "G-XXXXXXXXXX"
+    ) {
       window.gtag("config", measurementId, {
         page_title: title || document.title,
         page_location: window.location.href,

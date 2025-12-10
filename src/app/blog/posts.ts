@@ -116,9 +116,9 @@ const posts: BlogPost[] = [
 ];
 
 export function getPosts(): BlogPost[] {
-  return posts.slice().sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
+  return posts
+    .slice()
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 
 export function getPostBySlug(slug: string): BlogPost | undefined {

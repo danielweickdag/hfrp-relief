@@ -38,7 +38,7 @@ export default function AdminPage() {
       localStorage.setItem("hfrp-admin-email", email);
     } else {
       setError(
-        "Invalid credentials. Use: w.regis@comcast.net / Melirosecherie58"
+        "Invalid credentials. Use: w.regis@comcast.net / Melirosecherie58",
       );
     }
     setIsLoading(false);

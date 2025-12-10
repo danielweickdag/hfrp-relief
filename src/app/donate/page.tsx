@@ -33,7 +33,7 @@ export default function DonatePage() {
 
   // Stabilize SSR/CSR by using an env-derived initial test mode, then update on mount
   const [testMode, setTestMode] = useState<boolean>(
-    process.env.NEXT_PUBLIC_STRIPE_TEST_MODE === "true"
+    process.env.NEXT_PUBLIC_STRIPE_TEST_MODE === "true",
   );
   useEffect(() => {
     if (stripeEnhanced) {
@@ -79,7 +79,7 @@ export default function DonatePage() {
   const triggerContainedStripeButton = (container: HTMLDivElement | null) => {
     if (!container) return;
     const stripeButtonWrapper = container.querySelector(
-      '[data-automation="stripe-button-recurring"], [data-automation="stripe-button-one-time"]'
+      '[data-automation="stripe-button-recurring"], [data-automation="stripe-button-one-time"]',
     );
     const button = stripeButtonWrapper?.querySelector("button");
     if (button instanceof HTMLButtonElement) {
@@ -89,7 +89,7 @@ export default function DonatePage() {
 
   const handleCardClick = (
     e: React.MouseEvent<HTMLDivElement>,
-    type: "recurring" | "one-time"
+    type: "recurring" | "one-time",
   ) => {
     const target = e.target as HTMLElement;
     // If the click originates from any interactive element, let it handle itself
@@ -105,7 +105,7 @@ export default function DonatePage() {
         // Defer click until state updates
         setTimeout(
           () => triggerContainedStripeButton(oneTimeCardRef.current),
-          0
+          0,
         );
         return;
       }
@@ -115,7 +115,7 @@ export default function DonatePage() {
 
   const handleCardKeyDown = (
     e: React.KeyboardEvent<HTMLDivElement>,
-    type: "recurring" | "one-time"
+    type: "recurring" | "one-time",
   ) => {
     // Activate on Enter or Space
     if (e.key === "Enter" || e.key === " ") {
@@ -128,7 +128,7 @@ export default function DonatePage() {
           setCustomAmount(String(defaultAmount));
           setTimeout(
             () => triggerContainedStripeButton(oneTimeCardRef.current),
-            0
+            0,
           );
           return;
         }

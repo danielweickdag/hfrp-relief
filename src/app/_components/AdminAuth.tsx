@@ -64,11 +64,7 @@ const rolePermissions: Record<UserRole, string[]> = {
     "blog.edit",
     "blog.publish",
   ],
-  volunteer: [
-    "view_analytics", 
-    "edit_content",
-    "blog.read",
-  ],
+  volunteer: ["view_analytics", "edit_content", "blog.read"],
 };
 
 // Mock admin users with secure storage
@@ -117,7 +113,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
             console.log("🔧 AdminAuth: Found stored user:", parsedUser.email);
             setUser(parsedUser);
             console.log(
-              "🔧 AdminAuth: User state updated, should be authenticated"
+              "🔧 AdminAuth: User state updated, should be authenticated",
             );
           } else {
             console.log("🔧 AdminAuth: No stored user found");
@@ -150,7 +146,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
 
     const users = getAdminUsers();
     const foundUser = users.find(
-      (u) => u.email.toLowerCase() === email.toLowerCase()
+      (u) => u.email.toLowerCase() === email.toLowerCase(),
     );
 
     if (foundUser) {
@@ -280,7 +276,7 @@ declare global {
     gtag?: (
       command: string,
       action: string,
-      parameters: Record<string, unknown>
+      parameters: Record<string, unknown>,
     ) => void;
   }
 }

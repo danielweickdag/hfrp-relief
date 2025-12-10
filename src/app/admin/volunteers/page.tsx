@@ -130,7 +130,11 @@ function VolunteersContent() {
             ].map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as "overview" | "manage" | "schedule" | "training")}
+                onClick={() =>
+                  setActiveTab(
+                    tab.id as "overview" | "manage" | "schedule" | "training",
+                  )
+                }
                 className={`py-4 px-1 border-b-2 font-medium text-sm ${
                   activeTab === tab.id
                     ? "border-red-500 text-red-600"
@@ -154,61 +158,91 @@ function VolunteersContent() {
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
                     <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                      <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <svg
+                        className="w-5 h-5 text-white"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
                         <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                     </div>
                   </div>
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Active Volunteers</p>
-                    <p className="text-2xl font-semibold text-gray-900">{volunteers.filter(v => v.status === 'active').length}</p>
+                    <p className="text-sm font-medium text-gray-600">
+                      Active Volunteers
+                    </p>
+                    <p className="text-2xl font-semibold text-gray-900">
+                      {volunteers.filter((v) => v.status === "active").length}
+                    </p>
                   </div>
                 </div>
               </div>
-              
+
               <div className="bg-white rounded-lg shadow p-6">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
                     <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
-                      <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <svg
+                        className="w-5 h-5 text-white"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
                         <path d="M10 2L3 7v11a2 2 0 002 2h10a2 2 0 002-2V7l-7-5z" />
                       </svg>
                     </div>
                   </div>
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Pending Applications</p>
-                    <p className="text-2xl font-semibold text-gray-900">{volunteers.filter(v => v.status === 'pending').length}</p>
+                    <p className="text-sm font-medium text-gray-600">
+                      Pending Applications
+                    </p>
+                    <p className="text-2xl font-semibold text-gray-900">
+                      {volunteers.filter((v) => v.status === "pending").length}
+                    </p>
                   </div>
                 </div>
               </div>
-              
+
               <div className="bg-white rounded-lg shadow p-6">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
                     <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                      <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <svg
+                        className="w-5 h-5 text-white"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
                         <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z" />
                       </svg>
                     </div>
                   </div>
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Total Volunteers</p>
-                    <p className="text-2xl font-semibold text-gray-900">{volunteers.length}</p>
+                    <p className="text-sm font-medium text-gray-600">
+                      Total Volunteers
+                    </p>
+                    <p className="text-2xl font-semibold text-gray-900">
+                      {volunteers.length}
+                    </p>
                   </div>
                 </div>
               </div>
-              
+
               <div className="bg-white rounded-lg shadow p-6">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
                     <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
-                      <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <svg
+                        className="w-5 h-5 text-white"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
                         <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                     </div>
                   </div>
                   <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Hours This Month</p>
+                    <p className="text-sm font-medium text-gray-600">
+                      Hours This Month
+                    </p>
                     <p className="text-2xl font-semibold text-gray-900">156</p>
                   </div>
                 </div>
@@ -218,23 +252,31 @@ function VolunteersContent() {
             {/* Recent Activity */}
             <div className="bg-white rounded-lg shadow">
               <div className="px-6 py-4 border-b border-gray-200">
-                <h3 className="text-lg font-medium text-gray-900">Recent Volunteer Activity</h3>
+                <h3 className="text-lg font-medium text-gray-900">
+                  Recent Volunteer Activity
+                </h3>
               </div>
               <div className="p-6">
                 <div className="space-y-4">
                   <div className="flex items-center space-x-3">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-sm text-gray-600">John Doe completed training module: Child Safety</span>
+                    <span className="text-sm text-gray-600">
+                      John Doe completed training module: Child Safety
+                    </span>
                     <span className="text-xs text-gray-400">2 hours ago</span>
                   </div>
                   <div className="flex items-center space-x-3">
                     <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                    <span className="text-sm text-gray-600">Jane Smith scheduled for weekend shift</span>
+                    <span className="text-sm text-gray-600">
+                      Jane Smith scheduled for weekend shift
+                    </span>
                     <span className="text-xs text-gray-400">4 hours ago</span>
                   </div>
                   <div className="flex items-center space-x-3">
                     <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                    <span className="text-sm text-gray-600">New volunteer application received</span>
+                    <span className="text-sm text-gray-600">
+                      New volunteer application received
+                    </span>
                     <span className="text-xs text-gray-400">1 day ago</span>
                   </div>
                 </div>
@@ -246,7 +288,9 @@ function VolunteersContent() {
         {activeTab === "manage" && (
           <div className="bg-white rounded-lg shadow">
             <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-              <h3 className="text-lg font-medium text-gray-900">All Volunteers</h3>
+              <h3 className="text-lg font-medium text-gray-900">
+                All Volunteers
+              </h3>
               <button className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
                 Add New Volunteer
               </button>
@@ -279,16 +323,25 @@ function VolunteersContent() {
                   {volunteers.map((volunteer) => (
                     <tr key={volunteer.id}>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">{volunteer.name}</div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {volunteer.name}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{volunteer.email}</div>
-                        <div className="text-sm text-gray-500">{volunteer.phone}</div>
+                        <div className="text-sm text-gray-900">
+                          {volunteer.email}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {volunteer.phone}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex flex-wrap gap-1">
                           {volunteer.skills.map((skill, index) => (
-                            <span key={index} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            <span
+                              key={index}
+                              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                            >
                               {skill}
                             </span>
                           ))}
@@ -298,17 +351,25 @@ function VolunteersContent() {
                         {volunteer.availability}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          volunteer.status === 'active' ? 'bg-green-100 text-green-800' :
-                          volunteer.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-gray-100 text-gray-800'
-                        }`}>
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            volunteer.status === "active"
+                              ? "bg-green-100 text-green-800"
+                              : volunteer.status === "pending"
+                                ? "bg-yellow-100 text-yellow-800"
+                                : "bg-gray-100 text-gray-800"
+                          }`}
+                        >
                           {volunteer.status}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button className="text-red-600 hover:text-red-900 mr-3">Edit</button>
-                        <button className="text-gray-600 hover:text-gray-900">View</button>
+                        <button className="text-red-600 hover:text-red-900 mr-3">
+                          Edit
+                        </button>
+                        <button className="text-gray-600 hover:text-gray-900">
+                          View
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -320,20 +381,32 @@ function VolunteersContent() {
 
         {activeTab === "schedule" && (
           <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Volunteer Scheduling</h3>
-            <p className="text-gray-600 mb-4">Manage volunteer schedules and assignments.</p>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">
+              Volunteer Scheduling
+            </h3>
+            <p className="text-gray-600 mb-4">
+              Manage volunteer schedules and assignments.
+            </p>
             <div className="bg-gray-50 rounded-lg p-4">
-              <p className="text-sm text-gray-600">Scheduling functionality coming soon...</p>
+              <p className="text-sm text-gray-600">
+                Scheduling functionality coming soon...
+              </p>
             </div>
           </div>
         )}
 
         {activeTab === "training" && (
           <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Training Management</h3>
-            <p className="text-gray-600 mb-4">Manage volunteer training programs and certifications.</p>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">
+              Training Management
+            </h3>
+            <p className="text-gray-600 mb-4">
+              Manage volunteer training programs and certifications.
+            </p>
             <div className="bg-gray-50 rounded-lg p-4">
-              <p className="text-sm text-gray-600">Training management functionality coming soon...</p>
+              <p className="text-sm text-gray-600">
+                Training management functionality coming soon...
+              </p>
             </div>
           </div>
         )}

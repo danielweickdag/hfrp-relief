@@ -406,7 +406,9 @@ function SettingsContent() {
                         Social Media Links
                       </h2>
                       <button
-                        onClick={() => setShowSocialMediaLinks(!showSocialMediaLinks)}
+                        onClick={() =>
+                          setShowSocialMediaLinks(!showSocialMediaLinks)
+                        }
                         className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                           showSocialMediaLinks
                             ? "bg-red-100 text-red-700 hover:bg-red-200"
@@ -418,71 +420,71 @@ function SettingsContent() {
                     </div>
                     {showSocialMediaLinks && (
                       <div className="space-y-4">
-                      <div>
-                        <label
-                          htmlFor="fbUrl"
-                          className="block text-sm font-medium text-gray-700 mb-1"
-                        >
-                          Facebook URL
-                        </label>
-                        <div className="flex rounded-md shadow-sm">
-                          <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                            https://
-                          </span>
-                          <input
-                            type="text"
-                            id="fbUrl"
-                            name="fbUrl"
-                            value={formData.fbUrl.replace("https://", "")}
-                            onChange={handleInputChange}
-                            className="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          />
+                        <div>
+                          <label
+                            htmlFor="fbUrl"
+                            className="block text-sm font-medium text-gray-700 mb-1"
+                          >
+                            Facebook URL
+                          </label>
+                          <div className="flex rounded-md shadow-sm">
+                            <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                              https://
+                            </span>
+                            <input
+                              type="text"
+                              id="fbUrl"
+                              name="fbUrl"
+                              value={formData.fbUrl.replace("https://", "")}
+                              onChange={handleInputChange}
+                              className="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                          </div>
                         </div>
-                      </div>
 
-                      <div>
-                        <label
-                          htmlFor="igUrl"
-                          className="block text-sm font-medium text-gray-700 mb-1"
-                        >
-                          Instagram URL
-                        </label>
-                        <div className="flex rounded-md shadow-sm">
-                          <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                            https://
-                          </span>
-                          <input
-                            type="text"
-                            id="igUrl"
-                            name="igUrl"
-                            value={formData.igUrl.replace("https://", "")}
-                            onChange={handleInputChange}
-                            className="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          />
+                        <div>
+                          <label
+                            htmlFor="igUrl"
+                            className="block text-sm font-medium text-gray-700 mb-1"
+                          >
+                            Instagram URL
+                          </label>
+                          <div className="flex rounded-md shadow-sm">
+                            <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                              https://
+                            </span>
+                            <input
+                              type="text"
+                              id="igUrl"
+                              name="igUrl"
+                              value={formData.igUrl.replace("https://", "")}
+                              onChange={handleInputChange}
+                              className="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                          </div>
                         </div>
-                      </div>
 
-                      <div>
-                        <label
-                          htmlFor="twUrl"
-                          className="block text-sm font-medium text-gray-700 mb-1"
-                        >
-                          Twitter URL
-                        </label>
-                        <div className="flex rounded-md shadow-sm">
-                          <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                            https://
-                          </span>
-                          <input
-                            type="text"
-                            id="twUrl"
-                            name="twUrl"
-                            value={formData.twUrl.replace("https://", "")}
-                            onChange={handleInputChange}
-                            className="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          />
+                        <div>
+                          <label
+                            htmlFor="twUrl"
+                            className="block text-sm font-medium text-gray-700 mb-1"
+                          >
+                            Twitter URL
+                          </label>
+                          <div className="flex rounded-md shadow-sm">
+                            <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                              https://
+                            </span>
+                            <input
+                              type="text"
+                              id="twUrl"
+                              name="twUrl"
+                              value={formData.twUrl.replace("https://", "")}
+                              onChange={handleInputChange}
+                              className="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                          </div>
                         </div>
-                      </div>
                       </div>
                     )}
                   </div>

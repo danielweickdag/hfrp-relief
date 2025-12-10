@@ -1,5 +1,5 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import Stripe from 'stripe';
+import { type NextRequest, NextResponse } from "next/server";
+import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -13,7 +13,10 @@ export async function POST(request: NextRequest) {
     };
 
     if (!sessionId) {
-      return NextResponse.json({ success: false, error: 'sessionId is required' }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: "sessionId is required" },
+        { status: 400 },
+      );
     }
     // Default to configured connected account if not provided
     const defaultAccountId =
@@ -22,7 +25,10 @@ export async function POST(request: NextRequest) {
       undefined;
     const accountIdFinal = accountId || defaultAccountId;
     if (!accountIdFinal) {
-      return NextResponse.json({ success: false, error: 'accountId is required' }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: "accountId is required" },
+        { status: 400 },
+      );
     }
 
     // Retrieve the checkout session on the connected account to get the customer
@@ -30,28 +36,35 @@ export async function POST(request: NextRequest) {
       stripeAccount: accountIdFinal,
     });
 
-    const customerId = typeof session.customer === 'string' ? session.customer : session.customer?.id;
+    const customerId =
+      typeof session.customer === "string"
+        ? session.customer
+        : session.customer?.id;
     if (!customerId) {
-      return NextResponse.json({ success: false, error: 'Customer not found for session' }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: "Customer not found for session" },
+        { status: 400 },
+      );
     }
 
     // Create a Billing Portal session for the connected account's customer
     const portal = await stripe.billingPortal.sessions.create(
       {
         customer: customerId,
-        return_url: returnUrl || `${process.env.NEXT_PUBLIC_SITE_URL}/admin/connect`,
+        return_url:
+          returnUrl || `${process.env.NEXT_PUBLIC_SITE_URL}/admin/connect`,
       },
       { stripeAccount: accountIdFinal },
     );
 
     return NextResponse.json({ success: true, url: portal.url });
   } catch (error) {
-    console.error('Create portal session error:', error);
+    console.error("Create portal session error:", error);
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to create portal session',
-        details: error instanceof Error ? error.message : 'Unknown error',
+        error: "Failed to create portal session",
+        details: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 500 },
     );

@@ -63,7 +63,7 @@ function generateMockDonations(count = 100): Donation[] {
   for (let i = 0; i < count; i++) {
     const donationDate = new Date(now);
     donationDate.setDate(
-      donationDate.getDate() - Math.floor(Math.random() * 365)
+      donationDate.getDate() - Math.floor(Math.random() * 365),
     );
 
     const amount =
@@ -116,7 +116,7 @@ function generateMockDonations(count = 100): Donation[] {
 
   return donations.sort(
     (a, b) =>
-      new Date(b.donationDate).getTime() - new Date(a.donationDate).getTime()
+      new Date(b.donationDate).getTime() - new Date(a.donationDate).getTime(),
   );
 }
 
@@ -307,7 +307,7 @@ class DonationStorageService {
     if (!this.getFromStorage(STORAGE_KEYS.CAMPAIGNS)) {
       this.setToStorage(
         STORAGE_KEYS.CAMPAIGNS,
-        JSON.stringify(DEFAULT_CAMPAIGNS)
+        JSON.stringify(DEFAULT_CAMPAIGNS),
       );
     }
 
@@ -323,7 +323,7 @@ class DonationStorageService {
   // Donation CRUD operations
   async getAllDonations(filters?: DonationFilters): Promise<Donation[]> {
     const donations = JSON.parse(
-      this.getFromStorage(STORAGE_KEYS.DONATIONS, "[]")
+      this.getFromStorage(STORAGE_KEYS.DONATIONS, "[]"),
     ) as Donation[];
 
     let filtered = [...donations];
@@ -339,7 +339,7 @@ class DonationStorageService {
 
       if (filters.paymentMethod) {
         filtered = filtered.filter(
-          (d) => d.paymentMethod === filters.paymentMethod
+          (d) => d.paymentMethod === filters.paymentMethod,
         );
       }
 
@@ -369,25 +369,25 @@ class DonationStorageService {
 
       if (filters.dateFrom) {
         filtered = filtered.filter(
-          (d) => new Date(d.donationDate) >= new Date(filters.dateFrom!)
+          (d) => new Date(d.donationDate) >= new Date(filters.dateFrom!),
         );
       }
 
       if (filters.dateTo) {
         filtered = filtered.filter(
-          (d) => new Date(d.donationDate) <= new Date(filters.dateTo!)
+          (d) => new Date(d.donationDate) <= new Date(filters.dateTo!),
         );
       }
 
       if (filters.isRecurring !== undefined) {
         filtered = filtered.filter(
-          (d) => d.isRecurring === filters.isRecurring
+          (d) => d.isRecurring === filters.isRecurring,
         );
       }
 
       if (filters.isAnonymous !== undefined) {
         filtered = filtered.filter(
-          (d) => d.isAnonymous === filters.isAnonymous
+          (d) => d.isAnonymous === filters.isAnonymous,
         );
       }
 
@@ -397,7 +397,7 @@ class DonationStorageService {
           (d) =>
             d.donorName?.toLowerCase().includes(searchLower) ||
             d.receiptNumber?.toLowerCase().includes(searchLower) ||
-            d.campaignName?.toLowerCase().includes(searchLower)
+            d.campaignName?.toLowerCase().includes(searchLower),
         );
       }
 
@@ -438,7 +438,7 @@ class DonationStorageService {
   }
 
   async createDonation(
-    data: Omit<Donation, "id" | "createdAt" | "updatedAt">
+    data: Omit<Donation, "id" | "createdAt" | "updatedAt">,
   ): Promise<Donation> {
     const donations = await this.getAllDonations();
 
@@ -459,7 +459,7 @@ class DonationStorageService {
     if (newDonation.campaignId && newDonation.status === "completed") {
       await this.updateCampaignStats(
         newDonation.campaignId,
-        newDonation.amount
+        newDonation.amount,
       );
     }
 
@@ -517,7 +517,7 @@ class DonationStorageService {
     data: Omit<
       DonationCampaign,
       "id" | "raised" | "donorCount" | "createdAt" | "updatedAt"
-    >
+    >,
   ): Promise<DonationCampaign> {
     const campaigns = await this.getAllCampaigns();
 
@@ -538,7 +538,7 @@ class DonationStorageService {
 
   private async updateCampaignStats(
     campaignId: string,
-    amount: number
+    amount: number,
   ): Promise<void> {
     const campaigns = await this.getAllCampaigns();
     const index = campaigns.findIndex((c) => c.id === campaignId);
@@ -612,7 +612,7 @@ class DonationStorageService {
       donations = allDonations.filter(
         (d) =>
           new Date(d.donationDate) >= new Date(dateRange.start) &&
-          new Date(d.donationDate) <= new Date(dateRange.end)
+          new Date(d.donationDate) <= new Date(dateRange.end),
       );
     }
 
@@ -624,16 +624,16 @@ class DonationStorageService {
 
     // Time-based calculations
     const todayDonations = donations.filter(
-      (d) => new Date(d.donationDate) >= todayStart
+      (d) => new Date(d.donationDate) >= todayStart,
     );
     const weekDonations = donations.filter(
-      (d) => new Date(d.donationDate) >= weekStart
+      (d) => new Date(d.donationDate) >= weekStart,
     );
     const monthDonations = donations.filter(
-      (d) => new Date(d.donationDate) >= monthStart
+      (d) => new Date(d.donationDate) >= monthStart,
     );
     const yearDonations = donations.filter(
-      (d) => new Date(d.donationDate) >= yearStart
+      (d) => new Date(d.donationDate) >= yearStart,
     );
 
     // Group by type
@@ -692,7 +692,7 @@ class DonationStorageService {
     // Recurring metrics
     const recurringDonations = donations.filter((d) => d.isRecurring);
     const activeRecurringDonors = new Set(
-      recurringDonations.map((d) => d.donorId)
+      recurringDonations.map((d) => d.donorId),
     ).size;
     const monthlyRecurringRevenue = recurringDonations
       .filter((d) => d.type === "monthly")
@@ -726,7 +726,7 @@ class DonationStorageService {
   private groupBy(
     donations: Donation[],
     field: keyof Donation,
-    categories: string[]
+    categories: string[],
   ): Array<{ [key: string]: unknown; count: number; amount: number }> {
     const grouped = new Map<string, { count: number; amount: number }>();
 
@@ -749,7 +749,7 @@ class DonationStorageService {
   }
 
   private groupByType(
-    donations: Donation[]
+    donations: Donation[],
   ): Array<{ type: DonationType; count: number; amount: number }> {
     const categories: DonationType[] = [
       "one_time",
@@ -778,7 +778,7 @@ class DonationStorageService {
   }
 
   private groupByPaymentMethod(
-    donations: Donation[]
+    donations: Donation[],
   ): Array<{ method: PaymentMethod; count: number; amount: number }> {
     const categories: PaymentMethod[] = [
       "credit_card",
@@ -806,7 +806,7 @@ class DonationStorageService {
   }
 
   private groupBySource(
-    donations: Donation[]
+    donations: Donation[],
   ): Array<{ source: DonationSource; count: number; amount: number }> {
     const categories: DonationSource[] = [
       "website",
@@ -835,7 +835,7 @@ class DonationStorageService {
   }
 
   private calculateMonthlyTrends(
-    donations: Donation[]
+    donations: Donation[],
   ): DonationStats["monthlyTrends"] {
     const trends = new Map<
       string,
@@ -877,7 +877,7 @@ class DonationStorageService {
   // Financial reporting
   async generateFinancialReport(
     startDate: string,
-    endDate: string
+    endDate: string,
   ): Promise<FinancialReport> {
     const donations = await this.getAllDonations({
       dateFrom: startDate,
@@ -908,7 +908,7 @@ class DonationStorageService {
       const current = programTotals.get(donation.programName || "General") || 0;
       programTotals.set(
         donation.programName || "General",
-        current + donation.amount
+        current + donation.amount,
       );
     }
 
@@ -918,7 +918,7 @@ class DonationStorageService {
         programName,
         amount,
         percentage: totalRevenue > 0 ? (amount / totalRevenue) * 100 : 0,
-      })
+      }),
     );
 
     // Mock expense data (in production, this would come from accounting system)

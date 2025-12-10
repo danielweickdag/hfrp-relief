@@ -64,35 +64,57 @@ export default function HealthStatus() {
   }, []);
 
   const modeLabel = (m: StripeStatus["mode"]) =>
-    m === "mismatch" ? "Mode Mismatch" : m === "live" ? "Live Mode" : m === "test" ? "Test Mode" : "Unknown Mode";
+    m === "mismatch"
+      ? "Mode Mismatch"
+      : m === "live"
+        ? "Live Mode"
+        : m === "test"
+          ? "Test Mode"
+          : "Unknown Mode";
 
   return (
     <div className="mb-8">
-      <h2 className="text-xl font-semibold text-gray-900 mb-3">System Health</h2>
+      <h2 className="text-xl font-semibold text-gray-900 mb-3">
+        System Health
+      </h2>
       <div className="flex flex-wrap items-center gap-2">
         {stripeStatus ? (
-          <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${stripeStatus.mode === "live" ? "bg-green-100 text-green-800" : stripeStatus.mode === "test" ? "bg-yellow-100 text-yellow-800" : stripeStatus.mode === "mismatch" ? "bg-red-100 text-red-800" : "bg-gray-100 text-gray-800"}`}>
+          <span
+            className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${stripeStatus.mode === "live" ? "bg-green-100 text-green-800" : stripeStatus.mode === "test" ? "bg-yellow-100 text-yellow-800" : stripeStatus.mode === "mismatch" ? "bg-red-100 text-red-800" : "bg-gray-100 text-gray-800"}`}
+          >
             {modeLabel(stripeStatus.mode)}
           </span>
         ) : null}
 
         {stripeStatus && stripeStatus.modeMismatch ? (
-          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">Keys Mismatch</span>
+          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+            Keys Mismatch
+          </span>
         ) : stripeStatus ? (
-          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Keys Aligned</span>
+          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+            Keys Aligned
+          </span>
         ) : null}
 
         {(stripeStatus?.webhook?.configured_for_mode ?? false) ? (
-          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Webhook Ready</span>
+          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+            Webhook Ready
+          </span>
         ) : (
-          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">Webhook Missing</span>
+          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+            Webhook Missing
+          </span>
         )}
 
         {health ? (
           health.assets.bgVideoExists ? (
-            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Background Video Found</span>
+            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              Background Video Found
+            </span>
           ) : (
-            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Background Video Missing</span>
+            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+              Background Video Missing
+            </span>
           )
         ) : null}
       </div>
@@ -104,4 +126,3 @@ export default function HealthStatus() {
     </div>
   );
 }
-

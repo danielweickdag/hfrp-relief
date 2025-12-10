@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import RadioPlayer from "./RadioPlayer";
+import RadioPlayer from "./RadioPlayerFixed";
 import ZenoEmbedPlayer from "./ZenoEmbedPlayer";
 
 interface CombinedRadioPlayerProps {
@@ -16,11 +16,11 @@ export default function CombinedRadioPlayer({
   className = "",
   defaultPlayer = "native",
   stationSlug = "fgm-radio-haiti",
-  streamUrl = "https://stream.zeno.fm/hls/ttq4haexcf9uv",
+  streamUrl = "https://stream.zeno.fm/ttq4haexcf9uv",
   stationName = "HFRP Radio",
 }: CombinedRadioPlayerProps) {
   const [activePlayer, setActivePlayer] = useState<"native" | "embed">(
-    defaultPlayer
+    defaultPlayer,
   );
 
   return (

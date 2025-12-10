@@ -12,7 +12,7 @@ export default function StripeCampaignManager() {
   const [events, setEvents] = useState<EventSync[]>([]);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"campaigns" | "events" | "create">(
-    "campaigns"
+    "campaigns",
   );
 
   // Form states
@@ -69,7 +69,7 @@ export default function StripeCampaignManager() {
 
       if (data.success) {
         alert(
-          `✅ ${data.message}\n\nCampaign: ${data.campaign.name}\nStripe Product: ${data.campaign.stripeProductId}`
+          `✅ ${data.message}\n\nCampaign: ${data.campaign.name}\nStripe Product: ${data.campaign.stripeProductId}`,
         );
         setNewCampaign({
           name: "",
@@ -105,7 +105,7 @@ export default function StripeCampaignManager() {
 
       if (data.success) {
         alert(
-          `🎟️ ${data.message}\n\nEvent: ${data.event.name}\nTicket Price: $${data.event.ticketPrice}`
+          `🎟️ ${data.message}\n\nEvent: ${data.event.name}\nTicket Price: $${data.event.ticketPrice}`,
         );
         setNewEvent({
           name: "",
@@ -142,7 +142,7 @@ export default function StripeCampaignManager() {
             `📊 Campaigns: ${data.campaigns?.length || 0}\n` +
             `🎟️ Events: ${data.events?.length || 0}\n` +
             `💰 Total Donations: $${data.totalDonations?.toLocaleString() || 0}\n` +
-            `🔄 Recurring Donors: ${data.recurringDonors || 0}`
+            `🔄 Recurring Donors: ${data.recurringDonors || 0}`,
         );
         await loadData();
       } else {

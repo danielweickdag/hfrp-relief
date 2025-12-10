@@ -8,8 +8,13 @@ export default function DonationsPage() {
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold mb-6">Donation Management</h1>
         <div className="bg-white rounded-lg shadow p-6">
-          <p className="text-gray-600">Donation management is temporarily unavailable during deployment.</p>
-          <Link href="/admin" className="text-blue-600 hover:underline mt-4 inline-block">
+          <p className="text-gray-600">
+            Donation management is temporarily unavailable during deployment.
+          </p>
+          <Link
+            href="/admin"
+            className="text-blue-600 hover:underline mt-4 inline-block"
+          >
             ← Back to Admin Dashboard
           </Link>
         </div>

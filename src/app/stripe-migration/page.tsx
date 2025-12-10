@@ -8,7 +8,8 @@ export default function StripeTransitionPage() {
           Stripe Migration Tools Temporarily Unavailable
         </h1>
         <p className="text-gray-600">
-          We're working on improving our Stripe migration system. Please check back soon.
+          We're working on improving our Stripe migration system. Please check
+          back soon.
         </p>
       </div>
     </div>

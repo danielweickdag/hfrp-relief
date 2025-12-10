@@ -1,11 +1,26 @@
 "use client";
 
 import { useState } from "react";
-import { Heart, Bell, Users, Check, UserPlus, Mail, Phone, ArrowRight } from "lucide-react";
+import {
+  Heart,
+  Bell,
+  Users,
+  Check,
+  UserPlus,
+  Mail,
+  Phone,
+  ArrowRight,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 interface FormData {
@@ -41,54 +56,60 @@ export default function MembershipPage() {
     availability: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
+  const [submitStatus, setSubmitStatus] = useState<
+    "idle" | "success" | "error"
+  >("idle");
   const [errorMessage, setErrorMessage] = useState("");
 
   const membershipBenefits = [
     {
       icon: Bell,
       title: "Stay Informed",
-      description: "Get real-time updates on our relief efforts, emergency responses, and program developments in Haiti.",
+      description:
+        "Get real-time updates on our relief efforts, emergency responses, and program developments in Haiti.",
       features: [
         "Emergency response alerts",
         "Monthly impact newsletters",
         "Program updates and stories",
-        "Community announcements"
-      ]
+        "Community announcements",
+      ],
     },
     {
       icon: UserPlus,
       title: "Get Involved",
-      description: "Discover meaningful ways to contribute your time, skills, and passion to our mission.",
+      description:
+        "Discover meaningful ways to contribute your time, skills, and passion to our mission.",
       features: [
         "Volunteer opportunity notifications",
         "Skills-based project matching",
         "Local event invitations",
-        "Fundraising campaign participation"
-      ]
+        "Fundraising campaign participation",
+      ],
     },
     {
       icon: Users,
       title: "Join the Community",
-      description: "Connect with like-minded individuals who share your commitment to helping families in Haiti.",
+      description:
+        "Connect with like-minded individuals who share your commitment to helping families in Haiti.",
       features: [
         "Member-only events and gatherings",
         "Online community access",
         "Networking opportunities",
-        "Mentorship programs"
-      ]
+        "Mentorship programs",
+      ],
     },
     {
       icon: Heart,
       title: "Make an Impact",
-      description: "See exactly how your involvement contributes to positive change in Haitian communities.",
+      description:
+        "See exactly how your involvement contributes to positive change in Haitian communities.",
       features: [
         "Personal impact tracking",
         "Success story updates",
         "Behind-the-scenes content",
-        "Direct feedback from beneficiaries"
-      ]
-    }
+        "Direct feedback from beneficiaries",
+      ],
+    },
   ];
 
   const volunteerAreas = [
@@ -101,33 +122,38 @@ export default function MembershipPage() {
     "Translation Services",
     "Administrative Support",
     "Technical Skills",
-    "Event Planning"
+    "Event Planning",
   ];
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
-  const handleInterestChange = (interest: keyof FormData['interests'], checked: boolean) => {
-    setFormData(prev => ({
+  const handleInterestChange = (
+    interest: keyof FormData["interests"],
+    checked: boolean,
+  ) => {
+    setFormData((prev) => ({
       ...prev,
       interests: {
         ...prev.interests,
-        [interest]: checked
-      }
+        [interest]: checked,
+      },
     }));
   };
 
   const handleVolunteerAreaChange = (area: string, checked: boolean) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      volunteerAreas: checked 
+      volunteerAreas: checked
         ? [...prev.volunteerAreas, area]
-        : prev.volunteerAreas.filter(a => a !== area)
+        : prev.volunteerAreas.filter((a) => a !== area),
     }));
   };
 
@@ -146,7 +172,7 @@ export default function MembershipPage() {
         body: JSON.stringify({
           ...formData,
           membershipType: "community", // Free community membership
-          billingCycle: "free"
+          billingCycle: "free",
         }),
       });
 
@@ -174,7 +200,9 @@ export default function MembershipPage() {
     } catch (error) {
       console.error("Error joining community:", error);
       setSubmitStatus("error");
-      setErrorMessage(error instanceof Error ? error.message : "An unexpected error occurred");
+      setErrorMessage(
+        error instanceof Error ? error.message : "An unexpected error occurred",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -193,14 +221,19 @@ export default function MembershipPage() {
             <span className="text-blue-600"> Hope Builders</span>
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Stay connected with our mission to provide relief and hope to families in Haiti. 
-            Get updates, discover volunteer opportunities, and be part of a community making real change.
+            Stay connected with our mission to provide relief and hope to
+            families in Haiti. Get updates, discover volunteer opportunities,
+            and be part of a community making real change.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button 
-              size="lg" 
+            <Button
+              size="lg"
               className="bg-blue-600 hover:bg-blue-700"
-              onClick={() => document.getElementById('membership-form')?.scrollIntoView({ behavior: 'smooth' })}
+              onClick={() =>
+                document
+                  .getElementById("membership-form")
+                  ?.scrollIntoView({ behavior: "smooth" })
+              }
             >
               Join Our Community
               <ArrowRight className="ml-2 h-5 w-5" />
@@ -214,7 +247,9 @@ export default function MembershipPage() {
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
             <div>
-              <div className="text-4xl font-bold text-blue-600 mb-2">2,500+</div>
+              <div className="text-4xl font-bold text-blue-600 mb-2">
+                2,500+
+              </div>
               <div className="text-gray-600">Families Helped</div>
             </div>
             <div>
@@ -222,11 +257,15 @@ export default function MembershipPage() {
               <div className="text-gray-600">Communities Served</div>
             </div>
             <div>
-              <div className="text-4xl font-bold text-purple-600 mb-2">500+</div>
+              <div className="text-4xl font-bold text-purple-600 mb-2">
+                500+
+              </div>
               <div className="text-gray-600">Active Volunteers</div>
             </div>
             <div>
-              <div className="text-4xl font-bold text-orange-600 mb-2">$2M+</div>
+              <div className="text-4xl font-bold text-orange-600 mb-2">
+                $2M+
+              </div>
               <div className="text-gray-600">Relief Distributed</div>
             </div>
           </div>
@@ -241,7 +280,8 @@ export default function MembershipPage() {
               What You'll Get as a Community Member
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Join our community for free and stay connected with our mission to bring hope and relief to Haiti.
+              Join our community for free and stay connected with our mission to
+              bring hope and relief to Haiti.
             </p>
           </div>
 
@@ -249,14 +289,19 @@ export default function MembershipPage() {
             {membershipBenefits.map((benefit, index) => {
               const IconComponent = benefit.icon;
               return (
-                <Card key={index} className="border-2 hover:border-blue-200 transition-colors">
+                <Card
+                  key={index}
+                  className="border-2 hover:border-blue-200 transition-colors"
+                >
                   <CardHeader>
                     <div className="flex items-center gap-4">
                       <div className="p-3 bg-blue-100 rounded-lg">
                         <IconComponent className="h-6 w-6 text-blue-600" />
                       </div>
                       <div>
-                        <CardTitle className="text-xl">{benefit.title}</CardTitle>
+                        <CardTitle className="text-xl">
+                          {benefit.title}
+                        </CardTitle>
                         <CardDescription className="text-gray-600">
                           {benefit.description}
                         </CardDescription>
@@ -266,7 +311,10 @@ export default function MembershipPage() {
                   <CardContent>
                     <ul className="space-y-2">
                       {benefit.features.map((feature, featureIndex) => (
-                        <li key={featureIndex} className="flex items-center gap-2">
+                        <li
+                          key={featureIndex}
+                          className="flex items-center gap-2"
+                        >
                           <Check className="h-4 w-4 text-green-600 flex-shrink-0" />
                           <span className="text-gray-700">{feature}</span>
                         </li>
@@ -288,7 +336,8 @@ export default function MembershipPage() {
               Join Our Community Today
             </h2>
             <p className="text-lg text-gray-600">
-              It's completely free! Just tell us a bit about yourself and your interests.
+              It's completely free! Just tell us a bit about yourself and your
+              interests.
             </p>
           </div>
 
@@ -297,7 +346,8 @@ export default function MembershipPage() {
               <div className="flex items-center gap-2">
                 <Check className="h-5 w-5 text-green-600" />
                 <p className="text-green-800 font-medium">
-                  Welcome to our community! You'll receive a confirmation email shortly.
+                  Welcome to our community! You'll receive a confirmation email
+                  shortly.
                 </p>
               </div>
             </div>
@@ -373,22 +423,32 @@ export default function MembershipPage() {
 
                 {/* Communication Preferences */}
                 <div>
-                  <Label className="text-base font-medium">What would you like to receive?</Label>
+                  <Label className="text-base font-medium">
+                    What would you like to receive?
+                  </Label>
                   <div className="mt-3 space-y-3">
                     {Object.entries({
                       emergencyUpdates: "Emergency response alerts",
-                      volunteerOpportunities: "Volunteer opportunity notifications",
+                      volunteerOpportunities:
+                        "Volunteer opportunity notifications",
                       newsletter: "Monthly newsletter and impact reports",
                       eventNotifications: "Event invitations and announcements",
-                      impactReports: "Detailed impact stories and updates"
+                      impactReports: "Detailed impact stories and updates",
                     }).map(([key, label]) => (
                       <div key={key} className="flex items-center space-x-2">
                         <input
                           type="checkbox"
                           id={key}
-                          checked={formData.interests[key as keyof FormData['interests']]}
-                          onChange={(e) => 
-                            handleInterestChange(key as keyof FormData['interests'], e.target.checked)
+                          checked={
+                            formData.interests[
+                              key as keyof FormData["interests"]
+                            ]
+                          }
+                          onChange={(e) =>
+                            handleInterestChange(
+                              key as keyof FormData["interests"],
+                              e.target.checked,
+                            )
                           }
                           className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
                         />
@@ -402,7 +462,9 @@ export default function MembershipPage() {
 
                 {/* Volunteer Interests */}
                 <div>
-                  <Label className="text-base font-medium">Areas where you'd like to help (Optional)</Label>
+                  <Label className="text-base font-medium">
+                    Areas where you'd like to help (Optional)
+                  </Label>
                   <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2">
                     {volunteerAreas.map((area) => (
                       <div key={area} className="flex items-center space-x-2">
@@ -410,7 +472,7 @@ export default function MembershipPage() {
                           type="checkbox"
                           id={area}
                           checked={formData.volunteerAreas.includes(area)}
-                          onChange={(e) => 
+                          onChange={(e) =>
                             handleVolunteerAreaChange(area, e.target.checked)
                           }
                           className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
@@ -425,7 +487,9 @@ export default function MembershipPage() {
 
                 {/* Availability */}
                 <div>
-                  <Label htmlFor="availability">When are you typically available to help? (Optional)</Label>
+                  <Label htmlFor="availability">
+                    When are you typically available to help? (Optional)
+                  </Label>
                   <select
                     id="availability"
                     name="availability"
@@ -438,7 +502,9 @@ export default function MembershipPage() {
                     <option value="weekends">Weekends</option>
                     <option value="evenings">Evenings</option>
                     <option value="flexible">Flexible schedule</option>
-                    <option value="emergency-only">Emergency situations only</option>
+                    <option value="emergency-only">
+                      Emergency situations only
+                    </option>
                   </select>
                 </div>
 
@@ -452,8 +518,8 @@ export default function MembershipPage() {
                 </Button>
 
                 <p className="text-sm text-gray-500 text-center">
-                  By joining, you agree to receive communications from HFRP. 
-                  You can unsubscribe at any time.
+                  By joining, you agree to receive communications from HFRP. You
+                  can unsubscribe at any time.
                 </p>
               </form>
             </CardContent>
@@ -468,12 +534,15 @@ export default function MembershipPage() {
             Together, We're Making a Difference
           </h2>
           <p className="text-xl mb-8 opacity-90">
-            Every community member plays a vital role in our mission to bring hope and relief to families in Haiti.
+            Every community member plays a vital role in our mission to bring
+            hope and relief to families in Haiti.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
               <div className="text-3xl font-bold mb-2">100%</div>
-              <div className="opacity-90">Of donations go directly to relief efforts</div>
+              <div className="opacity-90">
+                Of donations go directly to relief efforts
+              </div>
             </div>
             <div>
               <div className="text-3xl font-bold mb-2">24/7</div>

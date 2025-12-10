@@ -18,19 +18,28 @@ let resendConfig: ResendConfig | null = null;
  */
 export function getDefaultResendConfig(): ResendConfig | null {
   const apiKey = process.env.RESEND_API_KEY;
-  
+
   // Check if API key is missing or is a demo/placeholder key
-  if (!apiKey || apiKey.startsWith("re_demo_") || apiKey === "your_resend_api_key_here") {
+  if (
+    !apiKey ||
+    apiKey.startsWith("re_demo_") ||
+    apiKey === "your_resend_api_key_here"
+  ) {
     return null;
   }
 
   return {
     apiKey,
-    fromEmail: process.env.RESEND_FROM_EMAIL || "noreply@familyreliefproject7.org",
+    fromEmail:
+      process.env.RESEND_FROM_EMAIL || "noreply@familyreliefproject7.org",
     toEmail: process.env.RESEND_TO_EMAIL || "contact@familyreliefproject7.org",
-    toEmails: process.env.RESEND_TO_EMAILS?.split(",").map(email => email.trim()) || [],
-    ccEmails: process.env.RESEND_CC_EMAILS?.split(",").map(email => email.trim()) || [],
-    isDemoMode: false
+    toEmails:
+      process.env.RESEND_TO_EMAILS?.split(",").map((email) => email.trim()) ||
+      [],
+    ccEmails:
+      process.env.RESEND_CC_EMAILS?.split(",").map((email) => email.trim()) ||
+      [],
+    isDemoMode: false,
   };
 }
 
@@ -86,7 +95,11 @@ export function isResendConfigured(): boolean {
  */
 export function isResendDemoMode(): boolean {
   const apiKey = process.env.RESEND_API_KEY;
-  return !apiKey || apiKey.startsWith("re_demo_") || apiKey === "your_resend_api_key_here";
+  return (
+    !apiKey ||
+    apiKey.startsWith("re_demo_") ||
+    apiKey === "your_resend_api_key_here"
+  );
 }
 
 /**
@@ -95,11 +108,16 @@ export function isResendDemoMode(): boolean {
 export function getDemoModeConfig(): ResendConfig {
   return {
     apiKey: "re_demo_mode",
-    fromEmail: process.env.RESEND_FROM_EMAIL || "noreply@familyreliefproject7.org",
+    fromEmail:
+      process.env.RESEND_FROM_EMAIL || "noreply@familyreliefproject7.org",
     toEmail: process.env.RESEND_TO_EMAIL || "contact@familyreliefproject7.org",
-    toEmails: process.env.RESEND_TO_EMAILS?.split(",").map(email => email.trim()) || [],
-    ccEmails: process.env.RESEND_CC_EMAILS?.split(",").map(email => email.trim()) || [],
-    isDemoMode: true
+    toEmails:
+      process.env.RESEND_TO_EMAILS?.split(",").map((email) => email.trim()) ||
+      [],
+    ccEmails:
+      process.env.RESEND_CC_EMAILS?.split(",").map((email) => email.trim()) ||
+      [],
+    isDemoMode: true,
   };
 }
 
@@ -122,10 +140,13 @@ export function validateEmail(email: string): boolean {
 /**
  * Validate multiple email addresses
  */
-export function validateEmails(emails: string[]): { valid: string[]; invalid: string[] } {
+export function validateEmails(emails: string[]): {
+  valid: string[];
+  invalid: string[];
+} {
   const valid: string[] = [];
   const invalid: string[] = [];
-  
+
   for (const email of emails) {
     const trimmedEmail = email.trim();
     if (validateEmail(trimmedEmail)) {
@@ -134,7 +155,7 @@ export function validateEmails(emails: string[]): { valid: string[]; invalid: st
       invalid.push(trimmedEmail);
     }
   }
-  
+
   return { valid, invalid };
 }
 
@@ -154,7 +175,9 @@ export interface EnhancedEmailOptions {
   tags?: { name: string; value: string }[];
 }
 
-export async function sendEnhancedEmail(options: EnhancedEmailOptions): Promise<{
+export async function sendEnhancedEmail(
+  options: EnhancedEmailOptions,
+): Promise<{
   success: boolean;
   messageId?: string;
   error?: string;
@@ -162,14 +185,14 @@ export async function sendEnhancedEmail(options: EnhancedEmailOptions): Promise<
 }> {
   const resend = getResendEnhanced();
   const config = getResendConfig();
-  
+
   // Demo mode fallback
   if (!resend || !config) {
     console.warn("📧 Demo mode: Email would be sent to", options.to);
     return {
       success: true,
       messageId: `demo-${Date.now()}`,
-      isDemoMode: true
+      isDemoMode: true,
     };
   }
 
@@ -190,7 +213,7 @@ export async function sendEnhancedEmail(options: EnhancedEmailOptions): Promise<
       bcc: options.bcc,
       // Resend expects camelCase 'replyTo'
       replyTo: options.replyTo,
-      tags: options.tags
+      tags: options.tags,
     };
 
     // Validate email addresses
@@ -205,20 +228,20 @@ export async function sendEnhancedEmail(options: EnhancedEmailOptions): Promise<
     // Send email
     const result = await resend.emails.send({
       ...emailData,
-      to: validTo
+      to: validTo,
     });
 
     return {
       success: true,
       messageId: result.data?.id,
-      isDemoMode: false
+      isDemoMode: false,
     };
   } catch (error) {
     console.error("❌ Failed to send email:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
-      isDemoMode: false
+      isDemoMode: false,
     };
   }
 }

@@ -17,10 +17,16 @@ export default function StripeAutomationPage() {
           powered by Stripe. Every contribution triggers automated milestone
           tracking, social media posts, and email updates.
         </p>
-        
+
         <div className="bg-white rounded-lg shadow p-6 mt-8">
-          <p className="text-gray-600">Stripe automation features are temporarily unavailable during deployment.</p>
-          <Link href="/" className="text-blue-600 hover:underline mt-4 inline-block">
+          <p className="text-gray-600">
+            Stripe automation features are temporarily unavailable during
+            deployment.
+          </p>
+          <Link
+            href="/"
+            className="text-blue-600 hover:underline mt-4 inline-block"
+          >
             ← Back to Home
           </Link>
         </div>

@@ -10,7 +10,9 @@ export default function ProgramsPage() {
         <Link href="/programs/feeding" className="group">
           <div className="bg-white rounded-xl shadow p-6 border-t-4 border-orange-600 text-center hover:shadow-lg transition-shadow">
             <div className="text-4xl mb-3">🍽️</div>
-            <h3 className="font-bold text-xl mb-2 group-hover:text-orange-600 transition-colors">Feeding Program</h3>
+            <h3 className="font-bold text-xl mb-2 group-hover:text-orange-600 transition-colors">
+              Feeding Program
+            </h3>
             <p className="text-zinc-700 mb-2">
               Nutritious daily meals for hundreds of orphans and at-risk youth.
               Our nutrition centers are at the heart of each community we serve.
@@ -21,10 +23,12 @@ export default function ProgramsPage() {
         <Link href="/programs/healthcare" className="group">
           <div className="bg-white rounded-xl shadow p-6 border-t-4 border-green-600 text-center hover:shadow-lg transition-shadow">
             <div className="text-4xl mb-3">🏥</div>
-            <h3 className="font-bold text-xl mb-2 group-hover:text-green-600 transition-colors">Healthcare</h3>
+            <h3 className="font-bold text-xl mb-2 group-hover:text-green-600 transition-colors">
+              Healthcare
+            </h3>
             <p className="text-zinc-700 mb-2">
-              Essential medical care, health screenings, and preventive healthcare
-              for underserved communities.
+              Essential medical care, health screenings, and preventive
+              healthcare for underserved communities.
             </p>
             <div className="mt-4 text-green-600 font-medium">Learn More →</div>
           </div>
@@ -32,7 +36,9 @@ export default function ProgramsPage() {
         <Link href="/programs/education" className="group">
           <div className="bg-white rounded-xl shadow p-6 border-t-4 border-blue-600 text-center hover:shadow-lg transition-shadow">
             <div className="text-4xl mb-3">📚</div>
-            <h3 className="font-bold text-xl mb-2 group-hover:text-blue-600 transition-colors">Education</h3>
+            <h3 className="font-bold text-xl mb-2 group-hover:text-blue-600 transition-colors">
+              Education
+            </h3>
             <p className="text-zinc-700 mb-2">
               From primary school to job training, we empower kids with learning
               and skills for a better tomorrow.
@@ -43,7 +49,9 @@ export default function ProgramsPage() {
         <Link href="/programs/shelter" className="group">
           <div className="bg-white rounded-xl shadow p-6 border-t-4 border-purple-600 text-center hover:shadow-lg transition-shadow">
             <div className="text-4xl mb-3">🏠</div>
-            <h3 className="font-bold text-xl mb-2 group-hover:text-purple-600 transition-colors">Safe Housing</h3>
+            <h3 className="font-bold text-xl mb-2 group-hover:text-purple-600 transition-colors">
+              Safe Housing
+            </h3>
             <p className="text-zinc-700 mb-2">
               We ensure every child has shelter, care, and a supportive
               environment as they grow, learn, and heal.

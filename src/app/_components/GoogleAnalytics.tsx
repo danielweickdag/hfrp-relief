@@ -192,8 +192,13 @@ export default function GoogleAnalytics({
     }
   }, [measurementId]);
 
-  // Don't load Google Analytics if no valid measurement ID is provided
-  if (!measurementId || measurementId === "" || measurementId === "G-XXXXXXXXXX") {
+  // Don't load Google Analytics in development or if no valid measurement ID
+  if (
+    process.env.NODE_ENV !== "production" ||
+    !measurementId ||
+    measurementId === "" ||
+    measurementId === "G-XXXXXXXXXX"
+  ) {
     return null;
   }
 

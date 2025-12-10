@@ -209,7 +209,7 @@ class StripeCampaignSync {
 
       if (result.success) {
         console.log(
-          `✅ Sync completed successfully! Synced ${result.synced} items.`
+          `✅ Sync completed successfully! Synced ${result.synced} items.`,
         );
       } else {
         console.warn(`⚠️ Sync completed with ${result.errors.length} errors.`);
@@ -225,20 +225,20 @@ class StripeCampaignSync {
 
   // Sync campaign as Stripe product
   private async syncCampaignAsProduct(
-    campaign: StripeCampaign
+    campaign: StripeCampaign,
   ): Promise<Stripe.Product> {
     try {
       // Check if product already exists
       if (campaign.stripeProductId) {
         try {
           const existingProduct = await this.stripe.products.retrieve(
-            campaign.stripeProductId
+            campaign.stripeProductId,
           );
           console.log(`📦 Product already exists for campaign ${campaign.id}`);
           return existingProduct;
         } catch (error) {
           console.log(
-            `🔄 Product not found, creating new one for campaign ${campaign.id}`
+            `🔄 Product not found, creating new one for campaign ${campaign.id}`,
           );
         }
       }
@@ -265,7 +265,7 @@ class StripeCampaignSync {
       }
 
       console.log(
-        `✅ Created Stripe product ${product.id} for campaign ${campaign.id}`
+        `✅ Created Stripe product ${product.id} for campaign ${campaign.id}`,
       );
       return product;
     } catch (error) {
@@ -280,13 +280,13 @@ class StripeCampaignSync {
       if (plan.stripePriceId) {
         try {
           const existingPrice = await this.stripe.prices.retrieve(
-            plan.stripePriceId
+            plan.stripePriceId,
           );
           console.log(`💰 Price already exists for plan ${plan.id}`);
           return existingPrice;
         } catch (error) {
           console.log(
-            `🔄 Price not found, creating new one for plan ${plan.id}`
+            `🔄 Price not found, creating new one for plan ${plan.id}`,
           );
         }
       }
@@ -399,7 +399,9 @@ class StripeCampaignSync {
       const stripeEnhanced = getStripeEnhanced();
       return {
         lastSync: new Date().toISOString(),
-        totalCampaigns: stripeEnhanced ? stripeEnhanced.getCampaigns().length : 0,
+        totalCampaigns: stripeEnhanced
+          ? stripeEnhanced.getCampaigns().length
+          : 0,
         totalPlans: this.getPlans().length,
         stripeProducts: products.data.length,
         stripePrices: prices.data.length,
@@ -444,7 +446,7 @@ export function getStripeCampaignSync(): StripeCampaignSync | null {
   if (!stripeCampaignSyncInstance) {
     stripeCampaignSyncInstance = new StripeCampaignSync();
   }
-  
+
   return stripeCampaignSyncInstance;
 }
 

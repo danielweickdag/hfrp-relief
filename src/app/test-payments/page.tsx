@@ -1,5 +1,6 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import type React from "react";
+import { useEffect, useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import {
   Elements,
@@ -9,9 +10,14 @@ import {
   useElements,
 } from "@stripe/react-stripe-js";
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+const stripePromise = loadStripe(
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!,
+);
 
-function CheckoutForm({ amount, currency }: { amount: number; currency: string }) {
+function CheckoutForm({
+  amount,
+  currency,
+}: { amount: number; currency: string }) {
   const stripe = useStripe();
   const elements = useElements();
   const [error, setError] = useState<string | null>(null);
@@ -43,7 +49,10 @@ function CheckoutForm({ amount, currency }: { amount: number; currency: string }
     }).format(amt / 100);
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: "grid", gap: 16, maxWidth: 480 }}>
+    <form
+      onSubmit={handleSubmit}
+      style={{ display: "grid", gap: 16, maxWidth: 480 }}
+    >
       <h2>Test Payment</h2>
       <div>Amount: {formatMoney(amount)}</div>
       <AddressElement options={{ mode: "billing" }} />

@@ -8,8 +8,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
     }
     const obj = raw as { prompt?: unknown; mode?: unknown; features?: unknown };
-    if (typeof obj.prompt !== "string" || (obj.mode !== "blog" && obj.mode !== "code")) {
-      return NextResponse.json({ error: "Missing or invalid prompt/mode" }, { status: 400 });
+    if (
+      typeof obj.prompt !== "string" ||
+      (obj.mode !== "blog" && obj.mode !== "code")
+    ) {
+      return NextResponse.json(
+        { error: "Missing or invalid prompt/mode" },
+        { status: 400 },
+      );
     }
     const prompt: string = obj.prompt;
     const mode: "blog" | "code" = obj.mode;
@@ -22,12 +28,15 @@ export async function POST(req: Request) {
       appliedFeatures = Object.fromEntries(
         Object.entries(f)
           .filter(([_, v]) => typeof v === "boolean")
-          .map(([k, v]) => [k, v as boolean])
+          .map(([k, v]) => [k, v as boolean]),
       );
     }
 
     if (!prompt || !mode) {
-      return NextResponse.json({ error: "Missing prompt or mode" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing prompt or mode" },
+        { status: 400 },
+      );
     }
 
     // Demo response. Replace with real AI provider integration as needed.
@@ -37,7 +46,13 @@ export async function POST(req: Request) {
           {
             title: "Building Hope: How Community Support Transforms Lives",
             seoMeta: "Community support, charity impact, family relief",
-            keywords: ["charity", "donations", "community", "relief", "families"],
+            keywords: [
+              "charity",
+              "donations",
+              "community",
+              "relief",
+              "families",
+            ],
             intro: "In times of crisis, communities come together to uplift...",
             draft: "Full 700-word draft based on idea...",
             ctas: ["Donate today", "Share this story", "Volunteer"],
@@ -82,7 +97,8 @@ export async function POST(req: Request) {
 
     // mode === "code" demo response
     const cleaned = {
-      summary: "Improved clarity and grammar of documentation/comments without changing code logic.",
+      summary:
+        "Improved clarity and grammar of documentation/comments without changing code logic.",
       changes: [
         {
           before: "// teh functon calc totals",

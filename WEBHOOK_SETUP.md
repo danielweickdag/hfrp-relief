@@ -43,3 +43,37 @@ stripe listen --forward-to http://localhost:3005/api/stripe/webhook
 ```
 
 This will give you a test webhook secret starting with `whsec_test_...`
+
+## Debugging Signatures (Local Only)
+
+To troubleshoot signature mismatches during local development:
+
+- Enable debug logging with either header or env:
+  - Send header `X-Debug-Signature: 1`, or
+  - Set `WEBHOOK_DEBUG_SIGNATURE=true` in your environment
+- The handler will log:
+  - Expected `v1` signatures for configured secrets
+  - The incoming `Stripe-Signature` header
+  - Payload length
+
+Do not enable signature debug in production.
+
+## Health Endpoint (Admin-only)
+
+An admin-only health endpoint reports webhook configuration state:
+
+- `GET /api/stripe/webhook/health`
+- Requires header `X-Admin-Health-Token: <ADMIN_HEALTH_TOKEN>`
+- Returns publishable key, secret presence, flags, and connected account scope
+
+Configure `ADMIN_HEALTH_TOKEN` in your environment.
+
+## Dual-Secret Verification
+
+The handler supports separate secrets for test and live modes:
+
+- `STRIPE_WEBHOOK_SECRET_TEST` for test mode
+- `STRIPE_WEBHOOK_SECRET_LIVE` for live mode
+- Optional shared `STRIPE_WEBHOOK_SECRET` fallback
+
+The publishable key (`NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`) or test-mode flag is used to choose which secret to use at runtime.

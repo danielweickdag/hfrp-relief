@@ -139,17 +139,22 @@ export default function TestButtonsPage() {
             >
               🟣 DOM & React Check
             </button>
-        </div>
+          </div>
 
           {/* Test Button 7: Styled DonateButton Component */}
           <div className="bg-white p-8 rounded-lg shadow">
-            <h2 className="text-xl font-bold mb-4">Test 7: Styled DonateButton</h2>
-            <p className="text-sm text-gray-600 mb-3">This uses the shared DonateButton component with professional styling.</p>
+            <h2 className="text-xl font-bold mb-4">
+              Test 7: Styled DonateButton
+            </h2>
+            <p className="text-sm text-gray-600 mb-3">
+              This uses the shared DonateButton component with professional
+              styling.
+            </p>
             <DonateButton amount={1000} campaignId="default" />
           </div>
 
-        {/* Instructions */}
-        <div className="bg-yellow-50 border border-yellow-200 p-6 rounded-lg">
+          {/* Instructions */}
+          <div className="bg-yellow-50 border border-yellow-200 p-6 rounded-lg">
             <h3 className="text-lg font-bold mb-2">
               Enhanced Testing Instructions:
             </h3>

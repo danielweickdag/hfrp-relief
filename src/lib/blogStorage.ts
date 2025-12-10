@@ -102,7 +102,7 @@ class BlogStorageService {
     if (!this.getFromStorage(STORAGE_KEYS.CATEGORIES)) {
       this.setToStorage(
         STORAGE_KEYS.CATEGORIES,
-        JSON.stringify(DEFAULT_CATEGORIES)
+        JSON.stringify(DEFAULT_CATEGORIES),
       );
     }
 
@@ -137,7 +137,7 @@ class BlogStorageService {
     if (!this.isClient()) return [];
 
     const posts = JSON.parse(
-      this.getFromStorage(STORAGE_KEYS.POSTS, "[]")
+      this.getFromStorage(STORAGE_KEYS.POSTS, "[]"),
     ) as BlogPost[];
 
     let filteredPosts = [...posts];
@@ -146,25 +146,25 @@ class BlogStorageService {
     if (filters) {
       if (filters.status) {
         filteredPosts = filteredPosts.filter(
-          (post) => post.status === filters.status
+          (post) => post.status === filters.status,
         );
       }
 
       if (filters.categories?.length) {
         filteredPosts = filteredPosts.filter((post) =>
-          post.categories.some((cat) => filters.categories?.includes(cat.id))
+          post.categories.some((cat) => filters.categories?.includes(cat.id)),
         );
       }
 
       if (filters.tags?.length) {
         filteredPosts = filteredPosts.filter((post) =>
-          post.tags.some((tag) => filters.tags?.includes(tag.id))
+          post.tags.some((tag) => filters.tags?.includes(tag.id)),
         );
       }
 
       if (filters.authors?.length) {
         filteredPosts = filteredPosts.filter((post) =>
-          filters.authors?.includes(post.author.id)
+          filters.authors?.includes(post.author.id),
         );
       }
 
@@ -172,7 +172,7 @@ class BlogStorageService {
         filteredPosts = filteredPosts.filter(
           (post) =>
             new Date(post.publishedAt || post.createdAt) >=
-            new Date(filters.dateFrom!)
+            new Date(filters.dateFrom!),
         );
       }
 
@@ -180,7 +180,7 @@ class BlogStorageService {
         filteredPosts = filteredPosts.filter(
           (post) =>
             new Date(post.publishedAt || post.createdAt) <=
-            new Date(filters.dateTo!)
+            new Date(filters.dateTo!),
         );
       }
 
@@ -190,7 +190,7 @@ class BlogStorageService {
           (post) =>
             post.title.toLowerCase().includes(searchLower) ||
             post.excerpt.toLowerCase().includes(searchLower) ||
-            post.content.toLowerCase().includes(searchLower)
+            post.content.toLowerCase().includes(searchLower),
         );
       }
 
@@ -244,7 +244,7 @@ class BlogStorageService {
   // Create a new post
   async createPost(
     data: BlogPostFormData,
-    author: { id: string; name: string; email: string }
+    author: { id: string; name: string; email: string },
   ): Promise<BlogPost> {
     const posts = await this.getAllPosts();
     const categories = await this.getCategories();
@@ -286,7 +286,7 @@ class BlogStorageService {
   // Update a post
   async updatePost(
     id: string,
-    data: Partial<BlogPostFormData>
+    data: Partial<BlogPostFormData>,
   ): Promise<BlogPost | null> {
     const posts = await this.getAllPosts();
     const index = posts.findIndex((post) => post.id === id);
@@ -347,7 +347,7 @@ class BlogStorageService {
 
   // Get draft
   async getDraft(
-    postId: string
+    postId: string,
   ): Promise<{ content: string; savedAt: string } | null> {
     const drafts = JSON.parse(this.getFromStorage(STORAGE_KEYS.DRAFTS) || "{}");
     return drafts[postId] || null;
@@ -367,7 +367,7 @@ class BlogStorageService {
 
   // Create category
   async createCategory(
-    category: Omit<BlogCategory, "id">
+    category: Omit<BlogCategory, "id">,
   ): Promise<BlogCategory> {
     const categories = await this.getCategories();
     const newCategory: BlogCategory = {
@@ -440,7 +440,7 @@ class BlogStorageService {
     // Calculate average reading time
     const totalReadingTime = posts.reduce(
       (sum, post) => sum + (post.readingTime || 0),
-      0
+      0,
     );
     const averageReadingTime =
       posts.length > 0 ? Math.round(totalReadingTime / posts.length) : 0;
@@ -450,7 +450,7 @@ class BlogStorageService {
       .sort(
         (a, b) =>
           new Date(b.publishedAt!).getTime() -
-          new Date(a.publishedAt!).getTime()
+          new Date(a.publishedAt!).getTime(),
       )
       .slice(0, 5);
 
@@ -470,7 +470,7 @@ class BlogStorageService {
   // Bulk operations
   async bulkUpdateStatus(
     postIds: string[],
-    status: BlogPost["status"]
+    status: BlogPost["status"],
   ): Promise<void> {
     const posts = await this.getAllPosts();
     const now = new Date().toISOString();

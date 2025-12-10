@@ -176,12 +176,10 @@ export default function FundraisingCampaignManager({
 
       // Show success message
       alert(
-        `✅ Campaign "${selectedTemplate.name}" created successfully!\n\n🔗 Stripe integration active\n🤖 Automation enabled\n📊 Analytics tracking started`
+        `✅ Campaign "${selectedTemplate.name}" created successfully!\n\n🔗 Stripe integration active\n🤖 Automation enabled\n📊 Analytics tracking started`,
       );
     } catch (error) {
-      alert(
-        "❌ Failed to create campaign. Please check your Stripe settings."
-      );
+      alert("❌ Failed to create campaign. Please check your Stripe settings.");
     } finally {
       setIsCreating(false);
     }
@@ -343,11 +341,9 @@ export default function FundraisingCampaignManager({
                     </div>
                     <div>
                       <strong>Default Amount:</strong> $
-                      {
-                        selectedTemplate.stripeSettings.defaultAmount ??
-                          selectedTemplate.stripeSettings.suggestedAmounts[0] ??
-                          selectedTemplate.stripeSettings.minimumAmount
-                      }
+                      {selectedTemplate.stripeSettings.defaultAmount ??
+                        selectedTemplate.stripeSettings.suggestedAmounts[0] ??
+                        selectedTemplate.stripeSettings.minimumAmount}
                     </div>
                     <div>
                       <strong>Minimum:</strong> $
@@ -420,8 +416,7 @@ export default function FundraisingCampaignManager({
                           Creating your campaign...
                         </div>
                         <div className="text-sm text-blue-700">
-                          Setting up Stripe integration and automation
-                          features
+                          Setting up Stripe integration and automation features
                         </div>
                       </div>
                     </div>

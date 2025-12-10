@@ -15,7 +15,7 @@ vercel whoami || vercel login
 
 # Run tests before deployment
 echo "Running pre-deployment tests..."
-node health-check.js
+node health-check.mjs
 if [ $? -ne 0 ]; then
     echo "❌ Health check failed. Aborting deployment."
     exit 1

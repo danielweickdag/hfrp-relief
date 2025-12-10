@@ -18,7 +18,10 @@ function GoogleAnalytics({ measurementId }: { measurementId: string }) {
   return null;
 }
 
-function AnalyticsProvider({ children, measurementId }: { children: React.ReactNode; measurementId: string }) {
+function AnalyticsProvider({
+  children,
+  measurementId,
+}: { children: React.ReactNode; measurementId: string }) {
   return <>{children}</>;
 }
 
@@ -42,7 +45,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || "https://www.familyreliefproject7.org"
+    process.env.NEXT_PUBLIC_SITE_URL || "https://www.familyreliefproject7.org",
   ),
   title: "Haitian Family Relief Project - Fighting Hunger, Providing Hope",
   description:
@@ -105,8 +108,8 @@ export default function RootLayout({
             logo: "https://www.familyreliefproject7.org/hfrp-logo.png",
             sameAs: [
               "https://facebook.com/familyreliefproject",
-        "https://instagram.com/familyreliefproject",
-        "https://twitter.com/familyreliefproject",
+              "https://instagram.com/familyreliefproject",
+              "https://twitter.com/familyreliefproject",
             ],
             contactPoint: {
               "@type": "ContactPoint",
@@ -122,40 +125,42 @@ export default function RootLayout({
         </script>
         {/* Stripe.js Script - Load early for better performance */}
         <script src="https://js.stripe.com/basil/stripe.js" async />
-        
+
         {/*
           Google Analytics Script - Only load if valid measurement ID is provided
         */}
-        {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && 
-         process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID !== "" && 
-         process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID !== "G-XXXXXXXXXX" && (
-          <>
-            <script
-              async
-              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`}
-            />
-            <script
-              dangerouslySetInnerHTML={{
-                __html: `
+        {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID &&
+          process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID !== "" &&
+          process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID !== "G-XXXXXXXXXX" && (
+            <>
+              <script
+                async
+                src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`}
+              />
+              <script
+                dangerouslySetInnerHTML={{
+                  __html: `
                   window.dataLayer = window.dataLayer || [];
                   function gtag(){dataLayer.push(arguments);}
                   gtag('js', new Date());
                   gtag('config', '${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}');
                 `,
-              }}
-            />
-          </>
-        )}
+                }}
+              />
+            </>
+          )}
       </head>
       <body className="min-h-screen text-zinc-900 antialiased">
         <ErrorBoundary>
-          {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && 
-           process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID !== "" && 
-           process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID !== "G-XXXXXXXXXX" ? (
+          {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID &&
+          process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID !== "" &&
+          process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID !== "G-XXXXXXXXXX" ? (
             <AnalyticsProvider
               measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}
             >
-              <GoogleAnalytics measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
+              <GoogleAnalytics
+                measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}
+              />
               <ClientBody>
                 <Navbar />
                 <main>{children}</main>

@@ -262,7 +262,7 @@ export function AutomatedEventManager({
               ticketsSold: e.ticketsSold + ticketCount,
               raisedAmount: e.raisedAmount + totalAmount,
             }
-          : e
+          : e,
       );
       setEvents(updatedEvents);
 
@@ -271,7 +271,7 @@ export function AutomatedEventManager({
       }
 
       alert(
-        `Successfully purchased ${ticketCount} ticket(s) for ${event.name}!`
+        `Successfully purchased ${ticketCount} ticket(s) for ${event.name}!`,
       );
       setSelectedEvent("");
       setTicketCount(1);
@@ -494,7 +494,7 @@ export function AutomatedEventManager({
           const availableTickets = getAvailableTickets(event);
           const progressPercentage = getProgressPercentage(
             event.raisedAmount,
-            event.goalAmount
+            event.goalAmount,
           );
           const isSelected = selectedEvent === event.id;
 

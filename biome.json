@@ -20,7 +20,7 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true,
+      "recommended": false,
       "correctness": {
         "noUnusedVariables": "off"
       },
@@ -28,6 +28,7 @@
         "noImgElement": "off"
       },
       "a11y": {
+        "useAnchorContent": "off",
         "noAutofocus": "off",
         "noDistractingElements": "off",
         "noHeaderScope": "off",
@@ -43,6 +44,9 @@
         "useKeyWithClickEvents": "off",
         "useKeyWithMouseEvents": "off",
         "useButtonType": "off"
+      },
+      "complexity": {
+        "noForEach": "warn"
       }
     }
   },

@@ -1,5 +1,6 @@
 "use client";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import type React from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import {
   Elements,
@@ -9,7 +10,9 @@ import {
   useElements,
 } from "@stripe/react-stripe-js";
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+const stripePromise = loadStripe(
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!,
+);
 
 function useDebounce<T>(value: T, delay = 500) {
   const [debounced, setDebounced] = useState(value);
@@ -26,7 +29,12 @@ function SubscriptionForm({ priceId }: { priceId: string }) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [customerId, setCustomerId] = useState<string>("");
-  const [estimate, setEstimate] = useState<{ subtotal: number; tax: number; total: number; currency: string } | null>(null);
+  const [estimate, setEstimate] = useState<{
+    subtotal: number;
+    tax: number;
+    total: number;
+    currency: string;
+  } | null>(null);
   type BillingAddress = {
     line1?: string;
     line2?: string;
@@ -87,10 +95,16 @@ function SubscriptionForm({ priceId }: { priceId: string }) {
       const subRes = await fetch("/api/stripe/subscriptions/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ customerId, priceId, automaticTaxEnabled: true, saveDefaultPaymentMethod: "on_subscription" }),
+        body: JSON.stringify({
+          customerId,
+          priceId,
+          automaticTaxEnabled: true,
+          saveDefaultPaymentMethod: "on_subscription",
+        }),
       });
       const subData = await subRes.json();
-      const clientSecret: string | undefined = subData?.clientSecret || undefined;
+      const clientSecret: string | undefined =
+        subData?.clientSecret || undefined;
       if (!clientSecret) {
         throw new Error("No client secret returned for subscription");
       }
@@ -112,21 +126,36 @@ function SubscriptionForm({ priceId }: { priceId: string }) {
   };
 
   const formatMoney = (amt: number, currency: string) =>
-    new Intl.NumberFormat("en-US", { style: "currency", currency: currency.toUpperCase() }).format((amt || 0) / 100);
+    new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: currency.toUpperCase(),
+    }).format((amt || 0) / 100);
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: "grid", gap: 16, maxWidth: 520 }}>
+    <form
+      onSubmit={handleSubmit}
+      style={{ display: "grid", gap: 16, maxWidth: 520 }}
+    >
       <h2>Subscription Demo</h2>
       <label>
         Customer ID
-        <input type="text" value={customerId} onChange={(e) => setCustomerId(e.target.value)} placeholder="cus_..." />
+        <input
+          type="text"
+          value={customerId}
+          onChange={(e) => setCustomerId(e.target.value)}
+          placeholder="cus_..."
+        />
       </label>
 
       <AddressElement
         options={{ mode: "billing" }}
         onChange={(ev) => {
           if (ev.complete && ev.value?.address) {
-            lastAddressRef.current = ev.value.address;
+            const addr = ev.value.address;
+            lastAddressRef.current = {
+              ...addr,
+              line2: addr.line2 ?? undefined,
+            };
           }
         }}
       />
@@ -135,7 +164,9 @@ function SubscriptionForm({ priceId }: { priceId: string }) {
 
       {estimate && (
         <div>
-          <div>Subtotal: {formatMoney(estimate.subtotal, estimate.currency)}</div>
+          <div>
+            Subtotal: {formatMoney(estimate.subtotal, estimate.currency)}
+          </div>
           <div>Tax: {formatMoney(estimate.tax, estimate.currency)}</div>
           <div>Total: {formatMoney(estimate.total, estimate.currency)}</div>
         </div>
@@ -171,12 +202,19 @@ export default function TestSubscriptionPage() {
     init();
   }, []);
 
-  const options = useMemo(() => (clientSecret ? { clientSecret } : undefined), [clientSecret]);
+  const options = useMemo(
+    () => (clientSecret ? { clientSecret } : undefined),
+    [clientSecret],
+  );
 
   return (
     <div style={{ padding: 24 }}>
       <h1>Subscription with Automatic Tax</h1>
-      {!priceId && <div style={{ color: "orange" }}>Set NEXT_PUBLIC_SUBSCRIPTION_PRICE_ID in env.</div>}
+      {!priceId && (
+        <div style={{ color: "orange" }}>
+          Set NEXT_PUBLIC_SUBSCRIPTION_PRICE_ID in env.
+        </div>
+      )}
       {!clientSecret ? (
         <div>Loading payment UI…</div>
       ) : (

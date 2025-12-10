@@ -24,50 +24,47 @@ function trampoline(fn: Function) {
 }
 
 // User's exact sumBelow implementation
-const sumBelow = trampoline((
-  n: number,
-  sum = 0
-): number | (() => any) => n <= 0 ? sum : () => sumBelow(n - 1, sum + n));
+const sumBelow = trampoline((n: number, sum = 0): number | (() => any) =>
+  n <= 0 ? sum : () => sumBelow(n - 1, sum + n),
+);
 
 /**
  * Additional trampoline examples inspired by the user's pattern
  */
 
 // Trampoline multiplication (product of 1 to n)
-const productBelow = trampoline((
-  n: number,
-  product = 1
-): number | (() => any) => n <= 1 ? product : () => productBelow(n - 1, product * n));
+const productBelow = trampoline(
+  (n: number, product = 1): number | (() => any) =>
+    n <= 1 ? product : () => productBelow(n - 1, product * n),
+);
 
 // Trampoline power calculation
-const trampolinePower = trampoline((
-  base: number,
-  exp: number,
-  acc = 1
-): number | (() => any) => exp <= 0 ? acc : () => trampolinePower(base, exp - 1, acc * base));
+const trampolinePower = trampoline(
+  (base: number, exp: number, acc = 1): number | (() => any) =>
+    exp <= 0 ? acc : () => trampolinePower(base, exp - 1, acc * base),
+);
 
 // Trampoline array sum with index
-const trampolineArraySum = trampoline((
-  arr: number[],
-  index = 0,
-  sum = 0
-): number | (() => any) => index >= arr.length
-    ? sum
-    : () => trampolineArraySum(arr, index + 1, sum + arr[index]));
+const trampolineArraySum = trampoline(
+  (arr: number[], index = 0, sum = 0): number | (() => any) =>
+    index >= arr.length
+      ? sum
+      : () => trampolineArraySum(arr, index + 1, sum + arr[index]),
+);
 
 // Trampoline greatest common divisor (Euclidean algorithm)
-const trampolineGCD = trampoline((
-  a: number,
-  b: number
-): number | (() => any) => b === 0 ? a : () => trampolineGCD(b, a % b));
+const trampolineGCD = trampoline(
+  (a: number, b: number): number | (() => any) =>
+    b === 0 ? a : () => trampolineGCD(b, a % b),
+);
 
 // Trampoline string reversal
-const trampolineReverse = trampoline((
-  str: string,
-  acc = ""
-): string | (() => any) => str.length === 0
-    ? acc
-    : () => trampolineReverse(str.slice(1), str[0] + acc));
+const trampolineReverse = trampoline(
+  (str: string, acc = ""): string | (() => any) =>
+    str.length === 0
+      ? acc
+      : () => trampolineReverse(str.slice(1), str[0] + acc),
+);
 
 /**
  * Demo functions
@@ -105,7 +102,7 @@ export function demonstrateUserPattern() {
   console.log(`⏱️  Execution time: ${(endTime - startTime).toFixed(2)}ms`);
   console.log(`🧮 Expected: ${(100000 * 100001) / 2} (formula: n*(n+1)/2)`);
   console.log(
-    `✓ Correct: ${result === (100000 * 100001) / 2 ? "Yes" : "No"}\n`
+    `✓ Correct: ${result === (100000 * 100001) / 2 ? "Yes" : "No"}\n`,
   );
 }
 
@@ -119,7 +116,7 @@ export function demonstrateMoreExamples() {
   console.log(`productBelow(10) = ${product}`);
   console.log(`Expected factorial(10) = ${safeFactorial(10)}`);
   console.log(
-    `✓ Match: ${product.toString() === safeFactorial(10).toString() ? "Yes" : "No"}\n`
+    `✓ Match: ${product.toString() === safeFactorial(10).toString() ? "Yes" : "No"}\n`,
   );
 
   // Power example
@@ -178,14 +175,14 @@ export function compareWithSafeUtils() {
     const end2 = performance.now();
 
     console.log(
-      `  User's trampoline: ${result1} (${(end1 - start1).toFixed(3)}ms)`
+      `  User's trampoline: ${result1} (${(end1 - start1).toFixed(3)}ms)`,
     );
     console.log(
-      `  Safe utils version: ${result2} (${(end2 - start2).toFixed(3)}ms)`
+      `  Safe utils version: ${result2} (${(end2 - start2).toFixed(3)}ms)`,
     );
     console.log(`  ✓ Results match: ${result1 === result2 ? "Yes" : "No"}`);
     console.log(
-      `  📈 Performance: ${end1 - start1 < end2 - start2 ? "User's is faster" : "Safe utils is faster"}`
+      `  📈 Performance: ${end1 - start1 < end2 - start2 ? "User's is faster" : "Safe utils is faster"}`,
     );
   }
 }
@@ -201,7 +198,7 @@ export function demonstrateSafetyFeatures() {
     const infiniteTrampoline = simpleTrampoline(
       (n: number): number | (() => any) => {
         return () => infiniteTrampoline(n); // Always returns a function
-      }
+      },
     );
 
     console.log("Attempting infinite recursion...");

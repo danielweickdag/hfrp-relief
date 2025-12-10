@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAdminAuth } from "@/app/_components/AdminAuth";
 // import AdminAuthProvider, { useAdminAuth } from "@/app/_components/AdminAuth";
 // import DeploymentChecklist from "@/app/_components/DeploymentChecklist";
 import Link from "next/link";
@@ -73,8 +75,13 @@ export default function DeployPage() {
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold mb-6">Deployment</h1>
         <div className="bg-white rounded-lg shadow p-6">
-          <p className="text-gray-600">Deployment management is temporarily unavailable during deployment.</p>
-          <Link href="/admin" className="text-blue-600 hover:underline mt-4 inline-block">
+          <p className="text-gray-600">
+            Deployment management is temporarily unavailable during deployment.
+          </p>
+          <Link
+            href="/admin"
+            className="text-blue-600 hover:underline mt-4 inline-block"
+          >
             ← Back to Admin Dashboard
           </Link>
         </div>

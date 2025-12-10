@@ -34,7 +34,8 @@ export default function AboutPage() {
         <h3 className="text-xl font-semibold mb-2">Our Leadership</h3>
         <ul className="space-y-3">
           <li className="bg-white rounded-lg shadow p-4 border-l-4 border-blue-600">
-            <span className="font-bold">Whitney A Regis</span>, Executive Director
+            <span className="font-bold">Whitney A Regis</span>, Executive
+            Director
           </li>
           <li className="bg-white rounded-lg shadow p-4 border-l-4 border-red-600">
             <span className="font-bold">Marie jean Baptiste</span>, Program Lead
@@ -43,7 +44,8 @@ export default function AboutPage() {
             <span className="font-bold">Marcdala Morose</span>, Program Lead
           </li>
           <li className="bg-white rounded-lg shadow p-4 border-l-4 border-purple-600">
-            <span className="font-bold">Pr. Deniçon Jean Charles</span>, Chef Operator Officer
+            <span className="font-bold">Pr. Deniçon Jean Charles</span>, Chef
+            Operator Officer
           </li>
           <li className="bg-white rounded-lg shadow p-4 border-l-4 border-orange-600">
             <span className="font-bold">Widner Regis</span>, Founder/CEO

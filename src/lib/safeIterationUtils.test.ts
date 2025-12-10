@@ -124,7 +124,7 @@ export function testSafeFactorial() {
   ];
 
   console.log(
-    `✅ safeFactorial passed ${checks.filter(Boolean).length}/${checks.length} checks`
+    `✅ safeFactorial passed ${checks.filter(Boolean).length}/${checks.length} checks`,
   );
   return checks.every(Boolean);
 }
@@ -173,13 +173,13 @@ export function testTailRecursiveFactorial() {
     });
 
     console.log(
-      `factorial(${n}): iterative=${iterativeResult}, tail=${tailRecursiveResult}, match=${match}`
+      `factorial(${n}): iterative=${iterativeResult}, tail=${tailRecursiveResult}, match=${match}`,
     );
   }
 
   const allMatch = results.every((r) => r.match);
   console.log(
-    `✅ Tail recursive factorial: ${allMatch ? "All tests passed" : "Some tests failed"}`
+    `✅ Tail recursive factorial: ${allMatch ? "All tests passed" : "Some tests failed"}`,
   );
 
   return allMatch;
@@ -202,7 +202,7 @@ export function testTrampoline() {
 
     if (!match) factorialPassed = false;
     console.log(
-      `trampoline factorial(${n}): expected=${expected}, got=${trampolineResult}, match=${match}`
+      `trampoline factorial(${n}): expected=${expected}, got=${trampolineResult}, match=${match}`,
     );
   }
 
@@ -213,7 +213,7 @@ export function testTrampoline() {
   const sumMatch = expectedSum === trampolineSum;
 
   console.log(
-    `trampoline sum([1,2,3,4,5,10,20,30]): expected=${expectedSum}, got=${trampolineSum}, match=${sumMatch}`
+    `trampoline sum([1,2,3,4,5,10,20,30]): expected=${expectedSum}, got=${trampolineSum}, match=${sumMatch}`,
   );
 
   // Test with large array that would cause stack overflow with naive recursion
@@ -226,20 +226,20 @@ export function testTrampoline() {
 
   const largeSumMatch = expectedLargeSum === trampolineLargeSum;
   console.log(
-    `trampoline large sum(10000 items): expected=${expectedLargeSum}, got=${trampolineLargeSum}, match=${largeSumMatch}, time=${endTime - startTime}ms`
+    `trampoline large sum(10000 items): expected=${expectedLargeSum}, got=${trampolineLargeSum}, match=${largeSumMatch}, time=${endTime - startTime}ms`,
   );
 
   // Test user's sumBelow pattern
   const sumBelowTest1 = safeSumBelow(5); // Should be 5+4+3+2+1 = 15
   const sumBelowMatch1 = sumBelowTest1 === 15;
   console.log(
-    `sumBelow(5): expected=15, got=${sumBelowTest1}, match=${sumBelowMatch1}`
+    `sumBelow(5): expected=15, got=${sumBelowTest1}, match=${sumBelowMatch1}`,
   );
 
   const sumBelowTest2 = safeSumBelow(100); // Should be 100*(100+1)/2 = 5050
   const sumBelowMatch2 = sumBelowTest2 === 5050;
   console.log(
-    `sumBelow(100): expected=5050, got=${sumBelowTest2}, match=${sumBelowMatch2}`
+    `sumBelow(100): expected=5050, got=${sumBelowTest2}, match=${sumBelowMatch2}`,
   );
 
   // Test large sumBelow (user's original example)
@@ -248,7 +248,7 @@ export function testTrampoline() {
   const endTimeLarge = performance.now();
   const sumBelowLargeMatch = sumBelowLarge === 5000050000;
   console.log(
-    `sumBelow(100000): expected=5000050000, got=${sumBelowLarge}, match=${sumBelowLargeMatch}, time=${endTimeLarge - startTimeLarge}ms`
+    `sumBelow(100000): expected=5000050000, got=${sumBelowLarge}, match=${sumBelowLargeMatch}, time=${endTimeLarge - startTimeLarge}ms`,
   );
 
   const allPassed =
@@ -259,7 +259,7 @@ export function testTrampoline() {
     sumBelowMatch2 &&
     sumBelowLargeMatch;
   console.log(
-    `✅ Trampoline implementation: ${allPassed ? "All tests passed" : "Some tests failed"}`
+    `✅ Trampoline implementation: ${allPassed ? "All tests passed" : "Some tests failed"}`,
   );
 
   return allPassed;
@@ -292,7 +292,7 @@ export function testSafeFibonacci() {
   ];
 
   console.log(
-    `✅ safeFibonacci passed ${checks.filter(Boolean).length}/${checks.length} checks`
+    `✅ safeFibonacci passed ${checks.filter(Boolean).length}/${checks.length} checks`,
   );
   return checks.every(Boolean);
 }
@@ -314,7 +314,7 @@ export function testSafeTreeTraversal() {
   const endTime = performance.now();
 
   console.log(
-    `✅ Deep tree (10000 levels) traversed in ${endTime - startTime}ms`
+    `✅ Deep tree (10000 levels) traversed in ${endTime - startTime}ms`,
   );
   console.log(`📊 Sampled nodes: ${visitedDeep.join(", ")}`);
 
@@ -327,7 +327,7 @@ export function testSafeTreeTraversal() {
   });
 
   console.log(
-    `✅ Wide tree (10x5) traversed, visited ${visitedWide.length} nodes`
+    `✅ Wide tree (10x5) traversed, visited ${visitedWide.length} nodes`,
   );
 
   return visitedDeep.length >= 10 && visitedWide.length > 0;
@@ -351,7 +351,7 @@ export function testSafeFlattenArray() {
 
   console.log(`✅ Deep array flattened in ${endTime - startTime}ms`);
   console.log(
-    `📊 Original depth: ~1000, Flattened length: ${flattened.length}`
+    `📊 Original depth: ~1000, Flattened length: ${flattened.length}`,
   );
 
   // Test normal array
@@ -359,7 +359,7 @@ export function testSafeFlattenArray() {
   const normalFlattened = safeFlattenArray(normalArray);
 
   console.log(
-    `✅ Normal array [1, [2, 3], [4, [5, 6]], 7] → [${normalFlattened.join(", ")}]`
+    `✅ Normal array [1, [2, 3], [4, [5, 6]], 7] → [${normalFlattened.join(", ")}]`,
   );
 
   return flattened.length > 1000 && normalFlattened.length === 7;
@@ -391,7 +391,7 @@ export function testSafeDeepClone() {
   ];
 
   console.log(
-    `✅ safeDeepClone passed ${checks.filter(Boolean).length}/${checks.length} checks`
+    `✅ safeDeepClone passed ${checks.filter(Boolean).length}/${checks.length} checks`,
   );
 
   return checks.every(Boolean);
@@ -439,12 +439,12 @@ export function testSafeChunkProcessor() {
     largeArray,
     (item) => item * 2,
     1000, // Process 1000 items per chunk
-    1 // 1ms delay between chunks
+    1, // 1ms delay between chunks
   ).then((results) => {
     const endTime = performance.now();
 
     console.log(
-      `✅ Processed ${largeArray.length} items in ${endTime - startTime}ms`
+      `✅ Processed ${largeArray.length} items in ${endTime - startTime}ms`,
     );
     console.log(`📊 First 10 results: ${results.slice(0, 10).join(", ")}`);
     console.log(`📊 Last 10 results: ${results.slice(-10).join(", ")}`);
@@ -457,7 +457,7 @@ export function testSafeChunkProcessor() {
     ];
 
     console.log(
-      `✅ safeChunkProcessor passed ${checksampleResults.filter(Boolean).length}/${checksampleResults.length} checks`
+      `✅ safeChunkProcessor passed ${checksampleResults.filter(Boolean).length}/${checksampleResults.length} checks`,
     );
 
     return checksampleResults.every(Boolean);
@@ -549,12 +549,12 @@ export async function runAllTests() {
   });
   console.log("");
   console.log(
-    `🎯 Overall: ${passed}/${total} tests passed (${Math.round((passed / total) * 100)}%)`
+    `🎯 Overall: ${passed}/${total} tests passed (${Math.round((passed / total) * 100)}%)`,
   );
 
   if (passed === total) {
     console.log(
-      "🎉 All tests passed! Safe iteration utilities are working correctly."
+      "🎉 All tests passed! Safe iteration utilities are working correctly.",
     );
   } else {
     console.log("⚠️  Some tests failed. Please review the implementation.");
@@ -581,7 +581,7 @@ export function testSafePropertyAccessors() {
   safeObj.validatedValue = "validated";
   const validatedResult = safeObj.validatedValue;
   console.log(
-    `✅ Validated property: set 'validated', got '${validatedResult}'`
+    `✅ Validated property: set 'validated', got '${validatedResult}'`,
   );
 
   // Test null value handling
@@ -594,7 +594,7 @@ export function testSafePropertyAccessors() {
   (safeObj as any).dynamicProp = "dynamic updated";
   const dynamicResult = (safeObj as any).dynamicProp;
   console.log(
-    `✅ Dynamic property: set 'dynamic updated', got '${dynamicResult}'`
+    `✅ Dynamic property: set 'dynamic updated', got '${dynamicResult}'`,
   );
 
   // Test createSafeProperty utility
@@ -608,7 +608,7 @@ export function testSafePropertyAccessors() {
   set("factory test");
   const factoryResult = get();
   console.log(
-    `✅ Property factory: set 'factory test', got '${factoryResult}'`
+    `✅ Property factory: set 'factory test', got '${factoryResult}'`,
   );
 
   return true;
@@ -668,7 +668,7 @@ export async function testAsyncPipelines() {
     5,
     asyncAdd, // 5 + 10 = 15
     asyncMultiply, // 15 * 3 = 45
-    asyncSubtract // 45 - 5 = 40
+    asyncSubtract, // 45 - 5 = 40
   );
 
   console.log(`✅ Async pipeline: 5 → ${pipelineResult}`);
@@ -677,7 +677,7 @@ export async function testAsyncPipelines() {
   const asyncComposed = safeComposeAsync(
     asyncAdd,
     asyncMultiply,
-    asyncSubtract
+    asyncSubtract,
   );
   const asyncComposedResult = await asyncComposed(5);
   console.log(`✅ Async composition: 5 → ${asyncComposedResult}`);
@@ -703,10 +703,10 @@ export function testPropertyValidation() {
 
   const dangerousValidation = validatePropertyDescriptor(
     dangerousDescriptor,
-    "value"
+    "value",
   );
   console.log(
-    `❌ Dangerous descriptor: safe=${dangerousValidation.safe}, issues=${dangerousValidation.issues.length}`
+    `❌ Dangerous descriptor: safe=${dangerousValidation.safe}, issues=${dangerousValidation.issues.length}`,
   );
 
   // Test safe descriptor (should pass)
@@ -721,7 +721,7 @@ export function testPropertyValidation() {
 
   const safeValidation = validatePropertyDescriptor(safeDescriptor, "value");
   console.log(
-    `✅ Safe descriptor: safe=${safeValidation.safe}, issues=${safeValidation.issues.length}`
+    `✅ Safe descriptor: safe=${safeValidation.safe}, issues=${safeValidation.issues.length}`,
   );
 
   // Test defineSafeProperty with validation
@@ -729,7 +729,7 @@ export function testPropertyValidation() {
   const safeDefineResult = defineSafeProperty(
     testObj,
     "safeProperty",
-    safeDescriptor
+    safeDescriptor,
   );
   console.log(`✅ Safe property definition: success=${safeDefineResult}`);
 
@@ -756,7 +756,7 @@ export function testSimpleTrampoline() {
     (n: number): number | (() => any) => {
       if (n <= 0) return 0;
       return () => trampolineCountdown(n - 1);
-    }
+    },
   );
 
   const result = trampolineCountdown(1000);
@@ -767,7 +767,7 @@ export function testSimpleTrampoline() {
     const infiniteFunction = simpleTrampoline(
       (n: number): number | (() => any) => {
         return () => infiniteFunction(n); // This would run forever
-      }
+      },
     );
 
     infiniteFunction(5);
@@ -788,7 +788,7 @@ export function testSimpleTrampoline() {
 // Performance benchmark
 export function benchmarkComparison() {
   console.log(
-    "⚡ Performance Benchmark: Safe vs Potentially Unsafe Patterns...\n"
+    "⚡ Performance Benchmark: Safe vs Potentially Unsafe Patterns...\n",
   );
 
   // Fibonacci comparison
@@ -805,7 +805,7 @@ export function benchmarkComparison() {
   const iterativeEnd = performance.now();
 
   console.log(
-    `✅ Iterative: ${iterativeResult} in ${iterativeEnd - iterativeStart}ms`
+    `✅ Iterative: ${iterativeResult} in ${iterativeEnd - iterativeStart}ms`,
   );
 
   // Test recursive approach (smaller number to avoid timeout)
@@ -814,10 +814,10 @@ export function benchmarkComparison() {
   const recursiveEnd = performance.now();
 
   console.log(
-    `⚠️  Recursive: ${recursiveResult} in ${recursiveEnd - recursiveStart}ms`
+    `⚠️  Recursive: ${recursiveResult} in ${recursiveEnd - recursiveStart}ms`,
   );
   console.log(
-    `📊 Iterative is ${Math.round((recursiveEnd - recursiveStart) / (iterativeEnd - iterativeStart))}x faster\n`
+    `📊 Iterative is ${Math.round((recursiveEnd - recursiveStart) / (iterativeEnd - iterativeStart))}x faster\n`,
   );
 
   // Array processing comparison
@@ -833,7 +833,7 @@ export function benchmarkComparison() {
   const iterArrayEnd = performance.now();
 
   console.log(
-    `✅ Iterative: Sum=${iterSum} in ${iterArrayEnd - iterArrayStart}ms`
+    `✅ Iterative: Sum=${iterSum} in ${iterArrayEnd - iterArrayStart}ms`,
   );
 
   // Functional approach (safe but potentially slower)
@@ -842,10 +842,10 @@ export function benchmarkComparison() {
   const funcArrayEnd = performance.now();
 
   console.log(
-    `✅ Functional: Sum=${funcSum} in ${funcArrayEnd - funcArrayStart}ms`
+    `✅ Functional: Sum=${funcSum} in ${funcArrayEnd - funcArrayStart}ms`,
   );
   console.log(
-    `📊 Performance difference: ${Math.abs(iterArrayEnd - iterArrayStart) - Math.abs(funcArrayEnd - funcArrayStart)}ms\n`
+    `📊 Performance difference: ${Math.abs(iterArrayEnd - iterArrayStart) - Math.abs(funcArrayEnd - funcArrayStart)}ms\n`,
   );
 }
 
@@ -868,6 +868,6 @@ if (typeof window !== "undefined") {
   };
 
   console.log(
-    "🧪 Safe Iteration Utils tests available in console as window.testSafeIterationUtils"
+    "🧪 Safe Iteration Utils tests available in console as window.testSafeIterationUtils",
   );
 }

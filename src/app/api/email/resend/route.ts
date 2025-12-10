@@ -39,48 +39,60 @@ interface EmailCancelRequest {
 }
 
 interface ResendRequest {
-  action: 'send' | 'batch' | 'status' | 'update' | 'cancel';
-  data?: SingleEmailRequest | BatchEmailRequest | EmailStatusRequest | EmailUpdateRequest | EmailCancelRequest;
+  action: "send" | "batch" | "status" | "update" | "cancel";
+  data?:
+    | SingleEmailRequest
+    | BatchEmailRequest
+    | EmailStatusRequest
+    | EmailUpdateRequest
+    | EmailCancelRequest;
 }
 
 // POST - Handle all Resend email operations
 export async function POST(request: NextRequest) {
   try {
     // Check if Resend API key is configured
-    if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY.startsWith("re_demo_")) {
+    if (
+      !process.env.RESEND_API_KEY ||
+      process.env.RESEND_API_KEY.startsWith("re_demo_")
+    ) {
       console.warn("⚠️ RESEND_API_KEY not configured or using demo key");
-      return NextResponse.json({
-        success: false,
-        error: "Email service not configured",
-        isDemoMode: true,
-      }, { status: 503 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Email service not configured",
+          isDemoMode: true,
+        },
+        { status: 503 },
+      );
     }
 
     const body: ResendRequest = await request.json();
     const { action, data } = body;
 
     switch (action) {
-      case 'send':
+      case "send":
         return await handleSendEmail(data as SingleEmailRequest);
-      case 'batch':
+      case "batch":
         return await handleBatchSend(data as BatchEmailRequest);
-      case 'status':
+      case "status":
         return await handleGetEmailStatus(data as EmailStatusRequest);
-      case 'update':
+      case "update":
         return await handleUpdateEmail(data as EmailUpdateRequest);
-      case 'cancel':
+      case "cancel":
         return await handleCancelEmail(data as EmailCancelRequest);
       default:
-        return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+        return NextResponse.json({ error: "Invalid action" }, { status: 400 });
     }
   } catch (error) {
-    console.error('Resend API error:', error);
+    console.error("Resend API error:", error);
     return NextResponse.json(
-      { 
-        error: 'Internal server error', 
-        details: process.env.NODE_ENV === 'development' ? String(error) : undefined 
+      {
+        error: "Internal server error",
+        details:
+          process.env.NODE_ENV === "development" ? String(error) : undefined,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -90,16 +102,22 @@ async function handleSendEmail(emailData: SingleEmailRequest) {
   try {
     const resend = getResendClient();
     if (!resend) {
-      return NextResponse.json({
-        success: false,
-        error: "Email service not configured",
-        isDemoMode: true
-      }, { status: 503 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Email service not configured",
+          isDemoMode: true,
+        },
+        { status: 503 },
+      );
     }
 
     // Set default from email if not provided
-    const fromEmail = emailData.from || process.env.RESEND_FROM_EMAIL || 'noreply@familyreliefproject7.org';
-    
+    const fromEmail =
+      emailData.from ||
+      process.env.RESEND_FROM_EMAIL ||
+      "noreply@familyreliefproject7.org";
+
     // Ensure we have at least text content
     const ensuredHtml =
       emailData.html ??
@@ -108,7 +126,7 @@ async function handleSendEmail(emailData: SingleEmailRequest) {
 
     const emailContent = {
       html: ensuredHtml,
-      text: emailData.text || emailData.subject || 'No content provided'
+      text: emailData.text || emailData.subject || "No content provided",
     };
 
     const result = await resend.emails.send({
@@ -121,28 +139,29 @@ async function handleSendEmail(emailData: SingleEmailRequest) {
       // Use Resend's expected camelCase key
       replyTo: emailData.replyTo,
       tags: emailData.tags || [
-        { name: 'source', value: 'admin_dashboard' },
-        { name: 'type', value: 'single_email' }
-      ]
+        { name: "source", value: "admin_dashboard" },
+        { name: "type", value: "single_email" },
+      ],
     });
 
-    console.log('✅ Single email sent successfully:', result.data?.id);
+    console.log("✅ Single email sent successfully:", result.data?.id);
 
     return NextResponse.json({
       success: true,
       emailId: result.data?.id,
-      message: 'Email sent successfully',
-      recipients: emailData.to.length
+      message: "Email sent successfully",
+      recipients: emailData.to.length,
     });
   } catch (error) {
-    console.error('❌ Failed to send single email:', error);
+    console.error("❌ Failed to send single email:", error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to send email',
-        details: process.env.NODE_ENV === 'development' ? String(error) : undefined
+      {
+        success: false,
+        error: "Failed to send email",
+        details:
+          process.env.NODE_ENV === "development" ? String(error) : undefined,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -152,21 +171,27 @@ async function handleBatchSend(batchData: BatchEmailRequest) {
   try {
     const resend = getResendClient();
     if (!resend) {
-      return NextResponse.json({
-        success: false,
-        error: "Email service not configured",
-        isDemoMode: true
-      }, { status: 503 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Email service not configured",
+          isDemoMode: true,
+        },
+        { status: 503 },
+      );
     }
 
     const emailsToSend = batchData.emails.map((email) => {
       const emailContent = {
         html: email.html,
-        text: email.text || email.subject || 'No content provided'
+        text: email.text || email.subject || "No content provided",
       };
 
       return {
-        from: email.from || process.env.RESEND_FROM_EMAIL || 'noreply@familyreliefproject7.org',
+        from:
+          email.from ||
+          process.env.RESEND_FROM_EMAIL ||
+          "noreply@familyreliefproject7.org",
         to: email.to,
         subject: email.subject,
         ...emailContent,
@@ -174,33 +199,43 @@ async function handleBatchSend(batchData: BatchEmailRequest) {
         bcc: email.bcc,
         replyTo: email.replyTo,
         tags: email.tags || [
-          { name: 'source', value: 'admin_dashboard' },
-          { name: 'type', value: 'batch_email' }
-        ]
+          { name: "source", value: "admin_dashboard" },
+          { name: "type", value: "batch_email" },
+        ],
       };
     });
 
     const result = await resend.batch.send(emailsToSend);
 
-    console.log('✅ Batch emails sent successfully:', Array.isArray(result.data) ? result.data.length : 0, 'emails');
+    console.log(
+      "✅ Batch emails sent successfully:",
+      Array.isArray(result.data) ? result.data.length : 0,
+      "emails",
+    );
 
     return NextResponse.json({
       success: true,
-      batchId: Array.isArray(result.data) && result.data.length > 0 ? result.data[0].id : undefined,
-      emailIds: Array.isArray(result.data) ? result.data.map(email => email.id) : [],
-      message: 'Batch emails sent successfully',
+      batchId:
+        Array.isArray(result.data) && result.data.length > 0
+          ? result.data[0].id
+          : undefined,
+      emailIds: Array.isArray(result.data)
+        ? result.data.map((email) => email.id)
+        : [],
+      message: "Batch emails sent successfully",
       totalEmails: emailsToSend.length,
-      successfulEmails: Array.isArray(result.data) ? result.data.length : 0
+      successfulEmails: Array.isArray(result.data) ? result.data.length : 0,
     });
   } catch (error) {
-    console.error('❌ Failed to send batch emails:', error);
+    console.error("❌ Failed to send batch emails:", error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to send batch emails',
-        details: process.env.NODE_ENV === 'development' ? String(error) : undefined
+      {
+        success: false,
+        error: "Failed to send batch emails",
+        details:
+          process.env.NODE_ENV === "development" ? String(error) : undefined,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -210,32 +245,36 @@ async function handleGetEmailStatus(statusData: EmailStatusRequest) {
   try {
     const resend = getResendClient();
     if (!resend) {
-      return NextResponse.json({
-        success: false,
-        error: "Email service not configured",
-        isDemoMode: true
-      }, { status: 503 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Email service not configured",
+          isDemoMode: true,
+        },
+        { status: 503 },
+      );
     }
 
     const result = await resend.emails.get(statusData.emailId);
 
-    console.log('✅ Email status retrieved:', statusData.emailId);
+    console.log("✅ Email status retrieved:", statusData.emailId);
 
     return NextResponse.json({
       success: true,
       emailId: statusData.emailId,
       status: result,
-      message: 'Email status retrieved successfully'
+      message: "Email status retrieved successfully",
     });
   } catch (error) {
-    console.error('❌ Failed to get email status:', error);
+    console.error("❌ Failed to get email status:", error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to retrieve email status',
-        details: process.env.NODE_ENV === 'development' ? String(error) : undefined
+      {
+        success: false,
+        error: "Failed to retrieve email status",
+        details:
+          process.env.NODE_ENV === "development" ? String(error) : undefined,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -245,36 +284,40 @@ async function handleUpdateEmail(updateData: EmailUpdateRequest) {
   try {
     const resend = getResendClient();
     if (!resend) {
-      return NextResponse.json({
-        success: false,
-        error: "Email service not configured",
-        isDemoMode: true
-      }, { status: 503 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Email service not configured",
+          isDemoMode: true,
+        },
+        { status: 503 },
+      );
     }
 
     const result = await resend.emails.update({
       id: updateData.emailId,
-      scheduledAt: updateData.scheduledAt
+      scheduledAt: updateData.scheduledAt,
     });
 
-    console.log('✅ Email updated successfully:', updateData.emailId);
+    console.log("✅ Email updated successfully:", updateData.emailId);
 
     return NextResponse.json({
       success: true,
       emailId: updateData.emailId,
       scheduledAt: updateData.scheduledAt,
       result: result,
-      message: 'Email updated successfully'
+      message: "Email updated successfully",
     });
   } catch (error) {
-    console.error('❌ Failed to update email:', error);
+    console.error("❌ Failed to update email:", error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to update email',
-        details: process.env.NODE_ENV === 'development' ? String(error) : undefined
+      {
+        success: false,
+        error: "Failed to update email",
+        details:
+          process.env.NODE_ENV === "development" ? String(error) : undefined,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -284,32 +327,36 @@ async function handleCancelEmail(cancelData: EmailCancelRequest) {
   try {
     const resend = getResendClient();
     if (!resend) {
-      return NextResponse.json({
-        success: false,
-        error: "Email service not configured",
-        isDemoMode: true
-      }, { status: 503 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Email service not configured",
+          isDemoMode: true,
+        },
+        { status: 503 },
+      );
     }
 
     const result = await resend.emails.cancel(cancelData.emailId);
 
-    console.log('✅ Email cancelled successfully:', cancelData.emailId);
+    console.log("✅ Email cancelled successfully:", cancelData.emailId);
 
     return NextResponse.json({
       success: true,
       emailId: cancelData.emailId,
       result: result,
-      message: 'Email cancelled successfully'
+      message: "Email cancelled successfully",
     });
   } catch (error) {
-    console.error('❌ Failed to cancel email:', error);
+    console.error("❌ Failed to cancel email:", error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to cancel email',
-        details: process.env.NODE_ENV === 'development' ? String(error) : undefined
+      {
+        success: false,
+        error: "Failed to cancel email",
+        details:
+          process.env.NODE_ENV === "development" ? String(error) : undefined,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -318,22 +365,26 @@ async function handleCancelEmail(cancelData: EmailCancelRequest) {
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const action = searchParams.get('action');
-    const emailId = searchParams.get('emailId');
+    const action = searchParams.get("action");
+    const emailId = searchParams.get("emailId");
 
-    if (action === 'status' && emailId) {
+    if (action === "status" && emailId) {
       return await handleGetEmailStatus({ emailId });
     }
 
-    return NextResponse.json({ error: 'Invalid GET request parameters' }, { status: 400 });
-  } catch (error) {
-    console.error('Resend GET API error:', error);
     return NextResponse.json(
-      { 
-        error: 'Internal server error', 
-        details: process.env.NODE_ENV === 'development' ? String(error) : undefined 
+      { error: "Invalid GET request parameters" },
+      { status: 400 },
+    );
+  } catch (error) {
+    console.error("Resend GET API error:", error);
+    return NextResponse.json(
+      {
+        error: "Internal server error",
+        details:
+          process.env.NODE_ENV === "development" ? String(error) : undefined,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

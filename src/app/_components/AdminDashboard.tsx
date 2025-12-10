@@ -270,7 +270,7 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
           `Scheduled Campaigns Processed: ${result.processedScheduled}\n` +
           `Donation Thank-Yous Sent: ${result.processedThankYou}\n` +
           `Queued Emails Sent: ${result.processedQueue}\n\n` +
-          `${result.isDemoMode ? "⚠️ Demo mode: email sending is simulated." : "✅ Live mode: emails sent via Resend."}`
+          `${result.isDemoMode ? "⚠️ Demo mode: email sending is simulated." : "✅ Live mode: emails sent via Resend."}`,
       );
     } catch (error) {
       const msg = error instanceof Error ? error.message : "Unknown error";
@@ -288,17 +288,17 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
     if (!printWindow) return;
 
     const styles = Array.from(
-      document.querySelectorAll('link[rel="stylesheet"], style')
+      document.querySelectorAll('link[rel="stylesheet"], style'),
     )
       .map((el) => el.outerHTML)
       .join("\n");
 
     printWindow.document.write(
-      `<!doctype html><html><head><title>Analytics Report</title>${styles}</head><body>`
+      `<!doctype html><html><head><title>Analytics Report</title>${styles}</head><body>`,
     );
     printWindow.document.write(`<div class="p-6">`);
     printWindow.document.write(
-      `<h1 class="text-2xl font-bold mb-4">Analytics Report</h1>`
+      `<h1 class="text-2xl font-bold mb-4">Analytics Report</h1>`,
     );
     printWindow.document.write(node.innerHTML);
     printWindow.document.write(`</div>`);
@@ -422,7 +422,7 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
             `🎯 TOP CAMPAIGNS\n${report.campaigns.topPerforming
               .map(
                 (c: Campaign) =>
-                  `• ${c.name}: $${c.raised.toLocaleString()} (${c.progress}%)`
+                  `• ${c.name}: $${c.raised.toLocaleString()} (${c.progress}%)`,
               )
               .join("\n")}\n\n` +
             `🌐 WEBSITE TRAFFIC\n` +
@@ -435,12 +435,12 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
             `Workflows: ${report.automation.workflowsExecuted}\n` +
             `Success Rate: ${report.automation.successRate}\n\n` +
             `📄 Report ID: ${report.reportId}\n` +
-            `📥 Download: ${result.downloadUrl}`
+            `📥 Download: ${result.downloadUrl}`,
         );
 
         // Trigger automated actions based on report
         console.log(
-          "✅ Analytics report generated and automated actions triggered"
+          "✅ Analytics report generated and automated actions triggered",
         );
       } else {
         throw new Error("Failed to generate analytics report");
@@ -462,7 +462,7 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
           `👥 New Donors: ${basicReport.newDonors}\n` +
           `📈 Recurring Growth: ${basicReport.recurringGrowth}\n` +
           `💵 Average Donation: $${basicReport.averageDonation}\n\n` +
-          `⚠️ Full analytics unavailable - check API connection`
+          `⚠️ Full analytics unavailable - check API connection`,
       );
     } finally {
       setLoading(false);
@@ -498,7 +498,7 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
           totalDonors:
             prev.totalDonors + (automationReport.donations.synced || 0),
           monthlyRecurring: Math.round(
-            (automationReport.donations.totalAmount || 0) * 0.4
+            (automationReport.donations.totalAmount || 0) * 0.4,
           ), // Estimate recurring
         }));
 
@@ -515,7 +515,7 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
             `Emails Sent: ${automationReport.automation.emailsTriggered}\n` +
             `Social Posts Scheduled: ${automationReport.automation.socialPostsScheduled}\n` +
             `Workflows Executed: ${automationReport.automation.workflowsExecuted.length}\n\n` +
-            `📄 Sync ID: ${automationReport.syncId}`
+            `📄 Sync ID: ${automationReport.syncId}`,
         );
 
         console.log("✅ Enhanced Stripe sync completed with automation");
@@ -550,7 +550,7 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
           `Analytics Reports: 1\n` +
           `Donor Retention Workflows: Active\n\n` +
           `🔧 Full automation available in production\n` +
-          `⚠️ Check API connection for live sync`
+          `⚠️ Check API connection for live sync`,
       );
     } finally {
       setLoading(false);
@@ -594,7 +594,7 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
         const contentSummary = content
           .map(
             (c: SocialContent, index: number) =>
-              `${index + 1}. ${c.platform}: ${c.content.substring(0, 80)}...\n   📊 Reach: ${c.estimatedReach.toLocaleString()} | Engagement: ${c.expectedEngagement}`
+              `${index + 1}. ${c.platform}: ${c.content.substring(0, 80)}...\n   📊 Reach: ${c.estimatedReach.toLocaleString()} | Engagement: ${c.expectedEngagement}`,
           )
           .join("\n\n");
 
@@ -608,7 +608,7 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
             `Automation ID: ${automationReport.automationId}\n\n` +
             `⏰ POSTING SCHEDULE\n${automationReport.scheduledTimes.join("\n")}\n\n` +
             `✅ All content optimized with real campaign data!\n` +
-            `📈 AI-powered engagement optimization active`
+            `📈 AI-powered engagement optimization active`,
         );
 
         console.log("✅ AI social content generated and scheduled");
@@ -645,7 +645,7 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
           `Instagram: 12:30 PM EST\n` +
           `Twitter: 9:00 AM EST\n\n` +
           `🤖 AI Features: Real-time data integration, engagement optimization\n` +
-          `🔧 Full AI generation available in production`
+          `🔧 Full AI generation available in production`,
       );
     } finally {
       setLoading(false);
@@ -657,7 +657,7 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
     try {
       // Get email templates first
       const templatesResponse = await fetch(
-        "/api/email/campaigns?action=templates"
+        "/api/email/campaigns?action=templates",
       );
       const templatesData = await templatesResponse.json();
 
@@ -672,11 +672,11 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
 
       // Generate recipient list based on current stats
       const recipientCount = Math.floor(
-        hfrpStats.totalDonors * (0.7 + Math.random() * 0.3)
+        hfrpStats.totalDonors * (0.7 + Math.random() * 0.3),
       );
       const recipients = Array.from(
         { length: Math.min(recipientCount, 10) },
-        (_, i) => `donor${i + 1}@example.com`
+        (_, i) => `donor${i + 1}@example.com`,
       );
 
       // Create campaign
@@ -691,7 +691,7 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
             content: selectedTemplate.htmlContent,
             recipients,
             scheduledFor: new Date(
-              Date.now() + 24 * 60 * 60 * 1000
+              Date.now() + 24 * 60 * 60 * 1000,
             ).toISOString(), // Tomorrow
           },
         }),
@@ -712,7 +712,7 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
           campaignId: createData.campaign.id,
           campaign: {
             scheduledFor: new Date(
-              Date.now() + 24 * 60 * 60 * 1000
+              Date.now() + 24 * 60 * 60 * 1000,
             ).toISOString(),
           },
         }),
@@ -752,7 +752,7 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
             `Unsubscribe Rate: ${(report.unsubscribeRate * 100).toFixed(2)}%\n\n` +
             `🤖 AUTOMATION ACTIONS\n${report.automationActions.join("\n")}\n\n` +
             `📅 Next Scheduled: ${report.nextScheduledDate ? new Date(report.nextScheduledDate).toLocaleDateString() : "None"}\n\n` +
-            `✅ Campaign completed successfully!${sendData.isDemoMode ? " (Demo Mode)" : ""}`
+            `✅ Campaign completed successfully!${sendData.isDemoMode ? " (Demo Mode)" : ""}`,
         );
       } else {
         throw new Error(sendData.error || "Failed to send campaign");
@@ -782,7 +782,7 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
       const demoTemplate =
         demoTemplates[Math.floor(Math.random() * demoTemplates.length)];
       const demoRecipients = Math.floor(
-        hfrpStats.totalDonors * (0.7 + Math.random() * 0.3)
+        hfrpStats.totalDonors * (0.7 + Math.random() * 0.3),
       );
 
       alert(
@@ -796,7 +796,7 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
           `🎯 Expected click rate: 8-12%\n` +
           `💰 Projected donations: $2,500-4,000\n\n` +
           `⚠️ Demo mode - Email service not configured\n` +
-          `✅ Campaign queued in system!`
+          `✅ Campaign queued in system!`,
       );
     } finally {
       setLoading(false);
@@ -844,7 +844,7 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
         `• Followers: ${analytics.socialMedia.followers.toLocaleString()}\n` +
         `• Engagement: ${analytics.socialMedia.engagement}\n` +
         `• Reach: ${analytics.socialMedia.reach.toLocaleString()}\n\n` +
-        `📊 Full report exported to dashboard`
+        `📊 Full report exported to dashboard`,
     );
   };
 
@@ -853,7 +853,7 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
     try {
       // Get available programs first
       const programsResponse = await fetch(
-        "/api/volunteer/scheduler?action=programs"
+        "/api/volunteer/scheduler?action=programs",
       );
       const programsData = await programsResponse.json();
 
@@ -917,11 +917,11 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
             `Upcoming Shifts: ${analytics ? analytics.upcomingShifts : "N/A"}\n` +
             `Automation Efficiency: ${analytics ? analytics.automationEfficiency + "%" : "N/A"}\n\n` +
             `📅 Next Auto-Match: ${report.nextScheduledDate ? new Date(report.nextScheduledDate).toLocaleDateString() : "TBD"}\n\n` +
-            `✅ Volunteer scheduling automation completed!${report.isDemoMode ? " (Demo Mode)" : ""}`
+            `✅ Volunteer scheduling automation completed!${report.isDemoMode ? " (Demo Mode)" : ""}`,
         );
       } else {
         throw new Error(
-          matchData.error || "Failed to complete volunteer automation"
+          matchData.error || "Failed to complete volunteer automation",
         );
       }
     } catch (error) {
@@ -972,7 +972,7 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
           `Upcoming Shifts: 12\n` +
           `Automation Efficiency: 92.3%\n\n` +
           `⚠️ Demo mode - Volunteer system not configured\n` +
-          `✅ Volunteer scheduling automation completed!`
+          `✅ Volunteer scheduling automation completed!`,
       );
     } finally {
       setLoading(false);
@@ -1021,7 +1021,7 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
             `Total Recipients: ${report.totalRecipients.toLocaleString()}\n` +
             `Next Scheduled: ${new Date(report.nextScheduled).toLocaleDateString()}\n\n` +
             `✅ All communications automated and scheduled\n` +
-            `📊 AI personalization and tracking active`
+            `📊 AI personalization and tracking active`,
         );
 
         console.log("✅ Donor communication automation completed successfully");
@@ -1052,7 +1052,7 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
           `⚠️ Demo mode - Communication API not configured\n` +
           `✅ All communications scheduled\n` +
           `🤖 AI personalization active\n` +
-          `📊 Tracking enabled for all campaigns`
+          `📊 Tracking enabled for all campaigns`,
       );
     } finally {
       setLoading(false);
@@ -1067,7 +1067,7 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
       !resendEmailForm.html
     ) {
       alert(
-        "Please fill in all required fields (recipients, subject, and content)"
+        "Please fill in all required fields (recipients, subject, and content)",
       );
       return;
     }
@@ -1087,7 +1087,7 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
 
       if (response.ok) {
         alert(
-          `✅ Email sent successfully!\nEmail ID: ${result.id}\nStatus: ${result.status}`
+          `✅ Email sent successfully!\nEmail ID: ${result.id}\nStatus: ${result.status}`,
         );
         // Reset form
         setResendEmailForm({
@@ -1129,7 +1129,7 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
 
       if (response.ok) {
         alert(
-          `✅ Batch emails sent successfully!\nEmails sent: ${result.data.length}\nFirst email ID: ${result.data[0]?.id}`
+          `✅ Batch emails sent successfully!\nEmails sent: ${result.data.length}\nFirst email ID: ${result.data[0]?.id}`,
         );
         // Reset batch
         setBatchEmails([]);
@@ -1154,14 +1154,14 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
     setResendLoading(true);
     try {
       const response = await fetch(
-        `/api/email/resend?action=status&emailId=${emailToTrack}`
+        `/api/email/resend?action=status&emailId=${emailToTrack}`,
       );
       const result = await response.json();
 
       if (response.ok) {
         setEmailStatuses([result.data]);
         alert(
-          `📧 Email Status Retrieved\nID: ${result.data.id}\nStatus: ${result.data.status}\nCreated: ${new Date(result.data.created_at).toLocaleString()}`
+          `📧 Email Status Retrieved\nID: ${result.data.id}\nStatus: ${result.data.status}\nCreated: ${new Date(result.data.created_at).toLocaleString()}`,
         );
       } else {
         throw new Error(result.error || "Failed to get email status");
@@ -1177,7 +1177,7 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
 
   const updateScheduledEmail = async (emailId: string) => {
     const newScheduleTime = prompt(
-      "Enter new schedule time (ISO format, e.g., 2024-01-01T10:00:00Z):"
+      "Enter new schedule time (ISO format, e.g., 2024-01-01T10:00:00Z):",
     );
     if (!newScheduleTime) return;
 
@@ -1197,7 +1197,7 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
 
       if (response.ok) {
         alert(
-          `✅ Email schedule updated successfully!\nNew schedule: ${newScheduleTime}`
+          `✅ Email schedule updated successfully!\nNew schedule: ${newScheduleTime}`,
         );
       } else {
         throw new Error(result.error || "Failed to update email schedule");
@@ -1600,6 +1600,26 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
                       → Backup & Restore
                     </Link>
                   </WithPermission>
+                  <WithPermission permission="manage_settings">
+                    <Link
+                      href="/admin/webhooks"
+                      className="block text-sm text-blue-600 hover:text-blue-800"
+                    >
+                      → Manage Webhooks
+                    </Link>
+                  </WithPermission>
+                  <Link
+                    href="/webhook-test"
+                    className="block text-sm text-blue-600 hover:text-blue-800"
+                  >
+                    → Test Webhooks
+                  </Link>
+                  <Link
+                    href="/admin/webhooks/logs"
+                    className="block text-sm text-blue-600 hover:text-blue-800"
+                  >
+                    → Webhook Logs
+                  </Link>
                   <Link
                     href="/assistant"
                     className="block text-sm text-blue-600 hover:text-blue-800"
@@ -1893,7 +1913,7 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
                             // Enable features
                             localStorage.setItem(
                               "hfrp_features_enabled",
-                              "true"
+                              "true",
                             );
 
                             // Use window function if available
@@ -1919,17 +1939,17 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
                                   enabled: true,
                                   timestamp: Date.now(),
                                 },
-                              })
+                              }),
                             );
 
                             alert(
-                              "Advanced features have been enabled! PWA and automation features are now active."
+                              "Advanced features have been enabled! PWA and automation features are now active.",
                             );
                           } else {
                             // Disable features
                             localStorage.setItem(
                               "hfrp_features_enabled",
-                              "false"
+                              "false",
                             );
 
                             // Use window function if available
@@ -1955,11 +1975,11 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
                                   enabled: false,
                                   timestamp: Date.now(),
                                 },
-                              })
+                              }),
                             );
 
                             alert(
-                              "Advanced features have been disabled. PWA has been unregistered."
+                              "Advanced features have been disabled. PWA has been unregistered.",
                             );
                           }
 
@@ -2252,7 +2272,7 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
                               />
                             </button>
                           </div>
-                        )
+                        ),
                       )}
                     </div>
                   </div>
@@ -2580,7 +2600,7 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
                             const jobs = schedulerStatus?.jobs;
                             return jobs
                               ? Object.values(jobs).filter(
-                                  (j) => j?.status === "running"
+                                  (j) => j?.status === "running",
                                 ).length
                               : 0;
                           } catch {
@@ -3001,7 +3021,7 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
                             <button
                               onClick={() =>
                                 setBatchEmails(
-                                  batchEmails.filter((_, i) => i !== index)
+                                  batchEmails.filter((_, i) => i !== index),
                                 )
                               }
                               className="text-red-600 hover:text-red-800"
@@ -3649,6 +3669,22 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
                       ✅ Stripe Configuration: Live payment system is active and
                       configured via environment variables.
                     </p>
+                    <div className="mt-4 flex flex-wrap gap-3">
+                      <Link
+                        href="/admin/webhooks"
+                        className="inline-flex items-center px-3 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
+                      >
+                        <span className="mr-2">🔗</span>
+                        Manage Webhooks
+                      </Link>
+                      <Link
+                        href="/webhook-test"
+                        className="inline-flex items-center px-3 py-2 rounded-md bg-gray-100 text-gray-800 hover:bg-gray-200"
+                      >
+                        <span className="mr-2">🧪</span>
+                        Test Webhooks
+                      </Link>
+                    </div>
                   </div>
                 </WithPermission>
               </div>

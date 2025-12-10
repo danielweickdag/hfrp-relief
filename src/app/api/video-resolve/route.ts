@@ -24,7 +24,8 @@ export async function GET(req: NextRequest) {
       headers: {
         "user-agent":
           "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36",
-        accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        accept:
+          "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
       },
       redirect: "follow",
     });
@@ -48,8 +49,12 @@ export async function GET(req: NextRequest) {
       const ct = head.headers.get("content-type") || "";
       if (!head.ok || !ct.startsWith("video/")) {
         return new Response(
-          JSON.stringify({ error: "Resolved link is not a video", mp4Url, contentType: ct }),
-          { status: 415, headers: { "content-type": "application/json" } }
+          JSON.stringify({
+            error: "Resolved link is not a video",
+            mp4Url,
+            contentType: ct,
+          }),
+          { status: 415, headers: { "content-type": "application/json" } },
         );
       }
     } catch {

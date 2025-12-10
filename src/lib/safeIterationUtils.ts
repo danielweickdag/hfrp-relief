@@ -11,7 +11,7 @@
  */
 export function safeCountdown(
   n: number,
-  callback?: (current: number) => void
+  callback?: (current: number) => void,
 ): void {
   while (n > 0) {
     callback?.(n);
@@ -39,7 +39,7 @@ export function safeFactorial(n: number): bigint {
  */
 export function tailRecursiveFactorial(
   n: number,
-  acc: bigint = BigInt(1)
+  acc: bigint = BigInt(1),
 ): bigint {
   if (n < 0) throw new Error("Factorial is not defined for negative numbers");
 
@@ -62,7 +62,7 @@ export function tailRecursiveFactorial(
 type Thunk<T> = () => T | Thunk<T>;
 
 export function trampoline<T extends any[], R>(
-  fn: (...args: T) => R | Thunk<R>
+  fn: (...args: T) => R | Thunk<R>,
 ): (...args: T) => R {
   return function trampolined(...args: T): R {
     let result: R | Thunk<R> = fn(...args);
@@ -81,7 +81,7 @@ export function trampoline<T extends any[], R>(
  */
 export function trampolineFactorial(
   n: number,
-  acc: bigint = BigInt(1)
+  acc: bigint = BigInt(1),
 ): bigint | Thunk<bigint> {
   if (n < 0) throw new Error("Factorial is not defined for negative numbers");
 
@@ -100,7 +100,7 @@ export const safeTrampolineFactorial = trampoline(trampolineFactorial);
 export function trampolineSum(
   arr: number[],
   index = 0,
-  acc = 0
+  acc = 0,
 ): number | Thunk<number> {
   if (index >= arr.length) return acc;
 
@@ -124,7 +124,7 @@ export const safeSumBelow = trampoline(trampolineSumBelow);
  * Simplified version similar to user's implementation
  */
 export function simpleTrampoline<T extends any[], R>(
-  fn: (...args: T) => R | (() => R | (() => any))
+  fn: (...args: T) => R | (() => R | (() => any)),
 ): (...args: T) => R {
   return (...args: T): R => {
     let result: any = fn(...args);
@@ -134,7 +134,7 @@ export function simpleTrampoline<T extends any[], R>(
     while (typeof result === "function") {
       if (iterations++ > maxIterations) {
         throw new Error(
-          "Trampoline exceeded maximum iterations - possible infinite recursion"
+          "Trampoline exceeded maximum iterations - possible infinite recursion",
         );
       }
       result = result();
@@ -154,7 +154,6 @@ function testTCOFunction(n: number): number {
 }
 
 export function detectTailCallOptimization(): boolean {
-
   try {
     // Try a moderately deep recursion
     testTCOFunction(1000);
@@ -198,7 +197,7 @@ export interface TreeNode<T = any> {
 
 export function safeTreeTraversal<T>(
   root: TreeNode<T>,
-  callback: (node: TreeNode<T>, depth: number) => void
+  callback: (node: TreeNode<T>, depth: number) => void,
 ): void {
   const stack: Array<{ node: TreeNode<T>; depth: number }> = [
     { node: root, depth: 0 },
@@ -226,7 +225,7 @@ export function safeTreeTraversal<T>(
  */
 export function safeBreadthFirstTraversal<T>(
   root: TreeNode<T>,
-  callback: (node: TreeNode<T>, depth: number) => void
+  callback: (node: TreeNode<T>, depth: number) => void,
 ): void {
   const queue: Array<{ node: TreeNode<T>; depth: number }> = [
     { node: root, depth: 0 },
@@ -251,7 +250,10 @@ export function safeBreadthFirstTraversal<T>(
  * Safe array flattening - iterative approach
  * Replaces recursive array flattening that can overflow with deeply nested arrays
  */
-export function safeFlattenArray<T>(arr: any[], maxDepth = Number.POSITIVE_INFINITY): T[] {
+export function safeFlattenArray<T>(
+  arr: any[],
+  maxDepth = Number.POSITIVE_INFINITY,
+): T[] {
   const result: T[] = [];
   const stack: Array<{ item: any; depth: number }> = arr.map((item) => ({
     item,
@@ -346,7 +348,7 @@ export async function safeRetry<T>(
   operation: () => Promise<T>,
   maxAttempts = 3,
   baseDelay = 1000,
-  maxDelay = 10000
+  maxDelay = 10000,
 ): Promise<T> {
   let lastError: Error;
 
@@ -363,12 +365,12 @@ export async function safeRetry<T>(
       // Exponential backoff with jitter
       const delay = Math.min(
         baseDelay * Math.pow(2, attempt - 1) + Math.random() * 1000,
-        maxDelay
+        maxDelay,
       );
 
       console.warn(
         `Attempt ${attempt} failed, retrying in ${delay}ms:`,
-        lastError.message
+        lastError.message,
       );
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
@@ -383,7 +385,7 @@ export async function safeRetry<T>(
  */
 export function safeDOMTraversal(
   root: Element,
-  callback: (element: Element, depth: number) => boolean | void
+  callback: (element: Element, depth: number) => boolean | void,
 ): void {
   const stack: Array<{ element: Element; depth: number }> = [
     { element: root, depth: 0 },
@@ -417,7 +419,7 @@ export async function safeChunkProcessor<T, R>(
   array: T[],
   processor: (item: T, index: number) => R | Promise<R>,
   chunkSize = 100,
-  delay = 0
+  delay = 0,
 ): Promise<R[]> {
   const results: R[] = [];
 
@@ -455,7 +457,7 @@ export async function safeChunkProcessor<T, R>(
 export function createDepthLimitedFunction<T extends any[], R>(
   fn: (depth: number, ...args: T) => R,
   maxDepth = 1000,
-  onDepthExceeded?: (depth: number, args: T) => R | never
+  onDepthExceeded?: (depth: number, args: T) => R | never,
 ): (...args: T) => R {
   return function depthLimited(...args: T): R {
     return executeWithDepthLimit(fn, args, maxDepth, onDepthExceeded);
@@ -470,7 +472,7 @@ function executeWithDepthLimit<T extends any[], R>(
   args: T,
   maxDepth: number,
   onDepthExceeded?: (depth: number, args: T) => R | never,
-  currentDepth = 0
+  currentDepth = 0,
 ): R {
   if (currentDepth > maxDepth) {
     if (onDepthExceeded) {
@@ -489,7 +491,7 @@ function executeWithDepthLimit<T extends any[], R>(
 export function createSafeRecursiveFunction<T extends any[], R>(
   recursiveFn: (recurse: (...args: T) => R, depth: number, ...args: T) => R,
   maxDepth = 1000,
-  fallbackFn?: (...args: T) => R
+  fallbackFn?: (...args: T) => R,
 ): (...args: T) => R {
   return function safeRecursive(...args: T): R {
     let depth = 0;
@@ -500,12 +502,12 @@ export function createSafeRecursiveFunction<T extends any[], R>(
       if (depth > maxDepth) {
         if (fallbackFn) {
           console.warn(
-            `Recursion depth limit reached (${depth}), using fallback function`
+            `Recursion depth limit reached (${depth}), using fallback function`,
           );
           return fallbackFn(...recursiveArgs);
         }
         throw new Error(
-          `Maximum recursion depth exceeded: ${depth} > ${maxDepth}`
+          `Maximum recursion depth exceeded: ${depth} > ${maxDepth}`,
         );
       }
 
@@ -523,7 +525,7 @@ export function safeRecurse(
   n: number,
   depth = 0,
   maxDepth = 1000,
-  operation?: (n: number, depth: number) => void
+  operation?: (n: number, depth: number) => void,
 ): number {
   if (depth > maxDepth) {
     throw new Error("Depth limit exceeded");
@@ -543,13 +545,13 @@ export function safeRecurse(
 export function depthLimitedFactorial(
   n: number,
   acc: bigint = BigInt(1),
-  depth = 0
+  depth = 0,
 ): bigint {
   const maxDepth = 1000;
 
   if (depth > maxDepth) {
     console.warn(
-      `Factorial depth limit reached (${depth}), switching to iterative approach`
+      `Factorial depth limit reached (${depth}), switching to iterative approach`,
     );
     return safeFactorial(n);
   }
@@ -565,7 +567,7 @@ export function depthLimitedFactorial(
 export function safeDepthLimitedTreeTraversal<T>(
   root: TreeNode<T>,
   callback: (node: TreeNode<T>, depth: number) => void,
-  maxDepth = 100
+  maxDepth = 100,
 ): void {
   function traverse(node: TreeNode<T>, depth: number): void {
     if (depth > maxDepth) {
@@ -591,7 +593,7 @@ export function safeDepthLimitedTreeTraversal<T>(
 export function createDepthMemoizedFunction<T extends any[], R>(
   fn: (depth: number, ...args: T) => R,
   maxDepth = 1000,
-  cacheSize = 1000
+  cacheSize = 1000,
 ): (...args: T) => R {
   const cache = new Map<string, R>();
   const depthTracker = new Map<string, number>();
@@ -609,7 +611,7 @@ export function createDepthMemoizedFunction<T extends any[], R>(
 
     if (currentDepth > maxDepth) {
       throw new Error(
-        `Memoized function exceeded depth limit: ${currentDepth} > ${maxDepth}`
+        `Memoized function exceeded depth limit: ${currentDepth} > ${maxDepth}`,
       );
     }
 
@@ -657,7 +659,7 @@ export class StackDepthMonitor {
     // Warning at threshold
     if (this.currentDepth > this.maxAllowedDepth * this.warningThreshold) {
       console.warn(
-        `Approaching recursion depth limit: ${this.currentDepth}/${this.maxAllowedDepth}`
+        `Approaching recursion depth limit: ${this.currentDepth}/${this.maxAllowedDepth}`,
       );
     }
 
@@ -698,7 +700,7 @@ export class StackDepthMonitor {
     return (...args: T): R => {
       if (!this.enter()) {
         throw new Error(
-          `Recursion depth limit exceeded: ${this.maxAllowedDepth}`
+          `Recursion depth limit exceeded: ${this.maxAllowedDepth}`,
         );
       }
 
@@ -861,7 +863,7 @@ export class SafeEventChain {
   async emit(event: string, data?: any): Promise<void> {
     if (this.executing.has(event)) {
       console.warn(
-        `Event '${event}' is already executing, skipping to prevent recursion`
+        `Event '${event}' is already executing, skipping to prevent recursion`,
       );
       return;
     }
@@ -900,7 +902,7 @@ export async function executeBatched<T, R>(
   items: T[],
   operation: (item: T, index: number) => R | Promise<R>,
   batchSize = 100,
-  delay = 0
+  delay = 0,
 ): Promise<R[]> {
   const results: R[] = [];
 
@@ -1035,7 +1037,7 @@ export function createSafeProperty<T>(
     afterSet?: (newValue: T, oldValue: T) => void;
     beforeGet?: (value: T) => T | void;
     afterGet?: (value: T) => void;
-  } = {}
+  } = {},
 ): {
   get: () => T;
   set: (value: T) => void;
@@ -1138,7 +1140,7 @@ export class SafePropertyObject {
  */
 export function validatePropertyDescriptor(
   descriptor: PropertyDescriptor,
-  propertyName: string
+  propertyName: string,
 ): {
   safe: boolean;
   issues: string[];
@@ -1153,20 +1155,20 @@ export function validatePropertyDescriptor(
     // Check for direct recursion patterns
     if (setterCode.includes(`this.${propertyName}`)) {
       issues.push(
-        `Setter for '${propertyName}' references 'this.${propertyName}' which causes infinite recursion`
+        `Setter for '${propertyName}' references 'this.${propertyName}' which causes infinite recursion`,
       );
       suggestions.push(
-        `Use a different internal property name like 'this._${propertyName}' or 'this.${propertyName}Value'`
+        `Use a different internal property name like 'this._${propertyName}' or 'this.${propertyName}Value'`,
       );
     }
 
     // Check for potential indirect recursion
     if (setterCode.includes(`this[`)) {
       issues.push(
-        `Setter for '${propertyName}' uses dynamic property access which might cause recursion`
+        `Setter for '${propertyName}' uses dynamic property access which might cause recursion`,
       );
       suggestions.push(
-        `Ensure dynamic property access doesn't reference the same property`
+        `Ensure dynamic property access doesn't reference the same property`,
       );
     }
   }
@@ -1177,10 +1179,10 @@ export function validatePropertyDescriptor(
     // Check for getter recursion
     if (getterCode.includes(`this.${propertyName}`)) {
       issues.push(
-        `Getter for '${propertyName}' references 'this.${propertyName}' which causes infinite recursion`
+        `Getter for '${propertyName}' references 'this.${propertyName}' which causes infinite recursion`,
       );
       suggestions.push(
-        `Use a different internal property name to store the actual value`
+        `Use a different internal property name to store the actual value`,
       );
     }
   }
@@ -1199,7 +1201,7 @@ export function validatePropertyDescriptor(
 export function defineSafeProperty(
   obj: any,
   propertyName: string,
-  descriptor: PropertyDescriptor
+  descriptor: PropertyDescriptor,
 ): boolean {
   const validation = validatePropertyDescriptor(descriptor, propertyName);
 
@@ -1208,7 +1210,7 @@ export function defineSafeProperty(
     validation.issues.forEach((issue) => console.error(`  - ${issue}`));
     console.log("💡 Suggestions:");
     validation.suggestions.forEach((suggestion) =>
-      console.log(`  - ${suggestion}`)
+      console.log(`  - ${suggestion}`),
     );
     return false;
   }
@@ -1253,19 +1255,19 @@ export function analyzeCallStack(): {
  */
 export function traceCallStack(
   message = "Stack trace",
-  includeAnalysis = true
+  includeAnalysis = true,
 ): void {
   console.trace(message);
 
   if (includeAnalysis) {
     const analysis = analyzeCallStack();
     console.log(
-      `📊 Stack Analysis: ${analysis.depth} frames (${analysis.isNearLimit ? "⚠️ NEAR LIMIT" : "✅ SAFE"})`
+      `📊 Stack Analysis: ${analysis.depth} frames (${analysis.isNearLimit ? "⚠️ NEAR LIMIT" : "✅ SAFE"})`,
     );
 
     if (analysis.isNearLimit) {
       console.warn(
-        `⚠️ Stack depth ${analysis.depth} approaching limit of ${analysis.maxSafeDepth}`
+        `⚠️ Stack depth ${analysis.depth} approaching limit of ${analysis.maxSafeDepth}`,
       );
     }
   }
@@ -1320,7 +1322,7 @@ export class CallStackMonitor {
       console.warn(`⚠️ ${functionName} at depth ${depth} (approaching limit)`);
     } else if (shouldStop) {
       console.error(
-        `🚨 ${functionName} at depth ${depth} (EXCEEDS SAFE LIMIT)`
+        `🚨 ${functionName} at depth ${depth} (EXCEEDS SAFE LIMIT)`,
       );
     }
 
@@ -1351,10 +1353,10 @@ export class CallStackMonitor {
     errorCount: number;
   } {
     const warningCount = this.calls.filter(
-      (call) => call.depth > this.warningThreshold
+      (call) => call.depth > this.warningThreshold,
     ).length;
     const errorCount = this.calls.filter(
-      (call) => call.depth > this.maxSafeDepth
+      (call) => call.depth > this.maxSafeDepth,
     ).length;
 
     return {
@@ -1381,7 +1383,7 @@ export class CallStackMonitor {
  */
 export function createStackMonitoredFunction<T extends any[], R>(
   fn: (monitor: CallStackMonitor, ...args: T) => R,
-  functionName = "monitoredFunction"
+  functionName = "monitoredFunction",
 ): (...args: T) => R {
   const monitor = new CallStackMonitor();
 
@@ -1390,7 +1392,7 @@ export function createStackMonitoredFunction<T extends any[], R>(
 
     if (status.shouldStop) {
       throw new Error(
-        `Stack overflow prevented in ${functionName} at depth ${status.depth}`
+        `Stack overflow prevented in ${functionName} at depth ${status.depth}`,
       );
     }
 
@@ -1405,7 +1407,7 @@ export function createStackMonitoredFunction<T extends any[], R>(
 export async function stackMonitoredRetry<T>(
   operation: () => Promise<T>,
   maxAttempts = 3,
-  baseDelay = 1000
+  baseDelay = 1000,
 ): Promise<T> {
   const monitor = new CallStackMonitor();
   let lastError: Error;
@@ -1415,7 +1417,7 @@ export async function stackMonitoredRetry<T>(
 
     if (status.shouldStop) {
       throw new Error(
-        `Retry operation prevented due to stack depth: ${status.depth}`
+        `Retry operation prevented due to stack depth: ${status.depth}`,
       );
     }
 
@@ -1432,7 +1434,7 @@ export async function stackMonitoredRetry<T>(
 
       const delay = Math.min(baseDelay * Math.pow(2, attempt - 1), 10000);
       console.warn(
-        `Attempt ${attempt} failed (stack depth: ${status.depth}), retrying in ${delay}ms`
+        `Attempt ${attempt} failed (stack depth: ${status.depth}), retrying in ${delay}ms`,
       );
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
@@ -1460,7 +1462,7 @@ export const StackDebugUtils = {
   analyzeAndTrace: (message = "Stack analysis"): void => {
     const analysis = analyzeCallStack();
     console.trace(
-      `${message} - Depth: ${analysis.depth}, Safe: ${!analysis.isNearLimit}`
+      `${message} - Depth: ${analysis.depth}, Safe: ${!analysis.isNearLimit}`,
     );
 
     if (analysis.isNearLimit) {
@@ -1484,7 +1486,7 @@ export const StackDebugUtils = {
     console.log(`  Duration: ${(endTime - startTime).toFixed(2)}ms`);
     console.log(`  Stack depth: ${startAnalysis.depth} → ${endAnalysis.depth}`);
     console.log(
-      `  Stack change: ${endAnalysis.depth - startAnalysis.depth} frames`
+      `  Stack change: ${endAnalysis.depth - startAnalysis.depth} frames`,
     );
 
     return result;
@@ -1896,7 +1898,7 @@ export const RECURSION_BEST_PRACTICES = {
 // Your pattern enhanced with safety
 export function enhancedTailRecursiveFactorial(
   n: number,
-  acc: bigint = BigInt(1)
+  acc: bigint = BigInt(1),
 ): bigint {
   // Safety check for large numbers
   if (n > 1000) {

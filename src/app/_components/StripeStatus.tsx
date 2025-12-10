@@ -13,7 +13,7 @@ export default function StripeStatus({
   className = "",
 }: StripeStatusProps) {
   const stripeEnhanced = getStripeEnhanced();
-  
+
   // SSR-stable test mode: derive from env, then update after mount
   const initialTestMode = (() => {
     const key = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "";
@@ -23,16 +23,19 @@ export default function StripeStatus({
     return flag;
   })();
   const [testMode, setTestMode] = useState<boolean>(initialTestMode);
-  
+
   if (!stripeEnhanced) {
     return (
-      <div className={`bg-red-50 rounded-lg border border-red-200 p-4 ${className}`}>
+      <div
+        className={`bg-red-50 rounded-lg border border-red-200 p-4 ${className}`}
+      >
         <div className="flex items-center gap-2 mb-3">
           <span className="text-lg">❌</span>
           <h4 className="font-semibold text-red-900">Stripe Not Configured</h4>
         </div>
         <p className="text-red-800 text-sm">
-          Stripe integration is not available. Please configure your Stripe environment variables.
+          Stripe integration is not available. Please configure your Stripe
+          environment variables.
         </p>
       </div>
     );
@@ -50,11 +53,15 @@ export default function StripeStatus({
   }, []);
 
   return (
-    <div className={`bg-gray-50 rounded-lg border border-gray-200 p-4 ${className}`}>
+    <div
+      className={`bg-gray-50 rounded-lg border border-gray-200 p-4 ${className}`}
+    >
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <span className="text-lg">💳</span>
-          <h4 className="font-semibold text-gray-900">Stripe Integration Status</h4>
+          <h4 className="font-semibold text-gray-900">
+            Stripe Integration Status
+          </h4>
         </div>
         {testMode ? (
           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">

@@ -1,11 +1,11 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import Stripe from 'stripe';
+import { type NextRequest, NextResponse } from "next/server";
+import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { accountId: string } }
+  { params }: { params: { accountId: string } },
 ) {
   try {
     const { accountId } = params;
@@ -13,8 +13,8 @@ export async function GET(
     // Validate account ID
     if (!accountId) {
       return NextResponse.json(
-        { error: 'Account ID is required' },
-        { status: 400 }
+        { error: "Account ID is required" },
+        { status: 400 },
       );
     }
 
@@ -22,12 +22,13 @@ export async function GET(
     const account = await stripe.accounts.retrieve(accountId);
 
     // Check account capabilities and requirements
-    const payoutsEnabled = account.capabilities?.transfers === 'active';
-    const chargesEnabled = account.capabilities?.card_payments === 'active';
-    
+    const payoutsEnabled = account.capabilities?.transfers === "active";
+    const chargesEnabled = account.capabilities?.card_payments === "active";
+
     // Check if details are submitted (no pending requirements)
-    const detailsSubmitted = !account.requirements?.currently_due?.length && 
-                            !account.requirements?.eventually_due?.length;
+    const detailsSubmitted =
+      !account.requirements?.currently_due?.length &&
+      !account.requirements?.eventually_due?.length;
 
     return NextResponse.json({
       success: true,
@@ -49,20 +50,19 @@ export async function GET(
         defaultCurrency: account.default_currency,
       },
     });
-
   } catch (error) {
-    console.error('Account status error:', error);
-    
+    console.error("Account status error:", error);
+
     if (error instanceof Stripe.errors.StripeError) {
       return NextResponse.json(
         { error: error.message },
-        { status: error.statusCode || 500 }
+        { status: error.statusCode || 500 },
       );
     }
 
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+      { error: "Internal server error" },
+      { status: 500 },
     );
   }
 }

@@ -1,5 +1,5 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import Stripe from 'stripe';
+import { type NextRequest, NextResponse } from "next/server";
+import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -9,24 +9,27 @@ export async function POST(request: NextRequest) {
     const { email } = body;
 
     if (!email) {
-      return NextResponse.json({
-        success: false,
-        error: 'Email is required'
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Email is required",
+        },
+        { status: 400 },
+      );
     }
 
     // Create a Connect account
     const account = await stripe.accounts.create({
-      type: 'express',
+      type: "express",
       email: email,
       capabilities: {
         card_payments: { requested: true },
         transfers: { requested: true },
       },
-      business_type: 'non_profit',
+      business_type: "non_profit",
       metadata: {
-        created_by: 'hfrp_relief_platform',
-        organization_type: 'relief_partner',
+        created_by: "hfrp_relief_platform",
+        organization_type: "relief_partner",
       },
     });
 
@@ -35,7 +38,7 @@ export async function POST(request: NextRequest) {
       account: account.id,
       refresh_url: `${process.env.NEXT_PUBLIC_SITE_URL}/admin/connect?refresh=${account.id}`,
       return_url: `${process.env.NEXT_PUBLIC_SITE_URL}/admin/connect?success=${account.id}`,
-      type: 'account_onboarding',
+      type: "account_onboarding",
     });
 
     return NextResponse.json({
@@ -50,29 +53,34 @@ export async function POST(request: NextRequest) {
         created: account.created,
       },
       onboarding_url: accountLink.url,
-      message: 'Connect account created successfully'
+      message: "Connect account created successfully",
     });
-
   } catch (error) {
-    console.error('Connect account creation error:', error);
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to create Connect account',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    console.error("Connect account creation error:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Failed to create Connect account",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 },
+    );
   }
 }
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const accountId = searchParams.get('accountId');
+    const accountId = searchParams.get("accountId");
 
     if (!accountId) {
-      return NextResponse.json({
-        success: false,
-        error: 'Account ID is required'
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Account ID is required",
+        },
+        { status: 400 },
+      );
     }
 
     // Retrieve account information
@@ -88,15 +96,17 @@ export async function GET(request: NextRequest) {
         payouts_enabled: account.payouts_enabled,
         details_submitted: account.details_submitted,
         created: account.created,
-      }
+      },
     });
-
   } catch (error) {
-    console.error('Connect account retrieval error:', error);
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to retrieve Connect account',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    console.error("Connect account retrieval error:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Failed to retrieve Connect account",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 },
+    );
   }
 }

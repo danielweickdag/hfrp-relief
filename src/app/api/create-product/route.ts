@@ -1,5 +1,5 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import Stripe from 'stripe';
+import { type NextRequest, NextResponse } from "next/server";
+import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -11,8 +11,11 @@ export async function POST(request: NextRequest) {
     // Validate required fields
     if (!productName || !productPrice || !accountId) {
       return NextResponse.json(
-        { error: 'Missing required fields: productName, productPrice, accountId' },
-        { status: 400 }
+        {
+          error:
+            "Missing required fields: productName, productPrice, accountId",
+        },
+        { status: 400 },
       );
     }
 
@@ -20,8 +23,8 @@ export async function POST(request: NextRequest) {
     const priceInCents = Number.parseInt(productPrice);
     if (isNaN(priceInCents) || priceInCents <= 0) {
       return NextResponse.json(
-        { error: 'Product price must be a positive number in cents' },
-        { status: 400 }
+        { error: "Product price must be a positive number in cents" },
+        { status: 400 },
       );
     }
 
@@ -29,9 +32,9 @@ export async function POST(request: NextRequest) {
     const product = await stripe.products.create(
       {
         name: productName,
-        description: productDescription || '',
+        description: productDescription || "",
       },
-      { stripeAccount: accountId }
+      { stripeAccount: accountId },
     );
 
     // Create a price for the product on the connected account
@@ -39,9 +42,9 @@ export async function POST(request: NextRequest) {
       {
         product: product.id,
         unit_amount: priceInCents,
-        currency: 'usd',
+        currency: "usd",
       },
-      { stripeAccount: accountId }
+      { stripeAccount: accountId },
     );
 
     return NextResponse.json({
@@ -54,20 +57,19 @@ export async function POST(request: NextRequest) {
         priceId: price.id,
       },
     });
-
   } catch (error) {
-    console.error('Create product error:', error);
-    
+    console.error("Create product error:", error);
+
     if (error instanceof Stripe.errors.StripeError) {
       return NextResponse.json(
         { error: error.message },
-        { status: error.statusCode || 500 }
+        { status: error.statusCode || 500 },
       );
     }
 
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+      { error: "Internal server error" },
+      { status: 500 },
     );
   }
 }

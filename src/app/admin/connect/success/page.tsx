@@ -1,9 +1,15 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { useEffect, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 export default function ConnectSuccessPage() {
   const searchParams = useSearchParams();
@@ -15,8 +21,8 @@ export default function ConnectSuccessPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const sid = searchParams?.get('session_id') ?? null;
-    const aid = searchParams?.get('accountId') ?? null;
+    const sid = searchParams?.get("session_id") ?? null;
+    const aid = searchParams?.get("accountId") ?? null;
     setSessionId(sid);
     setAccountId(aid);
   }, [searchParams]);
@@ -24,23 +30,23 @@ export default function ConnectSuccessPage() {
   const handleManageBilling = async () => {
     setError(null);
     if (!sessionId || !accountId) {
-      setError('Missing session_id or accountId in URL');
+      setError("Missing session_id or accountId in URL");
       return;
     }
     try {
       setLoading(true);
-      const res = await fetch('/api/stripe/connect/portal', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/stripe/connect/portal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sessionId, accountId }),
       });
       const data = await res.json();
       if (!data.success) {
-        throw new Error(data.error || 'Failed to create portal session');
+        throw new Error(data.error || "Failed to create portal session");
       }
       window.location.href = data.url;
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Unknown error');
+      setError(e instanceof Error ? e.message : "Unknown error");
     } finally {
       setLoading(false);
     }
@@ -49,23 +55,23 @@ export default function ConnectSuccessPage() {
   const handleGoToDashboard = async () => {
     setError(null);
     if (!accountId) {
-      setError('Missing accountId in URL');
+      setError("Missing accountId in URL");
       return;
     }
     try {
       setLoading(true);
-      const res = await fetch('/api/stripe/connect/login-link', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/stripe/connect/login-link", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ accountId }),
       });
       const data = await res.json();
       if (!data.success) {
-        throw new Error(data.error || 'Failed to create login link');
+        throw new Error(data.error || "Failed to create login link");
       }
-      window.open(data.url, '_blank', 'noopener,noreferrer');
+      window.open(data.url, "_blank", "noopener,noreferrer");
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Unknown error');
+      setError(e instanceof Error ? e.message : "Unknown error");
     } finally {
       setLoading(false);
     }
@@ -76,26 +82,47 @@ export default function ConnectSuccessPage() {
       <Card>
         <CardHeader>
           <CardTitle>Payment Successful</CardTitle>
-          <CardDescription>Your payment was successful. You can manage billing or open your account dashboard below.</CardDescription>
+          <CardDescription>
+            Your payment was successful. You can manage billing or open your
+            account dashboard below.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {error && (
-            <div className="mb-4 p-3 border border-red-200 bg-red-50 rounded-md text-red-800">{error}</div>
+            <div className="mb-4 p-3 border border-red-200 bg-red-50 rounded-md text-red-800">
+              {error}
+            </div>
           )}
 
           <div className="space-y-3">
-            <p className="text-sm text-muted-foreground">Session ID: {sessionId || 'N/A'}</p>
-            <p className="text-sm text-muted-foreground">Account ID: {accountId || 'N/A'}</p>
+            <p className="text-sm text-muted-foreground">
+              Session ID: {sessionId || "N/A"}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Account ID: {accountId || "N/A"}
+            </p>
           </div>
 
           <div className="mt-6 flex gap-3 flex-wrap">
-            <Button onClick={handleManageBilling} disabled={loading || !sessionId || !accountId}>
-              {loading ? 'Please wait…' : 'Manage billing information'}
+            <Button
+              onClick={handleManageBilling}
+              disabled={loading || !sessionId || !accountId}
+            >
+              {loading ? "Please wait…" : "Manage billing information"}
             </Button>
-            <Button variant="outline" onClick={handleGoToDashboard} disabled={loading || !accountId}>
+            <Button
+              variant="outline"
+              onClick={handleGoToDashboard}
+              disabled={loading || !accountId}
+            >
               Go to Connected Account dashboard
             </Button>
-            <Button variant="secondary" onClick={() => router.push('/admin/connect')}>Back to products</Button>
+            <Button
+              variant="secondary"
+              onClick={() => router.push("/admin/connect")}
+            >
+              Back to products
+            </Button>
           </div>
         </CardContent>
       </Card>

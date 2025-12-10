@@ -23,12 +23,12 @@ export default function StripeDashboard({
     totalDonors: 0,
     averageDonation: 0,
   });
-  const [config, setConfig] = useState(() =>
-    stripe?.getConfig() ?? ({ testMode: false } as any)
+  const [config, setConfig] = useState(
+    () => stripe?.getConfig() ?? ({ testMode: false } as any),
   );
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCampaign, setSelectedCampaign] = useState<string>("");
-  
+
   // SSR-stable test mode badge: derive from env, then update after mount
   const initialTestMode = (() => {
     const key = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "";
@@ -84,6 +84,10 @@ export default function StripeDashboard({
   };
 
   const validation = stripe?.validateConfig() ?? { isValid: false };
+  const validationErrors =
+    !validation.isValid && Array.isArray((validation as any).errors)
+      ? ((validation as any).errors as unknown[])
+      : ([] as unknown[]);
 
   if (isLoading) {
     return (
@@ -98,8 +102,12 @@ export default function StripeDashboard({
     return (
       <div className={`flex items-center justify-center p-8 ${className}`}>
         <div className="bg-white rounded-lg shadow p-6 text-center">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Stripe Not Configured</h2>
-          <p className="text-gray-600">Please check your Stripe environment variables and configuration.</p>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            Stripe Not Configured
+          </h2>
+          <p className="text-gray-600">
+            Please check your Stripe environment variables and configuration.
+          </p>
         </div>
       </div>
     );
@@ -411,7 +419,7 @@ export default function StripeDashboard({
                 Configuration Issues
               </h5>
               <ul className="text-sm text-red-700 space-y-1">
-                {validation.errors.map((error: any, index: number) => (
+                {validationErrors.map((error: any, index: number) => (
                   <li key={index}>• {error}</li>
                 ))}
               </ul>

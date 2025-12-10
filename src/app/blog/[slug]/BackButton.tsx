@@ -60,11 +60,7 @@ export default function BackButton({ post }: { post: PostData }) {
 
   return (
     <>
-      <BackNavigation
-        text="← Back to Blog"
-        href="/blog"
-        className="mb-4"
-      />
+      <BackNavigation text="← Back to Blog" href="/blog" className="mb-4" />
       <div className="flex gap-3 mb-5 mt-2">
         {shareLinks.map((link) => (
           <a

@@ -59,7 +59,11 @@ interface MembershipStats {
 }
 
 const MEMBERS_FILE = path.join(process.cwd(), "data", "members.json");
-const ACTIVITY_LOG_FILE = path.join(process.cwd(), "data", "membership-activity.json");
+const ACTIVITY_LOG_FILE = path.join(
+  process.cwd(),
+  "data",
+  "membership-activity.json",
+);
 
 // Ensure data directory exists
 async function ensureDataDirectory() {
@@ -92,7 +96,7 @@ async function saveMembers(members: Member[]): Promise<void> {
 async function logMembershipActivity(
   action: string,
   memberId: string,
-  activity: Record<string, string | number | boolean>
+  activity: Record<string, string | number | boolean>,
 ): Promise<void> {
   try {
     await ensureDataDirectory();
@@ -139,11 +143,14 @@ async function sendWelcomeEmail(member: Member): Promise<void> {
     };
 
     // Send email via existing email API
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3005'}/api/email`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(emailData),
-    });
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3005"}/api/email`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(emailData),
+      },
+    );
 
     if (!response.ok) {
       console.error("Failed to send welcome email:", await response.text());
@@ -155,17 +162,25 @@ async function sendWelcomeEmail(member: Member): Promise<void> {
 
 // Generate membership statistics
 function generateStats(members: Member[]): MembershipStats {
-  const activeMembers = members.filter(m => m.status === "active");
+  const activeMembers = members.filter((m) => m.status === "active");
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-  const recentJoins = members.filter(m => new Date(m.joinDate) > thirtyDaysAgo).length;
-  const cancelledMembers = members.filter(m => m.status === "cancelled").length;
-  const churnRate = members.length > 0 ? (cancelledMembers / members.length) * 100 : 0;
-  
+  const recentJoins = members.filter(
+    (m) => new Date(m.joinDate) > thirtyDaysAgo,
+  ).length;
+  const cancelledMembers = members.filter(
+    (m) => m.status === "cancelled",
+  ).length;
+  const churnRate =
+    members.length > 0 ? (cancelledMembers / members.length) * 100 : 0;
+
   const membersByType = {
-    community: activeMembers.filter(m => m.membershipType === "community").length,
-    hope: activeMembers.filter(m => m.membershipType === "hope").length,
-    relief: activeMembers.filter(m => m.membershipType === "relief").length,
-    transformation: activeMembers.filter(m => m.membershipType === "transformation").length,
+    community: activeMembers.filter((m) => m.membershipType === "community")
+      .length,
+    hope: activeMembers.filter((m) => m.membershipType === "hope").length,
+    relief: activeMembers.filter((m) => m.membershipType === "relief").length,
+    transformation: activeMembers.filter(
+      (m) => m.membershipType === "transformation",
+    ).length,
   };
 
   // Calculate revenue based on membership plans (community is free)
@@ -176,17 +191,33 @@ function generateStats(members: Member[]): MembershipStats {
       relief: member.billingCycle === "monthly" ? 35 : 378 / 12,
       transformation: member.billingCycle === "monthly" ? 75 : 810 / 12,
     };
-    return total + (amounts[member.membershipType as keyof typeof amounts] || 0);
+    return (
+      total + (amounts[member.membershipType as keyof typeof amounts] || 0)
+    );
   }, 0);
 
   // Calculate impact metrics
   const impactMetrics = {
-    totalFamiliesHelped: members.reduce((sum, member) => sum + (member.impactTracking?.familiesHelped || 0), 0),
-    totalMealsProvided: members.reduce((sum, member) => sum + (member.impactTracking?.mealsProvided || 0), 0),
-    totalContributions: members.reduce((sum, member) => sum + (member.impactTracking?.totalContributed || 0), 0),
+    totalFamiliesHelped: members.reduce(
+      (sum, member) => sum + (member.impactTracking?.familiesHelped || 0),
+      0,
+    ),
+    totalMealsProvided: members.reduce(
+      (sum, member) => sum + (member.impactTracking?.mealsProvided || 0),
+      0,
+    ),
+    totalContributions: members.reduce(
+      (sum, member) => sum + (member.impactTracking?.totalContributed || 0),
+      0,
+    ),
     activePrograms: 8, // Static for now - would be dynamic based on actual programs
-    totalVolunteers: activeMembers.filter(m => m.volunteerAreas && m.volunteerAreas.length > 0).length,
-    totalVolunteerHours: members.reduce((sum, member) => sum + (member.impactTracking?.volunteerHours || 0), 0),
+    totalVolunteers: activeMembers.filter(
+      (m) => m.volunteerAreas && m.volunteerAreas.length > 0,
+    ).length,
+    totalVolunteerHours: members.reduce(
+      (sum, member) => sum + (member.impactTracking?.volunteerHours || 0),
+      0,
+    ),
   };
 
   return {
@@ -224,18 +255,18 @@ export async function GET(request: NextRequest) {
 
     // Return paginated members
     const paginatedMembers = members.slice(offset, offset + limit);
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       members: paginatedMembers,
       total: members.length,
       limit,
-      offset
+      offset,
     });
   } catch (error) {
     console.error("GET /api/membership error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to retrieve membership data" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -263,7 +294,7 @@ export async function POST(request: NextRequest) {
     if (!firstName || !lastName || !email || !membershipType || !billingCycle) {
       return NextResponse.json(
         { success: false, error: "Missing required fields" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -271,15 +302,19 @@ export async function POST(request: NextRequest) {
     if (!isValidEmail(email)) {
       return NextResponse.json(
         { success: false, error: "Invalid email format" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // Validate membership type
-    if (!["community", "hope", "relief", "transformation"].includes(membershipType)) {
+    if (
+      !["community", "hope", "relief", "transformation"].includes(
+        membershipType,
+      )
+    ) {
       return NextResponse.json(
         { success: false, error: "Invalid membership type" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -287,18 +322,20 @@ export async function POST(request: NextRequest) {
     if (!["free", "monthly", "annual"].includes(billingCycle)) {
       return NextResponse.json(
         { success: false, error: "Invalid billing cycle" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const members = await loadMembers();
 
     // Check if email already exists
-    const existingMember = members.find(m => m.email.toLowerCase() === email.toLowerCase());
+    const existingMember = members.find(
+      (m) => m.email.toLowerCase() === email.toLowerCase(),
+    );
     if (existingMember) {
       return NextResponse.json(
         { success: false, error: "Email already registered" },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -348,7 +385,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Send welcome email (async, don't wait for completion)
-    sendWelcomeEmail(newMember).catch(error => {
+    sendWelcomeEmail(newMember).catch((error) => {
       console.error("Failed to send welcome email:", error);
     });
 
@@ -369,7 +406,7 @@ export async function POST(request: NextRequest) {
     console.error("POST /api/membership error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to create membership" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -383,17 +420,17 @@ export async function PUT(request: NextRequest) {
     if (!id) {
       return NextResponse.json(
         { success: false, error: "Member ID is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const members = await loadMembers();
-    const memberIndex = members.findIndex(m => m.id === id);
+    const memberIndex = members.findIndex((m) => m.id === id);
 
     if (memberIndex === -1) {
       return NextResponse.json(
         { success: false, error: "Member not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -401,26 +438,34 @@ export async function PUT(request: NextRequest) {
     if (updates.email && !isValidEmail(updates.email)) {
       return NextResponse.json(
         { success: false, error: "Invalid email format" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // Check for email conflicts if email is being updated
-    if (updates.email && updates.email.toLowerCase() !== members[memberIndex].email.toLowerCase()) {
-      const emailExists = members.some(m => m.email.toLowerCase() === updates.email.toLowerCase() && m.id !== id);
+    if (
+      updates.email &&
+      updates.email.toLowerCase() !== members[memberIndex].email.toLowerCase()
+    ) {
+      const emailExists = members.some(
+        (m) =>
+          m.email.toLowerCase() === updates.email.toLowerCase() && m.id !== id,
+      );
       if (emailExists) {
         return NextResponse.json(
           { success: false, error: "Email already in use" },
-          { status: 409 }
+          { status: 409 },
         );
       }
     }
 
     // Update member
-    const updatedMember = { 
-      ...members[memberIndex], 
+    const updatedMember = {
+      ...members[memberIndex],
       ...updates,
-      email: updates.email ? updates.email.toLowerCase().trim() : members[memberIndex].email
+      email: updates.email
+        ? updates.email.toLowerCase().trim()
+        : members[memberIndex].email,
     };
     members[memberIndex] = updatedMember;
     await saveMembers(members);
@@ -448,7 +493,7 @@ export async function PUT(request: NextRequest) {
     console.error("PUT /api/membership error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to update member" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -463,17 +508,17 @@ export async function DELETE(request: NextRequest) {
     if (!id) {
       return NextResponse.json(
         { success: false, error: "Member ID is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const members = await loadMembers();
-    const memberIndex = members.findIndex(m => m.id === id);
+    const memberIndex = members.findIndex((m) => m.id === id);
 
     if (memberIndex === -1) {
       return NextResponse.json(
         { success: false, error: "Member not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -484,7 +529,7 @@ export async function DELETE(request: NextRequest) {
       cancelledAt: new Date().toISOString(),
       cancellationReason: reason,
     };
-    
+
     await saveMembers(members);
 
     // Log the activity
@@ -501,7 +546,7 @@ export async function DELETE(request: NextRequest) {
     console.error("DELETE /api/membership error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to cancel membership" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

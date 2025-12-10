@@ -36,7 +36,7 @@ export function registerChartJS() {
       Tooltip,
       Legend,
       ArcElement,
-      Filler
+      Filler,
     );
     isRegistered = true;
     console.log("✅ Chart.js components registered successfully");

@@ -408,11 +408,11 @@ const generateMockData = (timeFilter: string): AnalyticsData => {
     labels: monthLabels.slice(0, safeLength),
     amounts: Array.from(
       { length: safeLength },
-      () => Math.floor(Math.random() * 5000) + 1000
+      () => Math.floor(Math.random() * 5000) + 1000,
     ),
     counts: Array.from(
       { length: safeLength },
-      () => Math.floor(Math.random() * 30) + 10
+      () => Math.floor(Math.random() * 30) + 10,
     ),
   };
 
@@ -421,15 +421,15 @@ const generateMockData = (timeFilter: string): AnalyticsData => {
     labels: Array.from({ length: 7 }, (_, i) => `Day ${i + 1}`),
     visits: Array.from(
       { length: 7 },
-      () => Math.floor(Math.random() * 200) + 50
+      () => Math.floor(Math.random() * 200) + 50,
     ),
     uniqueVisitors: Array.from(
       { length: 7 },
-      () => Math.floor(Math.random() * 150) + 30
+      () => Math.floor(Math.random() * 150) + 30,
     ),
     pageViews: Array.from(
       { length: 7 },
-      () => Math.floor(Math.random() * 500) + 100
+      () => Math.floor(Math.random() * 500) + 100,
     ),
   };
 
@@ -492,7 +492,7 @@ const generateMockData = (timeFilter: string): AnalyticsData => {
 function AnalyticsContent() {
   const [timeFilter, setTimeFilter] = useState(
     timeFilterOptions[1] ||
-      timeFilterOptions[0] || { label: "Last 30 Days", value: "30d" }
+      timeFilterOptions[0] || { label: "Last 30 Days", value: "30d" },
   ); // Safe default to 30 days
   const { isAuthenticated, isLoading } = useAdminAuth();
 
@@ -622,8 +622,8 @@ function AnalyticsContent() {
                   onChange={(e) =>
                     setTimeFilter(
                       timeFilterOptions.find(
-                        (opt) => opt.value === e.target.value
-                      ) || timeFilterOptions[1]
+                        (opt) => opt.value === e.target.value,
+                      ) || timeFilterOptions[1],
                     )
                   }
                 >

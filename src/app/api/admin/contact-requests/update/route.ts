@@ -43,11 +43,16 @@ export async function POST(request: Request) {
     }
 
     if (!fs.existsSync(CONTACT_LOG_FILE)) {
-      return NextResponse.json({ error: "No contact log file" }, { status: 404 });
+      return NextResponse.json(
+        { error: "No contact log file" },
+        { status: 404 },
+      );
     }
 
     const raw = fs.readFileSync(CONTACT_LOG_FILE, "utf-8");
-    const list: ContactRecord[] = raw ? (JSON.parse(raw) as ContactRecord[]) : [];
+    const list: ContactRecord[] = raw
+      ? (JSON.parse(raw) as ContactRecord[])
+      : [];
     const idx = list.findIndex((r) => r.id === body.id);
     if (idx === -1) {
       return NextResponse.json({ error: "Record not found" }, { status: 404 });
@@ -70,7 +75,7 @@ export async function POST(request: Request) {
     console.error("Failed to update contact request:", err);
     return NextResponse.json(
       { error: "Failed to update contact request" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -101,7 +101,7 @@ export default function AdminLayout({
     const checkMainCSS = () => {
       // Look for main CSS stylesheets (Tailwind, globals.css, etc.)
       const mainCSSLinks = document.querySelectorAll(
-        'link[rel="stylesheet"]'
+        'link[rel="stylesheet"]',
       ) as NodeListOf<HTMLLinkElement>;
       let mainCSSLoaded = false;
 

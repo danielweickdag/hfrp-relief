@@ -8,7 +8,10 @@ function prefix(key?: string | null, len = 8): string | null {
 export async function GET() {
   const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "";
   const secretKey = process.env.STRIPE_SECRET_KEY || "";
-  const webhookSecretLive = process.env.STRIPE_WEBHOOK_SECRET || process.env.STRIPE_WEBHOOK_SECRET_LIVE || "";
+  const webhookSecretLive =
+    process.env.STRIPE_WEBHOOK_SECRET ||
+    process.env.STRIPE_WEBHOOK_SECRET_LIVE ||
+    "";
   const webhookSecretTest = process.env.STRIPE_WEBHOOK_SECRET_TEST || "";
 
   const publishableMode = publishableKey.startsWith("pk_live_")
@@ -49,4 +52,3 @@ export async function GET() {
 
   return NextResponse.json(data);
 }
-

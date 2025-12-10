@@ -28,7 +28,7 @@ ChartJS.register(
   BarElement,
   LineElement,
   PointElement,
-  Title
+  Title,
 );
 
 export default function DonationDashboard() {
@@ -71,7 +71,7 @@ export default function DonationDashboard() {
         case "year":
           dateRange = {
             start: new Date(
-              now.setFullYear(now.getFullYear() - 1)
+              now.setFullYear(now.getFullYear() - 1),
             ).toISOString(),
             end: new Date().toISOString(),
           };
@@ -115,7 +115,7 @@ export default function DonationDashboard() {
   // Chart data for donation sources
   const sourceChartData = {
     labels: stats.donationsBySource.map((s) =>
-      s.source.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase())
+      s.source.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase()),
     ),
     datasets: [
       {
@@ -143,7 +143,7 @@ export default function DonationDashboard() {
       const [year, month] = t.month.split("-");
       return new Date(
         Number.parseInt(year),
-        Number.parseInt(month) - 1
+        Number.parseInt(month) - 1,
       ).toLocaleDateString("en-US", { month: "short", year: "2-digit" });
     }),
     datasets: [
@@ -171,7 +171,7 @@ export default function DonationDashboard() {
     labels: stats.donationsByPaymentMethod.map((p) =>
       p.method
         .replace("_", " ")
-        .replace(/\b\w/g, (l: string) => l.toUpperCase())
+        .replace(/\b\w/g, (l: string) => l.toUpperCase()),
     ),
     datasets: [
       {
@@ -249,7 +249,7 @@ export default function DonationDashboard() {
               >
                 {range.charAt(0).toUpperCase() + range.slice(1)}
               </button>
-            )
+            ),
           )}
         </div>
       </div>
@@ -369,7 +369,7 @@ export default function DonationDashboard() {
                 goal.targetAmount > 0
                   ? Math.min(
                       (goal.currentAmount / goal.targetAmount) * 100,
-                      100
+                      100,
                     )
                   : 0;
 

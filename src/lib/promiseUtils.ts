@@ -13,7 +13,7 @@ export interface PromiseResult<T> {
  */
 export async function safePromise<T>(
   promise: Promise<T>,
-  fallbackValue?: T
+  fallbackValue?: T,
 ): Promise<PromiseResult<T>> {
   try {
     const data = await promise;
@@ -43,7 +43,7 @@ export async function safePromise<T>(
  * Execute multiple promises and collect results, not failing if some reject
  */
 export async function safePromiseAll<T>(
-  promises: Promise<T>[]
+  promises: Promise<T>[],
 ): Promise<PromiseResult<T>[]> {
   return Promise.allSettled(promises).then((results) =>
     results.map((result, index) => {
@@ -65,7 +65,7 @@ export async function safePromiseAll<T>(
           error: errorMessage,
         };
       }
-    })
+    }),
   );
 }
 
@@ -75,12 +75,12 @@ export async function safePromiseAll<T>(
 export function withTimeout<T>(
   promise: Promise<T>,
   timeoutMs: number,
-  timeoutMessage = "Operation timed out"
+  timeoutMessage = "Operation timed out",
 ): Promise<T> {
   return Promise.race([
     promise,
     new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error(timeoutMessage)), timeoutMs)
+      setTimeout(() => reject(new Error(timeoutMessage)), timeoutMs),
     ),
   ]);
 }
@@ -91,7 +91,7 @@ export function withTimeout<T>(
 export async function retryPromise<T>(
   promiseFactory: () => Promise<T>,
   maxRetries = 3,
-  baseDelay = 1000
+  baseDelay = 1000,
 ): Promise<T> {
   let lastError: Error;
 
@@ -108,7 +108,7 @@ export async function retryPromise<T>(
       const delay = baseDelay * Math.pow(2, attempt);
       console.warn(
         `Attempt ${attempt + 1} failed, retrying in ${delay}ms:`,
-        lastError.message
+        lastError.message,
       );
       await new Promise((resolve) => setTimeout(resolve, delay));
     }

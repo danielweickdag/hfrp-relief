@@ -255,13 +255,17 @@ export default function BlogManager() {
 
         <div className="divide-y divide-gray-200">
           {filteredPosts.map((post) => (
-            <div 
-              key={post.id} 
+            <div
+              key={post.id}
               className="p-6 hover:bg-gray-50 transition cursor-pointer"
               onClick={(e) => {
                 // Only trigger edit if not clicking on action buttons
                 const target = e.target as HTMLElement;
-                if (!target.closest('button') && !target.closest('a') && hasPermission("blog.edit")) {
+                if (
+                  !target.closest("button") &&
+                  !target.closest("a") &&
+                  hasPermission("blog.edit")
+                ) {
                   handleEditPost(post);
                 }
               }}
@@ -304,7 +308,7 @@ export default function BlogManager() {
                       </span>
                     ))}
                   </div>
-                  
+
                   {post.tags && post.tags.length > 0 && (
                     <div className="flex items-center gap-2 mt-2">
                       {post.tags.map((tag) => (
@@ -612,9 +616,7 @@ function BlogEditor({
 
           {/* Tags */}
           <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Tags
-            </h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Tags</h3>
             <div className="space-y-3">
               <div>
                 <input
@@ -622,16 +624,16 @@ function BlogEditor({
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
                   placeholder="Add tags (press Enter)"
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
+                    if (e.key === "Enter") {
                       e.preventDefault();
                       const input = e.target as HTMLInputElement;
                       const tag = input.value.trim();
                       if (tag && !formData.tags.includes(tag)) {
-                        setFormData(prev => ({
+                        setFormData((prev) => ({
                           ...prev,
-                          tags: [...prev.tags, tag]
+                          tags: [...prev.tags, tag],
                         }));
-                        input.value = '';
+                        input.value = "";
                       }
                     }
                   }}
@@ -647,9 +649,9 @@ function BlogEditor({
                     <button
                       type="button"
                       onClick={() => {
-                        setFormData(prev => ({
+                        setFormData((prev) => ({
                           ...prev,
-                          tags: prev.tags.filter((_, i) => i !== index)
+                          tags: prev.tags.filter((_, i) => i !== index),
                         }));
                       }}
                       className="ml-1 text-gray-500 hover:text-red-500"

@@ -8,7 +8,8 @@ export default function StripeLiveTestPage() {
           Stripe Live Test Temporarily Unavailable
         </h1>
         <p className="text-gray-600">
-          We're working on improving our Stripe testing system. Please check back soon.
+          We're working on improving our Stripe testing system. Please check
+          back soon.
         </p>
       </div>
     </div>

@@ -101,7 +101,7 @@ export default function StatusPage() {
     completionRate: Math.round(
       (features.filter((f) => f.status === "completed").length /
         features.length) *
-        100
+        100,
     ),
   };
 

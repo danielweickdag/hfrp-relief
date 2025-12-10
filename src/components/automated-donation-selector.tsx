@@ -49,7 +49,7 @@ interface AutomatedDonationSelectorProps {
   onSelectCampaign?: (
     campaignId: string,
     amount: number,
-    isRecurring: boolean
+    isRecurring: boolean,
   ) => void;
   className?: string;
 }
@@ -195,7 +195,7 @@ export function AutomatedDonationSelector({
         {campaigns.map((campaign) => {
           const progressPercentage = getProgressPercentage(
             campaign.raised,
-            campaign.goal
+            campaign.goal,
           );
           const nextMilestone = getNextMilestone(campaign);
           const isSelected = selectedCampaign === campaign.id;

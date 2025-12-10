@@ -103,7 +103,7 @@ export default function StripeButton({
 
       if (!targetCampaign) {
         console.warn(
-          `Campaign "${campaignId}" not found, checking available campaigns...`
+          `Campaign "${campaignId}" not found, checking available campaigns...`,
         );
 
         // Get all available campaign IDs for debugging
@@ -113,7 +113,7 @@ export default function StripeButton({
         // Try to find a fallback campaign or create a generic one
         const availableCampaigns = stripeEnhanced.getCampaigns();
         targetCampaign = availableCampaigns.find(
-          (c) => c.status === "active"
+          (c) => c.status === "active",
         ) || {
           id: campaignId,
           name: `Campaign ${campaignId}`,
@@ -181,18 +181,31 @@ export default function StripeButton({
       });
 
       const raw = await response.json().catch(() => null);
-      const data: { url?: string; id?: string; error?: string; details?: string[] } =
+      const data: {
+        url?: string;
+        id?: string;
+        error?: string;
+        details?: string[];
+      } =
         raw && typeof raw === "object"
-          ? (raw as { url?: string; id?: string; error?: string; details?: string[] })
+          ? (raw as {
+              url?: string;
+              id?: string;
+              error?: string;
+              details?: string[];
+            })
           : {};
       if (!response.ok || typeof data.url !== "string") {
-        const serverDetails = Array.isArray(data.details) && data.details.length > 0
-          ? `\nDetails: ${data.details.join("; ")}`
-          : "";
+        const serverDetails =
+          Array.isArray(data.details) && data.details.length > 0
+            ? `\nDetails: ${data.details.join("; ")}`
+            : "";
         const guidance = config.testMode
           ? "\nTip: Ensure valid STRIPE_TEST keys are set in .env.local and restart dev server."
           : "\nTip: Your Stripe keys may be invalid or expired. Update STRIPE_SECRET_KEY/NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY and restart.";
-        throw new Error(`${data.error || "Failed to create Stripe checkout session"}${serverDetails}${guidance}`);
+        throw new Error(
+          `${data.error || "Failed to create Stripe checkout session"}${serverDetails}${guidance}`,
+        );
       }
       const checkoutUrl = data.url;
 
@@ -204,7 +217,7 @@ export default function StripeButton({
         const popup = window.open(
           checkoutUrl,
           "stripe-checkout",
-          "width=800,height=600,scrollbars=yes,resizable=yes"
+          "width=800,height=600,scrollbars=yes,resizable=yes",
         );
 
         if (!popup) {
@@ -238,12 +251,10 @@ export default function StripeButton({
 
       // User-friendly error handling
       if (config.testMode) {
-        alert(
-          `Test mode error: ${errorMessage}`
-        );
+        alert(`Test mode error: ${errorMessage}`);
       } else {
         const userConfirmed = confirm(
-          `${errorMessage}\n\nWould you like to try again or contact support?`
+          `${errorMessage}\n\nWould you like to try again or contact support?`,
         );
 
         if (userConfirmed) {
@@ -277,11 +288,11 @@ export default function StripeButton({
         focus:outline-none focus:ring-2 focus:ring-offset-2
         ${className}
       `;
-      
+
       if (disabled || isLoading) {
         return `${baseClasses} opacity-50 cursor-not-allowed`;
       }
-      
+
       return baseClasses;
     }
 
@@ -353,9 +364,7 @@ export default function StripeButton({
         <div className="font-medium">{displayCampaign.name}</div>
         {amount && (
           <div className="text-gray-500">
-            {recurring
-              ? `$${amount}/${interval}`
-              : `One-time: $${amount}`}
+            {recurring ? `$${amount}/${interval}` : `One-time: $${amount}`}
           </div>
         )}
         {!campaign && (

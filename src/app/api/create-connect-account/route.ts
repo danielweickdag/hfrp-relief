@@ -1,5 +1,5 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import Stripe from 'stripe';
+import { type NextRequest, NextResponse } from "next/server";
+import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -10,27 +10,24 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     if (!email) {
-      return NextResponse.json(
-        { error: 'Email is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
 
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return NextResponse.json(
-        { error: 'Invalid email format' },
-        { status: 400 }
+        { error: "Invalid email format" },
+        { status: 400 },
       );
     }
 
     // Create Connect account using Express account type (simpler than v2 API)
     const account = await stripe.accounts.create({
-      type: 'express',
-      country: 'US',
+      type: "express",
+      country: "US",
       email: email,
-      business_type: 'company',
+      business_type: "company",
       capabilities: {
         card_payments: { requested: true },
         transfers: { requested: true },
@@ -38,7 +35,7 @@ export async function POST(request: NextRequest) {
       settings: {
         payouts: {
           schedule: {
-            interval: 'daily',
+            interval: "daily",
           },
         },
       },
@@ -50,20 +47,19 @@ export async function POST(request: NextRequest) {
       email: email,
       displayName: displayName || email,
     });
-
   } catch (error) {
-    console.error('Create Connect account error:', error);
-    
+    console.error("Create Connect account error:", error);
+
     if (error instanceof Stripe.errors.StripeError) {
       return NextResponse.json(
         { error: error.message },
-        { status: error.statusCode || 500 }
+        { status: error.statusCode || 500 },
       );
     }
 
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+      { error: "Internal server error" },
+      { status: 500 },
     );
   }
 }

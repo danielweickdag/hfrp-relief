@@ -41,9 +41,9 @@ export default function DonationTroubleshooting() {
                       Ad Blocker Detected
                     </h5>
                     <p className="text-orange-800 text-sm mb-3">
-                      Some ad blockers can interfere with third-party widgets. We use
-                      Stripe Checkout, so donations still work perfectly even if
-                      embedded experiences are limited.
+                      Some ad blockers can interfere with third-party widgets.
+                      We use Stripe Checkout, so donations still work perfectly
+                      even if embedded experiences are limited.
                     </p>
                     <div className="space-y-2 text-sm text-orange-700">
                       <div>
@@ -102,7 +102,8 @@ export default function DonationTroubleshooting() {
                     </p>
                     <div className="space-y-1 text-sm text-blue-700">
                       <div>
-                        • System automatically redirects to donation page or opens a secure tab
+                        • System automatically redirects to donation page or
+                        opens a secure tab
                       </div>
                       <div>• Users can allow pop-ups for better experience</div>
                       <div>
@@ -157,13 +158,20 @@ export default function DonationTroubleshooting() {
                   </div>
                   <div>
                     Campaign ID:{" "}
-                    {process.env.NEXT_PUBLIC_STRIPE_MAIN_CAMPAIGN || process.env.NEXT_PUBLIC_STRIPE_CAMPAIGN_ID || "Not Set"}
+                    {process.env.NEXT_PUBLIC_STRIPE_MAIN_CAMPAIGN ||
+                      process.env.NEXT_PUBLIC_STRIPE_CAMPAIGN_ID ||
+                      "Not Set"}
                   </div>
                 </div>
                 <div>
                   <div className="font-semibold mb-2">Checkout Status</div>
                   <div>Platform: Stripe Checkout</div>
-                  <div>Mode: {process.env.NEXT_PUBLIC_STRIPE_TEST_MODE === "true" ? "Test" : "Live"}</div>
+                  <div>
+                    Mode:{" "}
+                    {process.env.NEXT_PUBLIC_STRIPE_TEST_MODE === "true"
+                      ? "Test"
+                      : "Live"}
+                  </div>
                   <div>Fallback: Redirect to donation page</div>
                 </div>
               </div>
@@ -218,7 +226,7 @@ export default function DonationTroubleshooting() {
                   timestamp: new Date().toISOString(),
                 });
                 alert(
-                  "Debug information logged to console. Open developer tools to view."
+                  "Debug information logged to console. Open developer tools to view.",
                 );
               }}
               className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm font-medium"

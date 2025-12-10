@@ -2,7 +2,12 @@ import { type NextRequest, NextResponse } from "next/server";
 import { exec } from "child_process";
 import path from "path";
 
-type WorkflowType = "development" | "staging" | "production" | "maintenance" | "ui-automation";
+type WorkflowType =
+  | "development"
+  | "staging"
+  | "production"
+  | "maintenance"
+  | "ui-automation";
 type WorkflowOptions = {
   continueOnError?: boolean;
   verbose?: boolean;
@@ -26,7 +31,7 @@ export async function POST(request: NextRequest) {
     if (!workflowType) {
       return NextResponse.json(
         { error: "Workflow type is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -43,7 +48,7 @@ export async function POST(request: NextRequest) {
         {
           error: `Invalid workflow type. Allowed: ${allowedWorkflows.join(", ")}`,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -56,7 +61,7 @@ export async function POST(request: NextRequest) {
     const details = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
       { error: "Failed to execute workflow", details },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -71,14 +76,14 @@ export async function GET() {
     const details = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
       { error: "Failed to fetch workflow status", details },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 async function executeWorkflow(
   workflowType: WorkflowType,
-  options: WorkflowOptions = {}
+  options: WorkflowOptions = {},
 ) {
   return new Promise((resolve, reject) => {
     const scriptPath = path.join(process.cwd(), "workflow-orchestrator.js");

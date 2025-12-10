@@ -15,10 +15,10 @@ interface UploadedImage {
 function makeMarkDown(frontmatter: Frontmatter, body: string) {
   let fm = "---\n";
   for (const [k, v] of Object.entries(frontmatter)) {
-    if (k === 'images' && Array.isArray(v)) {
+    if (k === "images" && Array.isArray(v)) {
       if (v.length > 0) {
         fm += `${k}:\n`;
-        v.forEach(img => fm += `  - "${img}"\n`);
+        v.forEach((img) => (fm += `  - "${img}"\n`));
       }
     } else if (v !== "" && !(Array.isArray(v) && v.length === 0)) {
       fm += `${k}: "${v}"\n`;
@@ -54,16 +54,16 @@ export default function AdminBlogEditor() {
 
     try {
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append("file", file);
 
-      const response = await fetch('/api/upload/images', {
-        method: 'POST',
+      const response = await fetch("/api/upload/images", {
+        method: "POST",
         body: formData,
       });
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Upload failed');
+        throw new Error(error.error || "Upload failed");
       }
 
       const result = await response.json();
@@ -74,20 +74,20 @@ export default function AdminBlogEditor() {
         type: result.type,
       };
 
-      setUploadedImages(prev => [...prev, uploadedImage]);
-      
+      setUploadedImages((prev) => [...prev, uploadedImage]);
+
       // Automatically add to images array
-      setFrontmatter(prev => {
+      setFrontmatter((prev) => {
         const currentImages = prev.images || [];
         if (!currentImages.includes(uploadedImage.url)) {
           return { ...prev, images: [...currentImages, uploadedImage.url] };
         }
         return prev;
       });
-      
+
       return uploadedImage;
     } catch (error) {
-      setUploadError(error instanceof Error ? error.message : 'Upload failed');
+      setUploadError(error instanceof Error ? error.message : "Upload failed");
       return null;
     } finally {
       setIsUploading(false);
@@ -114,22 +114,22 @@ export default function AdminBlogEditor() {
   function handleDrop(event: React.DragEvent) {
     event.preventDefault();
     setIsDragging(false);
-    
+
     const file = event.dataTransfer.files?.[0];
-    if (file && file.type.startsWith('image/')) {
+    if (file && file.type.startsWith("image/")) {
       uploadImage(file);
     }
   }
 
   function insertImageIntoBody(imageUrl: string) {
     const imageMarkdown = `![Image](${imageUrl})\n\n`;
-    setBody(prev => prev + imageMarkdown);
+    setBody((prev) => prev + imageMarkdown);
   }
 
   function setAsFeaturedImage(imageUrl: string) {
-    updateField('image', imageUrl);
+    updateField("image", imageUrl);
     // Also add to images array if not already present
-    setFrontmatter(prev => {
+    setFrontmatter((prev) => {
       const currentImages = prev.images || [];
       if (!currentImages.includes(imageUrl)) {
         return { ...prev, images: [...currentImages, imageUrl] };
@@ -202,8 +202,8 @@ export default function AdminBlogEditor() {
               <div
                 className={`border-2 border-dashed rounded-lg p-6 transition-colors ${
                   isDragging
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-300 hover:border-gray-400'
+                    ? "border-blue-500 bg-blue-50"
+                    : "border-gray-300 hover:border-gray-400"
                 }`}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
@@ -226,7 +226,7 @@ export default function AdminBlogEditor() {
                   <div className="mt-4">
                     <label htmlFor="file-upload" className="cursor-pointer">
                       <span className="mt-2 block text-sm font-medium text-gray-900">
-                        Drop images here or{' '}
+                        Drop images here or{" "}
                         <span className="text-blue-600 hover:text-blue-500">
                           browse
                         </span>
@@ -246,18 +246,16 @@ export default function AdminBlogEditor() {
                   </div>
                 </div>
               </div>
-              
+
               {isUploading && (
                 <div className="mt-2 text-blue-600">
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 inline-block mr-2"></div>
                   Uploading...
                 </div>
               )}
-              
+
               {uploadError && (
-                <div className="mt-2 text-red-600 text-sm">
-                  {uploadError}
-                </div>
+                <div className="mt-2 text-red-600 text-sm">{uploadError}</div>
               )}
             </div>
           </div>

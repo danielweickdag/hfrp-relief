@@ -10,7 +10,10 @@ function prefix(key?: string | null, len = 8): string | null {
 export async function GET() {
   const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "";
   const secretKey = process.env.STRIPE_SECRET_KEY || "";
-  const webhookSecretLive = process.env.STRIPE_WEBHOOK_SECRET || process.env.STRIPE_WEBHOOK_SECRET_LIVE || "";
+  const webhookSecretLive =
+    process.env.STRIPE_WEBHOOK_SECRET ||
+    process.env.STRIPE_WEBHOOK_SECRET_LIVE ||
+    "";
   const webhookSecretTest = process.env.STRIPE_WEBHOOK_SECRET_TEST || "";
   const bgVideoPath = process.env.NEXT_PUBLIC_BG_VIDEO_PATH || "";
 
@@ -39,7 +42,9 @@ export async function GET() {
   let bgVideoResolved: string | null = null;
   if (bgVideoPath) {
     try {
-      const rel = bgVideoPath.startsWith("/") ? bgVideoPath.slice(1) : bgVideoPath;
+      const rel = bgVideoPath.startsWith("/")
+        ? bgVideoPath.slice(1)
+        : bgVideoPath;
       const full = path.join(process.cwd(), "public", rel);
       bgVideoResolved = full;
       await fs.access(full);
@@ -75,4 +80,3 @@ export async function GET() {
 
   return NextResponse.json(data);
 }
-

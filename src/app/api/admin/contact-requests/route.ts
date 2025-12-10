@@ -17,7 +17,7 @@ export async function GET() {
     console.error("Failed to read contact requests:", err);
     return NextResponse.json(
       { error: "Failed to load contact requests" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

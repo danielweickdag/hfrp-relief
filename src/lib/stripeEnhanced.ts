@@ -150,10 +150,10 @@ function getDefaultConfig(): StripeConfig {
     const modeFromKey = cfg.publishableKey.startsWith("pk_live_")
       ? "live"
       : cfg.publishableKey.startsWith("pk_test_")
-      ? "test"
-      : "unknown";
+        ? "test"
+        : "unknown";
     console.log(
-      `🔎 Stripe env config: key=${modeFromKey}, testMode=${cfg.testMode}`
+      `🔎 Stripe env config: key=${modeFromKey}, testMode=${cfg.testMode}`,
     );
   } catch {}
 
@@ -168,19 +168,22 @@ class EnhancedStripeService {
   private subscriptions: Map<string, StripeSubscription> = new Map();
   private donations: Map<string, StripeDonation> = new Map();
   // Plan type for subscription pricing metadata
-  private plans: Map<string, {
-    id: string;
-    name: string;
-    description: string;
-    amount: number;
-    currency: string;
-    interval: "day" | "month" | "year";
-    active: boolean;
-    campaignId: string;
-    stripePriceId?: string;
-    createdAt: string;
-    updatedAt: string;
-  }> = new Map();
+  private plans: Map<
+    string,
+    {
+      id: string;
+      name: string;
+      description: string;
+      amount: number;
+      currency: string;
+      interval: "day" | "month" | "year";
+      active: boolean;
+      campaignId: string;
+      stripePriceId?: string;
+      createdAt: string;
+      updatedAt: string;
+    }
+  > = new Map();
 
   private analytics: {
     trackCheckoutCreated: (data: {
@@ -347,8 +350,10 @@ class EnhancedStripeService {
       // If env is clearly configured for LIVE (live keys, testMode disabled),
       // enforce env precedence over any stored test configuration.
       const envIsLive =
-        !!envConfig.publishableKey && envConfig.publishableKey.startsWith("pk_live_") &&
-        !!envConfig.secretKey && envConfig.secretKey.startsWith("sk_live_") &&
+        !!envConfig.publishableKey &&
+        envConfig.publishableKey.startsWith("pk_live_") &&
+        !!envConfig.secretKey &&
+        envConfig.secretKey.startsWith("sk_live_") &&
         envConfig.testMode === false;
 
       if (envIsLive) {
@@ -383,7 +388,7 @@ class EnhancedStripeService {
 
     if (this.config.testMode && isLiveKey) {
       errors.push(
-        "⚠️ DANGER: Test mode enabled but using LIVE key - Real charges will be made!"
+        "⚠️ DANGER: Test mode enabled but using LIVE key - Real charges will be made!",
       );
     }
 
@@ -397,14 +402,14 @@ class EnhancedStripeService {
         // ignore persistence issues silently
       }
       warnings.push(
-        "Test publishable key detected; switched to test mode automatically"
+        "Test publishable key detected; switched to test mode automatically",
       );
     }
 
     // Live key specific validations
     if (isLiveKey) {
       warnings.push(
-        "🚀 Live Stripe key detected - Real payments will be processed"
+        "🚀 Live Stripe key detected - Real payments will be processed",
       );
       // Secret key pairing check should only run on the server.
       // In the browser, secret keys are intentionally not exposed.
@@ -423,7 +428,11 @@ class EnhancedStripeService {
     if (isTestKey) {
       console.log("🧪 Test mode active - No real charges will be made");
       // If a live secret key is set with a test publishable key, flag as warning
-      if (typeof window === "undefined" && this.config.secretKey && this.config.secretKey.startsWith("sk_live_")) {
+      if (
+        typeof window === "undefined" &&
+        this.config.secretKey &&
+        this.config.secretKey.startsWith("sk_live_")
+      ) {
         warnings.push("Live secret key configured with test publishable key");
       }
     }
@@ -436,13 +445,13 @@ class EnhancedStripeService {
     // Validate amount ranges
     if (this.config.minimumAmount < 0.5) {
       warnings.push(
-        "Minimum amount below $0.50 may not be supported by all payment methods"
+        "Minimum amount below $0.50 may not be supported by all payment methods",
       );
     }
 
     if (this.config.maximumAmount > 999999) {
       warnings.push(
-        "Maximum amount above $999,999 may require special approval"
+        "Maximum amount above $999,999 may require special approval",
       );
     }
 
@@ -455,11 +464,11 @@ class EnhancedStripeService {
       "us_bank_account",
     ];
     const invalidMethods = this.config.supportedPaymentMethods.filter(
-      (method) => !validPaymentMethods.includes(method)
+      (method) => !validPaymentMethods.includes(method),
     );
     if (invalidMethods.length > 0) {
       warnings.push(
-        `Unsupported payment methods: ${invalidMethods.join(", ")}`
+        `Unsupported payment methods: ${invalidMethods.join(", ")}`,
       );
     }
 
@@ -546,13 +555,13 @@ class EnhancedStripeService {
       };
     } catch (error) {
       throw new Error(
-        `Test failed: ${error instanceof Error ? error.message : "Unknown error"}`
+        `Test failed: ${error instanceof Error ? error.message : "Unknown error"}`,
       );
     }
   }
 
   createCampaign(
-    campaign: Omit<StripeCampaign, "createdAt" | "updatedAt">
+    campaign: Omit<StripeCampaign, "createdAt" | "updatedAt">,
   ): StripeCampaign {
     const newCampaign: StripeCampaign = {
       ...campaign,
@@ -565,7 +574,7 @@ class EnhancedStripeService {
 
   updateCampaign(
     id: string,
-    updates: Partial<StripeCampaign>
+    updates: Partial<StripeCampaign>,
   ): StripeCampaign | null {
     const campaign = this.campaigns.get(id);
     if (!campaign) return null;
@@ -630,19 +639,21 @@ class EnhancedStripeService {
     return Array.from(this.plans.values());
   }
 
-  getPlan(id: string): {
-    id: string;
-    name: string;
-    description: string;
-    amount: number;
-    currency: string;
-    interval: "day" | "month" | "year";
-    active: boolean;
-    campaignId: string;
-    stripePriceId?: string;
-    createdAt: string;
-    updatedAt: string;
-  } | undefined {
+  getPlan(id: string):
+    | {
+        id: string;
+        name: string;
+        description: string;
+        amount: number;
+        currency: string;
+        interval: "day" | "month" | "year";
+        active: boolean;
+        campaignId: string;
+        stripePriceId?: string;
+        createdAt: string;
+        updatedAt: string;
+      }
+    | undefined {
     return this.plans.get(id);
   }
 
@@ -660,7 +671,7 @@ class EnhancedStripeService {
       stripePriceId?: string;
       createdAt: string;
       updatedAt: string;
-    }>
+    }>,
   ): {
     id: string;
     name: string;
@@ -721,7 +732,7 @@ class EnhancedStripeService {
         syncedPlans.map((p) => ({
           id: p.id,
           stripePriceId: p.stripePriceId,
-        }))
+        })),
       );
 
       // Update local plans with synced data
@@ -775,7 +786,7 @@ class EnhancedStripeService {
     // Use fallback strategy if campaign not found
     if (!campaign) {
       console.warn(
-        `Campaign "${params.campaignId}" not found in stripeEnhanced.createCampaignCheckout, using fallback`
+        `Campaign "${params.campaignId}" not found in stripeEnhanced.createCampaignCheckout, using fallback`,
       );
       console.log("Available campaign IDs:", this.getCampaignIds());
 
@@ -875,7 +886,7 @@ class EnhancedStripeService {
 
           if (!plan || !plan.stripePriceId) {
             throw new Error(
-              `Plan ${planId} not found or not synced with Stripe. Plan data: ${JSON.stringify(plan)}`
+              `Plan ${planId} not found or not synced with Stripe. Plan data: ${JSON.stringify(plan)}`,
             );
           }
 
@@ -999,7 +1010,9 @@ class EnhancedStripeService {
   }
 
   // Get Stripe Checkout Session
-  async getCheckoutSession(sessionId: string): Promise<Stripe.Checkout.Session> {
+  async getCheckoutSession(
+    sessionId: string,
+  ): Promise<Stripe.Checkout.Session> {
     // Check if Stripe is initialized
     if (!this.stripe) {
       throw new Error("Stripe is not initialized. Please check your API keys.");
@@ -1033,11 +1046,11 @@ class EnhancedStripeService {
     // Use fallback strategy if event not found
     if (!event) {
       console.warn(
-        `Event "${params.eventId}" not found in stripeEnhanced.createEventCheckout, using fallback`
+        `Event "${params.eventId}" not found in stripeEnhanced.createEventCheckout, using fallback`,
       );
       console.log(
         "Available events:",
-        this.getEvents().map((e) => e.id)
+        this.getEvents().map((e) => e.id),
       );
 
       // Create a fallback event
@@ -1068,13 +1081,13 @@ class EnhancedStripeService {
     }
 
     let ticketType = event.ticketTypes.find(
-      (t) => t.id === params.ticketTypeId
+      (t) => t.id === params.ticketTypeId,
     );
 
     // Use fallback ticket type if not found
     if (!ticketType) {
       console.warn(
-        `Ticket type "${params.ticketTypeId}" not found, using first available or fallback`
+        `Ticket type "${params.ticketTypeId}" not found, using first available or fallback`,
       );
 
       ticketType = event.ticketTypes[0] || {
@@ -1125,7 +1138,7 @@ class EnhancedStripeService {
       status: "active",
       nextPayment: new Date(
         Date.now() +
-          (params.interval === "month" ? 30 : 365) * 24 * 60 * 60 * 1000
+          (params.interval === "month" ? 30 : 365) * 24 * 60 * 60 * 1000,
       ).toISOString(),
       stripeSubscriptionId: `sub_stripe_${Date.now()}`,
     };
@@ -1137,7 +1150,7 @@ class EnhancedStripeService {
   // Webhook Processing
   async processWebhook(
     payload: Stripe.Event,
-    signature: string
+    signature: string,
   ): Promise<{
     success: boolean;
     event?: Stripe.Event;
@@ -1149,16 +1162,24 @@ class EnhancedStripeService {
 
       switch (payload.type) {
         case "payment_intent.succeeded":
-          await this.handlePaymentSuccess(payload.data.object as Stripe.PaymentIntent);
+          await this.handlePaymentSuccess(
+            payload.data.object as Stripe.PaymentIntent,
+          );
           break;
         case "payment_intent.payment_failed":
-          await this.handlePaymentFailure(payload.data.object as Stripe.PaymentIntent);
+          await this.handlePaymentFailure(
+            payload.data.object as Stripe.PaymentIntent,
+          );
           break;
         case "invoice.payment_succeeded":
-          await this.handleSubscriptionPayment(payload.data.object as Stripe.Invoice);
+          await this.handleSubscriptionPayment(
+            payload.data.object as Stripe.Invoice,
+          );
           break;
         case "customer.subscription.deleted":
-          await this.handleSubscriptionCancellation(payload.data.object as Stripe.Subscription);
+          await this.handleSubscriptionCancellation(
+            payload.data.object as Stripe.Subscription,
+          );
           break;
         default:
           console.log(`Unhandled webhook event: ${payload.type}`);
@@ -1214,7 +1235,9 @@ class EnhancedStripeService {
     // Handle recurring payment logic
   }
 
-  private async handleSubscriptionCancellation(subscription: Stripe.Subscription) {
+  private async handleSubscriptionCancellation(
+    subscription: Stripe.Subscription,
+  ) {
     console.log("Subscription cancelled:", subscription.id);
     // Handle subscription cancellation logic
   }
@@ -1228,16 +1251,16 @@ class EnhancedStripeService {
   } {
     const donations = Array.from(this.donations.values());
     const succeededDonations = donations.filter(
-      (d) => d.status === "succeeded"
+      (d) => d.status === "succeeded",
     );
 
     const totalDonations = succeededDonations.length;
     const totalAmount = succeededDonations.reduce(
       (sum, d) => sum + d.amount,
-      0
+      0,
     );
     const uniqueDonors = new Set(
-      succeededDonations.map((d) => d.customerId).filter(Boolean)
+      succeededDonations.map((d) => d.customerId).filter(Boolean),
     ).size;
     const averageDonation =
       totalDonations > 0 ? totalAmount / totalDonations : 0;

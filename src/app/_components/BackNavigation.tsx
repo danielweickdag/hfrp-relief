@@ -33,9 +33,10 @@ export default function BackNavigation({
     }
   };
 
-  const baseClasses = variant === "button" 
-    ? "inline-flex items-center gap-2 text-blue-700 hover:text-blue-900 hover:underline transition-colors duration-200 font-medium"
-    : "inline-flex items-center gap-1 text-gray-600 hover:text-gray-800 hover:underline transition-colors duration-200";
+  const baseClasses =
+    variant === "button"
+      ? "inline-flex items-center gap-2 text-blue-700 hover:text-blue-900 hover:underline transition-colors duration-200 font-medium"
+      : "inline-flex items-center gap-1 text-gray-600 hover:text-gray-800 hover:underline transition-colors duration-200";
 
   const combinedClasses = `${baseClasses} ${className}`;
 
@@ -49,11 +50,7 @@ export default function BackNavigation({
   }
 
   return (
-    <button
-      onClick={handleBack}
-      className={combinedClasses}
-      type="button"
-    >
+    <button onClick={handleBack} className={combinedClasses} type="button">
       <span>{icon}</span>
       <span>{text.replace("←", "").trim()}</span>
     </button>
@@ -63,21 +60,13 @@ export default function BackNavigation({
 // Specific variants for common use cases
 export function BackToHome({ className = "" }: { className?: string }) {
   return (
-    <BackNavigation
-      text="← Back to Home"
-      href="/"
-      className={className}
-    />
+    <BackNavigation text="← Back to Home" href="/" className={className} />
   );
 }
 
 export function BackToBlog({ className = "" }: { className?: string }) {
   return (
-    <BackNavigation
-      text="← Back to Blog"
-      href="/blog"
-      className={className}
-    />
+    <BackNavigation text="← Back to Blog" href="/blog" className={className} />
   );
 }
 

@@ -1,4 +1,4 @@
-import type { StripeAutomatedDonation } from './stripeAutomatedDonationSystem';
+import type { StripeAutomatedDonation } from "./stripeAutomatedDonationSystem";
 
 export interface TaxReceiptData {
   donationId: string;
@@ -24,13 +24,18 @@ export class TaxReceiptGenerator {
   private taxExemptStatus: string;
 
   constructor() {
-    this.organizationName = process.env.STRIPE_TAX_ORGANIZATION_NAME || "HFRP Relief";
-    this.organizationAddress = `${process.env.STRIPE_TAX_BUSINESS_ADDRESS_LINE1 || ""}, ${process.env.STRIPE_TAX_BUSINESS_CITY || ""}, ${process.env.STRIPE_TAX_BUSINESS_STATE || ""} ${process.env.STRIPE_TAX_BUSINESS_POSTAL_CODE || ""}`.trim();
+    this.organizationName =
+      process.env.STRIPE_TAX_ORGANIZATION_NAME || "HFRP Relief";
+    this.organizationAddress =
+      `${process.env.STRIPE_TAX_BUSINESS_ADDRESS_LINE1 || ""}, ${process.env.STRIPE_TAX_BUSINESS_CITY || ""}, ${process.env.STRIPE_TAX_BUSINESS_STATE || ""} ${process.env.STRIPE_TAX_BUSINESS_POSTAL_CODE || ""}`.trim();
     this.organizationTaxId = process.env.STRIPE_TAX_ORGANIZATION_TAX_ID || "";
     this.taxExemptStatus = process.env.STRIPE_TAX_EXEMPT_STATUS || "501(c)(3)";
   }
 
-  generateReceiptData(donation: StripeAutomatedDonation, donorEmail?: string): TaxReceiptData {
+  generateReceiptData(
+    donation: StripeAutomatedDonation,
+    donorEmail?: string,
+  ): TaxReceiptData {
     const receiptNumber = `TR-${donation.id}-${Date.now()}`;
     const donationDate = new Date(donation.createdAt);
     const taxYear = donationDate.getFullYear();
@@ -48,7 +53,10 @@ export class TaxReceiptGenerator {
       organizationAddress: this.organizationAddress,
       organizationTaxId: this.organizationTaxId,
       taxExemptStatus: this.taxExemptStatus,
-      isRecurring: donation.type === "monthly" || donation.type === "quarterly" || donation.type === "annual",
+      isRecurring:
+        donation.type === "monthly" ||
+        donation.type === "quarterly" ||
+        donation.type === "annual",
       campaignName: donation.campaignId,
     };
   }
@@ -164,8 +172,8 @@ export class TaxReceiptGenerator {
     <div class="amount-section">
         <div>Total Tax-Deductible Amount</div>
         <div class="amount">$${receiptData.amount.toFixed(2)} ${receiptData.currency.toUpperCase()}</div>
-        ${receiptData.isRecurring ? '<div style="margin-top: 10px; font-size: 14px;">Recurring Donation</div>' : ''}
-        ${receiptData.campaignName ? `<div style="margin-top: 10px; font-size: 14px;">Campaign: ${receiptData.campaignName}</div>` : ''}
+        ${receiptData.isRecurring ? '<div style="margin-top: 10px; font-size: 14px;">Recurring Donation</div>' : ""}
+        ${receiptData.campaignName ? `<div style="margin-top: 10px; font-size: 14px;">Campaign: ${receiptData.campaignName}</div>` : ""}
     </div>
 
     <div class="tax-info">
@@ -203,8 +211,8 @@ Tax Year: ${receiptData.taxYear}
 DONATION DETAILS
 ================
 Amount: $${receiptData.amount.toFixed(2)} ${receiptData.currency.toUpperCase()}
-Type: ${receiptData.isRecurring ? 'Recurring Donation' : 'One-time Donation'}
-${receiptData.campaignName ? `Campaign: ${receiptData.campaignName}` : ''}
+Type: ${receiptData.isRecurring ? "Recurring Donation" : "One-time Donation"}
+${receiptData.campaignName ? `Campaign: ${receiptData.campaignName}` : ""}
 
 TAX INFORMATION
 ===============
@@ -221,21 +229,22 @@ If you have any questions about this receipt, please contact us.
   }
 
   async generateAndSaveReceipt(
-    donation: StripeAutomatedDonation, 
+    donation: StripeAutomatedDonation,
     donorEmail: string,
-    format: 'html' | 'text' = 'html'
+    format: "html" | "text" = "html",
   ): Promise<{ receiptData: TaxReceiptData; content: string }> {
     const receiptData = this.generateReceiptData(donation, donorEmail);
-    const content = format === 'html' 
-      ? this.generateHtmlReceipt(receiptData)
-      : this.generateTextReceipt(receiptData);
+    const content =
+      format === "html"
+        ? this.generateHtmlReceipt(receiptData)
+        : this.generateTextReceipt(receiptData);
 
     // In a real implementation, you might save this to a file system or database
     // For now, we'll just return the content
-    
+
     return {
       receiptData,
-      content
+      content,
     };
   }
 }

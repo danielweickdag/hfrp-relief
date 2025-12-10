@@ -1,9 +1,18 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { getResendEnhanced, getResendConfig, isResendDemoMode, sendEnhancedEmail } from "@/lib/resendEnhanced";
+import {
+  getResendEnhanced,
+  getResendConfig,
+  isResendDemoMode,
+  sendEnhancedEmail,
+} from "@/lib/resendEnhanced";
 import fs from "fs";
 import path from "path";
 
-type AutomationAction = "run" | "process_scheduled" | "process_thank_you" | "process_queue";
+type AutomationAction =
+  | "run"
+  | "process_scheduled"
+  | "process_thank_you"
+  | "process_queue";
 
 interface DonationRecord {
   id: string;
@@ -43,7 +52,7 @@ interface QueueItem {
 
 export async function POST(request: NextRequest) {
   try {
-    const raw = await request.json().catch(() => ({} as unknown));
+    const raw = await request.json().catch(() => ({}) as unknown);
     let action: AutomationAction = "run";
     if (typeof raw === "object" && raw && "action" in raw) {
       const val = (raw as { action?: unknown }).action;
@@ -69,7 +78,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, summary });
   } catch (error) {
     console.error("Email automation error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -83,7 +95,7 @@ async function processScheduled(origin: string) {
     const res = await fetch(`${origin}/api/email/campaigns`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "process_scheduled" })
+      body: JSON.stringify({ action: "process_scheduled" }),
     });
     const data = await res.json().catch(() => ({}));
     return { processed: data.processed ?? 0, remaining: data.remaining ?? 0 };
@@ -96,7 +108,12 @@ async function processScheduled(origin: string) {
 async function processDonationThankYous() {
   const donationsPath = path.join(process.cwd(), "data", "donations.json");
   if (!fs.existsSync(donationsPath)) {
-    return { processed: 0, updated: 0, skipped: 0, message: "No donations.json" };
+    return {
+      processed: 0,
+      updated: 0,
+      skipped: 0,
+      message: "No donations.json",
+    };
   }
 
   let donations: DonationRecord[] = [];
@@ -124,7 +141,10 @@ async function processDonationThankYous() {
 
     const subject = `Thank You for Your Donation${donation.campaign ? ` to ${donation.campaign}` : ""}!`;
     const greeting = `Dear ${donation.donor_name || "Supporter"},`;
-    const amountStr = typeof donation.amount === "number" ? donation.amount.toFixed(2) : String(donation.amount ?? "");
+    const amountStr =
+      typeof donation.amount === "number"
+        ? donation.amount.toFixed(2)
+        : String(donation.amount ?? "");
     const html = `
       <div style="max-width:600px;margin:0 auto;font-family:Arial,sans-serif;">
         <h1 style="color:#059669;">Thank You!</h1>
@@ -150,8 +170,8 @@ async function processDonationThankYous() {
         text,
         tags: [
           { name: "source", value: "donation_thank_you" },
-          { name: "donation_id", value: donation.id }
-        ]
+          { name: "donation_id", value: donation.id },
+        ],
       });
 
       if (result.success) {
@@ -159,7 +179,10 @@ async function processDonationThankYous() {
         donation.thank_you_sent_at = new Date().toISOString();
         updated += 1;
       } else {
-        console.error(`Failed to send thank you for ${donation.id}:`, result.error);
+        console.error(
+          `Failed to send thank you for ${donation.id}:`,
+          result.error,
+        );
       }
     }
 
@@ -179,7 +202,12 @@ async function processDonationThankYous() {
 async function processEmailQueue() {
   const queuePath = path.join(process.cwd(), "data", "email_queue.json");
   if (!fs.existsSync(queuePath)) {
-    return { processed: 0, updated: 0, skipped: 0, message: "No email_queue.json" };
+    return {
+      processed: 0,
+      updated: 0,
+      skipped: 0,
+      message: "No email_queue.json",
+    };
   }
 
   let queue: QueueItem[] = [];
@@ -193,7 +221,9 @@ async function processEmailQueue() {
   const donationsPath = path.join(process.cwd(), "data", "donations.json");
   let donations: DonationRecord[] = [];
   if (fs.existsSync(donationsPath)) {
-    try { donations = JSON.parse(fs.readFileSync(donationsPath, "utf8")); } catch {}
+    try {
+      donations = JSON.parse(fs.readFileSync(donationsPath, "utf8"));
+    } catch {}
   }
 
   const demoMode = isResendDemoMode();
@@ -206,17 +236,28 @@ async function processEmailQueue() {
   let skipped = 0;
 
   for (const item of queue) {
-    const scheduledTime = item.scheduled_for ? Date.parse(item.scheduled_for) : now;
-    if (item.status === "sent") { skipped += 1; continue; }
-    if (!Number.isFinite(scheduledTime) || scheduledTime > now) { skipped += 1; continue; }
+    const scheduledTime = item.scheduled_for
+      ? Date.parse(item.scheduled_for)
+      : now;
+    if (item.status === "sent") {
+      skipped += 1;
+      continue;
+    }
+    if (!Number.isFinite(scheduledTime) || scheduledTime > now) {
+      skipped += 1;
+      continue;
+    }
 
     // Target recipients: donors for matching campaign, fallback none
     const recipients = donations
-      .filter(d => item.campaign ? d.campaign === item.campaign : true)
-      .map(d => d.donor_email)
+      .filter((d) => (item.campaign ? d.campaign === item.campaign : true))
+      .map((d) => d.donor_email)
       .filter((e): e is string => typeof e === "string" && e.length > 3);
 
-    if (recipients.length === 0) { skipped += 1; continue; }
+    if (recipients.length === 0) {
+      skipped += 1;
+      continue;
+    }
 
     const subject = item.template.subject;
     const html = `
@@ -243,8 +284,8 @@ async function processEmailQueue() {
         text,
         tags: [
           { name: "source", value: "email_queue" },
-          { name: "campaign", value: item.campaign || "" }
-        ]
+          { name: "campaign", value: item.campaign || "" },
+        ],
       });
 
       if (result.success) {

@@ -193,7 +193,7 @@ class StripeAutomatedDonationSystem {
           donorCount: 0,
           startDate: new Date().toISOString(),
           endDate: new Date(
-            Date.now() + 90 * 24 * 60 * 60 * 1000
+            Date.now() + 90 * 24 * 60 * 60 * 1000,
           ).toISOString(),
           isActive: true,
           tags: ["emergency", "haiti", "disaster-relief"],
@@ -282,7 +282,7 @@ class StripeAutomatedDonationSystem {
           donorCount: 0,
           startDate: new Date().toISOString(),
           endDate: new Date(
-            Date.now() + 365 * 24 * 60 * 60 * 1000
+            Date.now() + 365 * 24 * 60 * 60 * 1000,
           ).toISOString(),
           isActive: true,
           tags: ["recurring", "daily", "sustainable"],
@@ -353,7 +353,7 @@ class StripeAutomatedDonationSystem {
 
       this.setToStorage(
         STRIPE_STORAGE_KEYS.STRIPE_CAMPAIGNS,
-        JSON.stringify(defaultCampaigns)
+        JSON.stringify(defaultCampaigns),
       );
 
       // Create Stripe products and prices for these campaigns
@@ -365,7 +365,7 @@ class StripeAutomatedDonationSystem {
 
   // Create Stripe products and prices for campaigns
   private async createStripeProductForCampaign(
-    campaign: StripeAutomatedCampaign
+    campaign: StripeAutomatedCampaign,
   ): Promise<void> {
     try {
       // Create Stripe product
@@ -422,17 +422,17 @@ class StripeAutomatedDonationSystem {
         campaigns[index] = campaign;
         this.setToStorage(
           STRIPE_STORAGE_KEYS.STRIPE_CAMPAIGNS,
-          JSON.stringify(campaigns)
+          JSON.stringify(campaigns),
         );
       }
 
       this.logAutomation(
-        `Created Stripe product ${product.id} for campaign ${campaign.id}`
+        `Created Stripe product ${product.id} for campaign ${campaign.id}`,
       );
     } catch (error) {
       console.error(
         `Failed to create Stripe product for campaign ${campaign.id}:`,
-        error
+        error,
       );
     }
   }
@@ -451,7 +451,7 @@ class StripeAutomatedDonationSystem {
     try {
       await this.ensureInitialized();
       const campaign = this.getStripeCampaigns().find(
-        (c) => c.id === params.campaignId
+        (c) => c.id === params.campaignId,
       );
       if (!campaign) {
         throw new Error(`Campaign ${params.campaignId} not found`);
@@ -471,7 +471,7 @@ class StripeAutomatedDonationSystem {
         // Create custom amount
         if (!campaign.stripeProductId) {
           throw new Error(
-            `Campaign ${params.campaignId} missing Stripe product`
+            `Campaign ${params.campaignId} missing Stripe product`,
           );
         }
 
@@ -522,7 +522,7 @@ class StripeAutomatedDonationSystem {
       });
 
       this.logAutomation(
-        `Created checkout session ${session.id} for campaign ${params.campaignId}`
+        `Created checkout session ${session.id} for campaign ${params.campaignId}`,
       );
 
       return {
@@ -541,32 +541,32 @@ class StripeAutomatedDonationSystem {
       switch (event.type) {
         case "checkout.session.completed":
           await this.handleCheckoutCompleted(
-            event.data.object as Stripe.Checkout.Session
+            event.data.object as Stripe.Checkout.Session,
           );
           break;
 
         case "payment_intent.succeeded":
           await this.handlePaymentSucceeded(
-            event.data.object as Stripe.PaymentIntent
+            event.data.object as Stripe.PaymentIntent,
           );
           break;
 
         case "invoice.payment_succeeded":
           await this.handleRecurringPaymentSucceeded(
-            event.data.object as Stripe.Invoice
+            event.data.object as Stripe.Invoice,
           );
           break;
 
         case "customer.subscription.created":
         case "customer.subscription.updated":
           await this.handleSubscriptionChange(
-            event.data.object as Stripe.Subscription
+            event.data.object as Stripe.Subscription,
           );
           break;
 
         case "customer.subscription.deleted":
           await this.handleSubscriptionCancelled(
-            event.data.object as Stripe.Subscription
+            event.data.object as Stripe.Subscription,
           );
           break;
 
@@ -575,7 +575,7 @@ class StripeAutomatedDonationSystem {
       }
 
       this.logAutomation(
-        `Processed webhook event: ${event.type} - ${event.id}`
+        `Processed webhook event: ${event.type} - ${event.id}`,
       );
     } catch (error) {
       console.error(`Failed to process webhook event ${event.type}:`, error);
@@ -584,7 +584,7 @@ class StripeAutomatedDonationSystem {
 
   // Handle successful checkout completion
   private async handleCheckoutCompleted(
-    session: Stripe.Checkout.Session
+    session: Stripe.Checkout.Session,
   ): Promise<void> {
     const campaignId = session.metadata?.campaignId;
     if (!campaignId) return;
@@ -636,12 +636,12 @@ class StripeAutomatedDonationSystem {
 
   // Handle successful payment
   private async handlePaymentSucceeded(
-    paymentIntent: Stripe.PaymentIntent
+    paymentIntent: Stripe.PaymentIntent,
   ): Promise<void> {
     // Update donation status if exists
     const donations = this.getStripeDonations();
     const donation = donations.find(
-      (d) => d.stripePaymentIntentId === paymentIntent.id
+      (d) => d.stripePaymentIntentId === paymentIntent.id,
     );
 
     if (donation) {
@@ -651,7 +651,7 @@ class StripeAutomatedDonationSystem {
 
       this.setToStorage(
         STRIPE_STORAGE_KEYS.STRIPE_DONATIONS,
-        JSON.stringify(donations)
+        JSON.stringify(donations),
       );
 
       // Trigger automation if not already triggered
@@ -663,7 +663,7 @@ class StripeAutomatedDonationSystem {
 
   // Handle recurring payment success
   private async handleRecurringPaymentSucceeded(
-    invoice: Stripe.Invoice
+    invoice: Stripe.Invoice,
   ): Promise<void> {
     const rawSubscription: any = (invoice as any).subscription;
     const subscriptionId =
@@ -713,23 +713,23 @@ class StripeAutomatedDonationSystem {
     this.saveStripeDonation(donation);
     await this.updateCampaignStats(campaignId, donation.amount);
     this.queueAutomation(() =>
-      this.triggerRecurringDonationAutomation(donation)
+      this.triggerRecurringDonationAutomation(donation),
     );
   }
 
   // Handle subscription changes
   private async handleSubscriptionChange(
-    subscription: Stripe.Subscription
+    subscription: Stripe.Subscription,
   ): Promise<void> {
     // Log subscription changes for analytics
     this.logAutomation(
-      `Subscription ${subscription.status}: ${subscription.id}`
+      `Subscription ${subscription.status}: ${subscription.id}`,
     );
   }
 
   // Handle subscription cancellation
   private async handleSubscriptionCancelled(
-    subscription: Stripe.Subscription
+    subscription: Stripe.Subscription,
   ): Promise<void> {
     // Trigger retention automation
     this.queueAutomation(() => this.triggerRetentionAutomation(subscription));
@@ -737,10 +737,10 @@ class StripeAutomatedDonationSystem {
 
   // Trigger donation automation
   private async triggerDonationAutomation(
-    donation: StripeAutomatedDonation
+    donation: StripeAutomatedDonation,
   ): Promise<void> {
     const campaign = this.getStripeCampaigns().find(
-      (c) => c.id === donation.campaignId
+      (c) => c.id === donation.campaignId,
     );
     if (!campaign || !campaign.automatedNotifications) return;
 
@@ -767,7 +767,7 @@ class StripeAutomatedDonationSystem {
       donations[donationIndex].automationTriggered = true;
       this.setToStorage(
         STRIPE_STORAGE_KEYS.STRIPE_DONATIONS,
-        JSON.stringify(donations)
+        JSON.stringify(donations),
       );
     }
 
@@ -776,16 +776,16 @@ class StripeAutomatedDonationSystem {
 
   // Trigger recurring donation automation
   private async triggerRecurringDonationAutomation(
-    donation: StripeAutomatedDonation
+    donation: StripeAutomatedDonation,
   ): Promise<void> {
     // Special handling for recurring donations
     this.logAutomation(
-      `Triggered recurring donation automation for ${donation.id}`
+      `Triggered recurring donation automation for ${donation.id}`,
     );
 
     // Send recurring thank you (different from one-time)
     const campaign = this.getStripeCampaigns().find(
-      (c) => c.id === donation.campaignId
+      (c) => c.id === donation.campaignId,
     );
     if (campaign) {
       await this.sendRecurringThankYouEmail(donation, campaign);
@@ -794,10 +794,10 @@ class StripeAutomatedDonationSystem {
 
   // Trigger retention automation for cancelled subscriptions
   private async triggerRetentionAutomation(
-    subscription: Stripe.Subscription
+    subscription: Stripe.Subscription,
   ): Promise<void> {
     this.logAutomation(
-      `Triggered retention automation for cancelled subscription ${subscription.id}`
+      `Triggered retention automation for cancelled subscription ${subscription.id}`,
     );
 
     // Send retention email
@@ -807,7 +807,7 @@ class StripeAutomatedDonationSystem {
 
   // Check and trigger milestone automations
   private async checkMilestones(
-    campaign: StripeAutomatedCampaign
+    campaign: StripeAutomatedCampaign,
   ): Promise<void> {
     for (const milestone of campaign.milestoneAutomation) {
       if (!milestone.triggered && campaign.raised >= milestone.amount) {
@@ -823,7 +823,7 @@ class StripeAutomatedDonationSystem {
             null,
             campaign,
             "milestone",
-            milestone
+            milestone,
           );
         }
 
@@ -838,12 +838,12 @@ class StripeAutomatedDonationSystem {
           campaigns[index] = campaign;
           this.setToStorage(
             STRIPE_STORAGE_KEYS.STRIPE_CAMPAIGNS,
-            JSON.stringify(campaigns)
+            JSON.stringify(campaigns),
           );
         }
 
         this.logAutomation(
-          `Triggered milestone automation for ${campaign.id} at ${milestone.percentage}%`
+          `Triggered milestone automation for ${campaign.id} at ${milestone.percentage}%`,
         );
       }
     }
@@ -852,7 +852,7 @@ class StripeAutomatedDonationSystem {
   // Automation helper methods
   private async sendThankYouEmail(
     donation: StripeAutomatedDonation,
-    campaign: StripeAutomatedCampaign
+    campaign: StripeAutomatedCampaign,
   ): Promise<void> {
     // Implementation would integrate with email service (SendGrid, Mailgun, etc.)
     this.logAutomation(`Sent thank you email for donation ${donation.id}`);
@@ -860,19 +860,19 @@ class StripeAutomatedDonationSystem {
 
   private async sendRecurringThankYouEmail(
     donation: StripeAutomatedDonation,
-    campaign: StripeAutomatedCampaign
+    campaign: StripeAutomatedCampaign,
   ): Promise<void> {
     this.logAutomation(
-      `Sent recurring thank you email for donation ${donation.id}`
+      `Sent recurring thank you email for donation ${donation.id}`,
     );
   }
 
   private async sendMilestoneEmail(
     campaign: StripeAutomatedCampaign,
-    milestone: MilestoneAutomation
+    milestone: MilestoneAutomation,
   ): Promise<void> {
     this.logAutomation(
-      `Sent milestone email for ${campaign.id} at ${milestone.percentage}%`
+      `Sent milestone email for ${campaign.id} at ${milestone.percentage}%`,
     );
   }
 
@@ -880,7 +880,7 @@ class StripeAutomatedDonationSystem {
     donation: StripeAutomatedDonation | null,
     campaign: StripeAutomatedCampaign,
     type: "newDonation" | "milestone" | "goalReached" | "weeklyUpdate",
-    milestone?: MilestoneAutomation
+    milestone?: MilestoneAutomation,
   ): Promise<void> {
     const template = campaign.socialMediaAutomation.templates[type];
     let message = template;
@@ -894,23 +894,23 @@ class StripeAutomatedDonationSystem {
     }
 
     this.logAutomation(
-      `Posted social media update: ${type} for ${campaign.id}`
+      `Posted social media update: ${type} for ${campaign.id}`,
     );
   }
 
   private async notifyTeam(
     campaign: StripeAutomatedCampaign,
-    milestone: MilestoneAutomation
+    milestone: MilestoneAutomation,
   ): Promise<void> {
     this.logAutomation(
-      `Notified team about milestone ${milestone.percentage}% for ${campaign.id}`
+      `Notified team about milestone ${milestone.percentage}% for ${campaign.id}`,
     );
   }
 
   // Update campaign statistics
   private async updateCampaignStats(
     campaignId: string,
-    amount: number
+    amount: number,
   ): Promise<void> {
     const campaigns = this.getStripeCampaigns();
     const campaignIndex = campaigns.findIndex((c) => c.id === campaignId);
@@ -922,7 +922,7 @@ class StripeAutomatedDonationSystem {
 
       this.setToStorage(
         STRIPE_STORAGE_KEYS.STRIPE_CAMPAIGNS,
-        JSON.stringify(campaigns)
+        JSON.stringify(campaigns),
       );
     }
   }
@@ -930,7 +930,7 @@ class StripeAutomatedDonationSystem {
   // Storage methods
   private getStripeDonations(): StripeAutomatedDonation[] {
     return JSON.parse(
-      this.getFromStorage(STRIPE_STORAGE_KEYS.STRIPE_DONATIONS, "[]")
+      this.getFromStorage(STRIPE_STORAGE_KEYS.STRIPE_DONATIONS, "[]"),
     );
   }
 
@@ -939,13 +939,13 @@ class StripeAutomatedDonationSystem {
     donations.push(donation);
     this.setToStorage(
       STRIPE_STORAGE_KEYS.STRIPE_DONATIONS,
-      JSON.stringify(donations)
+      JSON.stringify(donations),
     );
   }
 
   private getStripeCampaigns(): StripeAutomatedCampaign[] {
     return JSON.parse(
-      this.getFromStorage(STRIPE_STORAGE_KEYS.STRIPE_CAMPAIGNS, "[]")
+      this.getFromStorage(STRIPE_STORAGE_KEYS.STRIPE_CAMPAIGNS, "[]"),
     );
   }
 
@@ -984,7 +984,7 @@ class StripeAutomatedDonationSystem {
     };
 
     const logs = JSON.parse(
-      this.getFromStorage(STRIPE_STORAGE_KEYS.AUTOMATION_LOGS, "[]")
+      this.getFromStorage(STRIPE_STORAGE_KEYS.AUTOMATION_LOGS, "[]"),
     );
     logs.push(log);
 
@@ -995,7 +995,7 @@ class StripeAutomatedDonationSystem {
 
     this.setToStorage(
       STRIPE_STORAGE_KEYS.AUTOMATION_LOGS,
-      JSON.stringify(logs)
+      JSON.stringify(logs),
     );
     console.log(`[AUTOMATION] ${message}`);
   }
@@ -1011,7 +1011,7 @@ class StripeAutomatedDonationSystem {
       totalStripeDonations: stripeDonations.length,
       processingFees: stripeDonations.reduce(
         (sum, d) => sum + d.processingFee,
-        0
+        0,
       ),
       netAmount: stripeDonations.reduce((sum, d) => sum + d.netAmount, 0),
       activeCampaigns: stripeCampaigns.filter((c) => c.isActive).length,
@@ -1035,10 +1035,10 @@ class StripeAutomatedDonationSystem {
   }
 
   async getAutomationLogs(
-    limit = 50
+    limit = 50,
   ): Promise<Array<{ timestamp: string; message: string }>> {
     const logs = JSON.parse(
-      this.getFromStorage(STRIPE_STORAGE_KEYS.AUTOMATION_LOGS, "[]")
+      this.getFromStorage(STRIPE_STORAGE_KEYS.AUTOMATION_LOGS, "[]"),
     );
     return logs.slice(-limit).reverse();
   }
@@ -1066,7 +1066,7 @@ export function getStripeAutomatedDonationSystem(): StripeAutomatedDonationSyste
     } catch (error) {
       console.error(
         "Failed to initialize StripeAutomatedDonationSystem:",
-        error
+        error,
       );
       return null;
     }

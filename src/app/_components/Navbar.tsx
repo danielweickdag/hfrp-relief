@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import RadioPlayer from "./RadioPlayer";
+import RadioPlayer from "./RadioPlayerFixed";
 
 export function Navbar() {
   const router = useRouter();
@@ -76,21 +76,21 @@ export function Navbar() {
           }
         </style>
       `;
-      
+
       // Add print styles to document head
-      const styleElement = document.createElement('style');
+      const styleElement = document.createElement("style");
       styleElement.innerHTML = printStyles;
       document.head.appendChild(styleElement);
-      
+
       // Add printable class to main content
-      const mainContent = document.querySelector('main') || document.body;
-      mainContent.classList.add('printable');
-      
+      const mainContent = document.querySelector("main") || document.body;
+      mainContent.classList.add("printable");
+
       // Create print header if it doesn't exist
-      let printHeader = document.querySelector('.print-header');
+      let printHeader = document.querySelector(".print-header");
       if (!printHeader) {
-        printHeader = document.createElement('div');
-        printHeader.className = 'print-header';
+        printHeader = document.createElement("div");
+        printHeader.className = "print-header";
         printHeader.innerHTML = `
           <img src="/hfrp-logo.png" alt="HFRP Logo" class="print-logo">
           <h1 class="print-title">Haitian Family Relief Project</h1>
@@ -98,21 +98,20 @@ export function Navbar() {
         `;
         mainContent.insertBefore(printHeader, mainContent.firstChild);
       }
-      
+
       // Trigger print
       window.print();
-      
+
       // Cleanup after print
       setTimeout(() => {
         document.head.removeChild(styleElement);
-        mainContent.classList.remove('printable');
+        mainContent.classList.remove("printable");
         if (printHeader && printHeader.parentNode) {
           printHeader.parentNode.removeChild(printHeader);
         }
       }, 1000);
-      
     } catch (error) {
-      console.error('Print functionality error:', error);
+      console.error("Print functionality error:", error);
       // Fallback to simple print
       window.print();
     }
@@ -121,17 +120,18 @@ export function Navbar() {
   const handleEnableFeatures = () => {
     try {
       // Enable advanced features
-      localStorage.setItem('hfrp_advanced_features', 'enabled');
-      
+      localStorage.setItem("hfrp_advanced_features", "enabled");
+
       // Dispatch custom event for feature enablement
-      const event = new CustomEvent('hfrp:featuresEnabled', {
-        detail: { timestamp: Date.now() }
+      const event = new CustomEvent("hfrp:featuresEnabled", {
+        detail: { timestamp: Date.now() },
       });
       window.dispatchEvent(event);
-      
+
       // Show confirmation
-      const notification = document.createElement('div');
-      notification.className = 'fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-all duration-300';
+      const notification = document.createElement("div");
+      notification.className =
+        "fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-all duration-300";
       notification.innerHTML = `
         <div class="flex items-center gap-2">
           <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -141,18 +141,17 @@ export function Navbar() {
         </div>
       `;
       document.body.appendChild(notification);
-      
+
       setTimeout(() => {
-        notification.style.opacity = '0';
+        notification.style.opacity = "0";
         setTimeout(() => {
           if (notification.parentNode) {
             notification.parentNode.removeChild(notification);
           }
         }, 300);
       }, 3000);
-      
     } catch (error) {
-      console.error('Feature enablement error:', error);
+      console.error("Feature enablement error:", error);
     }
   };
 
@@ -173,7 +172,9 @@ export function Navbar() {
                 className="h-8 w-8 sm:h-10 sm:w-10 rounded-full mr-2 sm:mr-3"
               />
               <span className="text-white font-bold text-sm sm:text-lg lg:text-xl leading-tight">
-                <span className="hidden sm:inline">Haitian Family Relief Project</span>
+                <span className="hidden sm:inline">
+                  Haitian Family Relief Project
+                </span>
                 <span className="sm:hidden">HFRP</span>
               </span>
             </Link>
@@ -240,9 +241,9 @@ export function Navbar() {
                 title="Admin Login"
                 aria-label="Admin Login"
               >
-                <svg 
-                  className="w-5 h-5 transition-transform group-hover:scale-110" 
-                  fill="currentColor" 
+                <svg
+                  className="w-5 h-5 transition-transform group-hover:scale-110"
+                  fill="currentColor"
                   viewBox="0 0 24 24"
                   aria-hidden="true"
                 >
@@ -254,14 +255,17 @@ export function Navbar() {
 
           {/* Right side items for mobile */}
           <div className="md:hidden flex items-center space-x-3">
-            {/* Radio Player */}
-            <RadioPlayer
-              streamUrl="https://stream.zeno.fm/ttq4haexcf9uv"
-              stationName="HFRP Radio"
-              size="sm"
-              variant="icon"
-              className="transition-transform hover:scale-110"
-            />
+            {/* Radio Link */}
+            <Link
+              href="/radio"
+              className="flex items-center justify-center w-12 h-12 bg-red-600 hover:bg-red-700 text-white rounded-full shadow-lg transition-all duration-300 transform hover:scale-110"
+              title="HFRP Radio"
+              aria-label="Open radio page"
+            >
+              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </Link>
 
             {/* Mobile menu button */}
             <button
@@ -281,7 +285,11 @@ export function Navbar() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d={isMounted && isMobileMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
+                  d={
+                    isMounted && isMobileMenuOpen
+                      ? "M6 18L18 6M6 6l12 12"
+                      : "M4 6h16M4 12h16M4 18h16"
+                  }
                 />
               </svg>
             </button>
@@ -381,14 +389,17 @@ export function Navbar() {
                 </svg>
               </Link>
 
-              {/* Radio Player */}
-              <RadioPlayer
-                streamUrl="https://stream.zeno.fm/ttq4haexcf9uv"
-                stationName="HFRP Radio"
-                size="sm"
-                variant="icon"
-                className="transition-transform hover:scale-110"
-              />
+              {/* Radio Link */}
+              <Link
+                href="/radio"
+                className="flex items-center justify-center w-10 h-10 bg-red-600 hover:bg-red-700 text-white rounded-full shadow-lg transition-all duration-300 transform hover:scale-110"
+                title="HFRP Radio"
+                aria-label="Open radio page"
+              >
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </Link>
             </div>
 
             {/* Social Media Links */}
