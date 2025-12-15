@@ -25,6 +25,9 @@ env:
   DEPLOYMENT_URL: ${{ secrets.DEPLOYMENT_URL }}
   STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
   RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+  STRIPE_SECRET_KEY_TEST: ${{ secrets.STRIPE_SECRET_KEY_TEST }}
+  STRIPE_WEBHOOK_SECRET_TEST: ${{ secrets.STRIPE_WEBHOOK_SECRET_TEST }}
+  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_TEST: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_TEST }}
 
 jobs:
   health-check:
@@ -52,6 +55,14 @@ jobs:
         node-version: ${{ env.NODE_VERSION }}
         cache: 'npm'
 
+    - name: ⚙️ Use Stripe TEST env on non-main branches
+      if: github.ref != 'refs/heads/main'
+      run: |
+        echo "NEXT_PUBLIC_STRIPE_TEST_MODE=true" >> $GITHUB_ENV
+        echo "STRIPE_SECRET_KEY=${{ env.STRIPE_SECRET_KEY_TEST }}" >> $GITHUB_ENV
+        echo "STRIPE_WEBHOOK_SECRET=${{ env.STRIPE_WEBHOOK_SECRET_TEST }}" >> $GITHUB_ENV
+        echo "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${{ env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_TEST }}" >> $GITHUB_ENV
+
     - name: 🧩 Install Bun
       uses: oven-sh/setup-bun@v1
       with:
@@ -59,6 +70,26 @@ jobs:
 
     - name: 📦 Install Dependencies
       run: bun install
+
+    - name: 🔗 Stripe Connectivity Check
+      run: |
+        node -e "
+          const Stripe = require('stripe');
+          const key = process.env.STRIPE_SECRET_KEY;
+          if (!key) {
+            console.error('❌ STRIPE_SECRET_KEY not set');
+            process.exit(1);
+          }
+          const stripe = new Stripe(key);
+          stripe.accounts.retrieve()
+            .then(acc => {
+              console.log('✅ Stripe connected to account:', acc.id);
+            })
+            .catch(err => {
+              console.error('❌ Stripe connectivity failed:', err && err.message ? err.message : String(err));
+              process.exit(1);
+            });
+        "
 
     - name: 🔍 Run Health Check
       id: health
@@ -101,6 +132,14 @@ jobs:
 
     - name: "🟢 Setup Node.js & Bun"
       uses: oven-sh/setup-bun@v1
+
+    - name: ⚙️ Use Stripe TEST env on non-main branches
+      if: github.ref != 'refs/heads/main'
+      run: |
+        echo "NEXT_PUBLIC_STRIPE_TEST_MODE=true" >> $GITHUB_ENV
+        echo "STRIPE_SECRET_KEY=${{ env.STRIPE_SECRET_KEY_TEST }}" >> $GITHUB_ENV
+        echo "STRIPE_WEBHOOK_SECRET=${{ env.STRIPE_WEBHOOK_SECRET_TEST }}" >> $GITHUB_ENV
+        echo "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${{ env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_TEST }}" >> $GITHUB_ENV
 
     - name: 📦 Install Dependencies
       run: bun install
@@ -165,6 +204,14 @@ jobs:
 
     - name: "🟢 Setup Node.js & Bun"
       uses: oven-sh/setup-bun@v1
+
+    - name: ⚙️ Use Stripe TEST env for staging
+      if: github.ref == 'refs/heads/develop'
+      run: |
+        echo "NEXT_PUBLIC_STRIPE_TEST_MODE=true" >> $GITHUB_ENV
+        echo "STRIPE_SECRET_KEY=${{ env.STRIPE_SECRET_KEY_TEST }}" >> $GITHUB_ENV
+        echo "STRIPE_WEBHOOK_SECRET=${{ env.STRIPE_WEBHOOK_SECRET_TEST }}" >> $GITHUB_ENV
+        echo "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${{ env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_TEST }}" >> $GITHUB_ENV
 
     - name: 📦 Install Dependencies
       run: bun install
