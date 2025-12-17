@@ -56,6 +56,17 @@ export default function FloatingRadio({ className = "" }) {
           className="relative flex items-center justify-center w-14 h-14 bg-red-600 hover:bg-red-700 text-white rounded-full shadow-lg transition-all duration-200 transform hover:scale-105"
           title="HFRP Radio"
           aria-label="Open radio page"
+          onClick={() => {
+            if (window.gtag) {
+              window.gtag("event", "radio_open", {
+                source: "floating-mobile",
+                page_path: window.location.pathname,
+                timestamp: Date.now(),
+                scroll_y: window.scrollY,
+                screen_w: window.innerWidth,
+              });
+            }
+          }}
         >
           <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
             <path d="M8 5v14l11-7z" />

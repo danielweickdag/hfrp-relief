@@ -250,6 +250,18 @@ jobs:
     - name: 📦 Install Dependencies
       run: bun install
 
+    - name: 🔒 Assert Live Stripe keys
+      run: |
+        if echo "${STRIPE_SECRET_KEY}" | grep -q "^sk_test_"; then
+          echo "❌ Test Stripe secret key detected in production branch" && exit 1
+        fi
+        if [ -n "${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}" ] && echo "${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}" | grep -q "^pk_test_"; then
+          echo "❌ Test Stripe publishable key detected in production branch" && exit 1
+        fi
+        if [ "${NEXT_PUBLIC_STRIPE_TEST_MODE}" = "true" ]; then
+          echo "❌ NEXT_PUBLIC_STRIPE_TEST_MODE=true detected in production branch" && exit 1
+        fi
+
     - name: 🏗️ Build Application
       run: bun run build
 

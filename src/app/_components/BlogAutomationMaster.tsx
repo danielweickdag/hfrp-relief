@@ -611,8 +611,8 @@ const BlogAutomationMaster: React.FC = () => {
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ category, percentage }) =>
-                        `${category} ${percentage}%`
+                      label={({ payload, percent }) =>
+                        `${payload.category} ${Math.round((percent || 0) * 100)}%`
                       }
                       outerRadius={80}
                       fill="#8884d8"

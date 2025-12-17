@@ -316,6 +316,7 @@ export default function StripeDashboard({
                         key={amount}
                         campaignId={selectedCampaign}
                         amount={amount}
+                        showFallbackNotice
                         className="text-sm"
                       >
                         ${amount}
@@ -336,6 +337,7 @@ export default function StripeDashboard({
                         amount={amount}
                         recurring={true}
                         interval="month"
+                        showFallbackNotice
                         className="text-sm"
                       >
                         ${amount}/mo

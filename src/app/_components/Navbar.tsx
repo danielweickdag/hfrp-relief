@@ -255,17 +255,14 @@ export function Navbar() {
 
           {/* Right side items for mobile */}
           <div className="md:hidden flex items-center space-x-3">
-            {/* Radio Link */}
-            <Link
-              href="/radio"
-              className="flex items-center justify-center w-12 h-12 bg-red-600 hover:bg-red-700 text-white rounded-full shadow-lg transition-all duration-300 transform hover:scale-110"
-              title="HFRP Radio"
-              aria-label="Open radio page"
-            >
-              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M8 5v14l11-7z" />
-              </svg>
-            </Link>
+            {/* Radio Player */}
+            <RadioPlayer
+              streamUrl="https://stream.zeno.fm/ttq4haexcf9uv"
+              stationName="HFRP Radio"
+              size="sm"
+              variant="icon"
+              className="transition-transform hover:scale-110"
+            />
 
             {/* Mobile menu button */}
             <button
@@ -389,17 +386,14 @@ export function Navbar() {
                 </svg>
               </Link>
 
-              {/* Radio Link */}
-              <Link
-                href="/radio"
-                className="flex items-center justify-center w-10 h-10 bg-red-600 hover:bg-red-700 text-white rounded-full shadow-lg transition-all duration-300 transform hover:scale-110"
-                title="HFRP Radio"
-                aria-label="Open radio page"
-              >
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-              </Link>
+              {/* Radio Player */}
+              <RadioPlayer
+                streamUrl="https://stream.zeno.fm/ttq4haexcf9uv"
+                stationName="HFRP Radio"
+                size="sm"
+                variant="icon"
+                className="transition-transform hover:scale-110"
+              />
             </div>
 
             {/* Social Media Links */}

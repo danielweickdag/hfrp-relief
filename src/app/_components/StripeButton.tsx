@@ -14,6 +14,7 @@ interface StripeButtonProps {
   disabled?: boolean;
   onSuccess?: () => void;
   onError?: (error: string) => void;
+  showFallbackNotice?: boolean;
 }
 
 export default function StripeButton({
@@ -27,6 +28,7 @@ export default function StripeButton({
   disabled = false,
   onSuccess,
   onError,
+  showFallbackNotice = false,
 }: StripeButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   // Initialize Stripe helper and hooks BEFORE any conditional returns
@@ -367,7 +369,7 @@ export default function StripeButton({
             {recurring ? `$${amount}/${interval}` : `One-time: $${amount}`}
           </div>
         )}
-        {!campaign && (
+        {showFallbackNotice && !campaign && (
           <div className="text-xs text-orange-600 mt-1">
             Using fallback campaign configuration
           </div>

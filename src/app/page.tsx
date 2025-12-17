@@ -12,7 +12,7 @@ declare global {
     gtag?: (
       command: string,
       action: string,
-      parameters: Record<string, unknown>,
+      parameters: Record<string, unknown>
     ) => void;
   }
 }
@@ -60,7 +60,7 @@ export default function HomePage() {
     const waitForEvent = (
       target: HTMLVideoElement,
       eventName: keyof HTMLMediaElementEventMap,
-      timeoutMs = 1500,
+      timeoutMs = 1500
     ) => {
       return new Promise<boolean>((resolve) => {
         let done = false as boolean;
@@ -88,7 +88,6 @@ export default function HomePage() {
 
     // Choose a valid source proactively (checks local files & content-type), then test playability
     const chooseSource = async () => {
-      // Prefer the Haitian family project video as primary
       const primary = "/downloads/Haitian-Family-Project-2.mp4";
       const alt = "/homepage-video.mp4";
       // Allow explicit local file from public folder via env var
@@ -112,8 +111,7 @@ export default function HomePage() {
           videoElement.load();
         } catch {}
         // Wait briefly for canplay; if it doesn't arrive, treat as not playable
-        const timeout = candidate.startsWith("http") ? 1600 : 5000;
-        const playable = await waitForEvent(videoElement, "canplay", timeout);
+        const playable = await waitForEvent(videoElement, "canplay", 1600);
         if (!playable) {
           console.log("📹 Candidate did not reach canplay in time:", candidate);
         }
@@ -130,7 +128,13 @@ export default function HomePage() {
           chosen = preferredLocal;
         }
 
-        // 1) Try the preferred remote only if a source hasn't been chosen yet
+        // Prefer local primary immediately to avoid remote probes causing abort logs
+        if (!chosen) {
+          videoElement.src = primary;
+          chosen = primary;
+        }
+
+        // 1) Try the preferred remote only if a source hasn't been chosen yet and an explicit URL is provided
         if (!chosen) {
           try {
             const resRemote = await fetch(preferredRemote, { method: "HEAD" });
@@ -149,12 +153,12 @@ export default function HomePage() {
               console.log(
                 "📹 Preferred remote not confirmed as direct video; attempting resolver",
                 preferredRemote,
-                ctRemote,
+                ctRemote
               );
               try {
                 const resolveRes = await fetch(
                   `/api/video-resolve?viewer=${encodeURIComponent(preferredRemote)}`,
-                  { method: "GET" },
+                  { method: "GET" }
                 );
                 if (resolveRes.ok) {
                   const data = (await resolveRes.json()) as { mp4Url?: string };
@@ -175,7 +179,7 @@ export default function HomePage() {
             try {
               const resolveRes = await fetch(
                 `/api/video-resolve?viewer=${encodeURIComponent(preferredRemote)}`,
-                { method: "GET" },
+                { method: "GET" }
               );
               if (resolveRes.ok) {
                 const data = (await resolveRes.json()) as { mp4Url?: string };
@@ -189,30 +193,27 @@ export default function HomePage() {
             } catch (resolverErr) {
               console.log(
                 "📹 Resolver also failed after HEAD error:",
-                resolverErr,
+                resolverErr
               );
             }
           }
         }
 
         if (!chosen) {
-          // 2) Try local primary by testing playability directly
-          const okPrimary = await tryCandidate(primary);
-          if (okPrimary) {
-            chosen = primary;
-          }
+          videoElement.src = primary;
+          chosen = primary;
 
-          // 3) Try local alt if primary didn't work
           if (!chosen) {
-            const okAlt = await tryCandidate(alt);
-            if (okAlt) {
+            const resAlt = await fetch(alt, { method: "HEAD" });
+            if (resAlt.ok && isVideo(resAlt.headers.get("content-type"))) {
+              videoElement.src = alt;
               chosen = alt;
             }
           }
 
           if (!chosen) {
             console.log(
-              "📹 Sources missing/invalid or not playable; using remote sample fallback",
+              "📹 Sources missing/invalid or not playable; using remote sample fallback"
             );
             videoElement.src = remoteSample;
             videoElement.crossOrigin = "anonymous";
@@ -232,7 +233,7 @@ export default function HomePage() {
             videoElement
               .play()
               .then(() =>
-                console.log("✅ Video play nudged after source selection"),
+                console.log("✅ Video play nudged after source selection")
               )
               .catch((e) => console.log("📹 Play nudge failed:", e));
           }, 140);
@@ -269,7 +270,7 @@ export default function HomePage() {
         .catch((error) => {
           console.log(
             "📹 Immediate autoplay blocked, will retry after user interaction:",
-            error,
+            error
           );
         });
     };
@@ -364,7 +365,7 @@ export default function HomePage() {
 
     const handleEnded = () => {
       console.log(
-        "📹 Video ended - loop attribute should restart automatically",
+        "📹 Video ended - loop attribute should restart automatically"
       );
       // Don't manually restart - let the loop attribute handle it
       // If for some reason loop fails, restart after a short delay
@@ -498,7 +499,7 @@ export default function HomePage() {
                         : "UNKNOWN";
 
               console.error(
-                `📹 Video failed to load: code=${code ?? "null"} name=${codeName} src=${currentSrc || "(none)"} networkState=${video.networkState} readyState=${video.readyState}`,
+                `📹 Video failed to load: code=${code ?? "null"} name=${codeName} src=${currentSrc || "(none)"} networkState=${video.networkState} readyState=${video.readyState}`
               );
 
               // Set fallback background on container
@@ -517,7 +518,7 @@ export default function HomePage() {
                 const remoteSrc =
                   "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4";
                 console.log(
-                  `📹 Using remote fallback due to ${!hasSrc ? "no src" : "SRC_NOT_SUPPORTED"}: ${remoteSrc}`,
+                  `📹 Using remote fallback due to ${!hasSrc ? "no src" : "SRC_NOT_SUPPORTED"}: ${remoteSrc}`
                 );
                 // Switch to remote fallback without clearing existing src to avoid
                 // triggering unnecessary aborted network errors in dev tools
@@ -530,7 +531,7 @@ export default function HomePage() {
                       .play()
                       .then(() => console.log("✅ Remote fallback playing"))
                       .catch((e) =>
-                        console.log("📹 Remote fallback play failed:", e),
+                        console.log("📹 Remote fallback play failed:", e)
                       );
                   }, 120);
                 } catch {}
@@ -544,7 +545,7 @@ export default function HomePage() {
                 const altSrc = "/homepage-video.mp4";
                 console.log(
                   "📹 Trying alternative local video source:",
-                  altSrc,
+                  altSrc
                 );
                 video.src = altSrc;
                 video.load();
@@ -886,7 +887,7 @@ declare global {
     gtag?: (
       command: string,
       action: string,
-      parameters: Record<string, unknown>,
+      parameters: Record<string, unknown>
     ) => void;
   }
 }

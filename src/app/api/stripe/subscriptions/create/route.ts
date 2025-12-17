@@ -1,10 +1,16 @@
 import { type NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-
 export async function POST(request: NextRequest) {
   try {
+    const apiKey = process.env.STRIPE_SECRET_KEY;
+    if (!apiKey || (apiKey.startsWith("sk_live_") === false && apiKey.startsWith("sk_test_") === false)) {
+      return NextResponse.json(
+        { error: "Stripe API key not configured" },
+        { status: 503 },
+      );
+    }
+    const stripe = new Stripe(apiKey);
     const body = await request.json();
     const {
       customerId,

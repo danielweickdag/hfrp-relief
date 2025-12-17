@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useState } from "react";
 // import AdminAuthProvider, { useAdminAuth } from "@/app/_components/AdminAuth";
 // import BlogManager from "@/app/_components/BlogManager";

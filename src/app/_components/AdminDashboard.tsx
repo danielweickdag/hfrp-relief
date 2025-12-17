@@ -125,6 +125,11 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
   const [schedulerLoading, setSchedulerLoading] = useState(false);
   // Feature status state
   const [featuresEnabled, setFeaturesEnabled] = useState(false);
+  const [stripeStatus, setStripeStatus] = useState<{
+    mode?: "live" | "test" | "unknown" | "mismatch";
+    modeMismatch?: boolean;
+    webhook?: { configured_for_mode?: boolean };
+  } | null>(null);
 
   // Resend Email Management State
   const [resendEmailForm, setResendEmailForm] = useState<ResendEmail>({
@@ -244,6 +249,15 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
     } catch {
       setFeaturesEnabled(false);
     }
+    (async () => {
+      try {
+        const res = await fetch("/api/stripe/status");
+        if (res.ok) {
+          const data = await res.json();
+          setStripeStatus(data);
+        }
+      } catch {}
+    })();
   }, []);
 
   const runEmailAutomation = async () => {
@@ -1329,6 +1343,27 @@ export default function AdminDashboard({ className = "" }: DashboardProps) {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {stripeStatus && (
+          <div className="mb-6">
+            <div className="flex flex-wrap items-center gap-2">
+              {stripeStatus.mode === "test" ? (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">🧪 Test Mode</span>
+              ) : (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">🔴 Live Mode</span>
+              )}
+              {stripeStatus.modeMismatch ? (
+                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">Mode Mismatch</span>
+              ) : (
+                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Keys Aligned</span>
+              )}
+              {stripeStatus.webhook?.configured_for_mode ? (
+                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Webhook Ready</span>
+              ) : (
+                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">Webhook Missing</span>
+              )}
+            </div>
+          </div>
+        )}
         <div className="flex flex-col md:flex-row gap-8">
           {/* Sidebar Navigation */}
           <aside className="w-full md:w-64 flex-shrink-0">

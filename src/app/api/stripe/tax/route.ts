@@ -1,10 +1,13 @@
 import { type NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-
 export async function GET(request: NextRequest) {
   try {
+    const apiKey = process.env.STRIPE_SECRET_KEY;
+    if (!apiKey || (apiKey.startsWith("sk_live_") === false && apiKey.startsWith("sk_test_") === false)) {
+      return NextResponse.json({ success: false, error: "Stripe API key not configured" }, { status: 503 });
+    }
+    const stripe = new Stripe(apiKey);
     // Get current tax settings
     const taxSettings = await stripe.tax.settings.retrieve();
 
@@ -32,6 +35,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const apiKey = process.env.STRIPE_SECRET_KEY;
+    if (!apiKey || (apiKey.startsWith("sk_live_") === false && apiKey.startsWith("sk_test_") === false)) {
+      return NextResponse.json({ success: false, error: "Stripe API key not configured" }, { status: 503 });
+    }
+    const stripe = new Stripe(apiKey);
     const {
       amount,
       currency = "usd",
@@ -110,6 +118,11 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
+    const apiKey = process.env.STRIPE_SECRET_KEY;
+    if (!apiKey || (apiKey.startsWith("sk_live_") === false && apiKey.startsWith("sk_test_") === false)) {
+      return NextResponse.json({ success: false, error: "Stripe API key not configured" }, { status: 503 });
+    }
+    const stripe = new Stripe(apiKey);
     const body = await request.json();
     const { headOffice, taxBehavior = "exclusive" } = body;
 
