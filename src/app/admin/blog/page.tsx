@@ -150,18 +150,11 @@ function BlogPageWrapper() {
   return <BlogContent />;
 }
 
-import ShareBox from "@/app/_components/ShareBox";
-
 export default function BlogPage() {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold mb-6">Admin Blog</h1>
-        
-        <div className="mb-8">
-           <ShareBox />
-        </div>
-
         <div className="bg-white rounded-lg shadow p-6">
           <p className="text-gray-600">
             Blog management is temporarily unavailable during deployment.
