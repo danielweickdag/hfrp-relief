@@ -3,7 +3,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { getPosts } from "./posts";
-import ShareBox from "../_components/ShareBox";
 
 function getCategoryColor(category: string): string {
   switch (category) {
@@ -49,9 +48,6 @@ export default function BlogPage() {
             programs and achievements.
           </p>
         </div>
-
-        {/* Share Box */}
-        <ShareBox />
 
         {/* Featured Stories */}
         {featuredPosts.length > 0 && (
