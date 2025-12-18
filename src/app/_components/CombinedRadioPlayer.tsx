@@ -59,7 +59,7 @@ export default function CombinedRadioPlayer({
             showSizeControls={true}
           />
         ) : (
-          <ZenoEmbedPlayer stationSlug={stationSlug} width={575} height={250} />
+          <ZenoEmbedPlayer stationSlug={stationSlug} width="100%" height={250} />
         )}
       </div>
 

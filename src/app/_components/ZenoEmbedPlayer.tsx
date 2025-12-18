@@ -2,15 +2,15 @@
 
 interface ZenoEmbedPlayerProps {
   stationSlug?: string;
-  width?: number;
-  height?: number;
+  width?: number | string;
+  height?: number | string;
   className?: string;
   showBranding?: boolean;
 }
 
 export default function ZenoEmbedPlayer({
   stationSlug = "fgm-radio-haiti",
-  width = 575,
+  width = "100%",
   height = 250,
   className = "",
   showBranding = true,
@@ -27,7 +27,7 @@ export default function ZenoEmbedPlayer({
         scrolling="no"
         title={`Zeno.FM Player - ${stationSlug}`}
         className="rounded-lg shadow-lg"
-        allow="autoplay"
+        allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
       />
       {showBranding && (
         <a
