@@ -13,7 +13,7 @@ interface PhotoUploadData {
 interface UploadedPhoto extends PhotoUploadData {
   id: string;
   src: string;
-  file: File;
+  file?: File;
   preview: string;
 }
 
@@ -117,6 +117,34 @@ export default function PhotoUpload() {
   const [newTag, setNewTag] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Load existing images
+  useEffect(() => {
+    fetch("/api/upload/images")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.images) {
+          const loadedPhotos = data.images.map((img: any) => ({
+            id: img.name,
+            src: img.url,
+            preview: img.url,
+            title: img.name,
+            description: "",
+            category: "feeding", // Default
+            tags: [],
+            date: new Date().toISOString().split("T")[0],
+          }));
+          setUploadedPhotos((prev) => {
+            // Avoid duplicates
+            const newPhotos = loadedPhotos.filter(
+              (p: any) => !prev.some((existing) => existing.id === p.id)
+            );
+            return [...prev, ...newPhotos];
+          });
+        }
+      })
+      .catch((err) => console.error("Failed to load images:", err));
+  }, []);
+
   // Handle file selection
   const handleFileSelect = (files: FileList) => {
     for (const file of Array.from(files)) {
@@ -192,12 +220,12 @@ export default function PhotoUpload() {
   const updatePhotoMetadata = (
     photoId: string,
     field: keyof PhotoUploadData,
-    value: string,
+    value: string
   ) => {
     setUploadedPhotos((prev) =>
       prev.map((photo) =>
-        photo.id === photoId ? { ...photo, [field]: value } : photo,
-      ),
+        photo.id === photoId ? { ...photo, [field]: value } : photo
+      )
     );
   };
 
@@ -207,8 +235,8 @@ export default function PhotoUpload() {
       prev.map((photo) =>
         photo.id === photoId && !photo.tags.includes(tag)
           ? { ...photo, tags: [...photo.tags, tag] }
-          : photo,
-      ),
+          : photo
+      )
     );
   };
 
@@ -217,7 +245,7 @@ export default function PhotoUpload() {
     setUploadedPhotos((prev) => prev.filter((photo) => photo.id !== photoId));
   };
 
-  // Simulate upload process
+  // Upload process
   const uploadPhotos = async () => {
     if (uploadedPhotos.length === 0) return;
 
@@ -225,44 +253,55 @@ export default function PhotoUpload() {
     setUploadProgress(0);
 
     try {
-      for (let i = 0; i < uploadedPhotos.length; i++) {
+      let successCount = 0;
+      const totalPhotos = uploadedPhotos.length;
+
+      for (let i = 0; i < totalPhotos; i++) {
         const photo = uploadedPhotos[i];
 
-        // Simulate upload delay and progress
-        await new Promise((resolve) => {
-          let progress = 0;
-          const interval = setInterval(() => {
-            progress += 10;
-            setUploadProgress((i * 100 + progress) / uploadedPhotos.length);
-            if (progress >= 100) {
-              clearInterval(interval);
-              resolve(true);
-            }
-          }, 100);
-        });
+        // Skip if already uploaded (has src)
+        if (photo.src && !photo.src.startsWith("data:")) continue;
 
-        // In a real implementation, you would:
-        // 1. Upload the file to your storage service (AWS S3, Cloudinary, etc.)
-        // 2. Save metadata to your database
-        // 3. Update the photo gallery data
+        if (!photo.file) continue;
 
-        console.log(`Uploading photo: ${photo.title}`, {
-          file: photo.file,
-          metadata: {
-            title: photo.title,
-            description: photo.description,
-            category: photo.category,
-            tags: photo.tags,
-            date: photo.date,
-          },
-        });
+        const formData = new FormData();
+        formData.append("file", photo.file);
+
+        try {
+          const response = await fetch("/api/upload/images", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (!response.ok) {
+            throw new Error(`Failed to upload ${photo.title}`);
+          }
+
+          const data = await response.json();
+
+          if (data.success) {
+            // Update photo with real URL
+            setUploadedPhotos((prev) =>
+              prev.map((p) => (p.id === photo.id ? { ...p, src: data.url } : p))
+            );
+            successCount++;
+          }
+        } catch (err) {
+          console.error(`Error uploading ${photo.title}:`, err);
+        }
+
+        // Update progress
+        setUploadProgress(((i + 1) / totalPhotos) * 100);
       }
 
       // Show success message
-      alert(`Successfully uploaded ${uploadedPhotos.length} photo(s)!`);
-
-      // Clear uploaded photos
-      setUploadedPhotos([]);
+      if (successCount > 0) {
+        alert(`Successfully uploaded ${successCount} photo(s)!`);
+        // Optional: Clear uploaded photos or keep them to show success
+        // setUploadedPhotos([]);
+      } else {
+        alert("No photos were uploaded successfully.");
+      }
     } catch (error) {
       console.error("Upload failed:", error);
       alert("Upload failed. Please try again.");
@@ -574,7 +613,7 @@ export default function PhotoUpload() {
                         updatePhotoMetadata(
                           photo.id,
                           "description",
-                          e.target.value,
+                          e.target.value
                         )
                       }
                       placeholder="Photo description"
@@ -588,7 +627,7 @@ export default function PhotoUpload() {
                           updatePhotoMetadata(
                             photo.id,
                             "category",
-                            e.target.value,
+                            e.target.value
                           )
                         }
                         className="px-3 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"

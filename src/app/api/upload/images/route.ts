@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
+import { writeFile, mkdir, readdir } from "fs/promises";
 import { join } from "path";
 import { existsSync } from "fs";
 
@@ -14,6 +14,8 @@ const ALLOWED_TYPES = [
   "image/gif",
   "image/webp",
 ];
+
+const UPLOAD_DIR_REL = "uploads/blog";
 
 export async function POST(request: NextRequest) {
   try {
@@ -46,7 +48,7 @@ export async function POST(request: NextRequest) {
     const filename = `${timestamp}_${originalName}`;
 
     // Create upload directory if it doesn't exist
-    const uploadDir = join(process.cwd(), "public", "uploads", "blog");
+    const uploadDir = join(process.cwd(), "public", UPLOAD_DIR_REL);
     if (!existsSync(uploadDir)) {
       await mkdir(uploadDir, { recursive: true });
     }
@@ -59,7 +61,7 @@ export async function POST(request: NextRequest) {
     await writeFile(filePath, buffer);
 
     // Return the public URL
-    const publicUrl = `/uploads/blog/${filename}`;
+    const publicUrl = `/${UPLOAD_DIR_REL}/${filename}`;
 
     return NextResponse.json({
       success: true,
@@ -78,8 +80,30 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET() {
-  return NextResponse.json(
-    { message: "Image upload endpoint. Use POST to upload files." },
-    { status: 200 },
-  );
+  try {
+    const uploadDir = join(process.cwd(), "public", UPLOAD_DIR_REL);
+    
+    if (!existsSync(uploadDir)) {
+       return NextResponse.json({ images: [] });
+    }
+
+    const files = await readdir(uploadDir);
+    
+    // Filter for image files
+    const images = files
+      .filter(file => /\.(jpg|jpeg|png|gif|webp)$/i.test(file))
+      .map(file => ({
+        name: file,
+        url: `/${UPLOAD_DIR_REL}/${file}`,
+        // You could add creation time if you use stat
+      }));
+
+    return NextResponse.json({ images });
+  } catch (error) {
+    console.error("Error listing images:", error);
+    return NextResponse.json(
+      { error: "Failed to list images" },
+      { status: 500 },
+    );
+  }
 }
