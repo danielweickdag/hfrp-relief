@@ -91,7 +91,13 @@ const getAdminUsers = () => {
   ];
 };
 
-export function AdminAuthProvider({ children }: { children: ReactNode }) {
+export function AdminAuthProvider({
+  children,
+  loadingFallback,
+}: {
+  children: ReactNode;
+  loadingFallback?: ReactNode;
+}) {
   const [user, setUser] = useState<AdminUser | null>(null);
   const [isLoading, setIsLoading] = useState(true); // Start with true to handle SSR
   const [mounted, setMounted] = useState(false);
@@ -113,7 +119,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
             console.log("🔧 AdminAuth: Found stored user:", parsedUser.email);
             setUser(parsedUser);
             console.log(
-              "🔧 AdminAuth: User state updated, should be authenticated",
+              "🔧 AdminAuth: User state updated, should be authenticated"
             );
           } else {
             console.log("🔧 AdminAuth: No stored user found");
@@ -146,7 +152,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
 
     const users = getAdminUsers();
     const foundUser = users.find(
-      (u) => u.email.toLowerCase() === email.toLowerCase(),
+      (u) => u.email.toLowerCase() === email.toLowerCase()
     );
 
     if (foundUser) {
@@ -223,6 +229,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
 
         // Prevent hydration mismatches
         if (!mounted) {
+          if (loadingFallback !== undefined) return <>{loadingFallback}</>;
           return (
             <div className="min-h-screen bg-gray-100 flex items-center justify-center">
               <div className="text-center">
@@ -276,7 +283,7 @@ declare global {
     gtag?: (
       command: string,
       action: string,
-      parameters: Record<string, unknown>,
+      parameters: Record<string, unknown>
     ) => void;
   }
 }

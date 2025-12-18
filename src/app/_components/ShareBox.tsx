@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { AdminAuthProvider, useAdminAuth } from "./AdminAuth";
 
 type Attachment = {
   id: string;
@@ -8,7 +9,8 @@ type Attachment = {
   url: string; // object URL or external link
 };
 
-export default function ShareBox() {
+function ShareBoxContent() {
+  const { isAuthenticated } = useAdminAuth();
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
   const [description, setDescription] = useState("");
@@ -112,6 +114,8 @@ export default function ShareBox() {
       alert("Web Share API is not supported in this browser.");
     }
   };
+
+  if (!isAuthenticated) return null;
 
   return (
     <div className="mt-12 bg-white rounded-2xl shadow p-6">
@@ -281,6 +285,14 @@ export default function ShareBox() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ShareBox() {
+  return (
+    <AdminAuthProvider loadingFallback={null}>
+      <ShareBoxContent />
+    </AdminAuthProvider>
   );
 }
 
