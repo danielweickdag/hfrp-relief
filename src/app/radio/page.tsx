@@ -1,4 +1,4 @@
-import ZenoEmbedPlayer from "@/app/_components/ZenoEmbedPlayer";
+import CombinedRadioPlayer from "@/app/_components/CombinedRadioPlayer";
 
 export default function RadioPage() {
   return (
@@ -15,7 +15,10 @@ export default function RadioPage() {
         </div>
 
         <div className="bg-white rounded-lg shadow-lg p-8">
-          <ZenoEmbedPlayer stationSlug="fgm-radio-haiti" width={575} height={250} />
+          <CombinedRadioPlayer
+            defaultPlayer="embed"
+            stationSlug="fgm-radio-haiti"
+          />
         </div>
       </div>
     </div>
