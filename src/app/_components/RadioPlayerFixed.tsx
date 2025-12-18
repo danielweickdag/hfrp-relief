@@ -31,8 +31,11 @@ export default function RadioPlayer({
     "idle" | "connecting" | "connected" | "error"
   >("idle");
   const [currentUrl, setCurrentUrl] = useState<string | null>(null);
+  const currentUrlRef = useRef<string | null>(null);
   const [lastError, setLastError] = useState<string | null>(null);
-  const [currentSize, setCurrentSize] = useState<"sm" | "md" | "lg">(initialSize);
+  const [currentSize, setCurrentSize] = useState<"sm" | "md" | "lg">(
+    initialSize
+  );
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const retryRef = useRef(0);
   const maxRetries = 3;
@@ -44,9 +47,11 @@ export default function RadioPlayer({
   const getCandidates = () => {
     const idMatch = streamUrl.match(/([a-z0-9]+)$/i);
     const id = idMatch ? idMatch[1] : "";
-    const nonHls = `https://stream.zeno.fm/${id}`;
+    const ts = Date.now();
+    const nonHls = `https://stream.zeno.fm/${id}?_t=${ts}`;
     const hlsBase = `https://stream.zeno.fm/hls/${id}`;
-    const hlsM3U8 = `${hlsBase}.m3u8`;
+    const hlsM3U8 = `${hlsBase}.m3u8?_t=${ts}`;
+
     const isSafari =
       typeof navigator !== "undefined" &&
       /Safari/.test(navigator.userAgent) &&
@@ -54,8 +59,20 @@ export default function RadioPlayer({
     return isSafari ? [hlsM3U8, hlsBase, nonHls] : [nonHls, hlsBase, hlsM3U8];
   };
 
+  const getRefreshUrl = (url: string) => {
+    try {
+      const urlObj = new URL(url);
+      urlObj.searchParams.set("_t", Date.now().toString());
+      return urlObj.toString();
+    } catch {
+      return url;
+    }
+  };
+
   const attachAudioEvents = (audio: HTMLAudioElement) => {
-    audio.addEventListener("loadstart", () => setConnectionStatus("connecting"));
+    audio.addEventListener("loadstart", () =>
+      setConnectionStatus("connecting")
+    );
     audio.addEventListener("canplay", () => setConnectionStatus("connected"));
     audio.addEventListener("playing", () => setConnectionStatus("connected"));
     audio.addEventListener("waiting", () => setConnectionStatus("connecting"));
@@ -64,7 +81,9 @@ export default function RadioPlayer({
         retryRef.current += 1;
         setConnectionStatus("connecting");
         try {
-          const url = currentUrl || streamUrl;
+          const base = currentUrlRef.current || streamUrl;
+          const url = getRefreshUrl(base);
+          console.log("Stalled, retrying with:", url);
           audio.src = url;
           await audio.play();
           setConnectionStatus("connected");
@@ -89,7 +108,9 @@ export default function RadioPlayer({
           retryRef.current += 1;
           setConnectionStatus("connecting");
           try {
-            const url = currentUrl || streamUrl;
+            const base = currentUrlRef.current || streamUrl;
+            const url = getRefreshUrl(base);
+            console.log("Error, retrying with:", url);
             audio.src = url;
             await audio.play();
             setConnectionStatus("connected");
@@ -120,6 +141,7 @@ export default function RadioPlayer({
         for (const url of candidates) {
           try {
             setCurrentUrl(url);
+            currentUrlRef.current = url;
             audio.src = url;
             await audio.play();
             success = true;
@@ -189,7 +211,13 @@ export default function RadioPlayer({
     } as const;
     return (
       <div className={`relative group ${className}`}>
-        <audio ref={audioRef} preload="none" crossOrigin="anonymous" playsInline className="hidden" />
+        <audio
+          ref={audioRef}
+          preload="none"
+          crossOrigin="anonymous"
+          playsInline
+          className="hidden"
+        />
         <SizeControls />
         <button
           onClick={togglePlayback}
@@ -198,16 +226,34 @@ export default function RadioPlayer({
           title={`${isPlaying ? "Stop" : "Play"} ${stationName}`}
         >
           {isLoading ? (
-            <svg className={iconSizes[currentSize]} viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+            <svg
+              className={iconSizes[currentSize]}
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="2"
+              />
             </svg>
           ) : isPlaying ? (
-            <svg className={iconSizes[currentSize]} viewBox="0 0 24 24" fill="currentColor">
+            <svg
+              className={iconSizes[currentSize]}
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
               <rect x="6" y="4" width="4" height="16" />
               <rect x="14" y="4" width="4" height="16" />
             </svg>
           ) : (
-            <svg className={iconSizes[currentSize]} viewBox="0 0 24 24" fill="currentColor">
+            <svg
+              className={iconSizes[currentSize]}
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
               <path d="M8 5v14l11-7z" />
             </svg>
           )}
@@ -223,7 +269,13 @@ export default function RadioPlayer({
 
   return (
     <div className={`bg-white rounded-lg shadow-lg p-4 max-w-sm ${className}`}>
-      <audio ref={audioRef} preload="none" crossOrigin="anonymous" playsInline className="hidden" />
+      <audio
+        ref={audioRef}
+        preload="none"
+        crossOrigin="anonymous"
+        playsInline
+        className="hidden"
+      />
       <SizeControls />
       <div className="flex items-center space-x-3 mb-4">
         <div className="relative">
@@ -233,8 +285,18 @@ export default function RadioPlayer({
             className={`${currentSize === "sm" ? "w-8 h-8" : currentSize === "md" ? "w-12 h-12" : "w-16 h-16"} bg-red-600 hover:bg-red-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 transform hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden`}
           >
             {isLoading ? (
-              <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6 animate-spin">
-                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                className="w-6 h-6 animate-spin"
+              >
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                />
               </svg>
             ) : isPlaying ? (
               <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
@@ -251,7 +313,11 @@ export default function RadioPlayer({
         <div className="flex-1">
           <h3 className="font-semibold text-gray-900">{stationName}</h3>
           <p className="text-sm text-gray-500">
-            {isPlaying ? "Now Playing" : isLoading ? "Connecting..." : "Click to Play"}
+            {isPlaying
+              ? "Now Playing"
+              : isLoading
+                ? "Connecting..."
+                : "Click to Play"}
           </p>
           <div className="mt-1 text-xs">
             {connectionStatus === "connected" && (
@@ -273,7 +339,11 @@ export default function RadioPlayer({
         </div>
       </div>
       <div className="flex items-center space-x-3">
-        <svg className="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="currentColor">
+        <svg
+          className="w-4 h-4 text-gray-400"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+        >
           <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z" />
         </svg>
         <input
@@ -289,10 +359,14 @@ export default function RadioPlayer({
           }}
           className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
         />
-        <span className="text-sm text-gray-500 w-8">{Math.round(volume * 100)}</span>
+        <span className="text-sm text-gray-500 w-8">
+          {Math.round(volume * 100)}
+        </span>
       </div>
       {error && (
-        <div className="mt-3 text-sm text-red-600 bg-red-50 p-2 rounded">{error}</div>
+        <div className="mt-3 text-sm text-red-600 bg-red-50 p-2 rounded">
+          {error}
+        </div>
       )}
       {showExternalLink && externalPlayerUrl && (
         <div className="mt-4 pt-3 border-t border-gray-200">
@@ -302,7 +376,13 @@ export default function RadioPlayer({
             rel="noopener noreferrer"
             className="flex items-center justify-center space-x-2 text-sm text-blue-600 hover:text-blue-800 transition-colors duration-200"
           >
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg
+              className="w-4 h-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
               <path d="m18 13 6-6-6-6" />
               <path d="M2 5h10" />
               <path d="M2 19h10" />
