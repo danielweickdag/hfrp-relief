@@ -13,12 +13,25 @@
 3. **Configure Environment Variables:**
    - In Vercel dashboard, go to your project settings
    - Add environment variables from `.env.example`
+   - Required for Vercel deployments:
+     ```
+     VERCEL_TOKEN=your_vercel_access_token
+     VERCEL_ORG_ID=your_vercel_organization_id
+     VERCEL_PROJECT_ID=your_vercel_project_id
+     ```
    - Required for basic functionality:
      ```
      NEXT_PUBLIC_GA_TRACKING_ID=your_google_analytics_id
      RESEND_API_KEY=your_resend_api_key (for contact forms)
      NEXT_PUBLIC_SITE_URL=https://your-domain.vercel.app
      ```
+   
+   **How to get Vercel credentials:**
+   - `VERCEL_TOKEN`: Go to https://vercel.com/account/tokens → Create new token
+   - `VERCEL_ORG_ID` & `VERCEL_PROJECT_ID`: 
+     1. Go to your project settings in Vercel dashboard
+     2. Click on "General" tab
+     3. Find these IDs in the project settings section
 
 4. **Deploy:**
    - Vercel will automatically deploy when you push to main branch
