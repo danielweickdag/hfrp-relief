@@ -81,10 +81,6 @@ class AutomationTester {
     const requiredFeatures = [
       { name: "runDonationReport", description: "Donation report generation" },
       {
-        name: "syncDonorboxData",
-        description: "Donorbox data synchronization",
-      },
-      {
         name: "generateSocialContent",
         description: "Social media content generation",
       },
@@ -205,33 +201,6 @@ class AutomationTester {
             \`Report saved to: /reports/donations_\${new Date().toISOString().split('T')[0]}.pdf\`);
       setLoading(false);
     }, 2000);
-  };`,
-
-      syncDonorboxData: `
-  const syncDonorboxData = async () => {
-    setLoading(true);
-    console.log("🔄 Syncing Donorbox data with HFRP systems...");
-    
-    setTimeout(() => {
-      const newDonations = Math.floor(Math.random() * 2000) + 500;
-      const newDonors = Math.floor(Math.random() * 15) + 5;
-      
-      setHfrpStats(prev => ({
-        ...prev,
-        totalDonations: prev.totalDonations + newDonations,
-        totalDonors: prev.totalDonors + newDonors
-      }));
-      
-      alert(\`✅ DONORBOX SYNC COMPLETED\\n\\n\` +
-            \`📊 New Data Retrieved:\\n\` +
-            \`• Donations: +$\${newDonations.toLocaleString()}\\n\` +
-            \`• New Donors: +\${newDonors}\\n\` +
-            \`• Recurring Subscriptions: Updated\\n\` +
-            \`• Payment Methods: Synchronized\\n\` +
-            \`• Tax Receipts: Generated\\n\\n\` +
-            \`🔄 Next auto-sync: In 6 hours\`);
-      setLoading(false);
-    }, 3000);
   };`,
 
       generateSocialContent: `
