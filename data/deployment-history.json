@@ -35,20 +35,38 @@
         }
       ],
       "error": "Missing required environment variables: VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID"
+    },
+    {
+      "id": "deploy-1766017835915-8m9p3utfj",
+      "environment": "production",
+      "timestamp": "2025-12-18T00:30:35.915Z",
+      "success": false,
+      "duration": 1,
+      "steps": [
+        {
+          "name": "pre-validation",
+          "startTime": "2025-12-18T00:30:35.914Z",
+          "status": "failed",
+          "endTime": "2025-12-18T00:30:35.915Z",
+          "duration": 1,
+          "error": "Missing required environment variables: VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID"
+        }
+      ],
+      "error": "Missing required environment variables: VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID"
     }
   ],
   "lastDeployment": {
-    "id": "deploy-1762793238812-yf09b5ntm",
-    "environment": "staging",
-    "timestamp": "2025-11-10T16:47:18.812Z",
+    "id": "deploy-1766017835915-8m9p3utfj",
+    "environment": "production",
+    "timestamp": "2025-12-18T00:30:35.915Z",
     "success": false,
     "duration": 1,
     "steps": [
       {
         "name": "pre-validation",
-        "startTime": "2025-11-10T16:47:18.811Z",
+        "startTime": "2025-12-18T00:30:35.914Z",
         "status": "failed",
-        "endTime": "2025-11-10T16:47:18.812Z",
+        "endTime": "2025-12-18T00:30:35.915Z",
         "duration": 1,
         "error": "Missing required environment variables: VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID"
       }

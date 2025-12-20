@@ -271,7 +271,7 @@ class DeploymentAutomation {
 
     try {
       const healthResult = await this.executeCommand("node", [
-        "health-check.js",
+        "health-check.mjs",
       ]);
       return { healthCheck: "passed", output: healthResult };
     } catch (error) {
