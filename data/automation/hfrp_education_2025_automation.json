@@ -10,8 +10,8 @@
   },
   "email_template": {
     "subject": "Education Initiative: 47.3% Funded - Your Impact is Growing!",
-    "html_content": "\n        <h2>Dear HFRP Supporter,</h2>\n        \n        <p>We have incredible news to share about our <strong>\"Education Initiative\"</strong> campaign!</p>\n        \n        <div style=\"background: #f0f8ff; padding: 20px; border-left: 4px solid #007bff;\">\n          <h3>📊 Progress Update</h3>\n          <ul>\n            <li><strong>Goal:</strong> $40,000.00</li>\n            <li><strong>Raised:</strong> $18,900.00 (47.3%)</li>\n            <li><strong>Donors:</strong> 89 amazing supporters</li>\n            <li><strong>Remaining:</strong> $21,100.00</li>\n          </ul>\n        </div>\n        \n        <p>Supporting education and school supplies for children in Haiti</p>\n        \n        <p>Thanks to donors like you, we're making real progress! Every donation brings us closer to our goal and brings hope to families in Haiti.</p>\n        \n        <div style=\"text-align: center; margin: 30px 0;\">\n          <a href=\"https://hfrprelief.org/donate?campaign=hfrp_education_2025\" style=\"background: #007bff; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px;\">\n            🤝 Continue Supporting This Campaign\n          </a>\n        </div>\n        \n        <p>With gratitude,<br>The HFRP Team</p>\n      ",
-    "text_content": "\n        Dear HFRP Supporter,\n        \n        Education Initiative Progress Update:\n        - Goal: $40,000.00\n        - Raised: $18,900.00 (47.3%)\n        - Donors: 89\n        - Remaining: $21,100.00\n        \n        Supporting education and school supplies for children in Haiti\n        \n        Support this campaign: https://hfrprelief.org/donate?campaign=hfrp_education_2025\n        \n        Thank you for your continued support!\n        The HFRP Team\n      "
+    "html_content": "\n        <h2>Dear HFRP Supporter,</h2>\n        \n        <p>We have incredible news to share about our <strong>\"Education Initiative\"</strong> campaign!</p>\n        \n        <div style=\"background: #f0f8ff; padding: 20px; border-left: 4px solid #007bff;\">\n          <h3>📊 Progress Update</h3>\n          <ul>\n            <li><strong>Goal:</strong> $40,000.00</li>\n            <li><strong>Raised:</strong> $18,900.00 (47.3%)</li>\n            <li><strong>Donors:</strong> 89 amazing supporters</li>\n            <li><strong>Remaining:</strong> $21,100.00</li>\n          </ul>\n        </div>\n        \n        <p>Supporting education and school supplies for children in Haiti</p>\n        \n        <p>Thanks to donors like you, we're making real progress! Every donation brings us closer to our goal and brings hope to families in Haiti.</p>\n        \n        <div style=\"text-align: center; margin: 30px 0;\">\n          <a href=\"https://donorbox.org/education-initiative-haiti\" style=\"background: #007bff; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px;\">\n            🤝 Continue Supporting This Campaign\n          </a>\n        </div>\n        \n        <p>With gratitude,<br>The HFRP Team</p>\n      ",
+    "text_content": "\n        Dear HFRP Supporter,\n        \n        Education Initiative Progress Update:\n        - Goal: $40,000.00\n        - Raised: $18,900.00 (47.3%)\n        - Donors: 89\n        - Remaining: $21,100.00\n        \n        Supporting education and school supplies for children in Haiti\n        \n        Support this campaign: https://donorbox.org/education-initiative-haiti\n        \n        Thank you for your continued support!\n        The HFRP Team\n      "
   },
   "tracking_setup": {
     "milestones": [
@@ -46,7 +46,7 @@
       "conversion_rate": "1.88",
       "funding_velocity": "102.72",
       "momentum_score": "79",
-      "last_updated": "2025-12-05T15:28:54.421Z"
+      "last_updated": "2025-12-20T16:27:30.500Z"
     }
   },
   "donor_segments": {
@@ -71,5 +71,5 @@
       "engagement_strategy": "VIP treatment, early access to new campaigns"
     }
   },
-  "automated_at": "2025-12-05T15:28:54.421Z"
+  "automated_at": "2025-12-20T16:27:30.500Z"
 }

@@ -10,8 +10,8 @@
   },
   "email_template": {
     "subject": "Medical Care & Supplies: 52% Funded - Your Impact is Growing!",
-    "html_content": "\n        <h2>Dear HFRP Supporter,</h2>\n        \n        <p>We have incredible news to share about our <strong>\"Medical Care & Supplies\"</strong> campaign!</p>\n        \n        <div style=\"background: #f0f8ff; padding: 20px; border-left: 4px solid #007bff;\">\n          <h3>📊 Progress Update</h3>\n          <ul>\n            <li><strong>Goal:</strong> $60,000.00</li>\n            <li><strong>Raised:</strong> $31,200.00 (52%)</li>\n            <li><strong>Donors:</strong> 203 amazing supporters</li>\n            <li><strong>Remaining:</strong> $28,800.00</li>\n          </ul>\n        </div>\n        \n        <p>Providing essential medical care and supplies to communities in Haiti</p>\n        \n        <p>Thanks to donors like you, we're making real progress! Every donation brings us closer to our goal and brings hope to families in Haiti.</p>\n        \n        <div style=\"text-align: center; margin: 30px 0;\">\n          <a href=\"https://hfrprelief.org/donate?campaign=hfrp_medical_2025\" style=\"background: #007bff; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px;\">\n            🤝 Continue Supporting This Campaign\n          </a>\n        </div>\n        \n        <p>With gratitude,<br>The HFRP Team</p>\n      ",
-    "text_content": "\n        Dear HFRP Supporter,\n        \n        Medical Care & Supplies Progress Update:\n        - Goal: $60,000.00\n        - Raised: $31,200.00 (52%)\n        - Donors: 203\n        - Remaining: $28,800.00\n        \n        Providing essential medical care and supplies to communities in Haiti\n        \n        Support this campaign: https://hfrprelief.org/donate?campaign=hfrp_medical_2025\n        \n        Thank you for your continued support!\n        The HFRP Team\n      "
+    "html_content": "\n        <h2>Dear HFRP Supporter,</h2>\n        \n        <p>We have incredible news to share about our <strong>\"Medical Care & Supplies\"</strong> campaign!</p>\n        \n        <div style=\"background: #f0f8ff; padding: 20px; border-left: 4px solid #007bff;\">\n          <h3>📊 Progress Update</h3>\n          <ul>\n            <li><strong>Goal:</strong> $60,000.00</li>\n            <li><strong>Raised:</strong> $31,200.00 (52%)</li>\n            <li><strong>Donors:</strong> 203 amazing supporters</li>\n            <li><strong>Remaining:</strong> $28,800.00</li>\n          </ul>\n        </div>\n        \n        <p>Providing essential medical care and supplies to communities in Haiti</p>\n        \n        <p>Thanks to donors like you, we're making real progress! Every donation brings us closer to our goal and brings hope to families in Haiti.</p>\n        \n        <div style=\"text-align: center; margin: 30px 0;\">\n          <a href=\"https://donorbox.org/medical-care-haiti\" style=\"background: #007bff; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px;\">\n            🤝 Continue Supporting This Campaign\n          </a>\n        </div>\n        \n        <p>With gratitude,<br>The HFRP Team</p>\n      ",
+    "text_content": "\n        Dear HFRP Supporter,\n        \n        Medical Care & Supplies Progress Update:\n        - Goal: $60,000.00\n        - Raised: $31,200.00 (52%)\n        - Donors: 203\n        - Remaining: $28,800.00\n        \n        Providing essential medical care and supplies to communities in Haiti\n        \n        Support this campaign: https://donorbox.org/medical-care-haiti\n        \n        Thank you for your continued support!\n        The HFRP Team\n      "
   },
   "tracking_setup": {
     "milestones": [
@@ -46,7 +46,7 @@
       "conversion_rate": "1.54",
       "funding_velocity": "200.00",
       "momentum_score": "72",
-      "last_updated": "2025-12-05T15:28:54.421Z"
+      "last_updated": "2025-12-20T16:27:30.502Z"
     }
   },
   "donor_segments": {
@@ -71,5 +71,5 @@
       "engagement_strategy": "VIP treatment, early access to new campaigns"
     }
   },
-  "automated_at": "2025-12-05T15:28:54.421Z"
+  "automated_at": "2025-12-20T16:27:30.502Z"
 }
