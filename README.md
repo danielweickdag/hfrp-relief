@@ -13,11 +13,14 @@ This is a comprehensive website for the Haitian Family Relief Project, featuring
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/danielweickdag/hfrp-relief)
 
+**For CI/CD Setup**: See [VERCEL_SETUP_GUIDE.md](VERCEL_SETUP_GUIDE.md) for configuring GitHub Actions automated deployment.
+
 ### Option 2: Step-by-Step Setup
 
 1. **Review Setup Guide**: Read `DOMAIN_CONNECTION_GUIDE.md` for complete instructions
 2. **Configure Environment**: Use `.env.production.template` for your hosting platform
 3. **Deploy**: Follow `DEPLOYMENT_CHECKLIST_familyreliefproject.md`
+4. **CI/CD Setup**: Configure Vercel tokens using `VERCEL_SETUP_GUIDE.md`
 
 ### Quick Commands
 
@@ -87,6 +90,7 @@ Before going live at familyreliefproject.org:
 
 For support with this project:
 
+- **Vercel CI/CD Setup**: See [VERCEL_SETUP_GUIDE.md](VERCEL_SETUP_GUIDE.md)
 - **Domain Setup**: See `DOMAIN_CONNECTION_GUIDE.md`
 - **Deployment Issues**: Check `DEPLOYMENT_CHECKLIST_familyreliefproject.md`
 - **Technical Support**: Contact the development team
