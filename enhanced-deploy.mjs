@@ -62,7 +62,51 @@ class DeploymentAutomation {
     // Load deployment history
     await this.loadDeploymentHistory();
 
+    // Load local environment variables
+    await this.loadEnvLocal();
+
+    // Update environment URLs based on loaded env vars
+    if (process.env.PRODUCTION_URL) {
+      this.config.environments.production.url = process.env.PRODUCTION_URL;
+    }
+    if (process.env.STAGING_URL) {
+      this.config.environments.staging.url = process.env.STAGING_URL;
+    }
+
     await this.log("✅ Deployment automation initialized", "success");
+  }
+
+  async loadEnvLocal() {
+    try {
+      const envPath = path.join(process.cwd(), ".env.local");
+      const envContent = await fs.readFile(envPath, "utf8");
+
+      envContent.split("\n").forEach((line) => {
+        const trimmedLine = line.trim();
+        if (!trimmedLine || trimmedLine.startsWith("#")) return;
+
+        const match = line.match(/^([^=]+)=(.*)$/);
+        if (match) {
+          const key = match[1].trim();
+          let value = match[2].trim();
+
+          // Remove wrapping quotes if present
+          if (
+            (value.startsWith('"') && value.endsWith('"')) ||
+            (value.startsWith("'") && value.endsWith("'"))
+          ) {
+            value = value.slice(1, -1);
+          }
+
+          if (!process.env[key]) {
+            process.env[key] = value;
+          }
+        }
+      });
+      await this.log("✅ Loaded environment from .env.local", "info");
+    } catch (error) {
+      // Ignore if file doesn't exist or error reading
+    }
   }
 
   async ensureDirectories() {
@@ -232,15 +276,29 @@ class DeploymentAutomation {
     }
   }
 
+  async checkVercelAuth() {
+    try {
+      await this.executeCommand("vercel", ["whoami"]);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
   async preValidation(environment) {
     await this.log("🔍 Running pre-deployment validation", "info");
 
     // Check environment variables
-    const requiredEnvVars = [
-      "VERCEL_TOKEN",
-      "VERCEL_ORG_ID",
-      "VERCEL_PROJECT_ID",
-    ];
+    const requiredEnvVars = ["VERCEL_ORG_ID", "VERCEL_PROJECT_ID"];
+
+    // Check for VERCEL_TOKEN or local authentication
+    if (!process.env.VERCEL_TOKEN) {
+      const isLocalAuth = await this.checkVercelAuth();
+      if (!isLocalAuth) {
+        requiredEnvVars.push("VERCEL_TOKEN");
+      }
+    }
+
     const missingVars = requiredEnvVars.filter(
       (varName) => !process.env[varName]
     );
@@ -280,10 +338,14 @@ class DeploymentAutomation {
   }
 
   async buildApplication() {
-    await this.log("🏗️ Building application", "info");
+    await this.log("🏗️ Building application (Vercel)", "info");
 
     try {
-      const buildResult = await this.executeCommand("bun", ["run", "build"]);
+      // Use vercel build to generate correct artifacts for --prebuilt deploy
+      const buildResult = await this.executeCommand("vercel", [
+        "build",
+        "--prod",
+      ]);
       return { build: "completed", output: buildResult };
     } catch (error) {
       throw new Error(`Build failed: ${error.message}`);
@@ -386,9 +448,11 @@ class DeploymentAutomation {
           ? { "x-vercel-protection-bypass": bypassToken }
           : undefined;
 
-        const response = await fetch(`${url}/api/health`, { headers }).catch(() => {
-          return fetch(url, { headers });
-        });
+        const response = await fetch(`${url}/api/health`, { headers }).catch(
+          () => {
+            return fetch(url, { headers });
+          }
+        );
 
         if (response.ok) {
           await this.log("✅ Deployment verification successful", "success");
@@ -414,21 +478,20 @@ class DeploymentAutomation {
 
     // This is a simplified rollback - in a real system you'd have more sophisticated rollback mechanisms
     try {
+      // For automated rollback, we would ideally need the previous deployment ID.
+      // Since 'vercel rollback' is interactive or requires an ID, we'll log instructions instead.
+      await this.log(
+        "⚠️ Automatic rollback requires a Deployment ID. Please run 'vercel rollback' manually.",
+        "warning"
+      );
+
+      /* 
       const rollbackResult = await this.executeCommand("vercel", [
-        "rollback",
-        "--prod",
+        "rollback"
       ]);
+      */
 
-      this.deploymentHistory.rollbacks.push({
-        timestamp: new Date().toISOString(),
-        reason: "Automatic rollback after failed deployment",
-        result: "success",
-      });
-
-      await this.saveDeploymentHistory();
-      await this.log("✅ Rollback completed successfully", "success");
-
-      return { rollback: "completed", output: rollbackResult };
+      return { rollback: "manual_required" };
     } catch (error) {
       throw new Error(`Rollback failed: ${error.message}`);
     }

@@ -26,6 +26,8 @@ env:
   STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
   RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
   EMAIL_SERVICE: resend
+  AUTONOMA_CLIENT_ID: ${{ secrets.AUTONOMA_CLIENT_ID }}
+  AUTONOMA_SECRET_ID: ${{ secrets.AUTONOMA_SECRET_ID }}
   # Default to Production/Live values (overridden below for non-main)
   NEXT_PUBLIC_STRIPE_TEST_MODE: 'false'
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
