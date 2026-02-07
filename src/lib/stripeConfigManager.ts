@@ -6,6 +6,7 @@ export interface StripeEnvironmentConfig {
   publishableKey: string;
   webhookSecret: string;
   testMode: boolean;
+  mockMode: boolean;
   environment: "development" | "staging" | "production";
 }
 
@@ -51,6 +52,7 @@ class StripeConfigManager {
   private loadEnvironmentConfig(): StripeEnvironmentConfig {
     const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "";
     const testModeFlag = process.env.NEXT_PUBLIC_STRIPE_TEST_MODE === "true";
+    const mockModeFlag = process.env.NEXT_PUBLIC_STRIPE_MOCK_MODE === "true";
     // Prefer choosing a secret that matches the current publishable key mode
     const webhookSecret = (() => {
       const testSecret = process.env.STRIPE_WEBHOOK_SECRET_TEST || "";
@@ -127,6 +129,14 @@ class StripeConfigManager {
     };
 
     // Validate secret key
+    if (this.config.mockMode) {
+      result.configStatus.secretKey = true;
+      result.configStatus.publishableKey = true;
+      result.configStatus.apiConnection = true;
+      result.suggestions.push("Mock Mode is enabled - using simulated responses");
+      return result;
+    }
+
     if (!this.config.secretKey) {
       result.errors.push("STRIPE_SECRET_KEY is not configured");
       result.isValid = false;

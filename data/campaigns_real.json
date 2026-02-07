@@ -102,5 +102,20 @@
       "days_remaining": 150,
       "momentum_score": "89"
     }
+  },
+  {
+    "id": 557618,
+    "name": "Haitian Family Relief Project",
+    "slug": "haitian-family-relief-project",
+    "currency": "usd",
+    "goal_amt": 50000,
+    "formatted_goal_amount": "$50,000",
+    "total_raised": 4250.5,
+    "formatted_total_raised": "$4,250.50",
+    "donations_count": 42,
+    "source": "stripe",
+    "status": "active",
+    "created_at": "2023-11-15T14:30:00.000Z",
+    "updated_at": "2025-06-20T10:15:00.000Z"
   }
 ]

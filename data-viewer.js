@@ -285,7 +285,7 @@ class DataViewer {
       "header"
     );
     this.log("🌐 View Admin Dashboard: http://localhost:3002/admin", "success");
-    this.log("🔄 Run sync again: node donorbox-sync.js", "info");
+    this.log("🔄 Run sync again: ./stripe-sync.sh", "info");
     this.log("📊 View data: node data-viewer.js", "info");
     this.log(
       "═══════════════════════════════════════════════════════════",

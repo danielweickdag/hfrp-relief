@@ -74,7 +74,7 @@ class CampaignViewer {
 
   displaySyncStatus() {
     try {
-      const reportPath = path.join(this.dataPath, "donorbox_sync_report.json");
+      const reportPath = path.join(this.dataPath, "stripe_sync_report.json");
       if (fs.existsSync(reportPath)) {
         const report = JSON.parse(fs.readFileSync(reportPath, "utf8"));
 
@@ -334,16 +334,11 @@ class CampaignViewer {
     this.log("• ./stripe-sync.sh              - Sync Stripe campaigns", "info");
     this.log("• ./setup-stripe-automation.sh  - Configure Stripe automation", "info");
     this.log("• node campaign-viewer.js       - View this dashboard", "info");
-    this.log("• node data-viewer.js           - View all data", "info");
 
     this.log("\n🌐 Links:", "info");
-    this.log("• HFRP Admin: http://localhost:3002/admin", "success");
-    this.log("• Stripe Dashboard: https://dashboard.stripe.com/test", "info");
-    this.log("• Account: w.regis@comcast.net", "warning");
-    this.log(
-      "═══════════════════════════════════════════════════════════",
-      "header"
-    );
+    this.log("  • HFRP Dashboard: http://localhost:3002/admin", "info");
+    this.log("", "info");
+    this.log("══════════════════════════════════════════════════════════════", "success");
   }
 
   run() {

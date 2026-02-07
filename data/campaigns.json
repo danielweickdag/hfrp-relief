@@ -1,15 +1,10 @@
 [
   {
-    "id": "camp_001",
-    "name": "Emergency Relief",
-    "goal": 50000,
-    "raised": 12750,
-    "donors": 45,
-    "status": "active",
-    "created": "2025-06-01T00:00:00Z",
-    "synced_at": "2025-08-18T14:03:51.440Z",
-    "source": "donorbox",
-    "progress_percentage": "25.5"
+    "id": "hfrp_housing_2025",
+    "name": "HFRP Housing 2025",
+    "goal": 75000,
+    "source": "stripe",
+    "status": "active"
   },
   {
     "id": "camp_002",
@@ -20,7 +15,7 @@
     "status": "active",
     "created": "2025-07-01T00:00:00Z",
     "synced_at": "2025-08-18T14:03:51.440Z",
-    "source": "donorbox",
+    "source": "stripe",
     "progress_percentage": "35.6"
   }
 ]

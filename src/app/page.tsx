@@ -88,163 +88,83 @@ export default function HomePage() {
 
     // Choose a valid source proactively (checks local files & content-type), then test playability
     const chooseSource = async () => {
+      // Primary is the local file we verified exists in /public/downloads/
       const primary = "/downloads/Haitian-Family-Project-2.mp4";
+      // Fallback
       const alt = "/homepage-video.mp4";
+
       // Allow explicit local file from public folder via env var
       const preferredLocal = process.env.NEXT_PUBLIC_BG_VIDEO_PATH?.trim();
-      // Prefer env-provided remote video if available; otherwise use the provided Zig link
-      const preferredRemote =
-        process.env.NEXT_PUBLIC_BG_VIDEO_URL?.trim() ??
-        "https://video.zig.ht/v/arx7xtmfj2ch5vy8dda2f";
-      const remoteSample =
-        "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4";
 
-      const isVideo = (ct: string | null) => !!ct && ct.startsWith("video/");
+      // Use env-provided remote video if available
+      const preferredRemote = process.env.NEXT_PUBLIC_BG_VIDEO_URL?.trim();
 
-      const tryCandidate = async (candidate: string): Promise<boolean> => {
-        try {
-          // For remote sources, allow cross-origin for better compatibility
-          if (candidate.startsWith("http")) {
-            videoElement.crossOrigin = "anonymous";
-          }
-          videoElement.src = candidate;
-          videoElement.load();
-        } catch {}
-        // Wait briefly for canplay; if it doesn't arrive, treat as not playable
-        const playable = await waitForEvent(videoElement, "canplay", 1600);
-        if (!playable) {
-          console.log("📹 Candidate did not reach canplay in time:", candidate);
-        }
-        return playable;
-      };
+      const sources = [];
 
-      let chosen: string | null = null;
+      // 1. Env overrides (Highest priority)
+      if (preferredLocal) sources.push(preferredLocal);
+      if (preferredRemote) sources.push(preferredRemote);
 
+      // 2. Primary local file (Verified to exist)
+      sources.push(primary);
+
+      // 3. Alternate local file
+      sources.push(alt);
+
+      // 4. Remote fallbacks (Lowest priority)
+      // "https://video.zig.ht/v/arx7xtmfj2ch5vy8dda2f" // Old link, possibly dead
+      sources.push(
+        "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
+      ); // Reliable test fallback
+
+      return sources;
+    };
+
+    const tryCandidate = async (candidate: string): Promise<boolean> => {
       try {
-        // 0) Try explicit local path if provided (must be served from /public)
-        // Avoid HEAD to reduce noisy aborted network logs; trust local asset
-        if (preferredLocal) {
-          videoElement.src = preferredLocal;
-          chosen = preferredLocal;
+        // For remote sources, allow cross-origin for better compatibility
+        if (candidate.startsWith("http")) {
+          videoElement.crossOrigin = "anonymous";
         }
+        videoElement.src = candidate;
+        videoElement.load();
+      } catch {}
+      // Wait briefly for canplay; if it doesn't arrive, treat as not playable
+      const playable = await waitForEvent(videoElement, "canplay", 1600);
+      if (!playable) {
+        console.log("📹 Candidate did not reach canplay in time:", candidate);
+      }
+      return playable;
+    };
 
-        // Prefer local primary immediately to avoid remote probes causing abort logs
-        if (!chosen) {
-          videoElement.src = primary;
-          chosen = primary;
-        }
+    // Execute source selection and playback logic
+    (async () => {
+      const candidates = await chooseSource();
+      let playableFound = false;
 
-        // 1) Try the preferred remote only if a source hasn't been chosen yet and an explicit URL is provided
-        if (!chosen) {
+      for (const candidate of candidates) {
+        console.log("📹 Testing candidate:", candidate);
+        const works = await tryCandidate(candidate);
+        if (works) {
+          playableFound = true;
+          console.log("✅ Video accepted:", candidate);
           try {
-            const resRemote = await fetch(preferredRemote, { method: "HEAD" });
-            const ctRemote = resRemote.headers.get("content-type");
-            const headSaysVideo = resRemote.ok && isVideo(ctRemote);
-
-            if (headSaysVideo) {
-              const remoteOk = await tryCandidate(preferredRemote);
-              if (remoteOk) {
-                chosen = preferredRemote;
-              }
-            }
-
-            // If HEAD didn't confirm a direct video, attempt resolver
-            if (!headSaysVideo && !chosen) {
-              console.log(
-                "📹 Preferred remote not confirmed as direct video; attempting resolver",
-                preferredRemote,
-                ctRemote
-              );
-              try {
-                const resolveRes = await fetch(
-                  `/api/video-resolve?viewer=${encodeURIComponent(preferredRemote)}`,
-                  { method: "GET" }
-                );
-                if (resolveRes.ok) {
-                  const data = (await resolveRes.json()) as { mp4Url?: string };
-                  if (data?.mp4Url) {
-                    const ok = await tryCandidate(data.mp4Url);
-                    if (ok) {
-                      chosen = data.mp4Url;
-                    }
-                  }
-                }
-              } catch (e) {
-                console.log("📹 Resolver failed:", e);
-              }
-            }
+            await videoElement.play();
           } catch (e) {
-            // Network/CORS errors on HEAD — still try resolver before falling back
-            console.log("📹 HEAD check failed; attempting resolver:", e);
-            try {
-              const resolveRes = await fetch(
-                `/api/video-resolve?viewer=${encodeURIComponent(preferredRemote)}`,
-                { method: "GET" }
-              );
-              if (resolveRes.ok) {
-                const data = (await resolveRes.json()) as { mp4Url?: string };
-                if (data?.mp4Url) {
-                  const ok = await tryCandidate(data.mp4Url);
-                  if (ok) {
-                    chosen = data.mp4Url;
-                  }
-                }
-              }
-            } catch (resolverErr) {
-              console.log(
-                "📹 Resolver also failed after HEAD error:",
-                resolverErr
-              );
-            }
+            console.warn("📹 Play failed for", candidate, e);
           }
-        }
-
-        if (!chosen) {
-          videoElement.src = primary;
-          chosen = primary;
-
-          if (!chosen) {
-            const resAlt = await fetch(alt, { method: "HEAD" });
-            if (resAlt.ok && isVideo(resAlt.headers.get("content-type"))) {
-              videoElement.src = alt;
-              chosen = alt;
-            }
-          }
-
-          if (!chosen) {
-            console.log(
-              "📹 Sources missing/invalid or not playable; using remote sample fallback"
-            );
-            videoElement.src = remoteSample;
-            videoElement.crossOrigin = "anonymous";
-            chosen = remoteSample;
-          }
-        }
-      } catch {
-        // Network/CORS issues — use remote fallback so we don't stall
-        videoElement.src = remoteSample;
-        videoElement.crossOrigin = "anonymous";
-        chosen = remoteSample;
-      } finally {
-        try {
-          videoElement.load();
-          // Nudge playback to start as soon as possible
-          setTimeout(() => {
-            videoElement
-              .play()
-              .then(() =>
-                console.log("✅ Video play nudged after source selection")
-              )
-              .catch((e) => console.log("📹 Play nudge failed:", e));
-          }, 140);
-        } catch {}
-        if (chosen) {
-          console.log("📹 Final chosen video src:", chosen);
+          break;
         }
       }
-    };
-    // Kick off source selection
-    void chooseSource();
+
+      if (!playableFound) {
+        console.error("❌ No playable video sources found. Using fallback.");
+        videoElement.src = "/downloads/Haitian-Family-Project-2.mp4";
+        try {
+          await videoElement.play();
+        } catch {}
+      }
+    })();
 
     // Optimize video loading for mobile devices
     if (typeof window !== "undefined" && window.innerWidth < 768) {

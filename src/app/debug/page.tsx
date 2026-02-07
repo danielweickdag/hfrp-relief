@@ -131,7 +131,7 @@ export default function DebugPage() {
                 onLoadStart={() => console.log("Video loading started")}
                 onCanPlay={() => console.log("Video can play")}
               >
-                <source src="/downloads/Haitian-Family-Project-2.mp4" type="video/mp4" />
+                <source src="/haitian-family-project.mp4" type="video/mp4" />
                 <source src="/homepage-video.mp4" type="video/mp4" />
                 Your browser does not support the video tag.
               </video>

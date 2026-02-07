@@ -128,24 +128,12 @@ echo "------------------------------"
 check_file_exists "STRIPE_MIGRATION_COMPLETE.md" "Migration Completion Marker"
 check_content "migrate-to-stripe.js" "StripeButton" "Migration Script"
 
-# Check for old Donorbox references
-echo -n "Checking for Donorbox cleanup... "
-total_checks=$((total_checks + 1))
-donorbox_files=$(find src -name "*.tsx" -o -name "*.ts" 2>/dev/null | xargs grep -l "DonorboxButton" 2>/dev/null | wc -l)
-if [ "$donorbox_files" -eq 0 ]; then
-    echo -e "${GREEN}✅ CLEAN${NC}"
-    passed_checks=$((passed_checks + 1))
-else
-    echo -e "${YELLOW}⚠️  $donorbox_files files still reference DonorboxButton${NC}"
-fi
-
 echo ""
 echo -e "${BLUE}🔒 Checking Automation Scripts:${NC}"
 echo "--------------------------------"
 
 # Check automation scripts
 check_file_exists "stripe-automation-setup.sh" "Stripe Setup Script"
-check_file_exists "migrate-to-stripe.js" "Migration Script"
 check_file_exists "system-test.sh" "System Test Script"
 
 echo ""

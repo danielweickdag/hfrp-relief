@@ -7,13 +7,13 @@ echo "🎵 HFRP Radio - Automated Stream Setup"
 echo "======================================"
 
 # Check if the development server is running
-if lsof -i :3000 > /dev/null 2>&1; then
-    echo "✅ Development server is running on port 3000"
+if lsof -i :3005 > /dev/null 2>&1; then
+    echo "✅ Development server is running on port 3005"
 else
-    echo "⚠️  Development server not detected on port 3000"
+    echo "⚠️  Development server not detected on port 3005"
     echo "Starting development server..."
     npm run dev &
-    sleep 3
+    sleep 5
 fi
 
 # Test the current HLS stream

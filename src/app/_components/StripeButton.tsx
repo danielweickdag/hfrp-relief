@@ -15,6 +15,7 @@ interface StripeButtonProps {
   onSuccess?: () => void;
   onError?: (error: string) => void;
   showFallbackNotice?: boolean;
+  hideFooter?: boolean;
 }
 
 export default function StripeButton({
@@ -29,6 +30,7 @@ export default function StripeButton({
   onSuccess,
   onError,
   showFallbackNotice = false,
+  hideFooter = false,
 }: StripeButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   // Initialize Stripe helper and hooks BEFORE any conditional returns
@@ -361,32 +363,36 @@ export default function StripeButton({
         )}
       </button>
 
-      {/* Campaign Info */}
-      <div className="mt-2 text-sm text-gray-600">
-        <div className="font-medium">{displayCampaign.name}</div>
-        {amount && (
-          <div className="text-gray-500">
-            {recurring ? `$${amount}/${interval}` : `One-time: $${amount}`}
+      {!hideFooter && (
+        <>
+          {/* Campaign Info */}
+          <div className="mt-2 text-sm text-gray-600">
+            <div className="font-medium">{displayCampaign.name}</div>
+            {amount && (
+              <div className="text-gray-500">
+                {recurring ? `$${amount}/${interval}` : `One-time: $${amount}`}
+              </div>
+            )}
+            {showFallbackNotice && !campaign && (
+              <div className="text-xs text-orange-600 mt-1">
+                Using fallback campaign configuration
+              </div>
+            )}
           </div>
-        )}
-        {showFallbackNotice && !campaign && (
-          <div className="text-xs text-orange-600 mt-1">
-            Using fallback campaign configuration
-          </div>
-        )}
-      </div>
 
-      {/* Stripe Security Badge */}
-      <div className="flex items-center mt-2 text-xs text-gray-500">
-        <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-          <path
-            fillRule="evenodd"
-            d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-            clipRule="evenodd"
-          />
-        </svg>
-        Secured by Stripe
-      </div>
+          {/* Stripe Security Badge */}
+          <div className="flex items-center mt-2 text-xs text-gray-500">
+            <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fillRule="evenodd"
+                d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                clipRule="evenodd"
+              />
+            </svg>
+            Secured by Stripe
+          </div>
+        </>
+      )}
 
       {/* Validation Errors */}
       {!validation.isValid && config.testMode && (

@@ -23,10 +23,7 @@ yarn-debug.log*
 yarn-error.log*
 
 # Local env files
-.env
-.env*.local
 .env.production
-.env.development
 .donorbox-config.json
 
 # Vercel
@@ -56,3 +53,10 @@ response.json
 response_local.json
 data/credentials.json
 data/secrets.json
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.test
+.env.production

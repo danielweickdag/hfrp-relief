@@ -61,11 +61,11 @@ export default function ContactPage() {
                     <h3 className="font-semibold text-gray-900 mb-1">Email</h3>
                     <p>
                       <a
-                        href="mailto:haitianfamilyrelief@gmail.com"
-                        className="text-blue-600 hover:text-blue-700 transition-colors"
-                      >
-                        haitianfamilyrelief@gmail.com
-                      </a>
+                href="mailto:contact@familyreliefproject7.org"
+                className="text-blue-600 hover:text-blue-700 transition-colors"
+              >
+                contact@familyreliefproject7.org
+              </a>
                     </p>
                   </div>
                 </div>

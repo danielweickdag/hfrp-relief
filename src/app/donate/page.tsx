@@ -1,323 +1,428 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import StripeButton from "../_components/StripeButton";
 import { getStripeEnhanced } from "@/lib/stripeEnhanced";
-
-type StripeStatus = {
-  ok: boolean;
-  checkout_locale: string;
-  publishableKey_present: boolean;
-  secretKey_present: boolean;
-  publishableKey_prefix: string | null;
-  secretKey_prefix: string | null;
-  mode: "live" | "test" | "unknown" | "mismatch";
-  modeMismatch: boolean;
-  webhook: {
-    live_present: boolean;
-    test_present: boolean;
-    configured_for_mode: boolean;
-  };
-};
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Check, 
+  Heart, 
+  ShieldCheck, 
+  Zap, 
+  Utensils, 
+  Pill, 
+  GraduationCap, 
+  Home,
+  Globe,
+  Users
+} from "lucide-react";
 
 export default function DonatePage() {
   const stripeEnhanced = getStripeEnhanced();
   const campaignId =
     process.env.NEXT_PUBLIC_STRIPE_MAIN_CAMPAIGN || "haiti-relief-main";
 
+  const [donationType, setDonationType] = useState<"one-time" | "recurring">("recurring");
+  const [selectedAmount, setSelectedAmount] = useState<number | null>(0.50);
   const [customAmount, setCustomAmount] = useState<string>("");
-  const recurringCardRef = useRef<HTMLDivElement>(null);
-  const oneTimeCardRef = useRef<HTMLDivElement>(null);
-  const [webhookConfigured, setWebhookConfigured] = useState<boolean>(false);
-  const [configStatus, setConfigStatus] = useState<StripeStatus | null>(null);
+  const [isCustom, setIsCustom] = useState(false);
 
-  // Stabilize SSR/CSR by using an env-derived initial test mode, then update on mount
-  const [testMode, setTestMode] = useState<boolean>(
-    process.env.NEXT_PUBLIC_STRIPE_TEST_MODE === "true",
-  );
+  // Configuration
+  const [config, setConfig] = useState<any>(null);
+  
   useEffect(() => {
     if (stripeEnhanced) {
       try {
-        const cfg = stripeEnhanced.getConfig();
-        setTestMode(!!cfg.testMode);
+        setConfig(stripeEnhanced.getConfig());
       } catch {}
     }
   }, [stripeEnhanced]);
 
-  // Fetch webhook configuration status for a small header chip
+  const [interval, setInterval] = useState<"day" | "month">("month");
+
+  const presets = {
+    "one-time": [
+      { amount: 50, label: "Meals", desc: "Feeds a family for a week", icon: Utensils, color: "text-orange-500", bg: "bg-orange-50" },
+      { amount: 100, label: "Health", desc: "Provides vital medicine", icon: Pill, color: "text-red-500", bg: "bg-red-50" },
+      { amount: 250, label: "Education", desc: "Sends a child to school", icon: GraduationCap, color: "text-blue-500", bg: "bg-blue-50" },
+      { amount: 500, label: "Housing", desc: "Helps build a safe home", icon: Home, color: "text-purple-500", bg: "bg-purple-50" },
+    ],
+    "recurring": [
+      { amount: 0.50, label: "Daily Hope", desc: "Just 50¢ a day", interval: "day" },
+    ]
+  };
+
+  const currentPresets = presets[donationType];
+  const minAmount = config?.minimumAmount || 0.50;
+  
+  const finalAmount = isCustom 
+    ? parseFloat(customAmount) 
+    : selectedAmount || 0;
+
+  const isValid = !isNaN(finalAmount) && finalAmount >= minAmount;
+
   useEffect(() => {
-    const fetchWebhookStatus = async () => {
-      try {
-        const res = await fetch("/api/stripe/webhook");
-        const data = await res.json();
-        if (typeof data.webhookSecretConfigured === "boolean") {
-          setWebhookConfigured(data.webhookSecretConfigured);
-        }
-      } catch {
-        // leave default false on error
-      }
-    };
-    fetchWebhookStatus();
-  }, []);
+    // Initial setup based on default type
+    if (donationType === "recurring") {
+      setSelectedAmount(0.50);
+      setInterval("day");
+    }
+  }, []); // Run once on mount
 
-  // Fetch broader Stripe configuration status (keys, mode, webhook by mode)
-  useEffect(() => {
-    const fetchConfigStatus = async () => {
-      try {
-        const res = await fetch("/api/stripe/status");
-        if (res.ok) {
-          const data: StripeStatus = await res.json();
-          setConfigStatus(data);
-        }
-      } catch {
-        // ignore
-      }
-    };
-    fetchConfigStatus();
-  }, []);
-
-  const triggerContainedStripeButton = (container: HTMLDivElement | null) => {
-    if (!container) return;
-    const stripeButtonWrapper = container.querySelector(
-      '[data-automation="stripe-button-recurring"], [data-automation="stripe-button-one-time"]',
-    );
-    const button = stripeButtonWrapper?.querySelector("button");
-    if (button instanceof HTMLButtonElement) {
-      button.click();
+  const handlePresetSelect = (amount: number, presetInterval?: string) => {
+    setSelectedAmount(amount);
+    setIsCustom(false);
+    setCustomAmount("");
+    if (donationType === "recurring" && presetInterval) {
+      setInterval(presetInterval as "day" | "month");
     }
   };
 
-  const handleCardClick = (
-    e: React.MouseEvent<HTMLDivElement>,
-    type: "recurring" | "one-time",
-  ) => {
-    const target = e.target as HTMLElement;
-    // If the click originates from any interactive element, let it handle itself
-    if (target.closest("button, input, a, select, textarea, label")) return;
-    // Otherwise, trigger the contained Stripe button for the respective card
-    if (type === "recurring") {
-      triggerContainedStripeButton(recurringCardRef.current);
-    } else {
-      // If one-time amount is invalid/empty, auto-fill a sensible default then proceed
-      if (!customValid) {
-        const defaultAmount = Math.max(minAmount, 25);
-        setCustomAmount(String(defaultAmount));
-        // Defer click until state updates
-        setTimeout(
-          () => triggerContainedStripeButton(oneTimeCardRef.current),
-          0,
-        );
-        return;
-      }
-      triggerContainedStripeButton(oneTimeCardRef.current);
-    }
-  };
-
-  const handleCardKeyDown = (
-    e: React.KeyboardEvent<HTMLDivElement>,
-    type: "recurring" | "one-time",
-  ) => {
-    // Activate on Enter or Space
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      if (type === "recurring") {
-        triggerContainedStripeButton(recurringCardRef.current);
-      } else {
-        if (!customValid) {
-          const defaultAmount = Math.max(minAmount, 25);
-          setCustomAmount(String(defaultAmount));
-          setTimeout(
-            () => triggerContainedStripeButton(oneTimeCardRef.current),
-            0,
-          );
-          return;
-        }
-        triggerContainedStripeButton(oneTimeCardRef.current);
-      }
-    }
-  };
-
-  // Allow pressing Enter in the input to proceed with a valid custom amount
-  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      if (customValid) {
-        triggerContainedStripeButton(oneTimeCardRef.current);
-      }
-    }
+  const handleCustomFocus = () => {
+    setIsCustom(true);
+    setSelectedAmount(null);
   };
 
   if (!stripeEnhanced) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="bg-white rounded-lg shadow-lg p-8 max-w-md text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
-            Donations Unavailable
-          </h1>
-          <p className="text-gray-600 mb-4">
-            Stripe payment processing is not currently configured. Please
-            contact support.
-          </p>
-        </div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md text-center p-6">
+          <CardTitle className="text-xl text-red-600 mb-2">Service Unavailable</CardTitle>
+          <CardDescription>
+            Donation system is currently being configured. Please check back soon.
+          </CardDescription>
+        </Card>
       </div>
     );
   }
 
-  const config = stripeEnhanced.getConfig();
-  const minAmount = config.minimumAmount || 1;
-  const parsedAmount = Number(customAmount);
-  const customValid = !isNaN(parsedAmount) && parsedAmount >= minAmount;
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-6xl mx-auto px-6 py-12">
-
-        {/* Hero header */}
-        <div className="text-center mb-10">
-          <h1 className="text-4xl font-extrabold text-gray-900 mb-3">
+    <div className="min-h-screen bg-slate-50">
+      {/* Hero Background */}
+      <div className="bg-blue-900 text-white pb-32 pt-12 px-4 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+           <svg className="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+             <path d="M0 100 C 20 0 50 0 100 100 Z" fill="white" />
+           </svg>
+        </div>
+        <div className="max-w-5xl mx-auto text-center relative z-10">
+          <Badge variant="secondary" className="px-4 py-1.5 text-sm bg-blue-800 text-blue-100 border-blue-700 font-medium rounded-full mb-6 inline-flex items-center">
+            <Globe className="w-3 h-3 mr-2" />
+            Direct Aid Initiative
+          </Badge>
+          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6 leading-tight">
             Support Haitian Families
           </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Your gift provides food, clean water, medical care, and education.
-            Choose the simple Daily 50¢ plan or make a custom one-time donation.
+          <p className="text-xl text-blue-100 max-w-2xl mx-auto leading-relaxed font-light">
+            Your generosity brings food, clean water, healthcare, and hope to those who need it most.
           </p>
         </div>
+      </div>
 
-        {/* Two-column donate options */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Daily 50¢ Recurring */}
-          <div
-            ref={recurringCardRef}
-            className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 cursor-pointer"
-            role="button"
-            tabIndex={0}
-            aria-label="Donate 50 cents per day"
-            data-automation="recurring-card"
-            onClick={(e) => handleCardClick(e, "recurring")}
-            onKeyDown={(e) => handleCardKeyDown(e, "recurring")}
-          >
-            <div className="mb-4">
-              <div className="text-sm font-semibold text-blue-700">
-                Recurring Support
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900">
-                Daily 50¢ Plan
-              </h2>
-            </div>
-            <p className="text-gray-600 mb-6">
-              Join a community of monthly supporters by contributing just 50¢
-              per day. Small daily support adds up to big impact across the
-              year.
-            </p>
-            <ul className="text-sm text-gray-600 space-y-2 mb-6">
-              <li className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-blue-600"></div> Billed
-                daily via Stripe
-              </li>
-              <li className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-blue-600"></div> Cancel
-                anytime
-              </li>
-              <li className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-blue-600"></div>{" "}
-                Supports food and healthcare
-              </li>
-            </ul>
-            <div data-automation="stripe-button-recurring">
-              <StripeButton
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-4 rounded-lg text-lg"
-                campaignId={campaignId}
-                amount={0.5}
-                recurring
-                interval="day"
-              >
-                Donate 50¢/day
-              </StripeButton>
-            </div>
-          </div>
-
-          {/* Custom One-Time Donation */}
-          <div
-            ref={oneTimeCardRef}
-            className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 cursor-pointer"
-            role="button"
-            tabIndex={0}
-            aria-label="Make a one-time donation"
-            data-automation="one-time-card"
-            onClick={(e) => handleCardClick(e, "one-time")}
-            onKeyDown={(e) => handleCardKeyDown(e, "one-time")}
-          >
-            <div className="mb-4">
-              <div className="text-sm font-semibold text-red-700">
-                One-Time Gift
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900">
-                Custom One-Time
-              </h2>
-            </div>
-            <p className="text-gray-600 mb-4">
-              Make a one-time donation of any amount to support urgent needs.
-            </p>
-
-            <div className="mb-4">
-              <label
-                htmlFor="customAmount"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Amount (minimum ${minAmount})
-              </label>
-              <div className="flex gap-3">
-                <input
-                  id="customAmount"
-                  type="number"
-                  min={minAmount}
-                  step="0.01"
-                  value={customAmount}
-                  onChange={(e) => setCustomAmount(e.target.value)}
-                  onKeyDown={handleInputKeyDown}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-                  placeholder="Enter amount in USD"
-                />
-              </div>
-              {!customValid && customAmount && (
-                <p className="text-sm text-red-600 mt-2">
-                  Please enter an amount of at least ${minAmount}.
-                </p>
-              )}
-            </div>
-
-            <div className="flex flex-wrap gap-2 mb-6">
-              {[25, 50, 100, 250].map((preset) => (
-                <button
-                  key={preset}
-                  type="button"
-                  onClick={() => setCustomAmount(String(preset))}
-                  className="px-3 py-2 rounded-md border border-gray-300 text-sm hover:bg-gray-50"
+      <div className="max-w-5xl mx-auto px-4 -mt-20 pb-20 relative z-20">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          {/* Main Donation Card */}
+          <div className="lg:col-span-7 order-2 lg:order-1">
+            <Card className="w-full shadow-2xl border-0 overflow-hidden rounded-2xl">
+              <CardHeader className="bg-white pb-0 pt-8 px-6 sm:px-8">
+                <Tabs 
+                  defaultValue="one-time" 
+                  value={donationType} 
+                  onValueChange={(v) => {
+                    const type = v as "one-time" | "recurring";
+                    setDonationType(type);
+                    // Set sensible defaults when switching tabs
+                    if (type === "recurring") {
+                      setSelectedAmount(0.50);
+                      setInterval("day");
+                    } else {
+                      setSelectedAmount(100);
+                      setInterval("month");
+                    }
+                    setIsCustom(false);
+                    setCustomAmount("");
+                  }}
+                  className="w-full"
                 >
-                  ${preset}
-                </button>
-              ))}
-            </div>
+                  <TabsList className="grid w-full grid-cols-2 h-16 p-1.5 bg-slate-100 rounded-xl mb-6">
+                    <TabsTrigger 
+                      value="recurring" 
+                      className="h-full text-lg font-bold rounded-lg data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm transition-all"
+                    >
+                      Monthly / Daily
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="one-time" 
+                      className="h-full text-lg font-bold rounded-lg data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm transition-all"
+                    >
+                      Give Once
+                    </TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </CardHeader>
 
-            <div data-automation="stripe-button-one-time">
-              <StripeButton
-                className="bg-red-600 hover:bg-red-700 text-white px-6 py-4 rounded-lg text-lg"
-                campaignId={campaignId}
-                amount={customValid ? parsedAmount : undefined}
-                disabled={!customValid}
-              >
-                {customValid
-                  ? `Donate $${parsedAmount.toFixed(2)}`
-                  : `Enter at least $${minAmount}`}
-              </StripeButton>
+              <CardContent className="p-6 sm:p-8 space-y-8 pt-4">
+                
+                {/* Amount Grid */}
+                {donationType === "one-time" && (
+                  <div className="space-y-4">
+                    <Label className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
+                      Select Impact
+                    </Label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {currentPresets.map((preset) => {
+                        const Icon = (preset as any).icon;
+                        const isSelected = selectedAmount === preset.amount;
+                        return (
+                          <button
+                            key={preset.amount}
+                            onClick={() => handlePresetSelect(preset.amount, (preset as any).interval)}
+                            className={`
+                              relative p-4 rounded-xl border-2 text-left transition-all duration-200 group flex items-start space-x-4
+                              ${isSelected
+                                ? "border-blue-600 bg-blue-50 ring-1 ring-blue-600" 
+                                : "border-gray-100 hover:border-blue-200 hover:bg-gray-50 bg-white"}
+                            `}
+                          >
+                            <div className={`
+                              p-3 rounded-lg flex-shrink-0 transition-colors
+                              ${isSelected ? "bg-blue-600 text-white" : `${(preset as any).bg} ${(preset as any).color}`}
+                            `}>
+                              <Icon className="w-6 h-6" />
+                            </div>
+                            <div>
+                              <div className="flex items-baseline space-x-1">
+                                <span className={`text-xl font-bold ${isSelected ? "text-blue-900" : "text-gray-900"}`}>
+                                  ${preset.amount}
+                                </span>
+                              </div>
+                              <div className={`text-sm font-medium mt-1 ${isSelected ? "text-blue-700" : "text-gray-500"}`}>
+                                {preset.label}
+                              </div>
+                            </div>
+                            {isSelected && (
+                              <div className="absolute top-4 right-4 text-blue-600">
+                                <Check className="w-5 h-5" />
+                              </div>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {donationType === "recurring" && (
+                  <div className="relative overflow-hidden rounded-2xl border-2 border-blue-100 bg-gradient-to-br from-blue-50 to-white p-8 text-center space-y-6">
+                    <div className="absolute top-0 right-0 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-bl-xl shadow-sm">
+                      MOST POPULAR
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <h3 className="text-2xl font-bold text-blue-900">The "Daily Hope" Plan</h3>
+                      <p className="text-blue-600 text-lg">
+                        Small consistent acts create massive change.
+                      </p>
+                    </div>
+
+                    <div className="py-6 bg-white rounded-xl border border-blue-100 shadow-sm max-w-sm mx-auto transform transition-transform hover:scale-105 duration-300">
+                      <div className="flex items-center justify-center space-x-2 text-5xl font-extrabold text-blue-600 tracking-tight">
+                        <span>$0.50</span>
+                        <span className="text-xl font-medium text-gray-400 self-end mb-2">/day</span>
+                      </div>
+                      <p className="text-sm text-gray-400 mt-2 font-medium">Billed monthly as $15.00</p>
+                    </div>
+
+                    <div className="w-full max-w-xs mx-auto">
+                      <StripeButton
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-200 py-4 rounded-xl font-bold text-lg flex items-center justify-center space-x-2"
+                        campaignId={campaignId}
+                        amount={0.50}
+                        recurring={true}
+                        interval="day"
+                        hideFooter={true}
+                      >
+                        <Heart className="w-5 h-5 mr-2 fill-current" />
+                        <span>Join Daily Hope</span>
+                      </StripeButton>
+                    </div>
+
+                    <div className="flex justify-center space-x-6 text-sm text-blue-700 pt-2">
+                      <div className="flex items-center"><Check className="w-4 h-4 mr-1.5 text-green-500" /> Cancel anytime</div>
+                      <div className="flex items-center"><Check className="w-4 h-4 mr-1.5 text-green-500" /> Monthly report</div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Custom Amount Input */}
+                {donationType === "one-time" && (
+                  <div className="pt-2">
+                    <Label className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3 block">
+                      Or enter custom amount
+                    </Label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <span className="text-gray-400 text-xl font-light">$</span>
+                      </div>
+                      <Input
+                        type="number"
+                        min={minAmount}
+                        placeholder="Other Amount"
+                        value={customAmount}
+                        onChange={(e) => {
+                          setCustomAmount(e.target.value);
+                          setIsCustom(true);
+                          setSelectedAmount(null);
+                        }}
+                        onFocus={handleCustomFocus}
+                        className={`pl-8 h-16 text-xl font-medium transition-all rounded-xl border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 ${isCustom ? "border-blue-500 ring-4 ring-blue-500/10 bg-white" : "bg-gray-50"}`}
+                      />
+                    </div>
+                    {isCustom && !isValid && (
+                      <p className="text-sm text-red-500 mt-2 pl-1 font-medium flex items-center">
+                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-red-500 mr-2"></span>
+                        Minimum donation is ${minAmount}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {/* Impact Summary */}
+                <div className="bg-slate-50 rounded-xl p-5 text-center border border-slate-100">
+                  <p className="text-slate-600 text-lg">
+                    You are donating{" "}
+                    <span className="font-bold text-slate-900">
+                      ${isValid ? finalAmount.toFixed(2) : "0.00"}
+                    </span>
+                    <span className="text-slate-500">
+                      {donationType === "recurring" ? (interval === "day" ? "/day" : "/month") : " once"}
+                    </span>
+                  </p>
+                </div>
+
+                {/* Main Action Button (only for one-time or custom, hidden for recurring as it has its own button) */}
+                {donationType !== "recurring" && (
+                  <div className="pt-2">
+                    <StripeButton
+                      className={`w-full py-5 text-xl font-bold shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-0.5 active:scale-[0.99] rounded-xl flex items-center justify-center ${
+                        isValid 
+                          ? "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white" 
+                          : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                      }`}
+                      campaignId={campaignId}
+                      amount={isValid ? finalAmount : undefined}
+                      recurring={false}
+                      disabled={!isValid}
+                      hideFooter={true}
+                    >
+                      {isValid ? "Complete Donation" : "Enter Valid Amount"}
+                      {isValid && <Zap className="w-5 h-5 ml-2 fill-yellow-400 text-yellow-400" />}
+                    </StripeButton>
+                  </div>
+                )}
+
+              </CardContent>
+              
+              <CardFooter className="bg-gray-50 border-t border-gray-100 p-4 justify-center">
+                <div className="flex items-center text-sm text-gray-500 gap-2">
+                  <ShieldCheck className="w-4 h-4 text-green-600" />
+                  <span className="font-medium">Secure 256-bit SSL Encrypted Payment</span>
+                </div>
+              </CardFooter>
+            </Card>
+            
+            {/* Trust Badges */}
+            <div className="flex justify-center gap-6 mt-8 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
+              <div className="flex items-center gap-2">
+                <div className="h-8 w-12 bg-white rounded border shadow-sm flex items-center justify-center font-bold text-xs text-blue-800">VISA</div>
+                <div className="h-8 w-12 bg-white rounded border shadow-sm flex items-center justify-center font-bold text-xs text-orange-600">MC</div>
+                <div className="h-8 w-12 bg-white rounded border shadow-sm flex items-center justify-center font-bold text-xs text-blue-500">AMEX</div>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Security note */}
-        <div className="mt-10 text-sm text-gray-500 text-center">
-          Payments are processed securely by Stripe. No sensitive information is
-          stored on our servers.
+          {/* Sidebar / Trust Section */}
+          <div className="lg:col-span-5 order-1 lg:order-2 space-y-6 lg:pt-8">
+            
+            {/* Impact Stats */}
+            <Card className="border-none shadow-lg bg-white/80 backdrop-blur-sm overflow-hidden">
+              <div className="h-2 bg-gradient-to-r from-yellow-400 to-orange-500"></div>
+              <CardContent className="p-8">
+                <h3 className="font-bold text-gray-900 mb-6 flex items-center text-xl">
+                  <Zap className="w-6 h-6 text-yellow-500 mr-3 fill-yellow-500" />
+                  Your Real Impact
+                </h3>
+                <ul className="space-y-6">
+                  <li className="flex gap-4 items-start group">
+                    <div className="bg-orange-100 p-3 rounded-xl text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition-colors">
+                      <Utensils className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <div className="font-bold text-gray-900 text-lg">Nutritious Meals</div>
+                      <p className="text-gray-600 leading-relaxed">Ensuring no child goes to bed hungry through our community kitchen program.</p>
+                    </div>
+                  </li>
+                  <li className="flex gap-4 items-start group">
+                    <div className="bg-red-100 p-3 rounded-xl text-red-600 group-hover:bg-red-600 group-hover:text-white transition-colors">
+                      <Pill className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <div className="font-bold text-gray-900 text-lg">Healthcare Access</div>
+                      <p className="text-gray-600 leading-relaxed">Providing essential medicine, check-ups, and emergency medical support.</p>
+                    </div>
+                  </li>
+                  <li className="flex gap-4 items-start group">
+                    <div className="bg-blue-100 p-3 rounded-xl text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                      <Home className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <div className="font-bold text-gray-900 text-lg">Safe Shelter</div>
+                      <p className="text-gray-600 leading-relaxed">Building and repairing secure homes for families displaced by crisis.</p>
+                    </div>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            {/* Testimonial / Quote */}
+            <div className="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl p-8 shadow-xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 opacity-10 transform translate-x-1/4 -translate-y-1/4">
+                <svg width="200" height="200" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M14.017 21L14.017 18C14.017 16.8954 13.1216 16 12.017 16H9.017C7.91243 16 7.017 16.8954 7.017 18V21H14.017ZM21 21L21 18C21 16.8954 20.1046 16 19 16H15.9999C14.8954 16 14 16.8954 14 18V21H21ZM7 21L7 18C7 16.8954 6.10457 16 5 16H2C0.89543 16 0 16.8954 0 18V21H7Z" />
+                </svg>
+              </div>
+              <div className="relative z-10">
+                <div className="flex items-center gap-2 mb-4 opacity-80">
+                  <Users className="w-5 h-5" />
+                  <span className="text-sm font-semibold tracking-wider uppercase">Community Voice</span>
+                </div>
+                <p className="italic text-xl mb-6 font-light leading-relaxed">
+                  "The support from HFRP changed our lives. We have hope for the future now because we know we aren't alone."
+                </p>
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center font-bold text-lg border border-white/30">
+                    MC
+                  </div>
+                  <div>
+                    <div className="font-bold text-lg">Marie C.</div>
+                    <div className="text-sm opacity-75">Community Member</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Security Note */}
+            <div className="text-center text-sm text-gray-500 px-4">
+              <p>Your donation is tax-deductible to the extent allowed by law.</p>
+            </div>
+
+          </div>
         </div>
       </div>
     </div>

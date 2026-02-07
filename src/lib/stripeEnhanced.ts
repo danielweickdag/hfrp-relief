@@ -114,7 +114,7 @@ function getDefaultConfig(): StripeConfig {
     webhookSecret: process.env.STRIPE_WEBHOOK_SECRET || "",
     testMode: process.env.NEXT_PUBLIC_STRIPE_TEST_MODE === "true",
     currency: "USD",
-    minimumAmount: 1,
+    minimumAmount: 0.50,
     maximumAmount: 999999,
     supportedPaymentMethods: ["card", "apple_pay", "google_pay"],
     enableApplePay: true,
@@ -856,6 +856,20 @@ class EnhancedStripeService {
       successUrl,
       cancelUrl,
     } = params;
+
+    // Handle Mock Mode
+    if (process.env.NEXT_PUBLIC_STRIPE_MOCK_MODE === "true") {
+      console.log("⚠️ Creating Mock Checkout Session");
+      const mockId = `cs_mock_${Date.now()}`;
+      const mockUrl =
+        successUrl?.replace("{CHECKOUT_SESSION_ID}", mockId) ||
+        `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/donation/success?session_id=${mockId}&mock=true`;
+      
+      return {
+        id: mockId,
+        url: mockUrl,
+      };
+    }
 
     // Check if Stripe is initialized
     if (!this.stripe) {

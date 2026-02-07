@@ -1,0 +1,413 @@
+{
+  "version": "2.0.0",
+  "name": "HFRP Relief Automation System",
+  "description": "Comprehensive workflow automation for HFRP relief operations",
+  "lastUpdated": "2025-08-16T00:00:00.000Z",
+
+  "notifications": {
+    "email": {
+      "enabled": true,
+      "recipients": ["admin@hfrprelief.org", "tech@hfrprelief.org"],
+      "templates": {
+        "workflowSuccess": "workflow-success-template",
+        "workflowFailure": "workflow-failure-template",
+        "systemAlert": "system-alert-template",
+        "campaignUpdate": "campaign-update-template",
+        "donationAlert": "donation-alert-template",
+        "maintenanceReport": "maintenance-report-template",
+        "weeklyDigest": "weekly-digest-template",
+        "monthlyReport": "monthly-report-template"
+      }
+    },
+    "slack": {
+      "enabled": true,
+      "webhook": "${SLACK_WEBHOOK_URL}",
+      "channels": {
+        "general": "#hfrp-general",
+        "tech": "#hfrp-tech",
+        "alerts": "#hfrp-alerts",
+        "donations": "#hfrp-donations",
+        "campaigns": "#hfrp-campaigns"
+      }
+    },
+    "discord": {
+      "enabled": true,
+      "webhook": "${DISCORD_WEBHOOK_URL}",
+      "channels": {
+        "general": "general",
+        "automation": "automation-logs",
+        "alerts": "system-alerts"
+      }
+    }
+  },
+
+  "schedules": {
+    "healthCheck": {
+      "cron": "0 */6 * * *",
+      "description": "System health check every 6 hours",
+      "enabled": true,
+      "workflow": "health-check"
+    },
+    "dailyBackup": {
+      "cron": "0 2 * * *",
+      "description": "Daily backup at 2 AM UTC",
+      "enabled": true,
+      "workflow": "backup"
+    },
+    "weeklyMaintenance": {
+      "cron": "0 3 * * 0",
+      "description": "Weekly maintenance on Sunday at 3 AM UTC",
+      "enabled": true,
+      "workflow": "maintenance"
+    },
+    "donationSync": {
+      "cron": "0 */4 * * *",
+      "description": "Sync donation data every 4 hours",
+      "enabled": true,
+      "workflow": "donation-sync"
+    },
+    "campaignUpdate": {
+      "cron": "0 8 * * *",
+      "description": "Daily campaign updates at 8 AM UTC",
+      "enabled": true,
+      "workflow": "campaign-sync"
+    },
+    "socialMediaPosts": {
+      "cron": "0 12,18 * * *",
+      "description": "Automated social media posts twice daily",
+      "enabled": true,
+      "workflow": "social-media-automation"
+    },
+    "donorFollowUp": {
+      "cron": "0 10 * * *",
+      "description": "Daily donor follow-up and thank you emails",
+      "enabled": true,
+      "workflow": "donor-communication"
+    },
+    "analyticsReporting": {
+      "cron": "0 9 * * 1",
+      "description": "Weekly analytics and performance reporting",
+      "enabled": true,
+      "workflow": "analytics-generation"
+    },
+    "impactReports": {
+      "cron": "0 15 1 * *",
+      "description": "Monthly impact reports for stakeholders",
+      "enabled": true,
+      "workflow": "impact-reporting"
+    }
+  },
+
+  "deployment": {
+    "environments": {
+      "development": {
+        "autoDeloy": false,
+        "requireApproval": false,
+        "healthCheckTimeout": 30000,
+        "rollbackEnabled": true
+      },
+      "staging": {
+        "autoDeloy": true,
+        "requireApproval": false,
+        "healthCheckTimeout": 60000,
+        "rollbackEnabled": true,
+        "triggerBranches": ["develop", "staging"]
+      },
+      "production": {
+        "autoDeloy": false,
+        "requireApproval": true,
+        "healthCheckTimeout": 120000,
+        "rollbackEnabled": true,
+        "triggerBranches": ["main"],
+        "preDeploymentChecks": [
+          "health-check",
+          "security-scan",
+          "performance-test"
+        ]
+      }
+    }
+  },
+
+  "monitoring": {
+    "uptime": {
+      "enabled": true,
+      "interval": 300000,
+      "endpoints": [
+        "https://hfrprelief.org",
+        "https://hfrprelief.org/api/health"
+      ],
+      "alertThreshold": 3
+    },
+    "performance": {
+      "enabled": true,
+      "metrics": [
+        "response-time",
+        "memory-usage",
+        "cpu-usage",
+        "database-connections"
+      ],
+      "thresholds": {
+        "responseTime": 2000,
+        "memoryUsage": 85,
+        "cpuUsage": 80
+      }
+    },
+    "errors": {
+      "enabled": true,
+      "logLevel": "error",
+      "alertThreshold": 5,
+      "retention": "30d"
+    },
+    "donations": {
+      "enabled": true,
+      "realTimeSync": true,
+      "alertOnFailure": true,
+      "metrics": [
+        "total-amount",
+        "donor-count",
+        "conversion-rate",
+        "recurring-growth"
+      ]
+    }
+  },
+
+  "integrations": {
+    "stripe": {
+      "enabled": true,
+      "syncInterval": 900000,
+      "webhookEndpoint": "/api/webhooks/stripe",
+      "automation": {
+        "thankYouEmails": true,
+        "taxReceipts": true,
+        "donorFollowUp": true,
+        "recurringReminders": true
+      }
+    },
+    "social": {
+      "enabled": true,
+      "platforms": {
+        "facebook": {
+          "enabled": true,
+          "autoPost": true,
+          "scheduledPosts": true,
+          "templates": {
+            "donationAlert": "facebook-donation-template",
+            "campaignUpdate": "facebook-campaign-template",
+            "impactStory": "facebook-impact-template",
+            "eventAnnouncement": "facebook-event-template"
+          }
+        },
+        "instagram": {
+          "enabled": true,
+          "autoPost": true,
+          "storyUpdates": true,
+          "templates": {
+            "dailyUpdate": "instagram-daily-template",
+            "impactPhoto": "instagram-impact-template",
+            "behindScenes": "instagram-bts-template",
+            "volunteer": "instagram-volunteer-template"
+          }
+        },
+        "twitter": {
+          "enabled": true,
+          "autoPost": true,
+          "trending": true,
+          "templates": {
+            "quickUpdate": "twitter-update-template",
+            "donationGoal": "twitter-goal-template",
+            "thankYou": "twitter-thanks-template",
+            "news": "twitter-news-template"
+          }
+        },
+        "linkedin": {
+          "enabled": true,
+          "autoPost": true,
+          "businessUpdates": true,
+          "templates": {
+            "organizationUpdate": "linkedin-org-template",
+            "partnership": "linkedin-partnership-template",
+            "professional": "linkedin-professional-template"
+          }
+        }
+      }
+    },
+    "analytics": {
+      "enabled": true,
+      "providers": {
+        "googleAnalytics": {
+          "enabled": true,
+          "trackingId": "${GA_TRACKING_ID}",
+          "reportInterval": "daily"
+        },
+        "custom": {
+          "enabled": true,
+          "endpoint": "/api/analytics",
+          "metrics": [
+            "page-views",
+            "donations",
+            "conversions",
+            "user-engagement"
+          ]
+        }
+      }
+    }
+  },
+
+  "security": {
+    "accessControl": {
+      "enabled": true,
+      "roles": ["admin", "manager", "viewer"],
+      "sessionTimeout": 7200000,
+      "maxFailedAttempts": 3
+    },
+    "encryption": {
+      "enabled": true,
+      "algorithm": "aes-256-gcm",
+      "keyRotation": "monthly"
+    },
+    "backups": {
+      "encrypted": true,
+      "offsite": true,
+      "retention": "90d",
+      "verification": true
+    }
+  },
+
+  "workflows": {
+    "development": {
+      "description": "Development workflow for testing and building",
+      "tasks": [
+        "health-check",
+        "lint-check",
+        "type-check",
+        "build-test",
+        "unit-tests"
+      ],
+      "timeout": 300000,
+      "retryAttempts": 2
+    },
+    "staging": {
+      "description": "Staging deployment workflow",
+      "tasks": [
+        "health-check",
+        "lint-check",
+        "type-check",
+        "build",
+        "integration-tests",
+        "deploy-staging",
+        "smoke-tests"
+      ],
+      "timeout": 600000,
+      "retryAttempts": 1,
+      "requireApproval": false
+    },
+    "production": {
+      "description": "Production deployment workflow",
+      "tasks": [
+        "health-check",
+        "security-scan",
+        "lint-check",
+        "type-check",
+        "build",
+        "integration-tests",
+        "performance-tests",
+        "backup-database",
+        "deploy-production",
+        "smoke-tests",
+        "monitoring-setup"
+      ],
+      "timeout": 1200000,
+      "retryAttempts": 0,
+      "requireApproval": true,
+      "approvers": ["admin@hfrprelief.org"]
+    },
+    "maintenance": {
+      "description": "System maintenance and cleanup workflow",
+      "tasks": [
+        "system-health-check",
+        "log-cleanup",
+        "cache-cleanup",
+        "database-optimization",
+        "security-updates",
+        "backup-verification",
+        "performance-optimization"
+      ],
+      "timeout": 1800000,
+      "retryAttempts": 1,
+      "schedule": "weekly"
+    },
+    "ui-automation": {
+      "description": "Post-deployment UI automation workflow",
+      "tasks": [
+        "ui-automation"
+      ],
+      "timeout": 600000,
+      "retryAttempts": 2,
+      "requireApproval": false
+    }
+  },
+
+  "features": {
+    "autoRecovery": {
+      "enabled": true,
+      "maxRetries": 3,
+      "backoffStrategy": "exponential"
+    },
+    "loadBalancing": {
+      "enabled": false,
+      "strategy": "round-robin",
+      "healthCheck": true
+    },
+    "caching": {
+      "enabled": true,
+      "ttl": 3600,
+      "strategies": ["memory", "redis"]
+    },
+    "logging": {
+      "enabled": true,
+      "level": "info",
+      "retention": "30d",
+      "structured": true,
+      "destinations": ["file", "console"]
+    }
+  },
+
+  "alerts": {
+    "system": {
+      "highCpuUsage": {
+        "threshold": 80,
+        "duration": 300,
+        "severity": "warning"
+      },
+      "highMemoryUsage": {
+        "threshold": 85,
+        "duration": 300,
+        "severity": "warning"
+      },
+      "diskSpaceLow": {
+        "threshold": 90,
+        "severity": "critical"
+      },
+      "serviceDown": {
+        "severity": "critical",
+        "immediate": true
+      }
+    },
+    "business": {
+      "donationFailure": {
+        "threshold": 3,
+        "timeWindow": 900,
+        "severity": "high"
+      },
+      "lowConversion": {
+        "threshold": 1.0,
+        "timeWindow": 86400,
+        "severity": "medium"
+      },
+      "campaignGoalRisk": {
+        "threshold": 80,
+        "severity": "medium"
+      }
+    }
+  }
+}

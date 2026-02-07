@@ -6,8 +6,8 @@ const nextConfig = {
   
   // Image optimization
   images: {
-    domains: ['donorbox.org'],
-    formats: ['image/webp', 'image/avif'],
+    domains: ["files.stripe.com", "img.youtube.com"],
+    formats: ["image/avif", "image/webp"],
   },
   
   // Experimental features

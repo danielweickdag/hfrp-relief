@@ -10,7 +10,7 @@
     "status": "completed",
     "payment_method": "credit_card",
     "synced_at": "2025-08-03T22:17:50.936Z",
-    "source": "donorbox",
+    "source": "stripe",
     "syncedAt": "2025-08-18T14:03:51.442Z",
     "thank_you_sent": true,
     "thank_you_sent_at": "2025-10-05T19:23:18.972Z"
@@ -26,7 +26,7 @@
     "status": "completed",
     "payment_method": "paypal",
     "synced_at": "2025-08-03T22:17:50.936Z",
-    "source": "donorbox",
+    "source": "stripe",
     "syncedAt": "2025-08-18T14:03:51.442Z",
     "thank_you_sent": true,
     "thank_you_sent_at": "2025-10-05T19:23:18.972Z"
@@ -42,7 +42,7 @@
     "status": "completed",
     "payment_method": "bank_transfer",
     "synced_at": "2025-08-03T22:17:50.936Z",
-    "source": "donorbox",
+    "source": "stripe",
     "syncedAt": "2025-08-18T14:03:51.442Z",
     "thank_you_sent": true,
     "thank_you_sent_at": "2025-10-05T19:23:18.972Z"
@@ -58,7 +58,7 @@
     "status": "completed",
     "payment_method": "credit_card",
     "synced_at": "2025-08-03T22:17:50.936Z",
-    "source": "donorbox",
+    "source": "stripe",
     "syncedAt": "2025-08-18T14:03:51.442Z",
     "thank_you_sent": true,
     "thank_you_sent_at": "2025-10-05T19:23:18.972Z"

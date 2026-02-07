@@ -22,6 +22,9 @@ interface SettingsFormData {
   twUrl: string;
   stripeCampaignId: string;
   enableDonationTest: boolean;
+  enableFacebook: boolean;
+  enableInstagram: boolean;
+  enableTwitter: boolean;
 }
 
 function SettingsContent() {
@@ -41,7 +44,7 @@ function SettingsContent() {
     siteTitle: "Haitian Family Relief Project",
     siteDescription:
       "Join us in our mission to feed and empower Haitian orphans. Make a lasting difference with daily giving - as little as 16¢ can provide meals, shelter, education, and healthcare.",
-    contactEmail: "haitianfamilyrelief@gmail.com",
+    contactEmail: "contact@familyreliefproject7.org",
     contactPhone: "(224) 217-0230",
     gaTrackingId: "",
     fbUrl: "https://facebook.com/haitianfamilyrelief",
@@ -49,6 +52,9 @@ function SettingsContent() {
     twUrl: "https://twitter.com/hfrp_haiti",
     stripeCampaignId: "haiti-relief-main",
     enableDonationTest: false,
+    enableFacebook: true,
+    enableInstagram: true,
+    enableTwitter: true,
   });
 
   if (isLoading) {
@@ -421,13 +427,31 @@ function SettingsContent() {
                     {showSocialMediaLinks && (
                       <div className="space-y-4">
                         <div>
-                          <label
-                            htmlFor="fbUrl"
-                            className="block text-sm font-medium text-gray-700 mb-1"
-                          >
-                            Facebook URL
-                          </label>
-                          <div className="flex rounded-md shadow-sm">
+                          <div className="flex items-center justify-between mb-1">
+                            <label
+                              htmlFor="fbUrl"
+                              className="block text-sm font-medium text-gray-700"
+                            >
+                              Facebook URL
+                            </label>
+                            <div className="flex items-center">
+                              <input
+                                type="checkbox"
+                                id="enableFacebook"
+                                name="enableFacebook"
+                                checked={formData.enableFacebook}
+                                onChange={handleInputChange}
+                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                              />
+                              <label
+                                htmlFor="enableFacebook"
+                                className="ml-2 text-xs text-gray-500"
+                              >
+                                Enable
+                              </label>
+                            </div>
+                          </div>
+                          <div className={`flex rounded-md shadow-sm ${!formData.enableFacebook ? 'opacity-50 pointer-events-none' : ''}`}>
                             <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
                               https://
                             </span>
@@ -437,19 +461,38 @@ function SettingsContent() {
                               name="fbUrl"
                               value={formData.fbUrl.replace("https://", "")}
                               onChange={handleInputChange}
+                              disabled={!formData.enableFacebook}
                               className="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                           </div>
                         </div>
 
                         <div>
-                          <label
-                            htmlFor="igUrl"
-                            className="block text-sm font-medium text-gray-700 mb-1"
-                          >
-                            Instagram URL
-                          </label>
-                          <div className="flex rounded-md shadow-sm">
+                          <div className="flex items-center justify-between mb-1">
+                            <label
+                              htmlFor="igUrl"
+                              className="block text-sm font-medium text-gray-700"
+                            >
+                              Instagram URL
+                            </label>
+                            <div className="flex items-center">
+                              <input
+                                type="checkbox"
+                                id="enableInstagram"
+                                name="enableInstagram"
+                                checked={formData.enableInstagram}
+                                onChange={handleInputChange}
+                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                              />
+                              <label
+                                htmlFor="enableInstagram"
+                                className="ml-2 text-xs text-gray-500"
+                              >
+                                Enable
+                              </label>
+                            </div>
+                          </div>
+                          <div className={`flex rounded-md shadow-sm ${!formData.enableInstagram ? 'opacity-50 pointer-events-none' : ''}`}>
                             <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
                               https://
                             </span>
@@ -459,19 +502,38 @@ function SettingsContent() {
                               name="igUrl"
                               value={formData.igUrl.replace("https://", "")}
                               onChange={handleInputChange}
+                              disabled={!formData.enableInstagram}
                               className="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                           </div>
                         </div>
 
                         <div>
-                          <label
-                            htmlFor="twUrl"
-                            className="block text-sm font-medium text-gray-700 mb-1"
-                          >
-                            Twitter URL
-                          </label>
-                          <div className="flex rounded-md shadow-sm">
+                          <div className="flex items-center justify-between mb-1">
+                            <label
+                              htmlFor="twUrl"
+                              className="block text-sm font-medium text-gray-700"
+                            >
+                              Twitter URL
+                            </label>
+                            <div className="flex items-center">
+                              <input
+                                type="checkbox"
+                                id="enableTwitter"
+                                name="enableTwitter"
+                                checked={formData.enableTwitter}
+                                onChange={handleInputChange}
+                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                              />
+                              <label
+                                htmlFor="enableTwitter"
+                                className="ml-2 text-xs text-gray-500"
+                              >
+                                Enable
+                              </label>
+                            </div>
+                          </div>
+                          <div className={`flex rounded-md shadow-sm ${!formData.enableTwitter ? 'opacity-50 pointer-events-none' : ''}`}>
                             <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
                               https://
                             </span>
@@ -481,6 +543,7 @@ function SettingsContent() {
                               name="twUrl"
                               value={formData.twUrl.replace("https://", "")}
                               onChange={handleInputChange}
+                              disabled={!formData.enableTwitter}
                               className="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                           </div>

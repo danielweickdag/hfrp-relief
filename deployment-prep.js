@@ -147,7 +147,7 @@ class DeploymentPrep {
       const securityIssues = [];
 
       // Check for sensitive files
-      const sensitiveFiles = [".env", ".donorbox-config.json", "node_modules"];
+      const sensitiveFiles = [".env", "node_modules"];
       const gitignorePath = path.join(__dirname, ".gitignore");
 
       let gitignoreContent = "";
@@ -283,7 +283,7 @@ const nextConfig = {
   
   // Image optimization
   images: {
-    domains: ['donorbox.org'],
+    domains: [],
     formats: ['image/webp', 'image/avif'],
   },
   
@@ -521,7 +521,7 @@ PORT=3002
 4. **Admin Access:** Check authentication configuration
 
 ### Support Contacts:
-- Donorbox Support: support@donorbox.org
+- Stripe Support: support@stripe.com
 - Deployment Platform Support: See platform documentation
 
 ## 📞 Emergency Contacts

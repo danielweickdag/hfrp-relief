@@ -330,11 +330,6 @@ class AutomationStatus {
         credentials: "w.regis@comcast.net / Melirosecherie58",
       },
       {
-        name: "Donorbox Account",
-        url: "https://donorbox.org/login",
-        credentials: "w.regis@comcast.net / Melirosecherie58",
-      },
-      {
         name: "Campaign URLs",
         url: "See campaign_dashboard.json",
         credentials: "Public donation pages",
@@ -363,7 +358,7 @@ class AutomationStatus {
     );
     this.log("🎯 4/4 Campaigns debugged and automated", "success");
     this.log("📊 6/6 Automation features active", "success");
-    this.log("🔄 Real-time Donorbox sync enabled", "success");
+    this.log("🔄 Real-time Stripe sync enabled", "success");
     this.log("🤖 All automation codes working properly", "success");
     this.log(
       "══════════════════════════════════════════════════════════════",

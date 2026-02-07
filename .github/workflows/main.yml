@@ -85,10 +85,17 @@ jobs:
         node -e "
           const Stripe = require('stripe');
           const key = process.env.STRIPE_SECRET_KEY;
+          const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+          
           if (!key) {
             console.error('❌ STRIPE_SECRET_KEY not set');
             process.exit(1);
           }
+          if (!webhookSecret) {
+             console.warn('⚠️ STRIPE_WEBHOOK_SECRET not set - Webhooks will fail');
+             // Don't fail build, but warn loudly
+          }
+
           const stripe = new Stripe(key);
           stripe.accounts.retrieve()
             .then(acc => {

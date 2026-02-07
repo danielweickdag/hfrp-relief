@@ -48,12 +48,6 @@ create_backup() {
         log_success "Environment file backed up"
     fi
     
-    # Backup DonorboxButton component
-    if [ -f "$PROJECT_ROOT/src/app/_components/DonorboxButton.tsx" ]; then
-        cp "$PROJECT_ROOT/src/app/_components/DonorboxButton.tsx" "$BACKUP_DIR/DonorboxButton.tsx.backup"
-        log_success "DonorboxButton component backed up"
-    fi
-    
     log_success "Backup created at: $BACKUP_DIR"
 }
 
@@ -117,7 +111,7 @@ setup_environment() {
     echo "STRIPE_WEBHOOK_SECRET=whsec_YOUR_WEBHOOK_SECRET_HERE" >> "$ENV_FILE"
     echo "NEXT_PUBLIC_STRIPE_TEST_MODE=true" >> "$ENV_FILE"
     echo "" >> "$ENV_FILE"
-    echo "# Payment Provider (stripe or donorbox)" >> "$ENV_FILE"
+    echo "# Payment Provider (stripe)" >> "$ENV_FILE"
     echo "NEXT_PUBLIC_PAYMENT_PROVIDER=stripe" >> "$ENV_FILE"
     echo "" >> "$ENV_FILE"
     
@@ -375,70 +369,7 @@ EOF
     log_success "Success and cancel pages created"
 }
 
-# Create migration script
-create_migration_script() {
-    log_info "Creating component migration script..."
-    
-    cat > "$PROJECT_ROOT/migrate-to-stripe.js" << 'EOF'
-#!/usr/bin/env node
 
-/**
- * Migration script to replace DonorboxButton with StripeButton
- */
-
-const fs = require('fs');
-const path = require('path');
-
-const filesToUpdate = [
-  'src/app/page.tsx',
-  'src/app/donate/page.tsx',
-  'src/app/_components/Navbar.tsx',
-];
-
-function updateFile(filePath) {
-  if (!fs.existsSync(filePath)) {
-    console.log(`⚠️  File not found: ${filePath}`);
-    return;
-  }
-
-  let content = fs.readFileSync(filePath, 'utf8');
-  let updated = false;
-
-  // Replace import statements
-  if (content.includes('DonorboxButton')) {
-    content = content.replace(
-      /import\s+DonorboxButton\s+from\s+["'][^"']*DonorboxButton["'];?/g,
-      'import StripeButton from "@/app/_components/StripeButton";'
-    );
-    updated = true;
-  }
-
-  // Replace component usage
-  content = content.replace(/<DonorboxButton/g, '<StripeButton');
-  content = content.replace(/<\/DonorboxButton>/g, '</StripeButton>');
-
-  if (updated) {
-    fs.writeFileSync(filePath, content);
-    console.log(`✅ Updated: ${filePath}`);
-  } else {
-    console.log(`ℹ️  No changes needed: ${filePath}`);
-  }
-}
-
-console.log('🔄 Starting migration from DonorboxButton to StripeButton...');
-
-filesToUpdate.forEach(updateFile);
-
-console.log('✅ Migration completed!');
-console.log('📝 Remember to:');
-console.log('   1. Update your Stripe API keys in .env.local');
-console.log('   2. Test the new Stripe integration');
-console.log('   3. Configure Stripe webhooks');
-EOF
-
-    chmod +x "$PROJECT_ROOT/migrate-to-stripe.js"
-    log_success "Migration script created"
-}
 
 # Test Stripe integration
 test_integration() {
@@ -524,14 +455,7 @@ generate_report() {
 
 ## 🚀 Migration Steps
 
-1. **Run migration script**:
-   \`\`\`bash
-   node migrate-to-stripe.js
-   \`\`\`
-
-2. **Update component imports** manually if needed
-
-3. **Test thoroughly** before going live
+1. **Test thoroughly** before going live
 
 ## 📊 Features Available
 
@@ -568,7 +492,6 @@ main() {
     setup_environment
     create_api_routes
     create_pages
-    create_migration_script
     test_integration
     generate_report
     
@@ -577,10 +500,9 @@ main() {
     echo ""
     log_success "Next steps:"
     echo "  1. Update your Stripe API keys in .env.local"
-    echo "  2. Run: node migrate-to-stripe.js"
-    echo "  3. Test the integration: bun dev"
-    echo "  4. Configure Stripe webhooks"
-    echo "  5. Go live when ready!"
+    echo "  2. Test the integration: bun dev"
+    echo "  3. Configure Stripe webhooks"
+    echo "  4. Go live when ready!"
     echo ""
     log_info "Setup report: $PROJECT_ROOT/STRIPE_SETUP_REPORT.md"
     log_info "Backup location: $BACKUP_DIR"

@@ -548,14 +548,9 @@ class MasterAutomation {
     this.log("  • Monitor Stripe sync status", "info");
 
     this.log("\n🌐 Quick Access:", "info");
-    this.log("  • Admin Dashboard: http://localhost:3002/admin", "success");
-    this.log("  • Donorbox Account: https://donorbox.org/login", "info");
-    this.log("  • View Campaigns: node campaign-viewer.js", "info");
-
-    this.log(
-      "\n═══════════════════════════════════════════════════════════",
-      "header"
-    );
+    this.log("  • HFRP Dashboard: http://localhost:3002/admin", "info");
+    this.log("", "info");
+    this.log("══════════════════════════════════════════════════════════════", "success");
   }
 
   async run() {

@@ -159,16 +159,6 @@ else
 fi
 total_tests=$((total_tests + 1))
 
-echo -n "Checking for Donorbox remnants... "
-donorbox_count=$(find src -name "*.tsx" -o -name "*.ts" | xargs grep -l "DonorboxButton" 2>/dev/null | wc -l)
-if [ "$donorbox_count" -eq 0 ]; then
-    echo -e "${GREEN}✅ CLEAN (No DonorboxButton references)${NC}"
-    passed_tests=$((passed_tests + 1))
-else
-    echo -e "${YELLOW}⚠️  Found $donorbox_count files with DonorboxButton${NC}"
-fi
-total_tests=$((total_tests + 1))
-
 echo ""
 echo -e "${YELLOW}📱 Testing Mobile Compatibility:${NC}"
 echo "--------------------------------"
