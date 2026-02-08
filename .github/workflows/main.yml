@@ -76,8 +76,8 @@ jobs:
         echo "Detecting lockfile..."
         if [ -f bun.lockb ] || [ -f bun.lock ]; then
           echo "Detected Bun (bun.lock/bun.lockb) — installing Bun and dependencies"
-          # Install Bun (pinned install script is more deterministic than relying on action)
-          curl -fsSL https://bun.sh/install | bash -s -- --no-progress
+          # Install Bun
+          curl -fsSL https://bun.sh/install | bash
           export BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
           export PATH="$BUN_INSTALL/bin:$PATH"
           echo "$BUN_INSTALL/bin" >> $GITHUB_PATH
