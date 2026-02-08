@@ -17,6 +17,15 @@ function ShareBoxContent() {
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [linkInput, setLinkInput] = useState("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const blobUrlsRef = useRef<Set<string>>(new Set());
+
+  // Cleanup object URLs on unmount
+  useEffect(() => {
+    return () => {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      blobUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, []);
 
   // Add local files as attachments with object URLs
   const onFilesSelected = (files: FileList | null) => {
@@ -24,6 +33,7 @@ function ShareBoxContent() {
     const newItems: Attachment[] = [];
     for (const file of Array.from(files)) {
       const objectUrl = URL.createObjectURL(file);
+      blobUrlsRef.current.add(objectUrl);
       const ext = file.name.split(".").pop()?.toLowerCase() || "";
       const type: Attachment["type"] = ["mp4", "webm", "ogg"].includes(ext)
         ? "video"
@@ -58,7 +68,14 @@ function ShareBoxContent() {
   };
 
   const removeAttachment = (id: string) => {
-    setAttachments((prev) => prev.filter((a) => a.id !== id));
+    setAttachments((prev) => {
+      const itemToRemove = prev.find((a) => a.id === id);
+      if (itemToRemove?.url.startsWith("blob:")) {
+        URL.revokeObjectURL(itemToRemove.url);
+        blobUrlsRef.current.delete(itemToRemove.url);
+      }
+      return prev.filter((a) => a.id !== id);
+    });
   };
 
   const shareData = useMemo(() => {
