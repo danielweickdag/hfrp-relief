@@ -551,7 +551,7 @@ class DeploymentAutomation {
       // Enable by setting DEBUG=true environment variable
       if (process.env.DEBUG) {
         await this.log(
-          `🔍 Git detection failed: ${error?.message || 'unknown error'}`,
+          `🔍 Git detection failed: ${error.message || String(error)}`,
           "info"
         );
       }
@@ -581,7 +581,7 @@ class DeploymentAutomation {
     } catch (error) {
       const fallback = this.getFallbackBranch();
       await this.log(
-        `⚠️ Could not determine current Git branch (${error?.message || 'unknown error'}); using fallback: ${fallback}`,
+        `⚠️ Could not determine current Git branch (${error.message || String(error)}); using fallback: ${fallback}`,
         "warning"
       );
       return fallback;
