@@ -72,13 +72,26 @@ jobs:
         echo "STRIPE_WEBHOOK_SECRET=${{ env.STRIPE_WEBHOOK_SECRET_TEST }}" >> $GITHUB_ENV
         echo "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${{ env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_TEST }}" >> $GITHUB_ENV
 
-    - name: 🧩 Install Bun
-      uses: oven-sh/setup-bun@v1
-      with:
-        bun-version: latest
-
-    - name: 📦 Install Dependencies
-      run: bun install
+    - name: 🔎 Detect package manager and install dependencies
+      run: |
+        echo "Detecting lockfile..."
+        if [ -f bun.lockb ] || [ -f bun.lock ]; then
+          echo "Detected Bun (bun.lockb/bun.lock) — installing Bun and dependencies"
+          # Install Bun (pinned install script is more deterministic than relying on action)
+          curl -fsSL https://bun.sh/install | bash -s -- --no-progress
+          export BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
+          export PATH="$BUN_INSTALL/bin:$PATH"
+          echo "Bun version: $(bun -v)"
+          bun install
+        elif [ -f pnpm-lock.yaml ]; then
+          echo "Detected pnpm (pnpm-lock.yaml) — using pnpm"
+          corepack enable
+          corepack prepare pnpm@latest --activate
+          pnpm install --frozen-lockfile
+        else
+          echo "Defaulting to npm (package-lock.json or no lockfile)"
+          npm ci
+        fi
 
     - name: 🔗 Stripe Connectivity Check
       run: |
@@ -116,13 +129,13 @@ jobs:
 
     - name: 🧪 Lint & Type Check
       run: |
-        bun run lint
+        npm run lint
 
     - name: 🔐 Check Webhook Env
       run: node scripts/check-webhook-env.mjs
 
     - name: 🏗️ Test Build
-      run: bun run build
+      run: npm run build
 
     - name: 🧪 Run Automation Tests
       run: node automation-test.js
@@ -146,9 +159,6 @@ jobs:
     - name: 🔒 Configure git safe.directory
       run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
-    - name: "🟢 Setup Node.js & Bun"
-      uses: oven-sh/setup-bun@v1
-
     - name: ⚙️ Use Stripe TEST env on non-main branches
       if: github.ref != 'refs/heads/main'
       run: |
@@ -157,8 +167,25 @@ jobs:
         echo "STRIPE_WEBHOOK_SECRET=${{ env.STRIPE_WEBHOOK_SECRET_TEST }}" >> $GITHUB_ENV
         echo "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${{ env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_TEST }}" >> $GITHUB_ENV
 
-    - name: 📦 Install Dependencies
-      run: bun install
+    - name: 🔎 Detect package manager and install dependencies
+      run: |
+        echo "Detecting lockfile..."
+        if [ -f bun.lockb ] || [ -f bun.lock ]; then
+          echo "Detected Bun (bun.lockb/bun.lock) — installing Bun and dependencies"
+          curl -fsSL https://bun.sh/install | bash -s -- --no-progress
+          export BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
+          export PATH="$BUN_INSTALL/bin:$PATH"
+          echo "Bun version: $(bun -v)"
+          bun install
+        elif [ -f pnpm-lock.yaml ]; then
+          echo "Detected pnpm (pnpm-lock.yaml) — using pnpm"
+          corepack enable
+          corepack prepare pnpm@latest --activate
+          pnpm install --frozen-lockfile
+        else
+          echo "Defaulting to npm (package-lock.json or no lockfile)"
+          npm ci
+        fi
 
     - name: 🔄 Run Master Automation
       run: |
@@ -218,9 +245,6 @@ jobs:
     - name: 🔒 Configure git safe.directory
       run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
-    - name: "🟢 Setup Node.js & Bun"
-      uses: oven-sh/setup-bun@v1
-
     - name: ⚙️ Use Stripe TEST env for staging
       if: github.ref == 'refs/heads/develop'
       run: |
@@ -229,11 +253,28 @@ jobs:
         echo "STRIPE_WEBHOOK_SECRET=${{ env.STRIPE_WEBHOOK_SECRET_TEST }}" >> $GITHUB_ENV
         echo "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${{ env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_TEST }}" >> $GITHUB_ENV
 
-    - name: 📦 Install Dependencies
-      run: bun install
+    - name: 🔎 Detect package manager and install dependencies
+      run: |
+        echo "Detecting lockfile..."
+        if [ -f bun.lockb ] || [ -f bun.lock ]; then
+          echo "Detected Bun (bun.lockb/bun.lock) — installing Bun and dependencies"
+          curl -fsSL https://bun.sh/install | bash -s -- --no-progress
+          export BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
+          export PATH="$BUN_INSTALL/bin:$PATH"
+          echo "Bun version: $(bun -v)"
+          bun install
+        elif [ -f pnpm-lock.yaml ]; then
+          echo "Detected pnpm (pnpm-lock.yaml) — using pnpm"
+          corepack enable
+          corepack prepare pnpm@latest --activate
+          pnpm install --frozen-lockfile
+        else
+          echo "Defaulting to npm (package-lock.json or no lockfile)"
+          npm ci
+        fi
 
     - name: 🏗️ Build Application
-      run: bun run build
+      run: npm run build
 
     - name: 🚀 Deploy to Vercel Staging
       uses: amondnet/vercel-action@v25
@@ -260,11 +301,25 @@ jobs:
     - name: 🔒 Configure git safe.directory
       run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
-    - name: "🟢 Setup Node.js & Bun"
-      uses: oven-sh/setup-bun@v1
-
-    - name: 📦 Install Dependencies
-      run: bun install
+    - name: 🔎 Detect package manager and install dependencies
+      run: |
+        echo "Detecting lockfile..."
+        if [ -f bun.lockb ] || [ -f bun.lock ]; then
+          echo "Detected Bun (bun.lockb/bun.lock) — installing Bun and dependencies"
+          curl -fsSL https://bun.sh/install | bash -s -- --no-progress
+          export BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
+          export PATH="$BUN_INSTALL/bin:$PATH"
+          echo "Bun version: $(bun -v)"
+          bun install
+        elif [ -f pnpm-lock.yaml ]; then
+          echo "Detected pnpm (pnpm-lock.yaml) — using pnpm"
+          corepack enable
+          corepack prepare pnpm@latest --activate
+          pnpm install --frozen-lockfile
+        else
+          echo "Defaulting to npm (package-lock.json or no lockfile)"
+          npm ci
+        fi
 
     - name: 🔒 Assert Live Stripe keys
       run: |
@@ -279,7 +334,7 @@ jobs:
         fi
 
     - name: 🏗️ Build Application
-      run: bun run build
+      run: npm run build
 
     - name: 🔍 Final Production Health Check
       run: node health-check.mjs
@@ -316,11 +371,25 @@ jobs:
     - name: 🔒 Configure git safe.directory
       run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
-    - name: "🟢 Setup Node.js & Bun"
-      uses: oven-sh/setup-bun@v1
-
-    - name: 📦 Install Dependencies
-      run: bun install
+    - name: 🔎 Detect package manager and install dependencies
+      run: |
+        echo "Detecting lockfile..."
+        if [ -f bun.lockb ] || [ -f bun.lock ]; then
+          echo "Detected Bun (bun.lockb/bun.lock) — installing Bun and dependencies"
+          curl -fsSL https://bun.sh/install | bash -s -- --no-progress
+          export BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
+          export PATH="$BUN_INSTALL/bin:$PATH"
+          echo "Bun version: $(bun -v)"
+          bun install
+        elif [ -f pnpm-lock.yaml ]; then
+          echo "Detected pnpm (pnpm-lock.yaml) — using pnpm"
+          corepack enable
+          corepack prepare pnpm@latest --activate
+          pnpm install --frozen-lockfile
+        else
+          echo "Defaulting to npm (package-lock.json or no lockfile)"
+          npm ci
+        fi
 
     - name: 🔄 Run Daily Automation
       run: |
