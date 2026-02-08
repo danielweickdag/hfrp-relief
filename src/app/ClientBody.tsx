@@ -63,8 +63,9 @@ export default function ClientBody({
             const computedStyle = window.getComputedStyle(node);
             if (computedStyle.position === "static") {
               // Only change inline style so we don't permanently alter stylesheets
-              (node.style as any).position = "relative";
-              btn.setAttribute("data-print-parent-position-changed", "true");
+              // Mark the parent element so we can revert on cleanup
+              node.style.position = "relative";
+              node.setAttribute("data-print-parent-position-changed", "true");
             }
           } catch (e) {
             // ignore
@@ -123,7 +124,7 @@ export default function ClientBody({
 
           node.appendChild(btn);
         });
-      }, 150);
+      }, 250);
     };
 
     const registerServiceWorker = async () => {
@@ -202,11 +203,11 @@ export default function ClientBody({
       // Remove injected print buttons and revert parent style changes
       document.querySelectorAll('[data-print-button="injected"]').forEach((el) => {
         const parent = el.parentElement;
-        el.remove();
-        if (parent && parent.getAttribute('data-print-parent-position-changed') === 'true') {
+        if (parent && parent.getAttribute("data-print-parent-position-changed") === "true") {
           parent.style.position = "";
-          parent.removeAttribute('data-print-parent-position-changed');
+          parent.removeAttribute("data-print-parent-position-changed");
         }
+        el.remove();
       });
 
       // Remove globals we added
