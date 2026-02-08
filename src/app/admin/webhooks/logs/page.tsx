@@ -74,7 +74,9 @@ export default function WebhookLogsPage() {
 
   const uniqueTypes = useMemo(() => {
     const set = new Set<string>();
-    events.forEach((e) => e.type && set.add(e.type));
+    for (const e of events) {
+      if (e.type) set.add(e.type);
+    }
     return ["__ALL__", ...Array.from(set).sort()];
   }, [events]);
 

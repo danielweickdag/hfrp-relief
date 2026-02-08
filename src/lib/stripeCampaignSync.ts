@@ -127,9 +127,9 @@ class StripeCampaignSync {
       },
     ];
 
-    defaultPlans.forEach((plan) => {
+    for (const plan of defaultPlans) {
       this.plans.set(plan.id, plan);
-    });
+    }
   }
 
   // Get all plans

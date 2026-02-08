@@ -25,114 +25,86 @@ export default function ClientBody({
 
     let debounceTimer: number | null = null;
 
+    // Auto-inject print buttons into any element marked as data-printable
     const injectPrintButtons = () => {
-      // Debounce to avoid rapid DOM churn from large mutations
-      if (debounceTimer) {
-        window.clearTimeout(debounceTimer);
-      }
-      debounceTimer = window.setTimeout(() => {
-        debounceTimer = null;
+      const printableNodes = Array.from(
+        document.querySelectorAll<HTMLElement>("[data-printable]"),
+      );
 
-        const printableNodes = Array.from(
-          document.querySelectorAll<HTMLElement>("[data-printable]")
-        );
+      for (const node of printableNodes) {
+        if (node.querySelector('[data-print-button="injected"]')) continue;
 
-        printableNodes.forEach((node) => {
-          // Skip if we've already injected a button into this node
-          if (node.querySelector('[data-print-button="injected"]')) return;
+        const title = node.getAttribute("data-print-title") || "Report";
 
-          const title = node.getAttribute("data-print-title") || "Report";
+        const btn = document.createElement("button");
+        btn.setAttribute("data-print-button", "injected");
+        btn.className =
+          "absolute top-3 right-3 bg-gray-100 text-gray-800 px-3 py-1 rounded-md hover:bg-gray-200 transition-colors border border-gray-200 text-sm flex items-center gap-2 print:hidden";
+        btn.title = "Print this section";
+        btn.setAttribute("aria-label", `Print ${title}`);
+        btn.innerHTML =
+          '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path d="M6 2a2 2 0 00-2 2v2h12V4a2 2 0 00-2-2H6z" /><path d="M4 8a2 2 0 00-2 2v3a2 2 0 002 2h2v3h8v-3h2a2 2 0 002-2v-3a2 2 0 00-2-2H4zm4 9v-5h4v5H8z" /></svg><span>Print</span>';
 
-          const btn = document.createElement("button");
-          btn.setAttribute("data-print-button", "injected");
-          btn.type = "button";
-          btn.className =
-            "absolute top-3 right-3 bg-gray-100 text-gray-800 px-3 py-1 rounded-md hover:bg-gray-200 transition-colors border border-gray-200 text-sm flex items-center gap-2";
-          btn.title = "Print this section";
-          btn.setAttribute("aria-label", `Print ${title}`);
+        // Ensure the node is positioned for absolute button placement
+        const computedStyle = window.getComputedStyle(node);
+        if (computedStyle.position === "static") {
+          node.style.position = "relative";
+        }
 
-          btn.innerHTML = `
-            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-              <path d="M6 2a2 2 0 00-2 2v2h12V4a2 2 0 00-2-2H6z" />
-              <path d="M4 8a2 2 0 00-2 2v3a2 2 0 002 2h2v3h8v-3h2a2 2 0 002-2v-3a2 2 0 00-2-2H4zm4 9v-5h4v5H8z" />
-            </svg>
-            <span>Print</span>
-          `;
+        btn.addEventListener("click", () => {
+          const printWindow = window.open("", "PRINT", "height=900,width=1200");
+          if (!printWindow) return;
 
-          try {
-            const computedStyle = window.getComputedStyle(node);
-            if (computedStyle.position === "static") {
-              // Only change inline style so we don't permanently alter stylesheets
-              (node.style as any).position = "relative";
-              btn.setAttribute("data-print-parent-position-changed", "true");
-            }
-          } catch (e) {
-            // ignore
-          }
+          const styles = Array.from(
+            document.querySelectorAll('link[rel="stylesheet"], style'),
+          )
+            .map((el) => (el as HTMLElement).outerHTML)
+            .join("\n");
 
-          const onClick = () => {
-            const printWindow = window.open("", "PRINT", "height=900,width=1200");
-            if (!printWindow) return;
-
-            try {
-              const styles = Array.from(
-                document.querySelectorAll('link[rel="stylesheet"], style')
-              )
-                .map((el) => el.outerHTML)
-                .join("\n");
-
-              printWindow.document.open();
-              printWindow.document.write(`
-                <!doctype html>
-                <html>
-                  <head>
-                    <meta charset="utf-8" />
-                    <meta name="viewport" content="width=device-width,initial-scale=1" />
-                    <title>${title}</title>
-                    ${styles}
-                    <style>body{ margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }</style>
-                  </head>
-                  <body>
-                    <div class="p-6">
-                      <h1 class="text-2xl font-bold mb-4">${title}</h1>
-                      ${node.innerHTML}
-                    </div>
-                  </body>
-                </html>
-              `);
-              printWindow.document.close();
-              printWindow.focus();
-
-              // Give the new window a moment to render resources before printing
-              setTimeout(() => {
-                try {
-                  printWindow.print();
-                } catch (e) {
-                  console.warn("HFRP: Print failed", e);
-                }
-                try {
-                  printWindow.close();
-                } catch {}
-              }, 300);
-            } catch (e) {
-              console.warn("HFRP: Unable to open print window", e);
-            }
-          };
-
-          btn.addEventListener("click", onClick);
-
-          node.appendChild(btn);
+          printWindow.document.write(
+            `<!doctype html><html lang="en"><head><title>${title}</title>${styles}</head><body>`,
+          );
+          printWindow.document.write(`<div class="p-6">`);
+          printWindow.document.write(
+            `<h1 class="text-2xl font-bold mb-4">${title}</h1>`,
+          );
+          printWindow.document.write(node.innerHTML);
+          printWindow.document.write("</div>");
+          printWindow.document.write("</body></html>");
+          printWindow.document.close();
+          printWindow.focus();
+          // Small delay to ensure styles are loaded
+          setTimeout(() => {
+            printWindow.print();
+            printWindow.close();
+          }, 300);
         });
-      }, 150);
+
+        node.appendChild(btn);
+      }
     };
 
+    // Minimal service worker registration (PWA enable)
     const registerServiceWorker = async () => {
-      if (!("serviceWorker" in navigator)) return;
-      try {
-        const reg = await navigator.serviceWorker.register("/sw.js");
-        console.log("HFRP: Service worker registered", reg.scope);
-      } catch (e) {
-        console.warn("HFRP: Service worker registration failed", e);
+      if (
+        typeof window !== "undefined" &&
+        "serviceWorker" in navigator &&
+        process.env.NODE_ENV === "production"
+      ) {
+        try {
+          await navigator.serviceWorker.register("/sw.js");
+        } catch (error) {
+          console.error("Service Worker registration failed:", error);
+        }
+      } else {
+        // Unregister service worker in development to avoid caching issues
+        if ("serviceWorker" in navigator) {
+          navigator.serviceWorker.getRegistrations().then((registrations) => {
+            for (const registration of registrations) {
+              registration.unregister();
+            }
+          });
+        }
       }
     };
 
@@ -200,14 +172,16 @@ export default function ClientBody({
       observer.disconnect();
 
       // Remove injected print buttons and revert parent style changes
-      document.querySelectorAll('[data-print-button="injected"]').forEach((el) => {
+      const injectedButtons = document.querySelectorAll('[data-print-button="injected"]');
+      for (const el of injectedButtons) {
         const parent = el.parentElement;
-        el.remove();
-        if (parent && parent.getAttribute('data-print-parent-position-changed') === 'true') {
-          parent.style.position = "";
-          parent.removeAttribute('data-print-parent-position-changed');
+        if (parent) {
+          if (el.getAttribute("data-print-parent-position-changed") === "true") {
+            (parent.style as any).position = "";
+          }
+          parent.removeChild(el);
         }
-      });
+      }
 
       // Remove globals we added
       try {

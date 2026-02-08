@@ -138,7 +138,7 @@ export default function BlogAssistantApp() {
     const files = event.target.files;
     if (!files) return;
 
-    Array.from(files).forEach((file) => {
+    for (const file of Array.from(files)) {
       if (file.type.startsWith("image/")) {
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -152,7 +152,7 @@ export default function BlogAssistantApp() {
         };
         reader.readAsDataURL(file);
       }
-    });
+    }
 
     // Reset file input
     if (fileInputRef.current) {

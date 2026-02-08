@@ -18,7 +18,9 @@ function makeMarkDown(frontmatter: Frontmatter, body: string) {
     if (k === "images" && Array.isArray(v)) {
       if (v.length > 0) {
         fm += `${k}:\n`;
-        v.forEach((img) => (fm += `  - "${img}"\n`));
+        for (const img of v) {
+          fm += `  - "${img}"\n`;
+        }
       }
     } else if (v !== "" && !(Array.isArray(v) && v.length === 0)) {
       fm += `${k}: "${v}"\n`;

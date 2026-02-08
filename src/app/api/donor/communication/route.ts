@@ -227,9 +227,9 @@ function segmentDonors(donors: DonorSegment[]): Record<string, DonorSegment[]> {
     vip: [],
   };
 
-  donors.forEach((donor) => {
+  for (const donor of donors) {
     segments[donor.segment].push(donor);
-  });
+  }
 
   return segments;
 }
