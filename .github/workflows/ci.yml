@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1   # shallow is fine now
+
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build
+        env:
+          NEXT_PUBLIC_GIT_SHA: aebbbc196e478f985f0fcd9f305a4d7d46ff42ca
+          NEXT_PUBLIC_GIT_BRANCH: main
+          NEXT_PUBLIC_GIT_TAG: hfrp
+          NEXT_PUBLIC_GIT_AUTHOR: danielweickdag
+          NEXT_PUBLIC_GIT_DATE: "2026-02-08T06:26:09-06:00"
+        run: bun run build
