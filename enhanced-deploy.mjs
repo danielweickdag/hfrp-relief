@@ -530,8 +530,9 @@ class DeploymentAutomation {
 
   async isGitRepo() {
     try {
-      await this.executeCommand("git", ["rev-parse", "--is-inside-work-tree"]);
-      return true;
+      const result = await this.executeCommand("git", ["rev-parse", "--is-inside-work-tree"]);
+      // Git returns 'true' when inside a work tree, validate the output
+      return result.trim() === "true";
     } catch (error) {
       // Debug: Log why Git detection failed (helpful for CI troubleshooting)
       if (process.env.DEBUG) {

@@ -62,6 +62,9 @@ jobs:
     - name: 🔒 Configure git safe.directory
       run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
+    # Diagnostics for troubleshooting intermittent Git failures (exit code 128)
+    # Review this output if you see "Could not determine current Git branch" errors
+    # Key indicators of problems: git-dir not found, HEAD unresolved, or permission errors
     - name: 🧭 Diagnostics - Git context
       run: |
         echo "GITHUB_WORKSPACE=$GITHUB_WORKSPACE"
