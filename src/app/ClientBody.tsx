@@ -64,7 +64,7 @@ export default function ClientBody({
             if (computedStyle.position === "static") {
               // Only change inline style so we don't permanently alter stylesheets
               (node.style as any).position = "relative";
-              btn.setAttribute("data-print-parent-position-changed", "true");
+              node.setAttribute("data-print-parent-position-changed", "true");
             }
           } catch (e) {
             // ignore
@@ -81,6 +81,18 @@ export default function ClientBody({
                 .map((el) => el.outerHTML)
                 .join("\n");
 
+              // Helper to escape HTML
+              const escapeHtml = (str: string) => {
+                return str
+                  .replace(/&/g, "&amp;")
+                  .replace(/</g, "&lt;")
+                  .replace(/>/g, "&gt;")
+                  .replace(/"/g, "&quot;")
+                  .replace(/'/g, "&#039;");
+              };
+
+              const escapedTitle = escapeHtml(title);
+
               printWindow.document.open();
               printWindow.document.write(`
                 <!doctype html>
@@ -88,13 +100,13 @@ export default function ClientBody({
                   <head>
                     <meta charset="utf-8" />
                     <meta name="viewport" content="width=device-width,initial-scale=1" />
-                    <title>${title}</title>
+                    <title>${escapedTitle}</title>
                     ${styles}
                     <style>body{ margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }</style>
                   </head>
                   <body>
                     <div class="p-6">
-                      <h1 class="text-2xl font-bold mb-4">${title}</h1>
+                      <h1 class="text-2xl font-bold mb-4">${escapedTitle}</h1>
                       ${node.innerHTML}
                     </div>
                   </body>
@@ -123,7 +135,7 @@ export default function ClientBody({
 
           node.appendChild(btn);
         });
-      }, 150);
+      }, 250);
     };
 
     const registerServiceWorker = async () => {
