@@ -1,1 +1,46 @@
-{\n  \"version\": 2,\n  \"buildCommand\": \"bun run build\",\n  \"installCommand\": \"bun install\",\n  \"env\": {\n    \"NEXT_PUBLIC_SITE_URL\": \"https://www.familyreliefproject7.org\",\n    \"NEXT_PUBLIC_API_URL\": \"https://www.familyreliefproject7.org/api\",\n    \"NEXT_PUBLIC_DONATION_TEST_MODE\": \"false\"\n  },\n  \"functions\": {\n    \"app/api/**/*.js\": {\n      \"maxDuration\": 30\n    }\n  },\n  \"redirects\": [\n    {\n      \"source\": \"/(.*)\",\n      \"has\": [{ \"type\": \"host\", \"value\": \"familyreliefproject7.org\" }],\n      \"destination\": \"https://www.familyreliefproject7.org/$1\",\n      \"permanent\": true\n    }\n  ],\n  \"headers\": [\n    {\n      \"source\": \"/(.*)\",\n      \"headers\": [\n        {\n          \"key\": \"X-Content-Type-Options\",\n          \"value\": \"nosniff\"\n        },\n        {\n          \"key\": \"X-Frame-Options\",\n          \"value\": \"DENY\"\n        },\n        {\n          \"key\": \"X-XSS-Protection\",\n          \"value\": \"1; mode=block\"\n        },\n        {\n          \"key\": \"Referrer-Policy\",\n          \"value\": \"origin-when-cross-origin\"\n        }\n      ]\n    }\n  ]\n}
+{
+  "version": 2,
+  "buildCommand": "bun run build",
+  "installCommand": "bun install",
+  "env": {
+    "NEXT_PUBLIC_SITE_URL": "https://www.familyreliefproject7.org",
+    "NEXT_PUBLIC_API_URL": "https://www.familyreliefproject7.org/api",
+    "NEXT_PUBLIC_DONATION_TEST_MODE": "false"
+  },
+  "functions": {
+    "app/api/**/*.js": {
+      "maxDuration": 30
+    }
+  },
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "familyreliefproject7.org" }],
+      "destination": "https://www.familyreliefproject7.org/$1",
+      "permanent": true
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "origin-when-cross-origin"
+        }
+      ]
+    }
+  ]
+}
