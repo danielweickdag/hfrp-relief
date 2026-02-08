@@ -202,10 +202,10 @@ export default function ClientBody({
       // Remove injected print buttons and revert parent style changes
       document.querySelectorAll('[data-print-button="injected"]').forEach((el) => {
         const parent = el.parentElement;
+        const shouldRevertParent = el.getAttribute('data-print-parent-position-changed') === 'true';
         el.remove();
-        if (parent && parent.getAttribute('data-print-parent-position-changed') === 'true') {
+        if (parent && shouldRevertParent) {
           parent.style.position = "";
-          parent.removeAttribute('data-print-parent-position-changed');
         }
       });
 
