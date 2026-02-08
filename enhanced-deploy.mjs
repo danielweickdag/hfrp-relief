@@ -532,7 +532,14 @@ class DeploymentAutomation {
     try {
       await this.executeCommand("git", ["rev-parse", "--is-inside-work-tree"]);
       return true;
-    } catch {
+    } catch (error) {
+      // Debug: Log why Git detection failed (helpful for CI troubleshooting)
+      if (process.env.DEBUG) {
+        await this.log(
+          `🔍 Git detection failed: ${error?.message || 'unknown error'}`,
+          "info"
+        );
+      }
       return false;
     }
   }
@@ -559,7 +566,7 @@ class DeploymentAutomation {
     } catch (error) {
       const fallback = this.getFallbackBranch();
       await this.log(
-        `⚠️ Could not determine current Git branch (${error.message}); using fallback: ${fallback}`,
+        `⚠️ Could not determine current Git branch (${error?.message || 'unknown error'}); using fallback: ${fallback}`,
         "warning"
       );
       return fallback;
