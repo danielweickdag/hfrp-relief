@@ -551,7 +551,7 @@ class DeploymentAutomation {
       // Enable by setting DEBUG=true environment variable
       if (process.env.DEBUG) {
         await this.log(
-          `🔍 Git detection failed: ${error.message || String(error)}`,
+          `🔍 Git detection failed: ${error.stack || error.message || String(error)}`,
           "info"
         );
       }
