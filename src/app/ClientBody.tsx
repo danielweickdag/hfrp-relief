@@ -123,7 +123,7 @@ export default function ClientBody({
 
           node.appendChild(btn);
         });
-      }, 150);
+      }, 250);
     };
 
     const registerServiceWorker = async () => {
