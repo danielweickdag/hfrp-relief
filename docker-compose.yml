@@ -3,10 +3,10 @@ services:
   hfrp-relief:
     build: .
     ports:
-      - "3002:3002"
+      - "3005:3005"
     environment:
       - NODE_ENV=production
-      - PORT=3002
+      - PORT=3005
     env_file:
       - .env.production
     restart: unless-stopped
