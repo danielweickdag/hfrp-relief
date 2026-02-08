@@ -520,7 +520,31 @@ class DeploymentAutomation {
     await this.saveDeploymentHistory();
   }
 
+  async isGitRepo() {
+    try {
+      await this.executeCommand("git", ["rev-parse", "--is-inside-work-tree"]);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   async getCurrentBranch() {
+    const inRepo = await this.isGitRepo();
+
+    if (!inRepo) {
+      const fallback =
+        process.env.GITHUB_REF_NAME ||
+        process.env.BRANCH_NAME ||
+        "main";
+
+      await this.log(
+        `⚠️ Not in a Git repository; using fallback branch: ${fallback}`,
+        "warning"
+      );
+      return fallback;
+    }
+
     try {
       const result = await this.executeCommand("git", [
         "rev-parse",
@@ -529,7 +553,15 @@ class DeploymentAutomation {
       ]);
       return result.trim();
     } catch (error) {
-      throw new Error("Could not determine current Git branch");
+      const fallback =
+        process.env.GITHUB_REF_NAME ||
+        process.env.BRANCH_NAME ||
+        "main";
+      await this.log(
+        `⚠️ Could not determine current Git branch (${error.message}); using fallback: ${fallback}`,
+        "warning"
+      );
+      return fallback;
     }
   }
 
