@@ -1,6 +1,6 @@
 use client;
 
-import { useMemo, useRef, useState, type ReactNode } from "react";
+import { useMemo, useRef, useState } from "react";
 import { AdminAuthProvider, useAdminAuth } from "./AdminAuth";
 
 type Attachment = {
@@ -82,11 +82,7 @@ function ShareBoxContent() {
 
   // ---- SHARE DATA ----
   const shareData = useMemo<ShareData>(() => {
-    const textParts = [
-      title || "Shared item",
-      description || "",
-      url || "",
-    ].filter(Boolean);
+    const textParts = [title || "Shared item", description || "", url || ""].filter(Boolean);
 
     return {
       title: title || "Shared content",
@@ -101,13 +97,13 @@ function ShareBoxContent() {
       .map((att) => {
         switch (att.type) {
           case "image":
-            return `<img src="${att.url}" alt="${escapeHtml(\n              att.name\n            )}" style="max-width:100%;border-radius:8px"/>`;
+            return `<img src="${att.url}" alt="${escapeHtml(att.name)}" style="max-width:100%;border-radius:8px"/>`;
           case "video":
             return `<video src="${att.url}" controls style="max-width:100%;border-radius:8px"></video>`;
           case "link":
-            return `<a href="${escapeHtml(\n              att.url\n            )}" target="_blank" rel="noopener">${escapeHtml(att.name)}</a>`;
+            return `<a href="${escapeHtml(att.url)}" target="_blank" rel="noopener">${escapeHtml(att.name)}</a>`;
           default:
-            return `<a href="${att.url}" download>${escapeHtml(\n              att.name\n            )}</a>`;
+            return `<a href="${att.url}" download>${escapeHtml(att.name)}</a>`;
         }
       })
       .join("\n");
@@ -119,9 +115,7 @@ function ShareBoxContent() {
   </h3>
   ${
     url
-      ? `<a href="${escapeHtml(
-          url
-        )}" target="_blank" rel="noopener">${escapeHtml(url)}</a>`
+      ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener">${escapeHtml(url)}</a>`
       : ""
   }
   <p>${escapeHtml(description || "")}</p>
@@ -157,9 +151,7 @@ function ShareBoxContent() {
 
   return (
     <div className="mt-12 bg-white rounded-2xl shadow p-6">
-      <h2 className="text-2xl font-bold mb-4">
-        Share a Blog, Article, or Attachments
-      </h2>
+      <h2 className="text-2xl font-bold mb-4">Share a Blog, Article, or Attachments</h2>
 
       <div className="grid md:grid-cols-2 gap-6">
         {/* INPUT SIDE */}
@@ -217,16 +209,10 @@ function ShareBoxContent() {
           </div>
 
           <div className="flex gap-3">
-            <button
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg"
-              onClick={handleWebShare}
-            >
+            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg" onClick={handleWebShare}>
               Share
             </button>
-            <button
-              className="px-4 py-2 bg-gray-900 text-white rounded-lg"
-              onClick={copyHtmlSnippet}
-            >
+            <button className="px-4 py-2 bg-gray-900 text-white rounded-lg" onClick={copyHtmlSnippet}>
               Copy HTML
             </button>
           </div>
@@ -236,7 +222,7 @@ function ShareBoxContent() {
         <div className="border rounded-xl p-4">
           <div className="font-bold">{title || "Shared content"}</div>
           {url && (
-            <a className="text-blue-600 underline break-all" href={url}>
+            <a className="text-blue-600 underline break-all" href={url} target="_blank" rel="noopener noreferrer">
               {url}
             </a>
           )}
@@ -248,23 +234,15 @@ function ShareBoxContent() {
                 <div key={att.id} className="relative border rounded p-2">
                   {att.type === "image" && (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={att.url}
-                      alt={att.name}
-                      className="h-32 w-full object-cover rounded"
-                    />
+                    <img src={att.url} alt={att.name} className="h-32 w-full object-cover rounded" />
                   )}
-                  {att.type === "video" && (
-                    <video src={att.url} controls className="h-32 w-full" />
-                  )}
+                  {att.type === "video" && <video src={att.url} controls className="h-32 w-full" />}
                   {att.type === "link" && (
-                    <a className="underline text-blue-600" href={att.url}>
+                    <a className="underline text-blue-600" href={att.url} target="_blank" rel="noopener noreferrer">
                       {att.name}
                     </a>
                   )}
-                  {att.type === "file" && (
-                    <span className="text-sm break-all">{att.name}</span>
-                  )}
+                  {att.type === "file" && <span className="text-sm break-all">{att.name}</span>}
                   <button
                     onClick={() => removeAttachment(att.id)}
                     className="absolute top-2 right-2 text-xs bg-red-600 text-white px-2 py-1 rounded"
