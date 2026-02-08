@@ -536,7 +536,7 @@ class DeploymentAutomation {
       // Debug: Log why Git detection failed (helpful for CI troubleshooting)
       if (process.env.DEBUG) {
         await this.log(
-          `🔍 Git detection failed: ${error?.message || 'Unknown error'}`,
+          `🔍 Git detection failed: ${error?.message || 'unknown error'}`,
           "info"
         );
       }
@@ -566,7 +566,7 @@ class DeploymentAutomation {
     } catch (error) {
       const fallback = this.getFallbackBranch();
       await this.log(
-        `⚠️ Could not determine current Git branch (${error?.message || 'Unknown error'}); using fallback: ${fallback}`,
+        `⚠️ Could not determine current Git branch (${error?.message || 'unknown error'}); using fallback: ${fallback}`,
         "warning"
       );
       return fallback;
