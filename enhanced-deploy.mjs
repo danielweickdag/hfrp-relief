@@ -520,6 +520,14 @@ class DeploymentAutomation {
     await this.saveDeploymentHistory();
   }
 
+  getFallbackBranch() {
+    return (
+      process.env.GITHUB_REF_NAME ||
+      process.env.BRANCH_NAME ||
+      "main"
+    );
+  }
+
   async isGitRepo() {
     try {
       await this.executeCommand("git", ["rev-parse", "--is-inside-work-tree"]);
@@ -533,11 +541,7 @@ class DeploymentAutomation {
     const inRepo = await this.isGitRepo();
 
     if (!inRepo) {
-      const fallback =
-        process.env.GITHUB_REF_NAME ||
-        process.env.BRANCH_NAME ||
-        "main";
-
+      const fallback = this.getFallbackBranch();
       await this.log(
         `⚠️ Not in a Git repository; using fallback branch: ${fallback}`,
         "warning"
@@ -553,10 +557,7 @@ class DeploymentAutomation {
       ]);
       return result.trim();
     } catch (error) {
-      const fallback =
-        process.env.GITHUB_REF_NAME ||
-        process.env.BRANCH_NAME ||
-        "main";
+      const fallback = this.getFallbackBranch();
       await this.log(
         `⚠️ Could not determine current Git branch (${error.message}); using fallback: ${fallback}`,
         "warning"
