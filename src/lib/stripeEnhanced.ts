@@ -305,9 +305,9 @@ class EnhancedStripeService {
       },
     ];
 
-    defaultCampaigns.forEach((campaign) => {
+    for (const campaign of defaultCampaigns) {
       this.campaigns.set(campaign.id, campaign);
-    });
+    }
   }
 
   // Get configuration
@@ -618,9 +618,9 @@ class EnhancedStripeService {
       },
     ];
 
-    defaultPlans.forEach((plan) => {
+    for (const plan of defaultPlans) {
       this.plans.set(plan.id, plan);
-    });
+    }
   }
 
   getPlans(): Array<{
@@ -736,9 +736,9 @@ class EnhancedStripeService {
       );
 
       // Update local plans with synced data
-      syncedPlans.forEach((plan) => {
+      for (const plan of syncedPlans) {
         this.plans.set(plan.id, plan);
-      });
+      }
 
       console.log(`✅ Synced ${syncedPlans.length} plans with stripe data`);
       return syncedPlans;

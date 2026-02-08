@@ -73,6 +73,7 @@ class StripeConfigManager {
       publishableKey,
       webhookSecret,
       testMode: testModeFlag,
+      mockMode: mockModeFlag,
       environment:
         (process.env.NODE_ENV as "development" | "staging" | "production") ||
         "development",

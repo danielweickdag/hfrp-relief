@@ -108,9 +108,9 @@ export default function ClientBody({
         // Unregister service worker
         if ("serviceWorker" in navigator) {
           navigator.serviceWorker.getRegistrations().then((registrations) => {
-            registrations.forEach((registration) => {
+            for (const registration of registrations) {
               registration.unregister();
-            });
+            }
           });
         }
         console.log("HFRP: Site features disabled (PWA unregistered)");

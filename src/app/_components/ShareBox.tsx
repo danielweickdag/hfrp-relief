@@ -22,7 +22,7 @@ function ShareBoxContent() {
   const onFilesSelected = (files: FileList | null) => {
     if (!files || files.length === 0) return;
     const newItems: Attachment[] = [];
-    Array.from(files).forEach((file) => {
+    for (const file of Array.from(files)) {
       const objectUrl = URL.createObjectURL(file);
       const ext = file.name.split(".").pop()?.toLowerCase() || "";
       const type: Attachment["type"] = ["mp4", "webm", "ogg"].includes(ext)
@@ -36,7 +36,7 @@ function ShareBoxContent() {
         name: file.name,
         url: objectUrl,
       });
-    });
+    }
     setAttachments((prev) => [...prev, ...newItems]);
     // reset input so selecting the same file again is possible
     if (fileInputRef.current) fileInputRef.current.value = "";
