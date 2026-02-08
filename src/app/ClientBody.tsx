@@ -63,8 +63,8 @@ export default function ClientBody({
             const computedStyle = window.getComputedStyle(node);
             if (computedStyle.position === "static") {
               // Only change inline style so we don't permanently alter stylesheets
-              (node.style as any).position = "relative";
-              btn.setAttribute("data-print-parent-position-changed", "true");
+              node.style.position = "relative";
+              node.setAttribute("data-print-parent-position-changed", "true");
             }
           } catch (e) {
             // ignore
@@ -123,7 +123,7 @@ export default function ClientBody({
 
           node.appendChild(btn);
         });
-      }, 150);
+      }, 250);
     };
 
     const registerServiceWorker = async () => {
