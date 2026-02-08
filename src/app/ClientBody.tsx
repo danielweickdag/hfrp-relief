@@ -65,6 +65,7 @@ export default function ClientBody({
               // Only change inline style so we don't permanently alter stylesheets
               (node.style as any).position = "relative";
               btn.setAttribute("data-print-parent-position-changed", "true");
+              node.setAttribute("data-print-parent-position-changed", "true");
             }
           } catch (e) {
             // ignore
@@ -206,6 +207,7 @@ export default function ClientBody({
         el.remove();
         if (parent && shouldRevertParent) {
           parent.style.position = "";
+          parent.removeAttribute('data-print-parent-position-changed');
         }
       });
 
