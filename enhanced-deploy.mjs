@@ -520,6 +520,14 @@ class DeploymentAutomation {
     await this.saveDeploymentHistory();
   }
 
+  /**
+   * Get fallback branch name when Git is unavailable.
+   * Priority order:
+   * 1. GITHUB_REF_NAME - Available in GitHub Actions (e.g., 'main', 'feature-branch')
+   * 2. BRANCH_NAME - Common in other CI environments (Jenkins, GitLab CI, etc.)
+   * 3. 'main' - Final fallback default
+   * @returns {string} Branch name to use
+   */
   getFallbackBranch() {
     return (
       process.env.GITHUB_REF_NAME ||
@@ -528,6 +536,11 @@ class DeploymentAutomation {
     );
   }
 
+  /**
+   * Check if current directory is inside a Git work tree.
+   * Set DEBUG=true environment variable to enable diagnostic logging.
+   * @returns {Promise<boolean>} True if inside a Git work tree
+   */
   async isGitRepo() {
     try {
       const result = await this.executeCommand("git", ["rev-parse", "--is-inside-work-tree"]);
@@ -535,6 +548,7 @@ class DeploymentAutomation {
       return result.trim() === "true";
     } catch (error) {
       // Debug: Log why Git detection failed (helpful for CI troubleshooting)
+      // Enable by setting DEBUG=true environment variable
       if (process.env.DEBUG) {
         await this.log(
           `🔍 Git detection failed: ${error?.message || 'unknown error'}`,
