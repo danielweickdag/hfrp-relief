@@ -4,63 +4,143 @@ on:
   schedule:
     - cron: "0 6 * * *" # every day at 06:00 UTC
   workflow_dispatch:
+  workflow_call:
 
 jobs:
   sync:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - name: Trigger full sync
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Trigger full sync (with retry)
         env:
           API_URL: ${{ vars.PRODUCTION_API_URL }}
           API_TOKEN: ${{ secrets.API_TOKEN }}
         run: |
-          echo "Triggering Stripe full sync..."
+          set -euo pipefail
           
-          # Check if production API URL is configured
+          # Configuration
+          MAX_RETRIES=3
+          RETRY_DELAY=5
+          TIMEOUT=30
+          ATTEMPT=1
+          
+          echo "🔄 Stripe Sync Configuration:"
+          echo "  Max Retries: $MAX_RETRIES"
+          echo "  Retry Delay: ${RETRY_DELAY}s"
+          echo "  Timeout: ${TIMEOUT}s"
+          echo ""
+          
+          # Validate configuration
           if [ -z "$API_URL" ]; then
             echo "⚠️  PRODUCTION_API_URL not configured. Skipping sync."
             echo "To enable this workflow, set the PRODUCTION_API_URL repository variable."
             exit 0
           fi
           
-          echo "Using API URL: $API_URL"
+          echo "✅ API URL configured: $API_URL"
+          echo ""
           
-          # Prepare headers
-          HEADERS="-H 'Content-Type: application/json'"
-          if [ -n "$API_TOKEN" ]; then
-            HEADERS="$HEADERS -H 'Authorization: Bearer $API_TOKEN'"
-          fi
-          
-          # Make the API call with better error handling
-          HTTP_STATUS=$(curl -s -w "%{http_code}" -X POST "$API_URL/stripe/sync" \
-            $HEADERS \
-            -d '{"action":"all"}' \
-            -o response.json)
-          
-          echo "HTTP Status: $HTTP_STATUS"
-          
-          # Check if the request was successful
-          if [ "$HTTP_STATUS" -eq 200 ] || [ "$HTTP_STATUS" -eq 201 ]; then
-            echo "✅ API call successful"
-            cat response.json
+          # Retry loop
+          while [ $ATTEMPT -le $MAX_RETRIES ]; do
+            echo "📤 Attempt $ATTEMPT/$MAX_RETRIES: Triggering Stripe full sync..."
             
-            # Check if jq is available and response is valid JSON
-            if command -v jq >/dev/null 2>&1; then
-              if jq -e '.success == true' response.json >/dev/null 2>&1; then
-                echo "✅ Stripe sync completed successfully"
+            # Prepare headers
+            HEADERS="-H 'Content-Type: application/json'"
+            if [ -n "$API_TOKEN" ]; then
+              HEADERS="$HEADERS -H 'Authorization: Bearer $API_TOKEN'"
+            fi
+            
+            # Make the API call with timeout and error handling
+            HTTP_STATUS=$(curl -s -w "%{http_code}" \
+              --max-time $TIMEOUT \
+              --connect-timeout 10 \
+              --retry 2 \
+              --retry-delay 2 \
+              -X POST "$API_URL/stripe/sync" \
+              $HEADERS \
+              -d '{"action":"all"}' \
+              -o response.json) || HTTP_STATUS=$?
+            
+            echo "HTTP Status: $HTTP_STATUS"
+            
+            # Check if the request was successful
+            if [ "$HTTP_STATUS" = "200" ] || [ "$HTTP_STATUS" = "201" ]; then
+              echo "✅ API call successful"
+              
+              # Validate JSON response
+              if command -v jq >/dev/null 2>&1; then
+                if jq -e '.success == true' response.json >/dev/null 2>&1; then
+                  echo "✅ Stripe sync completed successfully"
+                  cat response.json
+                  exit 0
+                else
+                  ERROR_MSG=$(jq -r '.error // .message // "Unknown error"' response.json)
+                  echo "❌ Stripe sync failed - API returned success: false"
+                  echo "Error: $ERROR_MSG"
+                  cat response.json
+                  
+                  # Don't retry on application errors
+                  exit 1
+                fi
               else
-                echo "❌ Stripe sync failed - API returned success: false"
+                echo "⚠️  jq not available, accepting response as valid"
                 cat response.json
-                exit 1
+                exit 0
               fi
             else
-              echo "⚠️  jq not available, skipping JSON validation"
-              echo "Response received:"
-              cat response.json
+              echo "❌ API call failed with HTTP status: $HTTP_STATUS"
+              
+              # Check if response file exists and is readable
+              if [ -f response.json ] && [ -s response.json ]; then
+                echo "Response:"
+                cat response.json
+              else
+                echo "No response body received"
+              fi
+              
+              # Retry logic for transient errors (5xx errors)
+              if [[ "$HTTP_STATUS" =~ ^5 ]]; then
+                if [ $ATTEMPT -lt $MAX_RETRIES ]; then
+                  echo "⏳ Transient error detected. Retrying in ${RETRY_DELAY}s..."
+                  sleep $RETRY_DELAY
+                  ATTEMPT=$((ATTEMPT + 1))
+                  continue
+                else
+                  echo "❌ Max retries reached. Failing."
+                  exit 1
+                fi
+              else
+                # Don't retry on client errors (4xx)
+                echo "❌ Client error detected (HTTP $HTTP_STATUS). Not retrying."
+                exit 1
+              fi
             fi
-          else
-            echo "❌ API call failed with HTTP status: $HTTP_STATUS"
-            echo "Response:"
-            cat response.json
-            exit 1
+          done
+          
+          echo "❌ All retry attempts failed"
+          exit 1
+
+      - name: Notify on failure
+        if: failure()
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          if [ -n "$SLACK_WEBHOOK" ]; then
+            curl -X POST "$SLACK_WEBHOOK" \
+              -H 'Content-Type: application/json' \
+              -d '{
+                "text": "❌ Stripe Sync Failed",
+                "blocks": [{
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Stripe Full Sync Failed*\nRun: <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Details>"
+                  }
+                }]
+              }'
           fi
