@@ -58,10 +58,8 @@ jobs:
     - name: 🔒 Configure git safe.directory
       run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
-    - name: 🟢 Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
+    - name: "🟢 Setup Node.js & Bun"
+      uses: oven-sh/setup-bun@v1
 
     - name: ⚙️ Use Stripe TEST env on non-main branches
       if: github.ref != 'refs/heads/main'
@@ -76,12 +74,6 @@ jobs:
         echo "Detecting lockfile..."
         if [ -f bun.lockb ] || [ -f bun.lock ]; then
           echo "Detected Bun (bun.lock/bun.lockb) — installing Bun and dependencies"
-          # Install Bun (pinned install script is more deterministic than relying on action)
-          curl -fsSL https://bun.sh/install | bash -s -- --no-progress
-          export BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
-          export PATH="$BUN_INSTALL/bin:$PATH"
-          echo "$BUN_INSTALL/bin" >> $GITHUB_PATH
-          echo "Bun version: $(bun -v)"
           bun install
         elif [ -f pnpm-lock.yaml ]; then
           echo "Detected pnpm (pnpm-lock.yaml) — using pnpm"
