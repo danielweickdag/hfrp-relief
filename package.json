@@ -8,6 +8,7 @@
     "build:vercel": "SKIP_TYPE_CHECK=true next build",
     "start": "next start",
     "lint": "bunx biome lint --write && bunx tsc --noEmit",
+    "lint:ci": "bunx biome lint && bunx tsc --noEmit",
     "format": "bunx biome format --write",
     "health-check": "node health-check.mjs",
     "check:webhook": "node scripts/check-webhook-env.mjs",

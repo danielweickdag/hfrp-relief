@@ -62,7 +62,6 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
 
     - name: ⚙️ Use Stripe TEST env on non-main branches
       if: github.ref != 'refs/heads/main'
@@ -116,7 +115,7 @@ jobs:
 
     - name: 🧪 Lint & Type Check
       run: |
-        bun run lint
+        bun run lint:ci
 
     - name: 🔐 Check Webhook Env
       run: node scripts/check-webhook-env.mjs
