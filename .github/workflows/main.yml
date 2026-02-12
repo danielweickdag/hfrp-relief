@@ -127,7 +127,13 @@ jobs:
       run: node scripts/check-webhook-env.mjs
 
     - name: 🏗️ Test Build
-      run: bun run build
+      run: |
+        export NEXT_PUBLIC_GIT_SHA=$(git rev-parse HEAD)
+        export NEXT_PUBLIC_GIT_BRANCH=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
+        export NEXT_PUBLIC_GIT_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "no-tag")
+        export NEXT_PUBLIC_GIT_AUTHOR=$(git log -1 --pretty=format:'%an')
+        export NEXT_PUBLIC_GIT_DATE=$(git log -1 --pretty=format:'%ad' --date=iso)
+        bun run build
 
     - name: 🧪 Run Automation Tests
       run: node automation-test.js
@@ -238,7 +244,13 @@ jobs:
       run: bun install
 
     - name: 🏗️ Build Application
-      run: bun run build
+      run: |
+        export NEXT_PUBLIC_GIT_SHA=$(git rev-parse HEAD)
+        export NEXT_PUBLIC_GIT_BRANCH=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
+        export NEXT_PUBLIC_GIT_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "no-tag")
+        export NEXT_PUBLIC_GIT_AUTHOR=$(git log -1 --pretty=format:'%an')
+        export NEXT_PUBLIC_GIT_DATE=$(git log -1 --pretty=format:'%ad' --date=iso)
+        bun run build
 
     - name: 🚀 Deploy to Vercel Staging
       uses: amondnet/vercel-action@v25
@@ -284,7 +296,13 @@ jobs:
         fi
 
     - name: 🏗️ Build Application
-      run: bun run build
+      run: |
+        export NEXT_PUBLIC_GIT_SHA=$(git rev-parse HEAD)
+        export NEXT_PUBLIC_GIT_BRANCH=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
+        export NEXT_PUBLIC_GIT_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "no-tag")
+        export NEXT_PUBLIC_GIT_AUTHOR=$(git log -1 --pretty=format:'%an')
+        export NEXT_PUBLIC_GIT_DATE=$(git log -1 --pretty=format:'%ad' --date=iso)
+        bun run build
 
     - name: 🔍 Final Production Health Check
       run: node health-check.mjs

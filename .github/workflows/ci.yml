@@ -1,9 +1,8 @@
 name: CI
 
 on:
-  push:
-    branches: [main]
   pull_request:
+    branches: [main]
 
 jobs:
   build:
@@ -22,10 +21,15 @@ jobs:
         run: bun install
 
       - name: Build
-        env:
-          NEXT_PUBLIC_GIT_SHA: aebbbc196e478f985f0fcd9f305a4d7d46ff42ca
-          NEXT_PUBLIC_GIT_BRANCH: main
-          NEXT_PUBLIC_GIT_TAG: hfrp
-          NEXT_PUBLIC_GIT_AUTHOR: danielweickdag
-          NEXT_PUBLIC_GIT_DATE: "2026-02-08T06:26:09-06:00"
-        run: bun run build
+        run: |
+          export NEXT_PUBLIC_GIT_SHA=$(git rev-parse HEAD)
+          export NEXT_PUBLIC_GIT_BRANCH=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
+          export NEXT_PUBLIC_GIT_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "no-tag")
+          export NEXT_PUBLIC_GIT_AUTHOR=$(git log -1 --pretty=format:'%an')
+          export NEXT_PUBLIC_GIT_DATE=$(git log -1 --pretty=format:'%ad' --date=iso)
+          
+          echo "Building with:"
+          echo "SHA: $NEXT_PUBLIC_GIT_SHA"
+          echo "Branch: $NEXT_PUBLIC_GIT_BRANCH"
+          
+          bun run build
