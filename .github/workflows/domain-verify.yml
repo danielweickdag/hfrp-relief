@@ -2,7 +2,7 @@ name: Domain Verification
 
 on:
   schedule:
-  - cron: "*/30 * * * *" # every 30 minutes
+  - cron: "0 0 * * *" # daily
   workflow_dispatch:
 
 
@@ -25,4 +25,4 @@ jobs:
       run: sudo apt-get update && sudo apt-get install -y dnsutils openssl curl
     - name: Run verify-domain.sh in strict mode
       run: |
-        bash verify-domain.sh --strict
+        bash scripts/verify-domain.sh --strict

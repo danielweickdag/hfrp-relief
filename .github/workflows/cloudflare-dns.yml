@@ -28,4 +28,4 @@ jobs:
           fi
           bash scripts/cloudflare-dns-update.sh
       - name: Verify domain configuration
-        run: bash verify-domain.sh --strict
+        run: bash scripts/verify-domain.sh --strict

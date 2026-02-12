@@ -37,9 +37,9 @@ jobs:
           
           # Validate configuration
           if [ -z "$API_URL" ]; then
-            echo "⚠️  PRODUCTION_API_URL not configured. Skipping sync."
+            echo "❌ PRODUCTION_API_URL not configured. Failing sync."
             echo "To enable this workflow, set the PRODUCTION_API_URL repository variable."
-            exit 0
+            exit 1
           fi
           
           echo "✅ API URL configured: $API_URL"
