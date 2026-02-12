@@ -544,9 +544,9 @@ export async function runAllTests() {
 
   console.log("📋 Test Results Summary:");
   console.log("========================");
-  results.forEach((result) => {
+  for (const result of results) {
     console.log(`${result.passed ? "✅" : "❌"} ${result.test}`);
-  });
+  }
   console.log("");
   console.log(
     `🎯 Overall: ${passed}/${total} tests passed (${Math.round((passed / total) * 100)}%)`,

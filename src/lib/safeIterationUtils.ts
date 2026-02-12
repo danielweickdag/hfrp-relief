@@ -1207,11 +1207,13 @@ export function defineSafeProperty(
 
   if (!validation.safe) {
     console.error(`❌ Unsafe property definition for '${propertyName}':`);
-    validation.issues.forEach((issue) => console.error(`  - ${issue}`));
+    for (const issue of validation.issues) {
+      console.error(`  - ${issue}`);
+    }
     console.log("💡 Suggestions:");
-    validation.suggestions.forEach((suggestion) =>
-      console.log(`  - ${suggestion}`),
-    );
+    for (const suggestion of validation.suggestions) {
+      console.log(`  - ${suggestion}`);
+    }
     return false;
   }
 

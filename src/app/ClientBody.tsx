@@ -99,11 +99,10 @@ export default function ClientBody({
       } else {
         // Unregister service worker in development to avoid caching issues
         if ("serviceWorker" in navigator) {
-          navigator.serviceWorker.getRegistrations().then((registrations) => {
-            for (const registration of registrations) {
-              registration.unregister();
-            }
-          });
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          for (const registration of registrations) {
+            registration.unregister();
+          }
         }
       }
     };
@@ -131,7 +130,9 @@ export default function ClientBody({
 
         if ("serviceWorker" in navigator) {
           const registrations = await navigator.serviceWorker.getRegistrations();
-          registrations.forEach((reg) => reg.unregister());
+          for (const reg of registrations) {
+            reg.unregister();
+          }
         }
 
         console.log("HFRP: Site features disabled");
