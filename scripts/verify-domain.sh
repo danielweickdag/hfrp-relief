@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-DOMAIN="familyreliefproject.org"
+DOMAIN="${1:-familyreliefproject7.org}"
 EXPECTED_NS="cloudflare.com"
 
 echo "🔍 Verifying domain configuration for $DOMAIN..."

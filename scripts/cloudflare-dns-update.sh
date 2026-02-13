@@ -6,7 +6,7 @@ set -euo pipefail
 # - Env: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ZONE_ID
 # - Tools: curl, jq
 
-DOMAIN="familyreliefproject.org"
+DOMAIN="${1:-familyreliefproject7.org}"
 APEX_TARGET="76.76.21.21"
 WWW_TARGET="cname.vercel-dns.com"
 

@@ -6,26 +6,26 @@ on:
       domain:
         description: "Root domain to update"
         required: true
-        default: "familyreliefproject.org"
+        default: "familyreliefproject7.org"
 
 jobs:
   update-dns:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: false
-      - name: Install tools
-        run: sudo apt-get update && sudo apt-get install -y jq dnsutils openssl curl
-      - name: Run Cloudflare DNS update
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
-        run: |
-          if [ -z "${CLOUDFLARE_API_TOKEN}" ] || [ -z "${CLOUDFLARE_ZONE_ID}" ]; then
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        submodules: false
+    - name: Install tools
+      run: sudo apt-get update && sudo apt-get install -y jq dnsutils openssl curl
+    - name: Run Cloudflare DNS update
+      env:
+        CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+      run: |
+        if [ -z "${CLOUDFLARE_API_TOKEN}" ] || [ -z "${CLOUDFLARE_ZONE_ID}" ]; then
             echo "CLOUDFLARE secrets missing" && exit 1
           fi
-          bash scripts/cloudflare-dns-update.sh
+          bash scripts/cloudflare-dns-update.sh "${{ github.event.inputs.domain }}"
       - name: Verify domain configuration
-        run: bash scripts/verify-domain.sh --strict
+        run: bash scripts/verify-domain.sh "${{ github.event.inputs.domain }}" --strict
