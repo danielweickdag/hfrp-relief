@@ -948,7 +948,46 @@ class StripeAutomationService {
     session: Stripe.Checkout.Session,
   ): Promise<void> {
     console.log(`Automated checkout completion handling: ${session.id}`);
-    // Add automated checkout completion logic here
+    
+    try {
+      // Extract donation details from session
+      const amount = session.amount_total || 0;
+      const currency = session.currency || "usd";
+      const donorEmail = session.customer_details?.email || session.customer_email || "unknown@donor.com";
+      const donorName = session.customer_details?.name || "Guest Donor";
+      const metadata = session.metadata || {};
+      const campaignId = metadata.campaignId || "general";
+      const isRecurring = session.mode === "subscription";
+
+      console.log(`Processing successful donation of ${amount/100} ${currency} from ${donorEmail}`);
+
+      // Construct donation object
+      const donation: DonationAutomation = {
+        donorId: session.customer as string || `guest_${session.id}`,
+        donorEmail,
+        amount, // in cents
+        campaign: campaignId,
+        isRecurring,
+        stripeCustomerId: session.customer as string,
+        stripeSubscriptionId: session.subscription as string,
+        automationTriggers: {
+          thankYouEmail: true,
+          receiptGeneration: true,
+          monthlyUpdates: isRecurring,
+          impactReports: true,
+        },
+      };
+
+      // Trigger automation (Receipts, Emails, DB Update)
+      await this.triggerDonationAutomation(donation);
+
+      console.log(`✅ Successfully processed checkout session ${session.id}`);
+    } catch (error) {
+      console.error("❌ Failed to handle checkout completion:", error);
+      // We don't throw here to ensure we don't crash the webhook handler loop, 
+      // but in a real app you might want to throw to trigger a webhook retry from Stripe.
+      throw error; 
+    }
   }
 
   private async handleAutomatedSubscriptionChange(
