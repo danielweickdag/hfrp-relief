@@ -260,7 +260,7 @@ jobs:
   deploy-production:
     name: 🌟 Deploy to Production
     runs-on: ubuntu-latest
-    needs: [ health-check, automation-sync ]
+    needs: [ health-check ]
     if: github.ref == 'refs/heads/main'
     environment: production
 
