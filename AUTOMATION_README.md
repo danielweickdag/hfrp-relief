@@ -48,7 +48,9 @@ bun install
 Create or update your `.env.local` file:
 
 ```bash
-# Deployment
+# Deployment - Get these from Vercel:
+# VERCEL_TOKEN: https://vercel.com/account/tokens (Create new token)
+# VERCEL_ORG_ID & VERCEL_PROJECT_ID: Project Settings → General tab
 VERCEL_TOKEN=your_vercel_token
 VERCEL_ORG_ID=your_org_id
 VERCEL_PROJECT_ID=your_project_id
