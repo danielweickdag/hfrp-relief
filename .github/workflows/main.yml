@@ -253,8 +253,8 @@ jobs:
       with:
         vercel-token: ${{ secrets.VERCEL_TOKEN }}
         vercel-args: '--prebuilt'
-        vercel-org-id: ${{ secrets.ORG_ID }}
-        vercel-project-id: ${{ secrets.PROJECT_ID }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
         scope: ${{ secrets.VERCEL_ORG_ID }}
 
   deploy-production:
@@ -308,8 +308,8 @@ jobs:
       with:
         vercel-token: ${{ secrets.VERCEL_TOKEN }}
         vercel-args: '--prebuilt --prod'
-        vercel-org-id: ${{ secrets.ORG_ID }}
-        vercel-project-id: ${{ secrets.PROJECT_ID }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
         scope: ${{ secrets.VERCEL_ORG_ID }}
 
     - name: ✅ Post-Deployment Verification
