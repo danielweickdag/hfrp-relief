@@ -112,6 +112,8 @@ export async function POST(request: NextRequest) {
     // Ensure a Customer object exists to avoid "missing customer" errors in Test Mode
     // This is often required for certain payment methods or configurations like tax calculation
     let customerId: string | undefined;
+    /*
+    // DISABLED: Do not pre-create guest customers. Let Stripe handle customer creation.
     try {
       // Create a guest customer for this session if one doesn't exist
       // In a real app, you would look this up from your database or auth system
@@ -127,6 +129,7 @@ export async function POST(request: NextRequest) {
     } catch (e) {
       console.warn("Failed to create guest customer, proceeding without one:", e);
     }
+    */
 
     const origin = new URL(request.url).origin;
     const resolvedSuccessUrl =
@@ -194,7 +197,7 @@ export async function POST(request: NextRequest) {
       session = await stripe.checkout.sessions.create({
         mode: "subscription",
         payment_method_types: ["card"],
-        customer: customerId, // Explicitly attach customer
+        // customer: customerId, // Let Stripe create the customer
         line_items: [
           {
             price: donation.priceId,
@@ -237,7 +240,7 @@ export async function POST(request: NextRequest) {
       session = await stripe.checkout.sessions.create({
         mode: "payment",
         payment_method_types: ["card"],
-        customer: customerId, // Explicitly attach customer
+        // customer: customerId, // Let Stripe create the customer
         line_items: [
           {
             price_data: priceData,
@@ -268,7 +271,7 @@ export async function POST(request: NextRequest) {
       session = await stripe.checkout.sessions.create({
         mode: isRecurring ? "subscription" : "payment",
         payment_method_types: ["card"],
-        customer: customerId, // Explicitly attach customer
+        // customer: customerId, // Let Stripe create the customer
         line_items: [
           {
             price_data: priceData,
