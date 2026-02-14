@@ -389,8 +389,8 @@ class MasterAutomation {
     this.log("═══════════════════════════════════════════════════", "info");
 
     const syncResult = await this.runCommand(
-      "./stripe-sync.sh",
-      "Stripe data sync"
+      "./scripts/fix-and-sync.sh",
+      "Stripe data sync (robust)"
     );
 
     if (syncResult.success) {

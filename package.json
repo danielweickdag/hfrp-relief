@@ -32,6 +32,7 @@
     "automation:master": "node master-automation.js",
     "automation:test": "node automation-test.js",
     "automation:full": "npm run workflow:dev && npm run automation:master",
+    "fix:sync": "./scripts/fix-and-sync.sh",
     "scheduler:start": "node automation-scheduler.js start",
     "scheduler:status": "node automation-scheduler.js status",
     "scheduler:stop": "node automation-scheduler.js stop",
