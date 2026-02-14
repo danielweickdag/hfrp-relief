@@ -1,0 +1,10 @@
+{
+  "name": "HFRP Relief",
+  "goal_amount": 100000,
+  "metrics": {
+    "funding_velocity": 0,
+    "total_raised": 0,
+    "donor_count": 0
+  },
+  "last_updated": "2026-02-14T00:00:00.000Z"
+}
