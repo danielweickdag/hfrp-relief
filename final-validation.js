@@ -27,7 +27,6 @@ const criticalFiles = [
     path: "src/app/_components/AdminDashboard.tsx",
     checks: [
       "runDonationReport",
-      "syncDonorboxData",
       "generateSocialContent",
       "scheduleEmailCampaign",
       "automateVolunteerScheduling",
