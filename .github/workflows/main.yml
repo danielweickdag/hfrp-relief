@@ -98,17 +98,15 @@ jobs:
           } else {
             // Just verify the key format/presence to avoid permission errors with Restricted Keys
             console.log('✅ Stripe key is present and formatted correctly.');
-            /*
-            const stripe = new Stripe(key);
-            stripe.accounts.retrieve()
-              .then(acc => {
-                console.log('✅ Stripe connected to account:', acc.id);
-              })
-              .catch(err => {
-                console.warn('⚠️ Stripe connectivity check warning:', err.message);
-                // Don't fail the build if the key just lacks "account read" permission
-              });
-            */
+            // const stripe = new Stripe(key);
+            // stripe.accounts.retrieve()
+            //   .then(acc => {
+            //     console.log('✅ Stripe connected to account:', acc.id);
+            //   })
+            //   .catch(err => {
+            //     console.warn('⚠️ Stripe connectivity check warning:', err.message);
+            //     // Don't fail the build if the key just lacks "account read" permission
+            //   });
           }
         "
 
