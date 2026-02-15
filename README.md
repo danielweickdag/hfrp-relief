@@ -94,19 +94,39 @@ For support with this project:
 
 ## 🛠️ Development
 
-```bash
-# Install dependencies
-bun install
+### Environment Setup
 
-# Start development server
-bun dev
+1. **Copy environment template:**
+   ```bash
+   cp .env.local.example .env.local
+   ```
 
-# Build for production
-bun build
+2. **Configure required variables:**
+   - See `VERCEL_ENVIRONMENT_SETUP.md` for detailed Vercel setup instructions
+   - Required for CI/CD: `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`
+   - Required for Stripe: Configure test/live API keys
+   - Required for emails: `RESEND_API_KEY`
 
-# Run tests
-npm run lint
-```
+3. **Run development server:**
+   ```bash
+   # Install dependencies
+   bun install
+
+   # Start development server
+   bun dev
+
+   # Build for production
+   bun build
+
+   # Run tests
+   npm run lint
+   ```
+
+### Documentation
+
+- **Vercel Setup**: See `VERCEL_ENVIRONMENT_SETUP.md` for complete Vercel configuration
+- **Deployment**: See `VERCEL_DEPLOYMENT.md` for deployment instructions
+- **Automation**: See `AUTOMATION_README.md` for automation workflows
 
 ---
 
