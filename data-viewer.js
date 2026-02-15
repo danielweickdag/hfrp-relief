@@ -2,7 +2,7 @@
 
 /**
  * HFRP Data Viewer
- * Displays synced Donorbox data in readable format
+ * Displays synced Stripe data in readable format
  */
 
 const fs = require("fs");

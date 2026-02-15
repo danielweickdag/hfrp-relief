@@ -90,7 +90,6 @@ if (allPassed) {
   console.log("\n📋 ADMIN FEATURES CONFIRMED:");
   console.log("   • Admin Authentication System ✅");
   console.log("   • Donation Report Generation ✅");
-  console.log("   • Donorbox Data Synchronization ✅");
   console.log("   • Social Media Content Generation ✅");
   console.log("   • Email Campaign Scheduling ✅");
   console.log("   • Volunteer Scheduling Automation ✅");

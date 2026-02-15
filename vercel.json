@@ -12,14 +12,6 @@
       "maxDuration": 30
     }
   },
-  "redirects": [
-    {
-      "source": "/(.*)",
-      "has": [{ "type": "host", "value": "familyreliefproject7.org" }],
-      "destination": "https://www.familyreliefproject7.org/$1",
-      "permanent": true
-    }
-  ],
   "headers": [
     {
       "source": "/(.*)",
