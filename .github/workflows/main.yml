@@ -162,8 +162,8 @@ jobs:
 
     - name: "📊 Campaign Sync & Validation"
       run: |
-        node campaign-validation-test.js
-        node campaign-viewer.js
+        bunx tsx campaign-validation-test.js
+        bunx tsx campaign-viewer.js
 
     - name: "🎯 Campaign Milestone Tracking"
       run: node campaign-milestone-tracker.js
@@ -295,10 +295,10 @@ jobs:
       uses: amondnet/vercel-action@v25
       with:
         vercel-token: ${{ secrets.VERCEL_TOKEN }}
-        vercel-args: '--prebuilt --prod'
         vercel-org-id: ${{ secrets.ORG_ID }}
         vercel-project-id: ${{ secrets.PROJECT_ID }}
         scope: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-args: '--prod'
 
     - name: ✅ Post-Deployment Verification
       run: |
