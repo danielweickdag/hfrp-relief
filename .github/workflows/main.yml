@@ -88,25 +88,11 @@ jobs:
     - name: 🔗 Stripe Connectivity Check
       run: |
         node -e "
-          const Stripe = require('stripe');
           const key = process.env.STRIPE_SECRET_KEY;
-          const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-          
           if (!key) {
             console.warn('⚠️ STRIPE_SECRET_KEY not set - Skipping connectivity check');
-            // process.exit(0); // Don't fail the build for missing secrets in CI (unless strict mode is needed)
           } else {
-            // Just verify the key format/presence to avoid permission errors with Restricted Keys
             console.log('✅ Stripe key is present and formatted correctly.');
-            // const stripe = new Stripe(key);
-            // stripe.accounts.retrieve()
-            //   .then(acc => {
-            //     console.log('✅ Stripe connected to account:', acc.id);
-            //   })
-            //   .catch(err => {
-            //     console.warn('⚠️ Stripe connectivity check warning:', err.message);
-            //     // Don't fail the build if the key just lacks "account read" permission
-            //   });
           }
         "
 
