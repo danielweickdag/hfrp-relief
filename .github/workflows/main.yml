@@ -359,27 +359,27 @@ jobs:
         echo "- 📱 Social media posts scheduled" >> $GITHUB_STEP_SUMMARY
         echo "- 🏆 Milestone triggers checked" >> $GITHUB_STEP_SUMMARY
 
-  notify-slack:
-    name: 📢 Slack Notifications
-    runs-on: ubuntu-latest
-    needs: [ deploy-production ]
-    if: always()
-
-    steps:
-    - name: 📢 Notify Success
-      if: needs.deploy-production.result == 'success'
-      uses: 8398a7/action-slack@v3
-      with:
-        status: success
-        text: '🎉 HFRP Relief deployed successfully to production!'
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-
-    - name: ⚠️ Notify Failure
-      if: needs.deploy-production.result == 'failure'
-      uses: 8398a7/action-slack@v3
-      with:
-        status: failure
-        text: '❌ HFRP Relief deployment failed. Check logs for details.'
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+#  notify-slack:
+#    name: 📢 Slack Notifications
+#    runs-on: ubuntu-latest
+#    needs: [ deploy-production ]
+#    if: always()
+#
+#    steps:
+#    - name: 📢 Notify Success
+#      if: needs.deploy-production.result == 'success'
+#      uses: 8398a7/action-slack@v3
+#      with:
+#        status: success
+#        text: '🎉 HFRP Relief deployed successfully to production!'
+#      env:
+#        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+#
+#    - name: ⚠️ Notify Failure
+#      if: needs.deploy-production.result == 'failure'
+#      uses: 8398a7/action-slack@v3
+#      with:
+#        status: failure
+#        text: '❌ HFRP Relief deployment failed. Check logs for details.'
+#      env:
+#        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
