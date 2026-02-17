@@ -1,36 +1,46 @@
 {
-  "version": 2,
-  "buildCommand": "bun run build",
-  "installCommand": "bun install",
-  "env": {
-    "NEXT_PUBLIC_SITE_URL": "https://www.familyreliefproject7.org",
-    "NEXT_PUBLIC_API_URL": "https://www.familyreliefproject7.org/api",
-    "NEXT_PUBLIC_DONATION_TEST_MODE": "false"
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "name": "hfrp-relief",
+  "production-url": "familyreliefproject7.org",
+  "github": {
+    "enabled": true,
+    "autoAlias": true,
+    "autoJobCancelation": true,
+    "deployment-type": "github-actions"
   },
-  "functions": {
-    "app/api/**/*.js": {
-      "maxDuration": 30
+  "redirects": [
+    {
+      "source": "/relief-efforts",
+      "destination": "/campaigns"
+    },
+    {
+      "source": "/about-us",
+      "destination": "/about"
+    },
+    {
+      "source": "/get-involved",
+      "destination": "/volunteer"
     }
-  },
+  ],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
         {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
           "key": "X-Frame-Options",
           "value": "DENY"
         },
         {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
         },
         {
           "key": "Referrer-Policy",
           "value": "origin-when-cross-origin"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains; preload"
         }
       ]
     }
