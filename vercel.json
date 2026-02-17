@@ -1,7 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "name": "hfrp-relief",
-  "production-url": "familyreliefproject7.org",
   "github": {
     "enabled": true,
     "autoAlias": true,
