@@ -291,6 +291,9 @@ jobs:
     - name: 🔍 Final Production Health Check
       run: node health-check.mjs
 
+    - name: 🚀 Add Custom Domain to Vercel
+      run: npx vercel domains add familyreliefproject7.org --scope ${{ secrets.VERCEL_ORG_ID }} --token ${{ secrets.VERCEL_TOKEN }}
+
     - name: 🚀 Deploy to Vercel Production
       uses: amondnet/vercel-action@v25
       with:
