@@ -39,8 +39,7 @@
     "deploy:enhanced": "node enhanced-deploy.mjs",
     "deploy:staging": "node enhanced-deploy.mjs staging",
     "deploy:status": "node enhanced-deploy.mjs --status",
-    "mcp:stripe": "dotenvx run -f .env.local -- tsx scripts/stripe-mcp-server.ts",
-    "test": "vitest"
+    "mcp:stripe": "dotenvx run -f .env.local -- tsx scripts/stripe-mcp-server.ts"
   },
   "dependencies": {
     "@dotenvx/dotenvx": "^1.51.3",
