@@ -1,35 +1,25 @@
 name: CI
 
 on:
+  push:
+    branches: [main]
   pull_request:
     branches: [main]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1   # shallow is fine now
 
-      - uses: oven-sh/setup-bun@v1
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          bun-version: latest
+          node-version: '20'
+          cache: 'npm'
 
       - name: Install dependencies
-        run: bun install
+        run: npm ci
 
-      - name: Build
-        run: |
-          export NEXT_PUBLIC_GIT_SHA=$(git rev-parse HEAD)
-          export NEXT_PUBLIC_GIT_BRANCH=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
-          export NEXT_PUBLIC_GIT_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "no-tag")
-          export NEXT_PUBLIC_GIT_AUTHOR=$(git log -1 --pretty=format:'%an')
-          export NEXT_PUBLIC_GIT_DATE=$(git log -1 --pretty=format:'%ad' --date=iso)
-          
-          echo "Building with:"
-          echo "SHA: $NEXT_PUBLIC_GIT_SHA"
-          echo "Branch: $NEXT_PUBLIC_GIT_BRANCH"
-          
-          bun run build
+      - name: Run unit tests
+        run: npm test
