@@ -1,0 +1,31 @@
+name: E2E Tests
+
+on:
+  repository_dispatch:
+    types:
+      - 'vercel.deployment.ready'
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci && npx playwright install --with-deps
+
+      - name: Run Playwright tests
+        run: npx playwright test
+        env:
+          BASE_URL: ${{ github.event.client_payload.url }}
+
+      - name: Notify Vercel
+        uses: vercel/repository-dispatch/actions/status@v1
+        with:
+          name: "E2E Tests"

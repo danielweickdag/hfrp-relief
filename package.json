@@ -46,6 +46,7 @@
     "@headlessui/react": "^2.2.4",
     "@heroicons/react": "^2.2.0",
     "@modelcontextprotocol/sdk": "^1.25.1",
+    "@playwright/test": "^1.58.2",
     "@radix-ui/react-switch": "^1.2.6",
     "@radix-ui/react-tabs": "^1.1.13",
     "@stripe/react-stripe-js": "^4.0.0",
