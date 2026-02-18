@@ -1,15 +1,15 @@
 {
-  "generated_at": "2025-12-20T16:27:30.553Z",
+  "generated_at": "2026-02-17T23:45:55.981Z",
   "automation_summary": {
-    "campaigns_processed": 4,
-    "campaigns_automated": 4,
+    "campaigns_processed": 0,
+    "campaigns_automated": 0,
     "sync_status": "success",
     "automation_status": "success",
     "overall_status": "success"
   },
   "campaign_results": {
-    "debugged": 4,
-    "automated": 4,
+    "debugged": 0,
+    "automated": 0,
     "errors": []
   },
   "sync_results": {
