@@ -520,7 +520,57 @@ class DeploymentAutomation {
     await this.saveDeploymentHistory();
   }
 
+  /**
+   * Get fallback branch name when Git is unavailable.
+   * Priority order:
+   * 1. GITHUB_REF_NAME - Available in GitHub Actions (e.g., 'main', 'feature-branch')
+   * 2. BRANCH_NAME - Common in other CI environments (Jenkins, GitLab CI, etc.)
+   * 3. 'main' - Final fallback default
+   * @returns {string} Branch name to use
+   */
+  getFallbackBranch() {
+    return (
+      process.env.GITHUB_REF_NAME ||
+      process.env.BRANCH_NAME ||
+      "main"
+    );
+  }
+
+  /**
+   * Check if current directory is inside a Git work tree.
+   * Set DEBUG=true environment variable to enable diagnostic logging.
+   * @returns {Promise<boolean>} True if inside a Git work tree
+   */
+  async isGitRepo() {
+    try {
+      const result = await this.executeCommand("git", ["rev-parse", "--is-inside-work-tree"]);
+      // Git returns 'true' when inside a work tree, validate the output
+      return result.trim() === "true";
+    } catch (error) {
+      // Debug: Log why Git detection failed (helpful for CI troubleshooting)
+      // Enable by setting DEBUG=true environment variable
+      if (process.env.DEBUG) {
+        await this.log(
+          `🔍 Git detection failed: ${error.stack || error.message || String(error)}`,
+          "info"
+        );
+      }
+      return false;
+    }
+  }
+
   async getCurrentBranch() {
+    const inRepo = await this.isGitRepo();
+
+    if (!inRepo) {
+      const fallback = this.getFallbackBranch();
+      await this.log(
+        `⚠️ Not in a Git repository; using fallback branch: ${fallback}`,
+        "warning"
+      );
+      return fallback;
+    }
+
     try {
       const result = await this.executeCommand("git", [
         "rev-parse",
@@ -529,7 +579,12 @@ class DeploymentAutomation {
       ]);
       return result.trim();
     } catch (error) {
-      throw new Error("Could not determine current Git branch");
+      const fallback = this.getFallbackBranch();
+      await this.log(
+        `⚠️ Could not determine current Git branch (${error.message || String(error)}); using fallback: ${fallback}`,
+        "warning"
+      );
+      return fallback;
     }
   }
 

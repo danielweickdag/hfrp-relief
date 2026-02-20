@@ -42,6 +42,10 @@ jobs:
   health-check:
     name: "🔍 Health Check & Validation"
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}
+
     outputs:
       should-deploy: ${{ steps.health.outputs.ready }}
 
@@ -57,6 +61,18 @@ jobs:
         test -f .gitmodules && rm -f .gitmodules || true
     - name: 🔒 Configure git safe.directory
       run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+    # Diagnostics for troubleshooting Git context issues in CI
+    # Review this output if fallback branch detection is triggered (check deployment logs)
+    # Key indicators to investigate: git-dir not found, HEAD unresolved, or permission errors
+    - name: 🧭 Diagnostics - Git context
+      run: |
+        echo "GITHUB_WORKSPACE=$GITHUB_WORKSPACE"
+        ls -la "$GITHUB_WORKSPACE" || true
+        git rev-parse --git-dir || true
+        git rev-parse HEAD || true
+        git status || true
+        git config -l || true
 
     - name: "🟢 Setup Node.js & Bun"
       uses: oven-sh/setup-bun@v1
