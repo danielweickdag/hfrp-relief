@@ -37,14 +37,7 @@ export default function StripeButton({
   const stripeEnhanced = getStripeEnhanced();
 
   // SSR-stable test mode: derive from env on first render; update after mount
-  const initialTestMode = (() => {
-    const key = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "";
-    const flag = process.env.NEXT_PUBLIC_STRIPE_TEST_MODE === "true";
-    if (key.startsWith("pk_live_")) return false;
-    if (key.startsWith("pk_test_")) return true;
-    return flag;
-  })();
-  const [testMode, setTestMode] = useState<boolean>(initialTestMode);
+  const [testMode, setTestMode] = useState<boolean>(false);
 
   // Ensure latest config is loaded with env precedence (particularly after HMR)
   // This avoids stale localStorage test settings overriding live env keys.
@@ -321,12 +314,7 @@ export default function StripeButton({
 
   return (
     <div className="relative">
-      {/* Test Mode Badge */}
-      {testMode && (
-        <div className="absolute -top-2 -right-2 bg-yellow-400 text-yellow-800 text-xs font-bold px-2 py-1 rounded-full z-10">
-          TEST
-        </div>
-      )}
+
 
       <button
         onClick={handleClick}

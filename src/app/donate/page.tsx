@@ -248,7 +248,6 @@ export default function DonatePage() {
                         interval="day"
                         hideFooter={true}
                       >
-                        <Heart className="w-5 h-5 mr-2 fill-current" />
                         <span>Join Daily Hope</span>
                       </StripeButton>
                     </div>
