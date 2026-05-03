@@ -67,9 +67,6 @@ export async function POST(request: NextRequest) {
       amount: cents,
       currency: resolvedCurrency,
       payment_method_types: ["card"],
-      ...((automaticTaxEnabled ?? true)
-        ? { automatic_tax: { enabled: true } }
-        : {}),
       ...(customerId ? { customer: customerId } : {}),
       ...(receiptEmail ? { receipt_email: receiptEmail } : {}),
       ...(metadata ? { metadata } : {}),

@@ -75,7 +75,7 @@ async function testStripeAutomationAPI() {
 
     // Test 3: Check Stripe config endpoint
     console.log('\nTest 3: Stripe configuration endpoint');
-    const configResponse = await makeRequest('/api/stripe/config');
+    const configResponse = await makeRequest('/api/stripe/webhook-config');
     if (configResponse.statusCode === 200) {
       console.log('✅ Stripe config endpoint accessible');
     } else {
@@ -108,13 +108,12 @@ function validateStripeFeatures() {
 }
 
 // Run tests if this file is executed directly
-if (require.main === module) {
-  testStripeAutomationAPI()
-    .then(() => {
-      validateStripeFeatures();
-      console.log('\n🚀 Stripe Automation System is ready for production!');
-    })
-    .catch(console.error);
-}
+testStripeAutomationAPI()
+  .then(() => {
+    validateStripeFeatures();
+    console.log('\n🚀 Stripe Automation System is ready for production!');
+  })
+  .catch(console.error);
 
-module.exports = { testStripeAutomationAPI, validateStripeFeatures };
+
+
