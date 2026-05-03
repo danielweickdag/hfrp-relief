@@ -33,6 +33,9 @@ export default function AboutPage() {
       <div>
         <h3 className="text-xl font-semibold mb-2">Our Leadership</h3>
         <ul className="space-y-3">
+          <li className="bg-white rounded-lg shadow p-4 border-l-4 border-orange-600">
+            <span className="font-bold">Widner Regis</span>, Founder/CEO
+          </li>
           <li className="bg-white rounded-lg shadow p-4 border-l-4 border-blue-600">
             <span className="font-bold">Whitney A Regis</span>, Executive
             Director
@@ -42,9 +45,6 @@ export default function AboutPage() {
           </li>
           <li className="bg-white rounded-lg shadow p-4 border-l-4 border-green-600">
             <span className="font-bold">Marcdala Morose</span>, Program Lead
-          </li>
-          <li className="bg-white rounded-lg shadow p-4 border-l-4 border-orange-600">
-            <span className="font-bold">Widner Regis</span>, Founder/CEO
           </li>
         </ul>
       </div>
