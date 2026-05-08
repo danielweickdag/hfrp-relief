@@ -33,6 +33,8 @@ export default function StripeButton({
   hideFooter = false,
 }: StripeButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [successUrl, setSuccessUrl] = useState("");
+  const [cancelUrl, setCancelUrl] = useState("");
   // Initialize Stripe helper and hooks BEFORE any conditional returns
   const stripeEnhanced = getStripeEnhanced();
 
@@ -41,13 +43,7 @@ export default function StripeButton({
 
   // Ensure latest config is loaded with env precedence (particularly after HMR)
   // This avoids stale localStorage test settings overriding live env keys.
-  useEffect(() => {
-    try {
-      stripeEnhanced?.loadConfig();
-      const cfg = stripeEnhanced?.getConfig();
-      if (cfg) setTestMode(cfg.testMode);
-    } catch {}
-  }, [stripeEnhanced]);
+
 
   // Fallback UI when Stripe is not configured
   if (!stripeEnhanced) {
@@ -65,6 +61,18 @@ export default function StripeButton({
 
   const config = stripeEnhanced.getConfig();
   const campaign = stripeEnhanced.getCampaign(campaignId);
+
+  useEffect(() => {
+    try {
+      stripeEnhanced?.loadConfig();
+      const cfg = stripeEnhanced?.getConfig();
+      if (cfg) setTestMode(cfg.testMode);
+      setSuccessUrl(
+        `${window.location.origin}${config.defaultSuccessUrl}?session_id={CHECKOUT_SESSION_ID}&campaign=${campaignId}&amount=${amount}`,
+      );
+      setCancelUrl(`${window.location.origin}${config.defaultCancelUrl}`);
+    } catch {}
+  }, [stripeEnhanced, campaignId, amount]);
 
   // Validate configuration with enhanced feedback
   const validation = stripeEnhanced.validateConfig();
@@ -167,8 +175,8 @@ export default function StripeButton({
           amount,
           recurring,
           interval,
-          successUrl: `${window.location.origin}${config.defaultSuccessUrl}?session_id={CHECKOUT_SESSION_ID}&campaign=${campaignId}&amount=${amount}`,
-          cancelUrl: `${window.location.origin}${config.defaultCancelUrl}`,
+          successUrl: successUrl,
+          cancelUrl: cancelUrl,
           metadata: {
             source: "website",
             buttonId,
