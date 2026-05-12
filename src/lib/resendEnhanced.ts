@@ -32,7 +32,7 @@ export function getDefaultResendConfig(): ResendConfig | null {
     apiKey,
     fromEmail:
       process.env.RESEND_FROM_EMAIL || "noreply@familyreliefproject7.org",
-    toEmail: process.env.RESEND_TO_EMAIL || "contact@familyreliefproject7.org",
+    toEmail: process.env.RESEND_TO_EMAIL || "haitianfamilyrelief@gmail.com",
     toEmails:
       process.env.RESEND_TO_EMAILS?.split(",").map((email) => email.trim()) ||
       [],

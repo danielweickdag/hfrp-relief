@@ -44,7 +44,7 @@ function SettingsContent() {
     siteTitle: "Haitian Family Relief Project",
     siteDescription:
       "Join us in our mission to feed and empower Haitian orphans. Make a lasting difference with daily giving - as little as 16¢ can provide meals, shelter, education, and healthcare.",
-    contactEmail: "contact@familyreliefproject7.org",
+    contactEmail: "haitianfamilyrelief@gmail.com",
     contactPhone: "(224) 217-0230",
     gaTrackingId: "",
     fbUrl: "https://facebook.com/haitianfamilyrelief",

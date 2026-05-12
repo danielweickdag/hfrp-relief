@@ -216,7 +216,7 @@ export default function PrivacyPolicyPage() {
                 <strong>Haitian Family Relief Project</strong>
               </p>
               <p className="text-gray-700 mb-2">
-                Email: contact@familyreliefproject7.org
+                Email: haitianfamilyrelief@gmail.com
               </p>
               <p className="text-gray-700 mb-2">Phone: (224) 217-0230</p>
               <p className="text-gray-700">
