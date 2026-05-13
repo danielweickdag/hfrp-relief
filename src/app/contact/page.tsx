@@ -64,7 +64,7 @@ export default function ContactPage() {
                 href="mailto:haitianfamilyrelief@gmail.com"
                 className="text-blue-600 hover:text-blue-700 transition-colors"
               >
-                contact@familyreliefproject7.org
+                haitianfamilyrelief@gmail.com
               </a>
                     </p>
                   </div>
