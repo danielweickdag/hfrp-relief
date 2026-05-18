@@ -1,4 +1,4 @@
-"use client";
+import { useState, useEffect } from "react";
 
 import Link from "next/link";
 import Image from "next/image";
@@ -6,6 +6,29 @@ import SocialMediaLinks from "./SocialMediaLinks";
 import BlvckDlphnLogo from "./BlvckDlphnLogo";
 
 export default function Footer() {
+  const [socialIconSettings, setSocialIconSettings] = useState({
+    facebook: true,
+    instagram: true,
+    twitter: true,
+    youtube: true,
+    tiktok: true,
+  });
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const response = await fetch("/api/admin/settings");
+        if (response.ok) {
+          const data = await response.json();
+          if (data.socialIcons) setSocialIconSettings(data.socialIcons);
+        }
+      } catch (error) {
+        console.error("Failed to fetch admin settings:", error);
+      }
+    };
+    fetchSettings();
+  }, []);
+
   const currentYear = new Date().getFullYear();
 
   return (
@@ -41,7 +64,7 @@ export default function Footer() {
               education, and healthcare to families in need.
             </p>
             <div className="mb-6">
-              <SocialMediaLinks variant="footer" size="md" />
+              <SocialMediaLinks variant="footer" size="md" socialIconSettings={socialIconSettings} />
             </div>
           </div>
 

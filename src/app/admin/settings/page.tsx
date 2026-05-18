@@ -32,9 +32,53 @@ function SettingsContent() {
   const [activeTab, setActiveTab] = useState<
     "general" | "contact" | "social" | "donation" | "api"
   >("general");
+  const [socialIconSettings, setSocialIconSettings] = useState({
+    facebook: true,
+    instagram: true,
+    twitter: true,
+    youtube: true,
+    tiktok: true,
+  });
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const response = await fetch("/api/admin/settings");
+        if (response.ok) {
+          const data = await response.json();
+          if (data.socialIcons) setSocialIconSettings(data.socialIcons);
+        }
+      } catch (error) {
+        console.error("Failed to fetch admin settings:", error);
+      }
+    };
+    fetchSettings();
+  }, []);
+
+  const handleSocialIconVisibilityChange = async (icon: string, isVisible: boolean) => {
+    const newSettings = { ...socialIconSettings, [icon]: isVisible };
+    setSocialIconSettings(newSettings);
+    try {
+      const response = await fetch("/api/admin/settings");
+      if (response.ok) {
+        const currentSettings = await response.json();
+        const updatedSettings = {
+          ...currentSettings,
+          socialIcons: newSettings,
+        };
+        await fetch("/api/admin/settings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updatedSettings),
+        });
+      }
+    } catch (error) {
+      console.error("Failed to save admin settings:", error);
+    }
+  };
+
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
-  const [showSocialMediaLinks, setShowSocialMediaLinks] = useState(true);
 
   // Direct Stripe Connect onboarding link provided by admin
   const stripeConnectOnboardingUrl =
@@ -407,149 +451,53 @@ function SettingsContent() {
                 {/* Social Media Settings */}
                 {activeTab === "social" && (
                   <div>
-                    <div className="flex justify-between items-center mb-4">
-                      <h2 className="text-lg font-medium text-gray-900">
-                        Social Media Links
-                      </h2>
-                      <button
-                        onClick={() =>
-                          setShowSocialMediaLinks(!showSocialMediaLinks)
-                        }
-                        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                          showSocialMediaLinks
-                            ? "bg-red-100 text-red-700 hover:bg-red-200"
-                            : "bg-green-100 text-green-700 hover:bg-green-200"
-                        }`}
-                      >
-                        {showSocialMediaLinks ? "Hide Links" : "Show Links"}
-                      </button>
+                    <h2 className="text-lg font-medium text-gray-900 mb-4">
+                      Social Media Links
+                    </h2>
+                    <div className="space-y-4">
+                      {Object.keys(socialIconSettings).map((icon) => (
+                        <div key={icon}>
+                          <div className="flex items-center justify-between mb-1">
+                            <label
+                              htmlFor={`${icon}Url`}
+                              className="block text-sm font-medium text-gray-700"
+                            >
+                              {icon.charAt(0).toUpperCase() + icon.slice(1)} URL
+                            </label>
+                            <div className="flex items-center">
+                              <input
+                                type="checkbox"
+                                id={`enable${icon.charAt(0).toUpperCase() + icon.slice(1)}`}
+                                name={`enable${icon.charAt(0).toUpperCase() + icon.slice(1)}`}
+                                checked={socialIconSettings[icon]}
+                                onChange={(e) => handleSocialIconVisibilityChange(icon, e.target.checked)}
+                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                              />
+                              <label
+                                htmlFor={`enable${icon.charAt(0).toUpperCase() + icon.slice(1)}`}
+                                className="ml-2 text-xs text-gray-500"
+                              >
+                                Enable
+                              </label>
+                            </div>
+                          </div>
+                          <div className={`flex rounded-md shadow-sm ${!socialIconSettings[icon] ? 'opacity-50 pointer-events-none' : ''}`}>
+                            <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                              https://
+                            </span>
+                            <input
+                              type="text"
+                              id={`${icon}Url`}
+                              name={`${icon}Url`}
+                              value={formData[`${icon}Url` as keyof typeof formData].replace("https://", "")}
+                              onChange={handleInputChange}
+                              disabled={!socialIconSettings[icon]}
+                              className="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                    {showSocialMediaLinks && (
-                      <div className="space-y-4">
-                        <div>
-                          <div className="flex items-center justify-between mb-1">
-                            <label
-                              htmlFor="fbUrl"
-                              className="block text-sm font-medium text-gray-700"
-                            >
-                              Facebook URL
-                            </label>
-                            <div className="flex items-center">
-                              <input
-                                type="checkbox"
-                                id="enableFacebook"
-                                name="enableFacebook"
-                                checked={formData.enableFacebook}
-                                onChange={handleInputChange}
-                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                              />
-                              <label
-                                htmlFor="enableFacebook"
-                                className="ml-2 text-xs text-gray-500"
-                              >
-                                Enable
-                              </label>
-                            </div>
-                          </div>
-                          <div className={`flex rounded-md shadow-sm ${!formData.enableFacebook ? 'opacity-50 pointer-events-none' : ''}`}>
-                            <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                              https://
-                            </span>
-                            <input
-                              type="text"
-                              id="fbUrl"
-                              name="fbUrl"
-                              value={formData.fbUrl.replace("https://", "")}
-                              onChange={handleInputChange}
-                              disabled={!formData.enableFacebook}
-                              className="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                          </div>
-                        </div>
-
-                        <div>
-                          <div className="flex items-center justify-between mb-1">
-                            <label
-                              htmlFor="igUrl"
-                              className="block text-sm font-medium text-gray-700"
-                            >
-                              Instagram URL
-                            </label>
-                            <div className="flex items-center">
-                              <input
-                                type="checkbox"
-                                id="enableInstagram"
-                                name="enableInstagram"
-                                checked={formData.enableInstagram}
-                                onChange={handleInputChange}
-                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                              />
-                              <label
-                                htmlFor="enableInstagram"
-                                className="ml-2 text-xs text-gray-500"
-                              >
-                                Enable
-                              </label>
-                            </div>
-                          </div>
-                          <div className={`flex rounded-md shadow-sm ${!formData.enableInstagram ? 'opacity-50 pointer-events-none' : ''}`}>
-                            <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                              https://
-                            </span>
-                            <input
-                              type="text"
-                              id="igUrl"
-                              name="igUrl"
-                              value={formData.igUrl.replace("https://", "")}
-                              onChange={handleInputChange}
-                              disabled={!formData.enableInstagram}
-                              className="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                          </div>
-                        </div>
-
-                        <div>
-                          <div className="flex items-center justify-between mb-1">
-                            <label
-                              htmlFor="twUrl"
-                              className="block text-sm font-medium text-gray-700"
-                            >
-                              Twitter URL
-                            </label>
-                            <div className="flex items-center">
-                              <input
-                                type="checkbox"
-                                id="enableTwitter"
-                                name="enableTwitter"
-                                checked={formData.enableTwitter}
-                                onChange={handleInputChange}
-                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                              />
-                              <label
-                                htmlFor="enableTwitter"
-                                className="ml-2 text-xs text-gray-500"
-                              >
-                                Enable
-                              </label>
-                            </div>
-                          </div>
-                          <div className={`flex rounded-md shadow-sm ${!formData.enableTwitter ? 'opacity-50 pointer-events-none' : ''}`}>
-                            <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                              https://
-                            </span>
-                            <input
-                              type="text"
-                              id="twUrl"
-                              name="twUrl"
-                              value={formData.twUrl.replace("https://", "")}
-                              onChange={handleInputChange}
-                              disabled={!formData.enableTwitter}
-                              className="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    )}
                   </div>
                 )}
 

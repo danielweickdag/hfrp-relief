@@ -4,12 +4,26 @@ interface SocialMediaLinksProps {
   variant?: "footer" | "page" | "inline";
   showLabels?: boolean;
   size?: "sm" | "md" | "lg";
+  socialIconSettings?: {
+    facebook: boolean;
+    instagram: boolean;
+    twitter: boolean;
+    youtube: boolean;
+    tiktok: boolean;
+  };
 }
 
 export default function SocialMediaLinks({
   variant = "footer",
   showLabels = false,
   size = "md",
+  socialIconSettings = {
+    facebook: true,
+    instagram: true,
+    twitter: true,
+    youtube: true,
+    tiktok: true,
+  },
 }: SocialMediaLinksProps) {
   const socialLinks = [
     {
@@ -68,7 +82,7 @@ export default function SocialMediaLinks({
       color: "bg-black hover:bg-gray-800",
       description: "Short-form content and behind-the-scenes",
     },
-  ];
+  ].filter((link) => socialIconSettings[link.name.toLowerCase() as keyof typeof socialIconSettings]);
 
   const getSizeClasses = () => {
     switch (size) {

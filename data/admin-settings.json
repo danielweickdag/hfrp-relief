@@ -1,0 +1,18 @@
+{
+  "tabs": {
+    "overview": true,
+    "automation": true,
+    "analytics": true,
+    "content": true,
+    "gallery": true,
+    "settings": true,
+    "stripe": true
+  },
+  "socialIcons": {
+    "facebook": true,
+    "instagram": true,
+    "twitter": true,
+    "youtube": true,
+    "tiktok": true
+  }
+}
