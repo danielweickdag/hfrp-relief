@@ -32,20 +32,7 @@ export default function ContactPage() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-        <div className="grid lg:grid-cols-3 gap-8 lg:gap-12">
-          {/* Contact Form */}
-          <div className="lg:col-span-2 order-2 lg:order-1">
-            <div className="bg-white rounded-xl shadow-lg p-8 transform transition-all hover:shadow-xl">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
-                <HeartIcon className="w-6 h-6 text-red-500 mr-2" />
-                Send Us a Message
-              </h2>
-              <ContactForm />
-            </div>
-          </div>
-
-          {/* Contact Information */}
-          <div className="lg:col-span-1 order-1 lg:order-2">
+                  <div className="max-w-lg mx-auto">
             {/* Main Contact Info */}
             <div className="bg-white rounded-xl shadow-lg p-8 h-fit transform transition-all hover:shadow-xl mb-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
@@ -61,11 +48,11 @@ export default function ContactPage() {
                     <h3 className="font-semibold text-gray-900 mb-1">Email</h3>
                     <p>
                       <a
-                href="mailto:haitianfamilyrelief@gmail.com"
-                className="text-blue-600 hover:text-blue-700 transition-colors"
-              >
-                haitianfamilyrelief@gmail.com
-              </a>
+                        href="mailto:haitianfamilyrelief@gmail.com"
+                        className="text-blue-600 hover:text-blue-700 transition-colors"
+                      >
+                        haitianfamilyrelief@gmail.com
+                      </a>
                     </p>
                   </div>
                 </div>
@@ -136,7 +123,7 @@ export default function ContactPage() {
                 </a>
               </div>
             </div>
-          </div>
+             
         </div>
 
         {/* FAQ Section */}
