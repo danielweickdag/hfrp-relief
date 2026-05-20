@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 
 import Link from "next/link";
@@ -64,7 +66,11 @@ export default function Footer() {
               education, and healthcare to families in need.
             </p>
             <div className="mb-6">
-              <SocialMediaLinks variant="footer" size="md" socialIconSettings={socialIconSettings} />
+              <SocialMediaLinks
+                variant="footer"
+                size="md"
+                socialIconSettings={socialIconSettings}
+              />
             </div>
           </div>
 
