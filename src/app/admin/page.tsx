@@ -158,7 +158,7 @@ function AdminPageWrapper() {
   console.log("🔧 AdminPageWrapper: Authenticated, showing dashboard");
   return (
     <AdminErrorBoundary>
-      <AdminDashboard />
+      <AdminDashboard className="min-h-screen bg-gray-100 pb-8" />
     </AdminErrorBoundary>
   );
 }
