@@ -11,7 +11,7 @@
   "socialIcons": {
     "facebook": true,
     "instagram": true,
-    "twitter": true,
+    "twitter": false,
     "youtube": true,
     "tiktok": true
   }
