@@ -389,6 +389,22 @@ export default function DonatePage() {
               </CardContent>
             </Card>
 
+            {/* Zelle/CashApp Info */}
+            <Card className="border-none shadow-lg bg-white/80 backdrop-blur-sm overflow-hidden">
+              <CardContent className="p-8">
+                <h3 className="font-bold text-gray-900 mb-4 flex items-center text-xl">
+                  <Zap className="w-6 h-6 text-green-500 mr-3" />
+                  Other Ways to Give
+                </h3>
+                <p className="text-gray-600 leading-relaxed">
+                  You can also donate directly via Zelle or CashApp to:
+                </p>
+                <p className="font-bold text-lg text-gray-800 mt-2">
+                  (224) 217-0230
+                </p>
+              </CardContent>
+            </Card>
+
             {/* Testimonial / Quote */}
             <div className="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl p-8 shadow-xl relative overflow-hidden">
               <div className="absolute top-0 right-0 opacity-10 transform translate-x-1/4 -translate-y-1/4">
