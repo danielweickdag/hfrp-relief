@@ -191,18 +191,12 @@ export default function Footer() {
             </div>
 
             {/* Designed By */}
-            <div className="text-center md:text-right">
-              <p className="text-gray-400 text-sm">
-                Designed & Developed by{" "}
-                <a
-                  href="https://blvckdlphn.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-yellow-400 hover:text-yellow-300 font-semibold transition-colors"
-                >
-                  BLVCK DLPHN
-                </a>
-              </p>
+            <div className="flex items-center justify-center md:justify-end space-x-4">
+              <p className="text-gray-400 text-sm">Designed & Developed by</p>
+              <a href="https://blvckdlphn.com" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
+                <BlvckDlphnLogo width={24} height={24} />
+                <span className="text-white font-semibold text-sm">BLVCK DLPHN</span>
+              </a>
             </div>
 
             {/* Legal Links */}
