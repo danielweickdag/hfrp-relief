@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "instagram-engagement": {
+      "command": "npx",
+      "args": ["instagram-engagement-mcp"],
+      "env": {
+        "INSTAGRAM_USERNAME": "${env:INSTAGRAM_USERNAME}",
+        "INSTAGRAM_PASSWORD": "${env:INSTAGRAM_PASSWORD}"
+      },
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
+}

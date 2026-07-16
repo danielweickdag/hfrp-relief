@@ -1,242 +1,156 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import Link from "next/link";
+import { useState, useEffect } from "react";
 import { useAdminAuth, WithPermission } from "./AdminAuth";
-import ShareBox from "./ShareBox";
-import PhotoUpload from "./PhotoUpload";
-import StripeAutomationDashboard from "./StripeAutomationDashboard";
+import Link from "next/link";
+import { Bar, Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineElement,
+  PointElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
 
-interface AdminDashboardProps {
-  className?: string;
-}
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineElement,
+  PointElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
-export default function AdminDashboard({
-  className = "",
-}: AdminDashboardProps) {
+const AdminDashboard = () => {
   const { user, logout } = useAdminAuth();
-  const [activeTab, setActiveTab] = useState<
-    | "overview"
-    | "automation"
-    | "content"
-    | "analytics"
-    | "gallery"
-    | "settings"
-    | "stripe"
-  >("overview");
+  const [activeTab, setActiveTab] = useState("overview");
 
-  const [stats, setStats] = useState({
-    donations: { total: 0, monthly: 0 },
-    content: { blogPosts: 0 },
-    volunteers: { total: 0, new: 0 },
-    gallery: { photos: 0 },
-  });
+  // Dummy data for charts
+  const engagementData = {
+    labels: ["January", "February", "March", "April", "May", "June", "July"],
+    datasets: [
+      {
+        label: "Likes",
+        data: [65, 59, 80, 81, 56, 55, 40],
+        backgroundColor: "rgba(75, 192, 192, 0.2)",
+        borderColor: "rgba(75, 192, 192, 1)",
+        borderWidth: 1,
+      },
+      {
+        label: "Comments",
+        data: [28, 48, 40, 19, 86, 27, 90],
+        backgroundColor: "rgba(153, 102, 255, 0.2)",
+        borderColor: "rgba(153, 102, 255, 1)",
+        borderWidth: 1,
+      },
+    ],
+  };
 
-  useEffect(() => {
-    // Mock data for stats
-    setStats({
-      donations: { total: 125, monthly: 12 },
-      content: { blogPosts: 23 },
-      volunteers: { total: 45, new: 5 },
-      gallery: { photos: 102 },
-    });
-  }, []);
+  const websiteTrafficData = {
+    labels: ["Week 1", "Week 2", "Week 3", "Week 4"],
+    datasets: [
+      {
+        label: "Unique Visitors",
+        data: [1200, 1900, 3000, 5000],
+        fill: false,
+        borderColor: "rgb(75, 192, 192)",
+        tension: 0.1,
+      },
+    ],
+  };
 
   if (!user) {
-    return <div>Loading admin panel...</div>;
+    return <div>Loading...</div>;
   }
 
   return (
-    <div className={`min-h-screen bg-gray-100 pb-8 ${className}`}>
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <h1 className="text-xl font-bold text-gray-900">
-                Admin Dashboard
-              </h1>
-            </div>
-            <div className="flex items-center">
-              <span className="mr-4">Welcome, {user.email}</span>
-              <button
-                onClick={logout}
-                className="text-sm font-medium text-gray-700 hover:text-gray-900"
-              >
-                Logout
-              </button>
+    <div className="min-h-screen bg-gray-100">
+      <header className="bg-white shadow">
+        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+          <button
+            onClick={logout}
+            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Logout
+          </button>
+        </div>
+      </header>
+      <main>
+        <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+          <div className="flex">
+            <aside className="w-64">
+              <nav className="flex flex-col space-y-2">
+                <button onClick={() => setActiveTab("overview")} className={`text-left p-2 rounded ${activeTab === 'overview' ? 'bg-gray-200' : ''}`}>Overview</button>
+                <button onClick={() => setActiveTab("website-content")} className={`text-left p-2 rounded ${activeTab === 'website-content' ? 'bg-gray-200' : ''}`}>Website Content</button>
+                <button onClick={() => setActiveTab("analytics")} className={`text-left p-2 rounded ${activeTab === 'analytics' ? 'bg-gray-200' : ''}`}>Analytics</button>
+                <button onClick={() => setActiveTab("troubleshooting")} className={`text-left p-2 rounded ${activeTab === 'troubleshooting' ? 'bg-gray-200' : ''}`}>Troubleshooting</button>
+              </nav>
+            </aside>
+            <div className="flex-1 pl-8">
+              {activeTab === "overview" && (
+                <div>
+                  <h2 className="text-2xl font-semibold mb-4">Dashboard Overview</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="bg-white p-6 rounded-lg shadow">
+                      <h3 className="text-xl font-semibold mb-2">Instagram Engagement</h3>
+                      <Bar data={engagementData} />
+                    </div>
+                    <div className="bg-white p-6 rounded-lg shadow">
+                      <h3 className="text-xl font-semibold mb-2">Website Traffic</h3>
+                      <Line data={websiteTrafficData} />
+                    </div>
+                  </div>
+                </div>
+              )}
+              {activeTab === "website-content" && (
+                <div>
+                  <h2 className="text-2xl font-semibold mb-4">Website Content Management</h2>
+                  <div className="space-y-4">
+                    <Link href="/admin/blog-editor">
+                      <a className="block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        Edit Blog Posts
+                      </a>
+                    </Link>
+                    <Link href="/admin/media">
+                      <a className="block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        Manage Media
+                      </a>
+                    </Link>
+                  </div>
+                </div>
+              )}
+              {activeTab === "analytics" && (
+                <div>
+                  <h2 className="text-2xl font-semibold mb-4">Real-Time Data Analysis</h2>
+                  <p>Real-time analytics will be displayed here.</p>
+                </div>
+              )}
+              {activeTab === "troubleshooting" && (
+                <div>
+                  <h2 className="text-2xl font-semibold mb-4">Troubleshooting Tools</h2>
+                  <div className="space-y-4">
+                    <button className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded">
+                      Clear Cache
+                    </button>
+                    <button className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded">
+                      Run Diagnostics
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
-      </header>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex space-x-8">
-          <aside className="w-64">
-            <nav className="bg-white shadow rounded-lg p-4">
-              <div className="space-y-2">
-                <button
-                  onClick={() => setActiveTab("overview")}
-                  className={`w-full flex items-center space-x-2 p-3 rounded-md text-left ${
-                    activeTab === "overview"
-                      ? "bg-gray-100 text-gray-900"
-                      : "text-gray-700 hover:bg-gray-50"
-                  }`}
-                >
-                  <span>Overview</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab("automation")}
-                  className={`w-full flex items-center space-x-2 p-3 rounded-md text-left ${
-                    activeTab === "automation"
-                      ? "bg-gray-100 text-gray-900"
-                      : "text-gray-700 hover:bg-gray-50"
-                  }`}
-                >
-                  <span>Automation</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab("content")}
-                  className={`w-full flex items-center space-x-2 p-3 rounded-md text-left ${
-                    activeTab === "content"
-                      ? "bg-gray-100 text-gray-900"
-                      : "text-gray-700 hover:bg-gray-50"
-                  }`}
-                >
-                  <span>Content</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab("analytics")}
-                  className={`w-full flex items-center space-x-2 p-3 rounded-md text-left ${
-                    activeTab === "analytics"
-                      ? "bg-gray-100 text-gray-900"
-                      : "text-gray-700 hover:bg-gray-50"
-                  }`}
-                >
-                  <span>Analytics</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab("gallery")}
-                  className={`w-full flex items-center space-x-2 p-3 rounded-md text-left ${
-                    activeTab === "gallery"
-                      ? "bg-gray-100 text-gray-900"
-                      : "text-gray-700 hover:bg-gray-50"
-                  }`}
-                >
-                  <span>Gallery</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab("stripe")}
-                  className={`w-full flex items-center space-x-2 p-3 rounded-md text-left ${
-                    activeTab === "stripe"
-                      ? "bg-gray-100 text-gray-900"
-                      : "text-gray-700 hover:bg-gray-50"
-                  }`}
-                >
-                  <span>Stripe Automation</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab("settings")}
-                  className={`w-full flex items-center space-x-2 p-3 rounded-md text-left ${
-                    activeTab === "settings"
-                      ? "bg-red-50 text-red-700"
-                      : "text-gray-700 hover:bg-gray-50"
-                  }`}
-                >
-                  <span>Site Settings</span>
-                </button>
-              </div>
-            </nav>
-          </aside>
-          <main className="flex-1">
-            {activeTab === "overview" && (
-              <div className="space-y-6">
-                <h2 className="text-xl font-bold text-gray-900">
-                  Dashboard Overview
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  <div className="bg-white rounded-lg shadow p-6">
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      Total Donations
-                    </h3>
-                    <p className="text-3xl font-bold text-green-600">
-                      {stats.donations.total}
-                    </p>
-                  </div>
-                  <div className="bg-white rounded-lg shadow p-6">
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      Content
-                    </h3>
-                    <p className="text-3xl font-bold text-blue-600">
-                      {stats.content.blogPosts}
-                    </p>
-                  </div>
-                  <div className="bg-white rounded-lg shadow p-6">
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      Volunteers
-                    </h3>
-                    <p className="text-3xl font-bold text-purple-600">
-                      {stats.volunteers.total}
-                    </p>
-                  </div>
-                  <div className="bg-white rounded-lg shadow p-6">
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      Gallery
-                    </h3>
-                    <p className="text-3xl font-bold text-yellow-600">
-                      {stats.gallery.photos}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
-            {activeTab === "automation" && (
-              <div>
-                <h2 className="text-xl font-bold text-gray-900">
-                  Automation Dashboard
-                </h2>
-                <p>Automation tools and settings will be displayed here.</p>
-              </div>
-            )}
-            {activeTab === "content" && (
-              <div>
-                <h2 className="text-xl font-bold text-gray-900">
-                  Content Management
-                </h2>
-                <p>Content management tools will be displayed here.</p>
-              </div>
-            )}
-            {activeTab === "analytics" && (
-              <div>
-                <h2 className="text-xl font-bold text-gray-900">
-                  Analytics Dashboard
-                </h2>
-                <p>Analytics and reports will be displayed here.</p>
-              </div>
-            )}
-            {activeTab === "gallery" && (
-              <div className="space-y-6">
-                <PhotoUpload />
-              </div>
-            )}
-            {activeTab === "settings" && (
-              <div className="space-y-6">
-                <h2 className="text-xl font-bold text-gray-900">
-                  Site Settings
-                </h2>
-                <p>Settings content goes here.</p>
-              </div>
-            )}
-            {activeTab === "stripe" && (
-              <div className="space-y-6">
-                <h2 className="text-xl font-bold text-gray-900">
-                  Stripe Automation Dashboard
-                </h2>
-                <StripeAutomationDashboard />
-              </div>
-            )}
-          </main>
-        </div>
-      </div>
+      </main>
     </div>
   );
-}
+};
+
+export default AdminDashboard;
