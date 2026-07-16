@@ -196,6 +196,12 @@ export function Navbar() {
                 Gallery
               </Link>
               <Link
+                href="/youtube"
+                className="text-white hover:text-gray-300 transition-colors duration-200 font-medium text-sm lg:text-base"
+              >
+                Videos
+              </Link>
+              <Link
                 href="/radio"
                 className="text-white hover:text-gray-300 transition-colors duration-200 font-medium text-sm lg:text-base"
               >
@@ -313,6 +319,13 @@ export function Navbar() {
                 className="block text-white hover:text-gray-300 transition py-2 text-lg"
               >
                 Gallery
+              </Link>
+              <Link
+                href="/youtube"
+                onClick={closeMobileMenu}
+                className="block text-white hover:text-gray-300 transition py-2 text-lg"
+              >
+                Videos
               </Link>
               <Link
                 href="/radio"

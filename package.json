@@ -65,6 +65,7 @@
     "clsx": "^2.1.1",
     "cron": "^3.1.7",
     "dotenv": "^17.2.3",
+    "googleapis": "^173.0.0",
     "gray-matter": "^4.0.3",
     "instagram-private-api": "^1.46.1",
     "lucide-react": "^0.475.0",
