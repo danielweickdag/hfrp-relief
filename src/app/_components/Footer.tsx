@@ -191,39 +191,18 @@ export default function Footer() {
             </div>
 
             {/* Designed By */}
-            <div className="flex items-center justify-center space-x-3">
-              <p className="text-gray-400 text-sm">Designed by</p>
-              {/* BLVCK DLPHN GROUP Logo */}
-              <div className="relative">
-                <BlvckDlphnLogo width={50} height={50} />
-              </div>
-              <div className="text-center">
-                <div className="text-white font-bold text-lg tracking-wider">
-                  BLVCK DLPHN GROUP
-                </div>
-                <div className="text-gray-400 text-xs tracking-widest uppercase mb-2">
-                  Empowering Your Brand
-                </div>
-                {/* Contact Information */}
-                <div className="space-y-1">
-                  <div>
-                    <a
-                      href="mailto:danielw@blvckdlphn.com"
-                      className="text-yellow-400 hover:text-yellow-300 text-xs transition-colors"
-                    >
-                      danielw@blvckdlphn.com
-                    </a>
-                  </div>
-                  <div>
-                    <a
-                      href="tel:+17082443552"
-                      className="text-yellow-400 hover:text-yellow-300 text-xs transition-colors"
-                    >
-                      (708) 244-3552
-                    </a>
-                  </div>
-                </div>
-              </div>
+            <div className="text-center md:text-right">
+              <p className="text-gray-400 text-sm">
+                Designed & Developed by{" "}
+                <a
+                  href="https://blvckdlphn.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-yellow-400 hover:text-yellow-300 font-semibold transition-colors"
+                >
+                  BLVCK DLPHN
+                </a>
+              </p>
             </div>
 
             {/* Legal Links */}
