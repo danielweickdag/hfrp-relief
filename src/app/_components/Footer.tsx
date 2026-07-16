@@ -191,12 +191,36 @@ export default function Footer() {
             </div>
 
             {/* Designed By */}
-            <div className="flex items-center justify-center md:justify-end space-x-4">
+            <div className="flex items-center justify-center md:justify-end space-x-3">
               <p className="text-gray-400 text-sm">Designed & Developed by</p>
-              <a href="https://blvckdlphn.com" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
-                <BlvckDlphnLogo width={24} height={24} />
-                <span className="text-white font-semibold text-sm">BLVCK DLPHN</span>
-              </a>
+              <div className="relative group">
+                {/* Logo that triggers the popup */}
+                <a href="https://blvckdlphn.com" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2">
+                  <BlvckDlphnLogo width={40} height={40} />
+                </a>
+
+                {/* Popup Card - Hidden by default, appears on hover */}
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-64 p-4 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none group-hover:pointer-events-auto">
+                  <div className="text-center">
+                    <h4 className="text-white font-bold text-lg tracking-wider">BLVCK DLPHN GROUP</h4>
+                    <p className="text-gray-400 text-xs tracking-widest uppercase mb-3">Empowering Your Brand</p>
+                    <div className="space-y-1 text-sm">
+                      <div>
+                        <a href="mailto:danielw@blvckdlphn.com" className="text-yellow-400 hover:text-yellow-300 transition-colors">
+                          danielw@blvckdlphn.com
+                        </a>
+                      </div>
+                      <div>
+                        <a href="tel:+17082443552" className="text-yellow-400 hover:text-yellow-300 transition-colors">
+                          (708) 244-3552
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Arrow pointing down */}
+                  <div className="absolute left-1/2 -translate-x-1/2 bottom-[-8px] w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-8 border-t-gray-700"></div>
+                </div>
+              </div>
             </div>
 
             {/* Legal Links */}
