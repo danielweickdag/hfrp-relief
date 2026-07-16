@@ -86,11 +86,30 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+import { promises as fs } from 'fs';
+import path from 'path';
+
+const settingsFilePath = path.join(process.cwd(), 'data', 'admin-settings.json');
+
+async function getSettings() {
+  try {
+    const data = await fs.readFile(settingsFilePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    return {
+      tabs: { overview: true, automation: true, analytics: true, content: true, gallery: true, settings: true, stripe: true, videos: true },
+      socialIcons: { facebook: true, instagram: true, twitter: true, youtube: true, tiktok: true },
+    };
+  }
+}
+
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const settings = await getSettings();
+
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <head>
@@ -161,9 +180,9 @@ export default function RootLayout({
                 measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}
               />
               <ClientBody>
-                <Navbar />
+                <Navbar tabSettings={settings.tabs} />
                 <main>{children}</main>
-                <Footer />
+                <Footer socialIconSettings={settings.socialIcons} />
               </ClientBody>
               <ErrorMonitor />
               {false}
@@ -171,9 +190,9 @@ export default function RootLayout({
           ) : (
             <>
               <ClientBody>
-                <Navbar />
+                <Navbar tabSettings={settings.tabs} />
                 <main>{children}</main>
-                <Footer />
+                <Footer socialIconSettings={settings.socialIcons} />
               </ClientBody>
               <ErrorMonitor />
               {false}

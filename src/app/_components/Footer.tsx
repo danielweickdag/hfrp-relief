@@ -7,31 +7,20 @@ import Image from "next/image";
 import SocialMediaLinks from "./SocialMediaLinks";
 import BlvckDlphnLogo from "./BlvckDlphnLogo";
 
-export default function Footer() {
-  const [socialIconSettings, setSocialIconSettings] = useState({
-    facebook: true,
-    instagram: true,
-    twitter: true,
-    youtube: true,
-    tiktok: true,
-  });
+interface FooterProps {
+  socialIconSettings: {
+    facebook: boolean;
+    instagram: boolean;
+    twitter: boolean;
+    youtube: boolean;
+    tiktok: boolean;
+  };
+}
 
-  useEffect(() => {
-    const fetchSettings = async () => {
-      try {
-        const response = await fetch("/api/admin/settings");
-        if (response.ok) {
-          const data = await response.json();
-          if (data.socialIcons) setSocialIconSettings(data.socialIcons);
-        }
-      } catch (error) {
-        console.error("Failed to fetch admin settings:", error);
-      }
-    };
-    fetchSettings();
-  }, []);
-
+export default function Footer({ socialIconSettings }: FooterProps) {
   const currentYear = new Date().getFullYear();
+
+  const showSocialMedia = Object.values(socialIconSettings).some((v) => v);
 
   return (
     <footer className="bg-gray-900 text-white">
@@ -65,13 +54,15 @@ export default function Footer() {
               lasting difference. Every donation helps provide meals, shelter,
               education, and healthcare to families in need.
             </p>
-            <div className="mb-6">
-              <SocialMediaLinks
-                variant="footer"
-                size="md"
-                socialIconSettings={socialIconSettings}
-              />
-            </div>
+            {showSocialMedia && (
+              <div className="mb-6">
+                <SocialMediaLinks
+                  variant="footer"
+                  size="md"
+                  socialIconSettings={socialIconSettings}
+                />
+              </div>
+            )}
           </div>
 
           {/* Quick Links */}
@@ -191,19 +182,19 @@ export default function Footer() {
             </div>
 
             {/* Designed By */}
-            <div className="flex items-center justify-center md:justify-end space-x-3">
-              <p className="text-gray-400 text-sm">Designed & Developed by</p>
+            <div className="flex items-center justify-center md:justify-end space-x-2">
+              <p className="text-gray-400 text-base">Designed & Developed by</p>
               <div className="relative group">
-                {/* Logo that triggers the popup */}
-                <a href="https://blvckdlphn.com" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2">
-                  <BlvckDlphnLogo width={40} height={40} />
+                {/* Text that triggers the popup */}
+                <a href="https://blvckdlphn.com" target="_blank" rel="noopener noreferrer" className="text-yellow-400 hover:text-yellow-300 font-semibold text-base transition-colors">
+                  BLVCK DLPHN GROUP
                 </a>
 
-                {/* Popup Card - Hidden by default, appears on hover */}
+                {/* Popup Card */}
                 <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-64 p-4 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl opacity-0 transform scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 pointer-events-none group-hover:pointer-events-auto z-10">
-                  <div className="text-center">
-                    <h4 className="text-white font-bold text-lg tracking-wider">BLVCK DLPHN GROUP</h4>
-                    <p className="text-gray-400 text-xs tracking-widest uppercase mb-3">Empowering Your Brand</p>
+                  <div className="flex flex-col items-center text-center">
+                    <BlvckDlphnLogo width={40} height={40} />
+                    <p className="text-gray-400 text-xs tracking-widest uppercase mt-3 mb-2">Empowering Your Brand</p>
                     <div className="space-y-1 text-sm">
                       <div>
                         <a href="mailto:danielw@blvckdlphn.com" className="text-yellow-400 hover:text-yellow-300 transition-colors">

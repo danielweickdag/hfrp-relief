@@ -6,12 +6,13 @@
     "content": true,
     "gallery": true,
     "settings": true,
-    "stripe": true
+    "stripe": true,
+    "videos": true
   },
   "socialIcons": {
     "facebook": true,
     "instagram": true,
-    "twitter": false,
+    "twitter": true,
     "youtube": true,
     "tiktok": true
   }

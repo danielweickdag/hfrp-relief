@@ -30,6 +30,44 @@ ChartJS.register(
 const AdminDashboard = () => {
   const { user, logout } = useAdminAuth();
   const [activeTab, setActiveTab] = useState("overview");
+  const [tabSettings, setTabSettings] = useState<Record<string, boolean>>({});
+  const [socialIconSettings, setSocialIconSettings] = useState<Record<string, boolean>>({});
+
+  const handleVisibilityChange = async (type: 'tabs' | 'socialIcons', key: string, value: boolean) => {
+    const settings = type === 'tabs' ? tabSettings : socialIconSettings;
+    const newSettings = { ...settings, [key]: value };
+
+    if (type === 'tabs') {
+      setTabSettings(newSettings);
+    } else {
+      setSocialIconSettings(newSettings);
+    }
+
+    try {
+      await fetch("/api/admin/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ [type]: newSettings }),
+      });
+    } catch (error) {
+      console.error("Failed to update settings:", error);
+    }
+  };
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const response = await fetch("/api/admin/settings");
+        const data = await response.json();
+        setTabSettings(data.tabs);
+        setSocialIconSettings(data.socialIcons);
+      } catch (error) {
+        console.error("Failed to fetch settings:", error);
+      }
+    };
+
+    fetchSettings();
+  }, []);
 
   // Dummy data for charts
   const engagementData = {
@@ -91,6 +129,7 @@ const AdminDashboard = () => {
                 <button onClick={() => setActiveTab("website-content")} className={`text-left p-2 rounded ${activeTab === 'website-content' ? 'bg-gray-200' : ''}`}>Website Content</button>
                 <button onClick={() => setActiveTab("analytics")} className={`text-left p-2 rounded ${activeTab === 'analytics' ? 'bg-gray-200' : ''}`}>Analytics</button>
                 <button onClick={() => setActiveTab("troubleshooting")} className={`text-left p-2 rounded ${activeTab === 'troubleshooting' ? 'bg-gray-200' : ''}`}>Troubleshooting</button>
+                <button onClick={() => setActiveTab("settings")} className={`text-left p-2 rounded ${activeTab === 'settings' ? 'bg-gray-200' : ''}`}>Settings</button>
               </nav>
             </aside>
             <div className="flex-1 pl-8">
@@ -142,6 +181,43 @@ const AdminDashboard = () => {
                     <button className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded">
                       Run Diagnostics
                     </button>
+                  </div>
+                </div>
+              )}
+              {activeTab === "settings" && (
+                <div>
+                  <h2 className="text-2xl font-semibold mb-4">UI Visibility Settings</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <h3 className="text-xl font-semibold mb-2">Navigation Tabs</h3>
+                      {Object.keys(tabSettings).map((tab) => (
+                        <div key={tab} className="flex items-center">
+                          <input
+                            type="checkbox"
+                            id={`tab-${tab}`}
+                            checked={tabSettings[tab]}
+                            onChange={(e) => handleVisibilityChange('tabs', tab, e.target.checked)}
+                            className="mr-2"
+                          />
+                          <label htmlFor={`tab-${tab}`}>{tab.charAt(0).toUpperCase() + tab.slice(1)}</label>
+                        </div>
+                      ))}
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold mb-2">Social Media Icons</h3>
+                      {Object.keys(socialIconSettings).map((icon) => (
+                        <div key={icon} className="flex items-center">
+                          <input
+                            type="checkbox"
+                            id={`icon-${icon}`}
+                            checked={socialIconSettings[icon]}
+                            onChange={(e) => handleVisibilityChange('socialIcons', icon, e.target.checked)}
+                            className="mr-2"
+                          />
+                          <label htmlFor={`icon-${icon}`}>{icon.charAt(0).toUpperCase() + icon.slice(1)}</label>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}

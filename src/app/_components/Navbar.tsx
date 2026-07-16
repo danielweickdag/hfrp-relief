@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import RadioPlayer from "./RadioPlayerFixed";
 
-export function Navbar() {
+export function Navbar({ tabSettings }: { tabSettings: Record<string, boolean> }) {
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -183,60 +183,15 @@ export function Navbar() {
           {/* Desktop Navigation - Better balanced spacing */}
           <div className="hidden md:flex items-center space-x-4 lg:space-x-6">
             <div className="flex items-center space-x-4 lg:space-x-6">
-              <Link
-                href="/"
-                className="text-white hover:text-gray-300 transition-colors duration-200 font-medium text-sm lg:text-base"
-              >
-                Home
-              </Link>
-              <Link
-                href="/gallery"
-                className="text-white hover:text-gray-300 transition-colors duration-200 font-medium text-sm lg:text-base"
-              >
-                Gallery
-              </Link>
-              <Link
-                href="/youtube"
-                className="text-white hover:text-gray-300 transition-colors duration-200 font-medium text-sm lg:text-base"
-              >
-                Videos
-              </Link>
-              <Link
-                href="/radio"
-                className="text-white hover:text-gray-300 transition-colors duration-200 font-medium text-sm lg:text-base"
-              >
-                Radio
-              </Link>
-              <Link
-                href="/impact"
-                className="text-white hover:text-gray-300 transition-colors duration-200 font-medium text-sm lg:text-base"
-              >
-                Impact
-              </Link>
-              <Link
-                href="/programs"
-                className="text-white hover:text-gray-300 transition-colors duration-200 font-medium text-sm lg:text-base"
-              >
-                Programs
-              </Link>
-              <Link
-                href="/blog"
-                className="text-white hover:text-gray-300 transition-colors duration-200 font-medium text-sm lg:text-base"
-              >
-                Blog
-              </Link>
-              <Link
-                href="/about"
-                className="text-white hover:text-gray-300 transition-colors duration-200 font-medium"
-              >
-                About
-              </Link>
-              <Link
-                href="/contact"
-                className="text-white hover:text-gray-300 transition-colors duration-200 font-medium"
-              >
-                Contact
-              </Link>
+              {tabSettings.home && <Link href="/" className="text-white hover:text-gray-300 transition-colors duration-200 font-medium text-sm lg:text-base">Home</Link>}
+              {tabSettings.gallery && <Link href="/gallery" className="text-white hover:text-gray-300 transition-colors duration-200 font-medium text-sm lg:text-base">Gallery</Link>}
+              {tabSettings.videos && <Link href="/youtube" className="text-white hover:text-gray-300 transition-colors duration-200 font-medium text-sm lg:text-base">Videos</Link>}
+              {tabSettings.radio && <Link href="/radio" className="text-white hover:text-gray-300 transition-colors duration-200 font-medium text-sm lg:text-base">Radio</Link>}
+              {tabSettings.impact && <Link href="/impact" className="text-white hover:text-gray-300 transition-colors duration-200 font-medium text-sm lg:text-base">Impact</Link>}
+              {tabSettings.programs && <Link href="/programs" className="text-white hover:text-gray-300 transition-colors duration-200 font-medium text-sm lg:text-base">Programs</Link>}
+              {tabSettings.blog && <Link href="/blog" className="text-white hover:text-gray-300 transition-colors duration-200 font-medium text-sm lg:text-base">Blog</Link>}
+              {tabSettings.about && <Link href="/about" className="text-white hover:text-gray-300 transition-colors duration-200 font-medium">About</Link>}
+              {tabSettings.contact && <Link href="/contact" className="text-white hover:text-gray-300 transition-colors duration-200 font-medium">Contact</Link>}
             </div>
 
             {/* Admin Login Button - Icon Only */}
@@ -306,76 +261,16 @@ export function Navbar() {
           <div className="px-4 py-4 space-y-4">
             {/* Navigation Links */}
             <div className="space-y-3">
-              <Link
-                href="/"
-                onClick={closeMobileMenu}
-                className="block text-white hover:text-gray-300 transition py-2 text-lg"
-              >
-                Home
-              </Link>
-              <Link
-                href="/gallery"
-                onClick={closeMobileMenu}
-                className="block text-white hover:text-gray-300 transition py-2 text-lg"
-              >
-                Gallery
-              </Link>
-              <Link
-                href="/youtube"
-                onClick={closeMobileMenu}
-                className="block text-white hover:text-gray-300 transition py-2 text-lg"
-              >
-                Videos
-              </Link>
-              <Link
-                href="/radio"
-                onClick={closeMobileMenu}
-                className="block text-white hover:text-gray-300 transition py-2 text-lg"
-              >
-                Radio
-              </Link>
-              <Link
-                href="/impact"
-                onClick={closeMobileMenu}
-                className="block text-white hover:text-gray-300 transition py-2 text-lg"
-              >
-                Impact
-              </Link>
-              <Link
-                href="/programs"
-                onClick={closeMobileMenu}
-                className="block text-white hover:text-gray-300 transition py-2 text-lg"
-              >
-                Programs
-              </Link>
-              <Link
-                href="/blog"
-                onClick={closeMobileMenu}
-                className="block text-white hover:text-gray-300 transition py-2 text-lg"
-              >
-                Blog
-              </Link>
-              <Link
-                href="/about"
-                onClick={closeMobileMenu}
-                className="block text-white hover:text-gray-300 transition py-2 text-lg"
-              >
-                About
-              </Link>
-              <Link
-                href="/donate"
-                onClick={closeMobileMenu}
-                className="block text-white hover:text-gray-300 transition py-2 text-lg"
-              >
-                Donate
-              </Link>
-              <Link
-                href="/contact"
-                onClick={closeMobileMenu}
-                className="block text-white hover:text-gray-300 transition py-2 text-lg"
-              >
-                Contact
-              </Link>
+              {tabSettings.home && <Link href="/" onClick={closeMobileMenu} className="block text-white hover:text-gray-300 transition py-2 text-lg">Home</Link>}
+              {tabSettings.gallery && <Link href="/gallery" onClick={closeMobileMenu} className="block text-white hover:text-gray-300 transition py-2 text-lg">Gallery</Link>}
+              {tabSettings.videos && <Link href="/youtube" onClick={closeMobileMenu} className="block text-white hover:text-gray-300 transition py-2 text-lg">Videos</Link>}
+              {tabSettings.radio && <Link href="/radio" onClick={closeMobileMenu} className="block text-white hover:text-gray-300 transition py-2 text-lg">Radio</Link>}
+              {tabSettings.impact && <Link href="/impact" onClick={closeMobileMenu} className="block text-white hover:text-gray-300 transition py-2 text-lg">Impact</Link>}
+              {tabSettings.programs && <Link href="/programs" onClick={closeMobileMenu} className="block text-white hover:text-gray-300 transition py-2 text-lg">Programs</Link>}
+              {tabSettings.blog && <Link href="/blog" onClick={closeMobileMenu} className="block text-white hover:text-gray-300 transition py-2 text-lg">Blog</Link>}
+              {tabSettings.about && <Link href="/about" onClick={closeMobileMenu} className="block text-white hover:text-gray-300 transition py-2 text-lg">About</Link>}
+              {tabSettings.donate && <Link href="/donate" onClick={closeMobileMenu} className="block text-white hover:text-gray-300 transition py-2 text-lg">Donate</Link>}
+              {tabSettings.contact && <Link href="/contact" onClick={closeMobileMenu} className="block text-white hover:text-gray-300 transition py-2 text-lg">Contact</Link>}
             </div>
 
             {/* Divider */}
