@@ -200,7 +200,7 @@ export default function Footer() {
                 </a>
 
                 {/* Popup Card - Hidden by default, appears on hover */}
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-64 p-4 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none group-hover:pointer-events-auto">
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-64 p-4 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl opacity-0 transform scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 pointer-events-none group-hover:pointer-events-auto z-10">
                   <div className="text-center">
                     <h4 className="text-white font-bold text-lg tracking-wider">BLVCK DLPHN GROUP</h4>
                     <p className="text-gray-400 text-xs tracking-widest uppercase mb-3">Empowering Your Brand</p>
