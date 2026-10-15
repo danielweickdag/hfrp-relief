@@ -53,7 +53,7 @@ export default function DonatePage() {
       { amount: 500, label: "Housing", desc: "Helps build a safe home", icon: Home, color: "text-purple-500", bg: "bg-purple-50" },
     ],
     "recurring": [
-      { amount: 0.50, label: "Daily Hope", desc: "Just 50¢ a day", interval: "day" },
+      { amount: 15, label: "Daily Hope", desc: "About 50¢ a day, billed $15 monthly", interval: "month" },
     ]
   };
 
@@ -131,17 +131,15 @@ export default function DonatePage() {
           <div className="lg:col-span-7 order-2 lg:order-1">
             <Card className="w-full shadow-2xl border-0 overflow-hidden rounded-2xl">
               <CardHeader className="bg-white pb-0 pt-8 px-6 sm:px-8">
-                <Tabs 
-                  defaultValue="one-time" 
-                  value={donationType} 
+                <Tabs
+                  defaultValue="one-time"
+                  value={donationType}
                   onValueChange={(v) => {
                     const type = v as "one-time" | "recurring";
                     setDonationType(type);
-                    // Set sensible defaults when switching tabs
                     if (type === "recurring") {
-  setSelectedAmount(15);
-  setInterval("month");
-}
+                      setSelectedAmount(15);
+                      setInterval("month");
                     } else {
                       setSelectedAmount(100);
                       setInterval("month");
@@ -242,13 +240,14 @@ export default function DonatePage() {
 
                     <div className="w-full max-w-xs mx-auto">
                       <DonationCheckoutButton
-  className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-200 py-4 rounded-xl font-bold text-lg flex items-center justify-center space-x-2"
-  category="Daily Hope"
-  amount={15}
-  frequency="monthly"
->
-  <span>Join Daily Hope</span>
-</DonationCheckoutButton>
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-200 py-4 rounded-xl font-bold text-lg flex items-center justify-center space-x-2"
+                        category="Daily Hope"
+                        amount={15}
+                        frequency="monthly"
+                      >
+                        <span>Join Daily Hope</span>
+                      </DonationCheckoutButton>
+                    </div>
 
                     <div className="flex justify-center space-x-6 text-sm text-blue-700 pt-2">
                       <div className="flex items-center"><Check className="w-4 h-4 mr-1.5 text-green-500" /> Cancel anytime</div>
@@ -313,23 +312,22 @@ export default function DonatePage() {
                           : "bg-gray-200 text-gray-400 cursor-not-allowed"
                       }`}
                      
-category={
-  isCustom
-    ? "General"
-    : selectedAmount === 50
-      ? "Meals"
-      : selectedAmount === 100
-        ? "Health"
-        : selectedAmount === 250
-          ? "Education"
-          : selectedAmount === 500
-            ? "Housing"
-            : "General"
-}
-  
-amount={finalAmount}
-frequency="once"
-disabled={!isValid}
+                      category={
+                        isCustom
+                          ? "General"
+                          : selectedAmount === 50
+                            ? "Meals"
+                            : selectedAmount === 100
+                              ? "Health"
+                              : selectedAmount === 250
+                                ? "Education"
+                                : selectedAmount === 500
+                                  ? "Housing"
+                                  : "General"
+                      }
+                      amount={finalAmount}
+                      frequency="once"
+                      disabled={!isValid}
                     >
                       {isValid ? "Complete Donation" : "Enter Valid Amount"}
                       {isValid && <Zap className="w-5 h-5 ml-2 fill-yellow-400 text-yellow-400" />}
