@@ -139,8 +139,9 @@ export default function DonatePage() {
                     setDonationType(type);
                     // Set sensible defaults when switching tabs
                     if (type === "recurring") {
-                      setSelectedAmount(0.50);
-                      setInterval("day");
+  setSelectedAmount(15);
+  setInterval("month");
+}
                     } else {
                       setSelectedAmount(100);
                       setInterval("month");
@@ -241,16 +242,13 @@ export default function DonatePage() {
 
                     <div className="w-full max-w-xs mx-auto">
                       <DonationCheckoutButton
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-200 py-4 rounded-xl font-bold text-lg flex items-center justify-center space-x-2"
-                        campaignId={campaignId}
-                        amount={0.50}
-                        recurring={true}
-                        interval="day"
-                        hideFooter={true}
-                      >
-                        <span>Join Daily Hope</span>
-                      </DonationCheckoutButton>
-                    </div>
+  className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-200 py-4 rounded-xl font-bold text-lg flex items-center justify-center space-x-2"
+  category="Daily Hope"
+  amount={15}
+  frequency="monthly"
+>
+  <span>Join Daily Hope</span>
+</DonationCheckoutButton>
 
                     <div className="flex justify-center space-x-6 text-sm text-blue-700 pt-2">
                       <div className="flex items-center"><Check className="w-4 h-4 mr-1.5 text-green-500" /> Cancel anytime</div>
