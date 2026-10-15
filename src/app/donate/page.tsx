@@ -314,11 +314,17 @@ export default function DonatePage() {
                           ? "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white" 
                           : "bg-gray-200 text-gray-400 cursor-not-allowed"
                       }`}
-                      campaignId={campaignId}
-                      amount={isValid ? finalAmount : undefined}
-                      recurring={false}
-                      disabled={!isValid}
-                      hideFooter={true}
+                      category={
+  selectedImpact === "Meals" ||
+  selectedImpact === "Health" ||
+  selectedImpact === "Education" ||
+  selectedImpact === "Housing"
+    ? selectedImpact
+    : "General"
+}
+amount={finalAmount}
+frequency="once"
+disabled={!isValid}
                     >
                       {isValid ? "Complete Donation" : "Enter Valid Amount"}
                       {isValid && <Zap className="w-5 h-5 ml-2 fill-yellow-400 text-yellow-400" />}
