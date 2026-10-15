@@ -314,14 +314,21 @@ export default function DonatePage() {
                           ? "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white" 
                           : "bg-gray-200 text-gray-400 cursor-not-allowed"
                       }`}
-                      category={
-  selectedImpact === "Meals" ||
-  selectedImpact === "Health" ||
-  selectedImpact === "Education" ||
-  selectedImpact === "Housing"
-    ? selectedImpact
-    : "General"
+                     
+category={
+  isCustom
+    ? "General"
+    : selectedAmount === 50
+      ? "Meals"
+      : selectedAmount === 100
+        ? "Health"
+        : selectedAmount === 250
+          ? "Education"
+          : selectedAmount === 500
+            ? "Housing"
+            : "General"
 }
+  
 amount={finalAmount}
 frequency="once"
 disabled={!isValid}
