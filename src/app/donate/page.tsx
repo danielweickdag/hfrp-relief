@@ -42,7 +42,7 @@ export default function DonatePage() {
       } catch {}
     }
   }, [stripeEnhanced]);
-
+ 
   const [interval, setInterval] = useState<"day" | "month">("month");
 
   const presets = {
