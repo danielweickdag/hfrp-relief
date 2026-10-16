@@ -87,12 +87,13 @@ export default function DonatePage() {
     setIsCustom(true);
     setSelectedAmount(null);
   };
-
   if (!stripeEnhanced) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <Card className="w-full max-w-md text-center p-6">
-          <CardTitle className="text-xl text-red-600 mb-2">Service Unavailable</CardTitle>
+          <CardTitle className="text-xl text-red-600 mb-2">
+            Service Unavailable
+          </CardTitle>
           <CardDescription>
             Donation system is currently being configured. Please check back soon.
           </CardDescription>
