@@ -51,6 +51,10 @@ export async function GET(request: NextRequest) {
   }
 
   const databaseUrl = process.env.DATABASE_URL;
+  const expectedHost = process.env.PREVIEW_NEON_HOST;
+  const databaseHostMatches =
+    Boolean(databaseUrl && expectedHost) &&
+    new URL(databaseUrl!).hostname === expectedHost;
 
   if (!databaseUrl) {
     return NextResponse.json(
@@ -94,6 +98,8 @@ export async function GET(request: NextRequest) {
         database: row.database_name,
         schema: row.schema_name,
         existingTables: row.existing_tables,
+        databaseHostMatches,
+        hostnameCheckConfigured: Boolean(expectedHost),
         branch: "Requires separate Neon verification",
         checkedAt: new Date().toISOString(),
       },
