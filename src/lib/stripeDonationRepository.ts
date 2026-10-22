@@ -110,6 +110,35 @@ function getPool(): Pool {
     throw new Error("DATABASE_URL is not configured");
   }
 
+  const sandboxId = "prj_szxsOYEgfidh5bC6VBKvPDpbA5cP";
+  const isSandbox =
+    process.env.HFRP_SANDBOX_PROJECT_ID !== undefined ||
+    process.env.VERCEL_PROJECT_ID === sandboxId;
+
+  if (isSandbox) {
+    if (
+      process.env.VERCEL_PROJECT_ID !== sandboxId ||
+      process.env.HFRP_SANDBOX_PROJECT_ID !== sandboxId ||
+      process.env.VERCEL_ENV !== "production" ||
+      !process.env.STRIPE_SECRET_KEY?.startsWith("sk_test_")
+    ) {
+      throw new Error("Sandbox environment verification failed");
+    }
+
+    const expectedHost = process.env.PREVIEW_NEON_HOST;
+    if (!expectedHost) {
+      throw new Error("Sandbox Neon hostname missing");
+    }
+
+    const databaseUrl = new URL(process.env.DATABASE_URL!);
+
+    if (
+      databaseUrl.hostname.toLowerCase() !== expectedHost.toLowerCase() ||
+      databaseUrl.pathname !== "/neondb"
+    ) {
+      throw new Error("Sandbox database isolation failed");
+    }
+  }
   if (!pool) {
     pool = new Pool({
       connectionString: process.env.DATABASE_URL,

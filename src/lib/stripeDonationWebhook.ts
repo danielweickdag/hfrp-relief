@@ -20,10 +20,18 @@ export function resolveStripeWebhookConfig(environment: Environment): {
   const livemode = secretKey.startsWith("sk_live_");
   if (!livemode && !secretKey.startsWith("sk_test_")) return null;
 
-  if (
-    environment.VERCEL_ENV &&
-    (environment.VERCEL_ENV === "production") !== livemode
-  ) {
+  // Allow Stripe test webhooks only in the isolated sandbox project.
+  // Other projects retain the original production/live-mode restriction.
+  const production = environment.VERCEL_ENV === "production";
+  const sandboxProject =
+    environment.VERCEL_PROJECT_ID ===
+    "prj_szxsOYEgfidh5bC6VBKvPDpbA5cP";
+
+  const modeAllowed = sandboxProject
+    ? production && !livemode
+    : !environment.VERCEL_ENV || production === livemode;
+
+  if (!modeAllowed) {
     return null;
   }
 
