@@ -1,11 +1,11 @@
-
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 
 type VerifiedDonation = {
   status: "paid";
+  persistenceStatus: "persisted";
   amount: number;
   currency: string;
   campaign: string;
@@ -16,10 +16,9 @@ type VerifiedDonation = {
 
 function DonationSuccessContent() {
   const searchParams = useSearchParams();
-  const sessionId = searchParams.get("session_id");
+  const sessionId = searchParams?.get("session_id") ?? null;
 
-  const [donation, setDonation] =
-    useState<VerifiedDonation | null>(null);
+  const [donation, setDonation] = useState<VerifiedDonation | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -39,23 +38,33 @@ function DonationSuccessContent() {
 
       try {
         const response = await fetch(
-          `/api/donations/session?session_id=${encodeURIComponent(
-            sessionId
-          )}`,
+          `/api/donations/session?session_id=${encodeURIComponent(sessionId)}`,
           {
             method: "GET",
             cache: "no-store",
             signal: controller.signal,
-          }
+          },
         );
 
         if (!response.ok) {
-          throw new Error(
-            "Unable to verify your donation with Stripe."
-          );
+          throw new Error("Unable to verify your donation with Stripe.");
         }
 
         const result: unknown = await response.json();
+
+        if (
+          result &&
+          typeof result === "object" &&
+          "status" in result &&
+          result.status === "pending" &&
+          "paymentStatus" in result &&
+          result.paymentStatus === "paid"
+        ) {
+          setError(
+            "Stripe has received your payment, but HFRP is still confirming it in the donation records. Please wait a moment and refresh this page.",
+          );
+          return;
+        }
 
         if (
           !result ||
@@ -64,7 +73,7 @@ function DonationSuccessContent() {
           result.status !== "paid"
         ) {
           setError(
-            "Your payment has not yet been confirmed. Please check again shortly."
+            "Your payment has not yet been confirmed. Please check again shortly.",
           );
           return;
         }
@@ -78,6 +87,7 @@ function DonationSuccessContent() {
           typeof details.campaign !== "string" ||
           typeof details.reference !== "string" ||
           typeof details.date !== "string" ||
+          details.persistenceStatus !== "persisted" ||
           !["once", "monthly"].includes(details.frequency)
         ) {
           throw new Error("Invalid payment verification response.");
@@ -91,7 +101,7 @@ function DonationSuccessContent() {
           setError(
             err instanceof Error
               ? err.message
-              : "Unable to verify your donation."
+              : "Unable to verify your donation.",
           );
         }
       } finally {
@@ -113,9 +123,7 @@ function DonationSuccessContent() {
       }).format(donation.amount)
     : "";
 
-  const dateText = donation?.date
-    ? donation.date
-    : "";
+  const dateText = donation?.date ? donation.date : "";
 
   return (
     <div className="min-h-screen bg-green-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -132,8 +140,7 @@ function DonationSuccessContent() {
               </h2>
 
               <p className="mt-3 text-gray-600">
-                Please wait while we confirm your payment
-                securely with Stripe.
+                Please wait while we confirm your payment securely with Stripe.
               </p>
             </>
           ) : donation ? (
@@ -174,22 +181,16 @@ function DonationSuccessContent() {
 
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between gap-4">
-                    <span className="text-gray-500">
-                      Amount:
-                    </span>
+                    <span className="text-gray-500">Amount:</span>
 
                     <span className="font-medium text-green-600 text-right">
                       {amountText}
-                      {donation.frequency === "monthly"
-                        ? " / month"
-                        : ""}
+                      {donation.frequency === "monthly" ? " / month" : ""}
                     </span>
                   </div>
 
                   <div className="flex justify-between gap-4">
-                    <span className="text-gray-500">
-                      Campaign:
-                    </span>
+                    <span className="text-gray-500">Campaign:</span>
 
                     <span className="font-medium text-right break-words">
                       {donation.campaign}
@@ -197,9 +198,7 @@ function DonationSuccessContent() {
                   </div>
 
                   <div className="flex justify-between gap-4">
-                    <span className="text-gray-500">
-                      Donation Type:
-                    </span>
+                    <span className="text-gray-500">Donation Type:</span>
 
                     <span className="font-medium">
                       {donation.frequency === "monthly"
@@ -209,19 +208,13 @@ function DonationSuccessContent() {
                   </div>
 
                   <div className="flex justify-between gap-4">
-                    <span className="text-gray-500">
-                      Date:
-                    </span>
+                    <span className="text-gray-500">Date:</span>
 
-                    <span className="font-medium">
-                      {dateText}
-                    </span>
+                    <span className="font-medium">{dateText}</span>
                   </div>
 
                   <div className="flex justify-between gap-4">
-                    <span className="text-gray-500">
-                      Reference:
-                    </span>
+                    <span className="text-gray-500">Reference:</span>
 
                     <span className="font-mono text-xs">
                       {donation.reference}
@@ -229,9 +222,7 @@ function DonationSuccessContent() {
                   </div>
 
                   <div className="flex justify-between gap-4">
-                    <span className="text-gray-500">
-                      Payment Status:
-                    </span>
+                    <span className="text-gray-500">Payment Status:</span>
 
                     <span className="font-semibold text-green-600">
                       Confirmed
@@ -241,9 +232,8 @@ function DonationSuccessContent() {
 
                 <div className="mt-4 p-3 bg-blue-50 rounded-md">
                   <p className="text-xs text-blue-700">
-                    Your payment has been verified with Stripe.
-                    Please check your email for any receipt
-                    issued by Stripe.
+                    Your payment has been verified with Stripe. Please check
+                    your email for any receipt issued by Stripe.
                   </p>
                 </div>
               </div>
@@ -272,14 +262,12 @@ function DonationSuccessContent() {
               </h2>
 
               <p role="alert" className="mt-3 text-gray-600">
-                {error ||
-                  "We could not confirm your payment at this time."}
+                {error || "We could not confirm your payment at this time."}
               </p>
 
               <p className="mt-3 text-sm text-gray-500">
-                If you have already submitted payment, please
-                check your Stripe receipt or contact our team
-                before trying again.
+                If you have already submitted payment, please check your Stripe
+                receipt or contact our team before trying again.
               </p>
 
               <button
@@ -335,10 +323,10 @@ function DonationSuccessContent() {
 
                     window.open(
                       `https://twitter.com/intent/tweet?text=${encodeURIComponent(
-                        message
+                        message,
                       )}`,
                       "_blank",
-                      "noopener,noreferrer"
+                      "noopener,noreferrer",
                     );
                   }}
                   className="text-blue-400 hover:text-blue-500 font-medium"
@@ -350,15 +338,14 @@ function DonationSuccessContent() {
                   type="button"
                   aria-label="Share on Facebook"
                   onClick={() => {
-                    const url =
-                      "https://familyreliefproject7.org";
+                    const url = "https://familyreliefproject7.org";
 
                     window.open(
                       `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-                        url
+                        url,
                       )}`,
                       "_blank",
-                      "noopener,noreferrer"
+                      "noopener,noreferrer",
                     );
                   }}
                   className="text-blue-600 hover:text-blue-700 font-medium"

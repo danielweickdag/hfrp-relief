@@ -9,12 +9,14 @@
     "start": "next start",
     "lint": "bunx biome lint --write && bunx tsc --noEmit",
     "lint:ci": "bunx biome lint && bunx tsc --noEmit",
+    "test:unit": "vitest run",
     "format": "bunx biome format --write",
     "health-check": "node health-check.mjs",
     "check:webhook": "node scripts/check-webhook-env.mjs",
     "deploy": "node deploy.js",
     "deploy-safe": "npm run health-check && npm run deploy",
     "test-local": "npm run build && npm run dev",
+    "test:integration:postgres": "vitest run --config vitest.integration.config.ts",
     "deploy:vercel": "vercel --prod",
     "deploy:netlify": "netlify deploy --prod",
     "automation-status": "node automation-status.js",
@@ -87,7 +89,8 @@
     "tiktok-app-api": "^1.4.1",
     "tiktok-sdk": "^1.0.2",
     "tsx": "^4.21.0",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",

@@ -18,7 +18,10 @@ async function main() {
     await client.connect(transport);
     console.log("MCP Client connected successfully");
 
-    const result = await client.callTool("generate_engagement_report", { account: "Familyreliefproject" });
+    const result = await client.callTool({
+      name: "generate_engagement_report",
+      arguments: { account: "Familyreliefproject" },
+    });
     console.log("Engagement Report:", result.structured_content);
 
   } catch (error) {
