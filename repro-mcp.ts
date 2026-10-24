@@ -1,4 +1,5 @@
-import { McpServer, McpServerOptions } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+type McpServerOptions = NonNullable<ConstructorParameters<typeof McpServer>[1]>;
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import * as fs from "fs";
