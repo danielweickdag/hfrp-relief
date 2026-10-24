@@ -1,12 +1,12 @@
 "use client";
 
-// Force dynamic rendering to prevent localStorage SSR issues
+// Force dynamic rendering while the server session is checked.
 export const dynamic = "force-dynamic";
 
 import { useState } from "react";
 import { AdminAuthProvider, useAdminAuth } from "../_components/AdminAuth";
-import { AdminErrorBoundary } from "../_components/ErrorBoundary";
 import AdminDashboard from "../_components/AdminDashboard";
+import { AdminErrorBoundary } from "../_components/ErrorBoundary";
 
 function AdminLogin() {
   const [email, setEmail] = useState("");
@@ -18,9 +18,13 @@ function AdminLogin() {
     e.preventDefault();
     setError("");
 
-    const success = await login(email, password);
-    if (!success) {
-      setError("Invalid email or password");
+    try {
+      const success = await login(email, password);
+      if (!success) {
+        setError("Invalid email or password");
+      }
+    } catch {
+      setError("Unable to sign in right now. Please try again later.");
     }
   };
 
@@ -158,7 +162,7 @@ function AdminPageWrapper() {
   console.log("🔧 AdminPageWrapper: Authenticated, showing dashboard");
   return (
     <AdminErrorBoundary>
-      <AdminDashboard className="min-h-screen bg-gray-100 pb-8" />
+      <AdminDashboard />
     </AdminErrorBoundary>
   );
 }
