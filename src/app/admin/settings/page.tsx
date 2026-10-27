@@ -3,7 +3,7 @@
 // Force dynamic rendering to prevent localStorage SSR issues
 export const dynamic = "force-dynamic";
 
-import { useState } from "react";
+import { useEffect, useState, type ChangeEvent } from "react";
 import {
   AdminAuthProvider,
   useAdminAuth,
@@ -20,6 +20,8 @@ interface SettingsFormData {
   fbUrl: string;
   igUrl: string;
   twUrl: string;
+  youtubeUrl: string;
+  tiktokUrl: string;
   stripeCampaignId: string;
   enableDonationTest: boolean;
   enableFacebook: boolean;
@@ -32,7 +34,9 @@ function SettingsContent() {
   const [activeTab, setActiveTab] = useState<
     "general" | "contact" | "social" | "donation" | "api"
   >("general");
-  const [socialIconSettings, setSocialIconSettings] = useState({
+  type SocialKey = "facebook" | "instagram" | "twitter" | "youtube" | "tiktok";
+
+  const [socialIconSettings, setSocialIconSettings] = useState<Record<SocialKey, boolean>>({
     facebook: true,
     instagram: true,
     twitter: true,
@@ -55,8 +59,14 @@ function SettingsContent() {
     fetchSettings();
   }, []);
 
-  const handleSocialIconVisibilityChange = async (icon: string, isVisible: boolean) => {
-    const newSettings = { ...socialIconSettings, [icon]: isVisible };
+  const handleSocialIconVisibilityChange = async (
+    icon: SocialKey,
+    isVisible: boolean,
+  ) => {
+    const newSettings: Record<SocialKey, boolean> = {
+      ...socialIconSettings,
+      [icon]: isVisible,
+    };
     setSocialIconSettings(newSettings);
     try {
       const response = await fetch("/api/admin/settings");
@@ -94,6 +104,8 @@ function SettingsContent() {
     fbUrl: "https://facebook.com/haitianfamilyrelief",
     igUrl: "https://instagram.com/haitianfamilyrelief",
     twUrl: "https://twitter.com/hfrp_haiti",
+    youtubeUrl: "",
+    tiktokUrl: "",
     stripeCampaignId: "haiti-relief-main",
     enableDonationTest: false,
     enableFacebook: true,
@@ -147,7 +159,7 @@ function SettingsContent() {
   }
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value, type } = e.target;
 
@@ -455,48 +467,64 @@ function SettingsContent() {
                       Social Media Links
                     </h2>
                     <div className="space-y-4">
-                      {Object.keys(socialIconSettings).map((icon) => (
-                        <div key={icon}>
-                          <div className="flex items-center justify-between mb-1">
-                            <label
-                              htmlFor={`${icon}Url`}
-                              className="block text-sm font-medium text-gray-700"
-                            >
-                              {icon.charAt(0).toUpperCase() + icon.slice(1)} URL
-                            </label>
-                            <div className="flex items-center">
-                              <input
-                                type="checkbox"
-                                id={`enable${icon.charAt(0).toUpperCase() + icon.slice(1)}`}
-                                name={`enable${icon.charAt(0).toUpperCase() + icon.slice(1)}`}
-                                checked={socialIconSettings[icon]}
-                                onChange={(e) => handleSocialIconVisibilityChange(icon, e.target.checked)}
-                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                              />
+                      {(Object.keys(socialIconSettings) as SocialKey[]).map((icon) => {
+                        const urlKeyMap: Record<SocialKey, keyof SettingsFormData> = {
+                          facebook: "fbUrl",
+                          instagram: "igUrl",
+                          twitter: "twUrl",
+                          youtube: "youtubeUrl",
+                          tiktok: "tiktokUrl",
+                        };
+                        const urlKey = urlKeyMap[icon];
+                        const urlValue = String(formData[urlKey] ?? "");
+
+                        return (
+                          <div key={icon}>
+                            <div className="flex items-center justify-between mb-1">
                               <label
-                                htmlFor={`enable${icon.charAt(0).toUpperCase() + icon.slice(1)}`}
-                                className="ml-2 text-xs text-gray-500"
+                                htmlFor={`${icon}Url`}
+                                className="block text-sm font-medium text-gray-700"
                               >
-                                Enable
+                                {icon.charAt(0).toUpperCase() + icon.slice(1)} URL
                               </label>
+                              <div className="flex items-center">
+                                <input
+                                  type="checkbox"
+                                  id={`enable${icon.charAt(0).toUpperCase() + icon.slice(1)}`}
+                                  name={`enable${icon.charAt(0).toUpperCase() + icon.slice(1)}`}
+                                  checked={socialIconSettings[icon]}
+                                  onChange={(e) =>
+                                    handleSocialIconVisibilityChange(icon, e.target.checked)
+                                  }
+                                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                />
+                                <label
+                                  htmlFor={`enable${icon.charAt(0).toUpperCase() + icon.slice(1)}`}
+                                  className="ml-2 text-xs text-gray-500"
+                                >
+                                  Enable
+                                </label>
+                              </div>
+                            </div>
+                            <div
+                              className={`flex rounded-md shadow-sm ${!socialIconSettings[icon] ? "opacity-50 pointer-events-none" : ""}`}
+                            >
+                              <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                                https://
+                              </span>
+                              <input
+                                type="text"
+                                id={`${icon}Url`}
+                                name={`${icon}Url`}
+                                value={urlValue.replace("https://", "")}
+                                onChange={handleInputChange}
+                                disabled={!socialIconSettings[icon]}
+                                className="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              />
                             </div>
                           </div>
-                          <div className={`flex rounded-md shadow-sm ${!socialIconSettings[icon] ? 'opacity-50 pointer-events-none' : ''}`}>
-                            <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                              https://
-                            </span>
-                            <input
-                              type="text"
-                              id={`${icon}Url`}
-                              name={`${icon}Url`}
-                              value={formData[`${icon}Url` as keyof typeof formData].replace("https://", "")}
-                              onChange={handleInputChange}
-                              disabled={!socialIconSettings[icon]}
-                              className="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 )}

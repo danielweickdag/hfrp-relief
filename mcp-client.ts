@@ -5,7 +5,14 @@ async function main() {
 
   const transport = new StdioClientTransport({
     command: "dotenvx",
-    args: ["run", "-f", ".env.local", "--", "instagram-engagement-mcp", "--help"],
+    args: [
+      "run",
+      "-f",
+      ".env.local",
+      "--",
+      "instagram-engagement-mcp",
+      "--help",
+    ],
   });
 
   transport.onmessage = (message) => {
@@ -16,7 +23,7 @@ async function main() {
     console.log("Connection closed");
   };
 
-  await transport.connect();
+  await transport.start();
 }
 
 main();
