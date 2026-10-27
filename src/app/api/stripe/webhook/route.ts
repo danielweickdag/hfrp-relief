@@ -54,10 +54,25 @@ export async function POST(req: Request) {
     const result = await processStripeDonationEvent(event);
     return NextResponse.json({ received: true, status: result });
   } catch (error) {
-    console.error(
-      "Stripe webhook processing failed",
-      error instanceof Error ? error.name : "unknown",
-    );
+    const cause = error as {
+      name?: string;
+      code?: string;
+      message?: string;
+    };
+
+    const knownErrors = [
+      "Sandbox environment verification failed",
+      "Sandbox Neon hostname missing",
+      "Sandbox database isolation failed",
+    ];
+
+    console.error("Stripe webhook processing failed", {
+      errorName: cause?.name ?? "Unknown",
+      errorCode: typeof cause?.code === "string" ? cause.code : "none",
+      errorType: knownErrors.includes(cause?.message ?? "")
+        ? cause.message
+        : "Database or application processing error",
+    });
     return NextResponse.json(
       { error: "Webhook processing failed; Stripe may retry" },
       { status: 500 },
