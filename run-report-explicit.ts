@@ -20,9 +20,12 @@ async function main() {
     console.log("MCP Client connected successfully");
 
     const result = await client.callTool(
-      "generate_engagement_report",
-      { account: "Familyreliefproject" },
-      { timeout: 120000 } // 2 minute timeout
+      {
+        name: "generate_engagement_report",
+        arguments: { account: "Familyreliefproject" },
+      },
+      undefined,
+      { timeout: 120000 },
     );
     console.log("Engagement Report:", result.structured_content);
 

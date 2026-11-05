@@ -1,4 +1,9 @@
-import { McpServer, McpServerOptions } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+type McpConfig = {
+  name: string;
+  version: string;
+  servers: unknown;
+};
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import * as fs from "fs";
@@ -7,7 +12,7 @@ import * as path from "path";
 console.log("Initializing MCP Server...");
 
 const configPath = path.resolve(process.cwd(), "mcp-config.json");
-let config: McpServerOptions;
+let config: McpConfig;
 
 try {
   const configData = fs.readFileSync(configPath, "utf-8");
@@ -23,7 +28,7 @@ try {
 }
 
 try {
-  const server = new McpServer(config);
+  const server = new McpServer({ name: config.name, version: config.version });
   console.log("MCP Server initialized successfully");
 } catch (error) {
   console.error("Error initializing MCP Server:", error);

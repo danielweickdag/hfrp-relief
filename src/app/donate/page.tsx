@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import StripeButton from "../_components/StripeButton";
+import DonationCheckoutButton from "../_components/DonationCheckoutButton";
 import { getStripeEnhanced } from "@/lib/stripeEnhanced";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -27,8 +27,8 @@ export default function DonatePage() {
   const campaignId =
     process.env.NEXT_PUBLIC_STRIPE_MAIN_CAMPAIGN || "haiti-relief-main";
 
-  const [donationType, setDonationType] = useState<"one-time" | "recurring">("recurring");
-  const [selectedAmount, setSelectedAmount] = useState<number | null>(0.50);
+  const [donationType, setDonationType] = useState<"one-time" | "recurring">("one-time");
+  const [selectedAmount, setSelectedAmount] = useState<number | null>(100);
   const [customAmount, setCustomAmount] = useState<string>("");
   const [isCustom, setIsCustom] = useState(false);
 
@@ -42,7 +42,7 @@ export default function DonatePage() {
       } catch {}
     }
   }, [stripeEnhanced]);
-
+ 
   const [interval, setInterval] = useState<"day" | "month">("month");
 
   const presets = {
@@ -53,24 +53,24 @@ export default function DonatePage() {
       { amount: 500, label: "Housing", desc: "Helps build a safe home", icon: Home, color: "text-purple-500", bg: "bg-purple-50" },
     ],
     "recurring": [
-      { amount: 0.50, label: "Daily Hope", desc: "Just 50¢ a day", interval: "day" },
+      { amount: 15, label: "Daily Hope", desc: "About 50¢ a day, billed $15 monthly", interval: "month" },
     ]
   };
 
   const currentPresets = presets[donationType];
-  const minAmount = config?.minimumAmount || 0.50;
+  const minAmount = Math.max(5, config?.minimumAmount || 5);
   
   const finalAmount = isCustom 
     ? parseFloat(customAmount) 
     : selectedAmount || 0;
 
-  const isValid = !isNaN(finalAmount) && finalAmount >= minAmount;
+  const isValid = Number.isFinite(finalAmount) && finalAmount >= minAmount && finalAmount <= 10000 && Number.isInteger(finalAmount * 100);
 
   useEffect(() => {
     // Initial setup based on default type
     if (donationType === "recurring") {
-      setSelectedAmount(0.50);
-      setInterval("day");
+      setSelectedAmount(15);
+      setInterval("month");
     }
   }, []); // Run once on mount
 
@@ -87,12 +87,13 @@ export default function DonatePage() {
     setIsCustom(true);
     setSelectedAmount(null);
   };
-
   if (!stripeEnhanced) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <Card className="w-full max-w-md text-center p-6">
-          <CardTitle className="text-xl text-red-600 mb-2">Service Unavailable</CardTitle>
+          <CardTitle className="text-xl text-red-600 mb-2">
+            Service Unavailable
+          </CardTitle>
           <CardDescription>
             Donation system is currently being configured. Please check back soon.
           </CardDescription>
@@ -131,16 +132,15 @@ export default function DonatePage() {
           <div className="lg:col-span-7 order-2 lg:order-1">
             <Card className="w-full shadow-2xl border-0 overflow-hidden rounded-2xl">
               <CardHeader className="bg-white pb-0 pt-8 px-6 sm:px-8">
-                <Tabs 
-                  defaultValue="one-time" 
-                  value={donationType} 
+                <Tabs
+                  defaultValue="one-time"
+                  value={donationType}
                   onValueChange={(v) => {
                     const type = v as "one-time" | "recurring";
                     setDonationType(type);
-                    // Set sensible defaults when switching tabs
                     if (type === "recurring") {
-                      setSelectedAmount(0.50);
-                      setInterval("day");
+                      setSelectedAmount(15);
+                      setInterval("month");
                     } else {
                       setSelectedAmount(100);
                       setInterval("month");
@@ -155,7 +155,7 @@ export default function DonatePage() {
                       value="recurring" 
                       className="h-full text-lg font-bold rounded-lg data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm transition-all"
                     >
-                      Monthly / Daily
+                      Monthly
                     </TabsTrigger>
                     <TabsTrigger 
                       value="one-time" 
@@ -240,16 +240,14 @@ export default function DonatePage() {
                     </div>
 
                     <div className="w-full max-w-xs mx-auto">
-                      <StripeButton
+                      <DonationCheckoutButton
                         className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-200 py-4 rounded-xl font-bold text-lg flex items-center justify-center space-x-2"
-                        campaignId={campaignId}
-                        amount={0.50}
-                        recurring={true}
-                        interval="day"
-                        hideFooter={true}
+                        category="Daily Hope"
+                        amount={15}
+                        frequency="monthly"
                       >
                         <span>Join Daily Hope</span>
-                      </StripeButton>
+                      </DonationCheckoutButton>
                     </div>
 
                     <div className="flex justify-center space-x-6 text-sm text-blue-700 pt-2">
@@ -300,7 +298,7 @@ export default function DonatePage() {
                       ${isValid ? finalAmount.toFixed(2) : "0.00"}
                     </span>
                     <span className="text-slate-500">
-                      {donationType === "recurring" ? (interval === "day" ? "/day" : "/month") : " once"}
+                      {donationType === "recurring" ? "/month" : " once"}
                     </span>
                   </p>
                 </div>
@@ -308,21 +306,33 @@ export default function DonatePage() {
                 {/* Main Action Button (only for one-time or custom, hidden for recurring as it has its own button) */}
                 {donationType !== "recurring" && (
                   <div className="pt-2">
-                    <StripeButton
+                    <DonationCheckoutButton
                       className={`w-full py-5 text-xl font-bold shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-0.5 active:scale-[0.99] rounded-xl flex items-center justify-center ${
                         isValid 
                           ? "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white" 
                           : "bg-gray-200 text-gray-400 cursor-not-allowed"
                       }`}
-                      campaignId={campaignId}
-                      amount={isValid ? finalAmount : undefined}
-                      recurring={false}
+                     
+                      category={
+                        isCustom
+                          ? "General"
+                          : selectedAmount === 50
+                            ? "Meals"
+                            : selectedAmount === 100
+                              ? "Health"
+                              : selectedAmount === 250
+                                ? "Education"
+                                : selectedAmount === 500
+                                  ? "Housing"
+                                  : "General"
+                      }
+                      amount={finalAmount}
+                      frequency="once"
                       disabled={!isValid}
-                      hideFooter={true}
                     >
                       {isValid ? "Complete Donation" : "Enter Valid Amount"}
                       {isValid && <Zap className="w-5 h-5 ml-2 fill-yellow-400 text-yellow-400" />}
-                    </StripeButton>
+                    </DonationCheckoutButton>
                   </div>
                 )}
 
