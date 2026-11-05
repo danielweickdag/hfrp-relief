@@ -136,7 +136,15 @@ function getPool(): Pool {
       databaseUrl.hostname.toLowerCase() !== expectedHost.toLowerCase() ||
       databaseUrl.pathname !== "/neondb"
     ) {
-      throw new Error("Sandbox database isolation failed");
+      console.error("HFRP_SANDBOX_DB_ISOLATION_DIAGNOSTIC", {
+      hostnameMatches:
+        databaseUrl.hostname.toLowerCase() ===
+        expectedHost.toLowerCase(),
+      databaseNameMatches: databaseUrl.pathname === "/neondb",
+      expectedHostHasWhitespace: expectedHost !== expectedHost.trim(),
+      expectedHostHasProtocol: expectedHost.includes("://"),
+    });
+    throw new Error("Sandbox database isolation failed");
     }
   }
   if (!pool) {
