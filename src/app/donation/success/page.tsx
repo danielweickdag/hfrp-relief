@@ -14,15 +14,29 @@ function DonationSuccessContent() {
   useEffect(() => {
     if (sessionId) {
       // In production, fetch donation details from API
-      setDonationDetails({
-        amount: amount ? `$${amount}` : "$25.00",
-        campaign: campaign
-          ? campaign.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
-          : "HFRP General Fund",
-        sessionId,
-        transactionId: sessionId.substring(0, 8).toUpperCase(),
-        date: new Date().toLocaleDateString(),
-      });
+      const response = await fetch(`/api/stripe/checkout/${sessionId}`);
+      const data = await response.json();
+
+      if (response.ok) {
+        setDonationDetails({
+          amount: data.amount ? `$${(data.amount / 100).toFixed(2)}` : "$0.00",
+          campaign: data.campaign || "HFRP General Fund",
+          sessionId,
+          transactionId: data.transactionId,
+          date: data.date ? new Date(data.date).toLocaleDateString() : new Date().toLocaleDateString(),
+        });
+      } else {
+        // Fallback for mock sessions or errors
+        setDonationDetails({
+          amount: amount ? `$${amount}` : "$25.00",
+          campaign: campaign
+            ? campaign.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
+            : "HFRP General Fund",
+          sessionId,
+          transactionId: sessionId.substring(0, 8).toUpperCase(),
+          date: new Date().toLocaleDateString(),
+        });
+      }
       setIsLoading(false);
 
       // Track successful donation

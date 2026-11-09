@@ -1,4 +1,5 @@
 // Enhanced Stripe configuration for donations, campaigns, and events
+import { getFromStorage, setToStorage } from "./fileStorage";
 import Stripe from "stripe";
 
 export interface StripeConfig {
@@ -322,49 +323,44 @@ class EnhancedStripeService {
   }
 
   // Save configuration to localStorage
-  private saveConfig() {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("hfrp_stripe_config", JSON.stringify(this.config));
-    }
+  private async saveConfig() {
+    await setToStorage("hfrp_stripe_config", JSON.stringify(this.config));
   }
 
-  // Load configuration from localStorage
-  loadConfig() {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("hfrp_stripe_config");
-      const envConfig = getDefaultConfig();
+  async loadConfig() {
+    const stored = await getFromStorage("hfrp_stripe_config");
+    const envConfig = getDefaultConfig();
 
-      // Start from env defaults
-      this.config = { ...envConfig };
+    // Start from env defaults
+    this.config = { ...envConfig };
 
-      // Merge any stored overrides
-      if (stored) {
-        try {
-          const saved = JSON.parse(stored);
-          this.config = { ...envConfig, ...saved };
-        } catch (error) {
-          console.error("Failed to load Stripe config:", error);
-        }
+    // Merge any stored overrides
+    if (stored) {
+      try {
+        const saved = JSON.parse(stored);
+        this.config = { ...envConfig, ...saved };
+      } catch (error) {
+        console.error("Failed to load Stripe config:", error);
       }
+    }
 
-      // If env is clearly configured for LIVE (live keys, testMode disabled),
-      // enforce env precedence over any stored test configuration.
-      const envIsLive =
-        !!envConfig.publishableKey &&
-        envConfig.publishableKey.startsWith("pk_live_") &&
-        !!envConfig.secretKey &&
-        envConfig.secretKey.startsWith("sk_live_") &&
-        envConfig.testMode === false;
+    // If env is clearly configured for LIVE (live keys, testMode disabled),
+    // enforce env precedence over any stored test configuration.
+    const envIsLive =
+      !!envConfig.publishableKey &&
+      envConfig.publishableKey.startsWith("pk_live_") &&
+      !!envConfig.secretKey &&
+      envConfig.secretKey.startsWith("sk_live_") &&
+      envConfig.testMode === false;
 
-      if (envIsLive) {
-        try {
-          localStorage.removeItem("hfrp_stripe_config");
-        } catch {}
-        this.config.publishableKey = envConfig.publishableKey;
-        this.config.secretKey = envConfig.secretKey;
-        this.config.webhookSecret = envConfig.webhookSecret;
-        this.config.testMode = false;
-      }
+    if (envIsLive) {
+      try {
+        await setToStorage("hfrp_stripe_config", "");
+      } catch {}
+      this.config.publishableKey = envConfig.publishableKey;
+      this.config.secretKey = envConfig.secretKey;
+      this.config.webhookSecret = envConfig.webhookSecret;
+      this.config.testMode = false;
     }
   }
 
@@ -1303,25 +1299,17 @@ class EnhancedStripeService {
 // Lazy initialization to prevent build-time failures
 let stripeEnhancedInstance: EnhancedStripeService | null = null;
 
-export function getStripeEnhanced(): EnhancedStripeService | null {
-  const isBrowser = typeof window !== "undefined";
-
+export async function getStripeEnhanced(): Promise<EnhancedStripeService | null> {
   // On the server, ensure secret key is configured; on the client, allow usage
-  if (!isBrowser) {
-    const secretKey = process.env.STRIPE_SECRET_KEY;
-    if (!secretKey || secretKey === "your_stripe_secret_key_here") {
-      return null;
-    }
+  const secretKey = process.env.STRIPE_SECRET_KEY;
+  if (!secretKey || secretKey === "your_stripe_secret_key_here") {
+    return null;
   }
 
   // Create instance only when needed
   if (!stripeEnhancedInstance) {
     stripeEnhancedInstance = new EnhancedStripeService();
-
-    // Load configuration on initialization (only in browser)
-    if (isBrowser) {
-      stripeEnhancedInstance.loadConfig();
-    }
+    await stripeEnhancedInstance.loadConfig();
   }
 
   return stripeEnhancedInstance;

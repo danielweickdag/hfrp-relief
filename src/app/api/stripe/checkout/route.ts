@@ -38,17 +38,22 @@ export async function POST(request: NextRequest) {
     let finalAmount = amount;
     let finalInterval = interval;
 
-    if (recurring && Math.abs(amount - 0.50) < 0.01 && interval === "day") {
+    if (recurring && Math.abs(amount - 0.5) < 0.01 && interval === "day") {
       console.log(
         "Converting Daily Hope plan ($0.50/day) to Monthly billing ($15.00/month)",
       );
-      finalAmount = 15.00;
+      finalAmount = 15.0;
       finalInterval = "month";
     }
 
     // Get the config manager instance
     const stripeConfigManager = getStripeConfigManager();
-    const isTestMode = process.env.NEXT_PUBLIC_STRIPE_TEST_MODE === "true";
+    console.log(
+      "VERCEL_ENV_CHECK: NEXT_PUBLIC_STRIPE_LIVE_MODE is:",
+      process.env.NEXT_PUBLIC_STRIPE_LIVE_MODE,
+    );
+    const isTestMode = process.env.NEXT_PUBLIC_STRIPE_LIVE_MODE !== "true";
+    console.log("VERCEL_ENV_CHECK: isTestMode is:", isTestMode);
     let isValid = false;
     let validationErrors: string[] = [];
 
@@ -169,7 +174,9 @@ export async function POST(request: NextRequest) {
     const stripeAutomation = getStripeAutomation();
     if (!stripeAutomation) {
       // Fallback if automation is not available but basic stripe is working
-      console.warn("Stripe automation not available, using basic session creation");
+      console.warn(
+        "Stripe automation not available, using basic session creation",
+      );
     }
 
     let session: Stripe.Checkout.Session;
@@ -180,7 +187,7 @@ export async function POST(request: NextRequest) {
       // However, the function signature and internal usage needs careful handling.
       // Based on stripeAutomation.ts, it passes unit_amount directly.
       // We already calculated unitAmount = Math.round(amount * 100).
-      
+
       const donation = await stripeAutomation.createRecurringDonation({
         amount: unitAmount, // Pass amount in cents
         currency,

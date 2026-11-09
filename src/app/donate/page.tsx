@@ -23,7 +23,14 @@ import {
 } from "lucide-react";
 
 export default function DonatePage() {
-  const stripeEnhanced = getStripeEnhanced();
+  const [stripeEnhanced, setStripeEnhanced] = useState<any>(null);
+  useEffect(() => {
+    async function initStripe() {
+      const stripe = await getStripeEnhanced();
+      setStripeEnhanced(stripe);
+    }
+    initStripe();
+  }, []);
   const campaignId =
     process.env.NEXT_PUBLIC_STRIPE_MAIN_CAMPAIGN || "haiti-relief-main";
 

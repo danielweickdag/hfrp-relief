@@ -36,7 +36,14 @@ export default function StripeButton({
   const [successUrl, setSuccessUrl] = useState("");
   const [cancelUrl, setCancelUrl] = useState("");
   // Initialize Stripe helper and hooks BEFORE any conditional returns
-  const stripeEnhanced = getStripeEnhanced();
+  const [stripeEnhanced, setStripeEnhanced] = useState<any>(null);
+  useEffect(() => {
+    async function initStripe() {
+      const stripe = await getStripeEnhanced();
+      setStripeEnhanced(stripe);
+    }
+    initStripe();
+  }, []);
 
   // SSR-stable test mode: derive from env on first render; update after mount
   const [testMode, setTestMode] = useState<boolean>(false);
@@ -54,24 +61,21 @@ export default function StripeButton({
     );
   }
 
-  // Also load immediately before reading config to avoid pre-mount stale values
-  try {
-    stripeEnhanced.loadConfig();
-  } catch {}
-
-  const config = stripeEnhanced.getConfig();
-  const campaign = stripeEnhanced.getCampaign(campaignId);
-
   useEffect(() => {
-    try {
-      stripeEnhanced?.loadConfig();
-      const cfg = stripeEnhanced?.getConfig();
-      if (cfg) setTestMode(cfg.testMode);
-      setSuccessUrl(
-        `${window.location.origin}${config.defaultSuccessUrl}?session_id={CHECKOUT_SESSION_ID}&campaign=${campaignId}&amount=${amount}`,
-      );
-      setCancelUrl(`${window.location.origin}${config.defaultCancelUrl}`);
-    } catch {}
+    async function loadStripeConfig() {
+      try {
+        await stripeEnhanced?.loadConfig();
+        const cfg = stripeEnhanced?.getConfig();
+        if (cfg) setTestMode(cfg.testMode);
+        setSuccessUrl(
+          `${window.location.origin}${config.defaultSuccessUrl}?session_id={CHECKOUT_SESSION_ID}&campaign=${campaignId}&amount=${amount}`,
+        );
+        setCancelUrl(`${window.location.origin}${config.defaultCancelUrl}`);
+      } catch {}
+    }
+    if (stripeEnhanced) {
+      loadStripeConfig();
+    }
   }, [stripeEnhanced, campaignId, amount]);
 
   // Validate configuration with enhanced feedback

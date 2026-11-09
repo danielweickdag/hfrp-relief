@@ -639,8 +639,9 @@ class StripeAutomationService {
     }
 
     try {
-      const fromEmail = process.env.RESEND_FROM_EMAIL || "noreply@familyreliefproject7.org";
-      
+      const fromEmail =
+        process.env.RESEND_FROM_EMAIL || "noreply@familyreliefproject7.org";
+
       await resend.emails.send({
         from: `Haitian Family Relief Project <${fromEmail}>`,
         to: donation.donorEmail,
@@ -674,15 +675,16 @@ class StripeAutomationService {
 
   private async generateReceipt(donation: DonationAutomation) {
     console.log(`🧾 Generating receipt for: ${donation.donorId}`);
-    
+
     // For now, we'll send a separate receipt email or include it in the thank you
     // In a full implementation, this would generate a PDF
-    
+
     if (!resend) return;
 
     try {
-      const fromEmail = process.env.RESEND_FROM_EMAIL || "noreply@familyreliefproject7.org";
-      
+      const fromEmail =
+        process.env.RESEND_FROM_EMAIL || "noreply@familyreliefproject7.org";
+
       await resend.emails.send({
         from: `HFRP Receipts <${fromEmail}>`,
         to: donation.donorEmail,
@@ -710,17 +712,19 @@ class StripeAutomationService {
   }
 
   private async updateCampaignProgress(campaignId: string, amount: number) {
-    console.log(`📈 Updating campaign ${campaignId} with amount $${amount/100}`);
-    
+    console.log(
+      `📈 Updating campaign ${campaignId} with amount $${amount / 100}`,
+    );
+
     try {
       // Use the donationStorage service to update campaign stats
       // Note: donationStorage expects amount in dollars (float), but Stripe uses cents (int)
       // We need to be careful with conversion.
       // Based on stripeAutomation usage, amount passed here is in cents.
-      
+
       // Update local storage / database
       // Since donationStorage methods are async and handle storage
-      
+
       // 1. Create a donation record in storage
       await donationStorage.createDonation({
         donorId: `donor_${Date.now()}`, // Ideally we'd map this to a real donor
@@ -739,7 +743,7 @@ class StripeAutomationService {
         isRecurring: false,
         isAnonymous: false,
         receiptSent: true,
-        taxDeductible: true
+        taxDeductible: true,
       });
 
       console.log(`✅ Campaign ${campaignId} updated in storage`);
@@ -858,6 +862,8 @@ class StripeAutomationService {
   }> {
     try {
       console.log(`Processing webhook event: ${event.type} with automation`);
+      console.log("DATABASE_URL:", process.env.DATABASE_URL);
+      console.log("PREVIEW_NEON_HOST:", process.env.PREVIEW_NEON_HOST);
 
       // Validate event integrity
       if (!event.id || !event.type || !event.data) {
@@ -948,22 +954,27 @@ class StripeAutomationService {
     session: Stripe.Checkout.Session,
   ): Promise<void> {
     console.log(`Automated checkout completion handling: ${session.id}`);
-    
+
     try {
       // Extract donation details from session
       const amount = session.amount_total || 0;
       const currency = session.currency || "usd";
-      const donorEmail = session.customer_details?.email || session.customer_email || "unknown@donor.com";
+      const donorEmail =
+        session.customer_details?.email ||
+        session.customer_email ||
+        "unknown@donor.com";
       const donorName = session.customer_details?.name || "Guest Donor";
       const metadata = session.metadata || {};
       const campaignId = metadata.campaignId || "general";
       const isRecurring = session.mode === "subscription";
 
-      console.log(`Processing successful donation of ${amount/100} ${currency} from ${donorEmail}`);
+      console.log(
+        `Processing successful donation of ${amount / 100} ${currency} from ${donorEmail}`,
+      );
 
       // Construct donation object
       const donation: DonationAutomation = {
-        donorId: session.customer as string || `guest_${session.id}`,
+        donorId: (session.customer as string) || `guest_${session.id}`,
         donorEmail,
         amount, // in cents
         campaign: campaignId,
@@ -984,9 +995,9 @@ class StripeAutomationService {
       console.log(`✅ Successfully processed checkout session ${session.id}`);
     } catch (error) {
       console.error("❌ Failed to handle checkout completion:", error);
-      // We don't throw here to ensure we don't crash the webhook handler loop, 
+      // We don't throw here to ensure we don't crash the webhook handler loop,
       // but in a real app you might want to throw to trigger a webhook retry from Stripe.
-      throw error; 
+      throw error;
     }
   }
 

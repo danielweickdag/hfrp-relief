@@ -283,41 +283,33 @@ class DonationStorageService {
     return typeof window !== "undefined";
   }
 
-  private getFromStorage(key: string, defaultValue = ""): string {
-    if (!this.isClient()) return defaultValue;
-    return localStorage.getItem(key) || defaultValue;
-  }
+  import { getFromStorage, setToStorage } from "./fileStorage";
 
-  private setToStorage(key: string, value: string): void {
-    if (!this.isClient()) return;
-    localStorage.setItem(key, value);
-  }
-
-  private initializeDefaults() {
+  private async initializeDefaults() {
     if (!this.isClient()) return;
 
-    if (!this.getFromStorage(STORAGE_KEYS.DONATIONS)) {
+    if (!(await this.getFromStorage(STORAGE_KEYS.DONATIONS))) {
       const donations = generateMockDonations(150);
-      this.setToStorage(STORAGE_KEYS.DONATIONS, JSON.stringify(donations));
+      await this.setToStorage(STORAGE_KEYS.DONATIONS, JSON.stringify(donations));
 
       // Generate donors based on donations
       const donors = generateMockDonors(donations);
-      this.setToStorage(STORAGE_KEYS.DONORS, JSON.stringify(donors));
+      await this.setToStorage(STORAGE_KEYS.DONORS, JSON.stringify(donors));
     }
 
-    if (!this.getFromStorage(STORAGE_KEYS.CAMPAIGNS)) {
-      this.setToStorage(
+    if (!(await this.getFromStorage(STORAGE_KEYS.CAMPAIGNS))) {
+      await this.setToStorage(
         STORAGE_KEYS.CAMPAIGNS,
         JSON.stringify(DEFAULT_CAMPAIGNS),
       );
     }
 
-    if (!this.getFromStorage(STORAGE_KEYS.GOALS)) {
-      this.setToStorage(STORAGE_KEYS.GOALS, JSON.stringify(DEFAULT_GOALS));
+    if (!(await this.getFromStorage(STORAGE_KEYS.GOALS))) {
+      await this.setToStorage(STORAGE_KEYS.GOALS, JSON.stringify(DEFAULT_GOALS));
     }
 
-    if (!this.getFromStorage(STORAGE_KEYS.RECURRING)) {
-      this.setToStorage(STORAGE_KEYS.RECURRING, JSON.stringify([]));
+    if (!(await this.getFromStorage(STORAGE_KEYS.RECURRING))) {
+      await this.setToStorage(STORAGE_KEYS.RECURRING, JSON.stringify([]));
     }
   }
 
@@ -344,33 +336,11 @@ class DonationStorageService {
 
   // Donation CRUD operations
   async getAllDonations(filters?: DonationFilters): Promise<Donation[]> {
-    // 1. Get local/mock donations
     const localDonations = JSON.parse(
-      this.getFromStorage(STORAGE_KEYS.DONATIONS, "[]"),
+      await this.getFromStorage(STORAGE_KEYS.DONATIONS, "[]"),
     ) as Donation[];
 
-    // 2. Fetch live Stripe donations if available
-    let stripeDonations: Donation[] = [];
-    try {
-      if (typeof window !== "undefined") {
-        const stripeEnhanced = getStripeEnhanced();
-        if (stripeEnhanced) {
-          const stats = stripeEnhanced.getDonationStats();
-          // We can't easily get the full list from the summary stats,
-          // but in a real app this would query the API.
-          // For now, we'll rely on the webhook/sync process to populate
-          // local storage or a database, which this storage service reads.
-          // However, we can check if there are any *new* donations in the
-          // EnhancedStripeService's internal map that haven't been persisted yet.
-          
-          // Note: In a production app, donationStorage would be the source of truth
-          // backed by a database, and Stripe webhooks would write to it.
-        }
-      }
-    } catch (e) {
-      // Ignore stripe errors here to ensure UI doesn't break
-      console.warn("Failed to sync stripe donations", e);
-    }
+
 
     // Combine sources (deduplicating by ID would be needed in a real mix)
     // For this implementation, we assume local storage is the source of truth
@@ -501,7 +471,7 @@ class DonationStorageService {
     };
 
     donations.push(newDonation);
-    this.setToStorage(STORAGE_KEYS.DONATIONS, JSON.stringify(donations));
+    await this.setToStorage(STORAGE_KEYS.DONATIONS, JSON.stringify(donations));
 
     // Update donor stats
     await this.updateDonorStats(newDonation.donorId);
@@ -519,7 +489,7 @@ class DonationStorageService {
 
   // Donor operations
   async getAllDonors(): Promise<Donor[]> {
-    return JSON.parse(this.getFromStorage(STORAGE_KEYS.DONORS, "[]"));
+    return JSON.parse(await this.getFromStorage(STORAGE_KEYS.DONORS, "[]"));
   }
 
   async getDonorById(id: string): Promise<Donor | null> {
@@ -551,12 +521,12 @@ class DonationStorageService {
       updatedAt: new Date().toISOString(),
     };
 
-    this.setToStorage(STORAGE_KEYS.DONORS, JSON.stringify(donors));
+    await this.setToStorage(STORAGE_KEYS.DONORS, JSON.stringify(donors));
   }
 
   // Campaign operations
   async getAllCampaigns(): Promise<DonationCampaign[]> {
-    return JSON.parse(this.getFromStorage(STORAGE_KEYS.CAMPAIGNS, "[]"));
+    return JSON.parse(await this.getFromStorage(STORAGE_KEYS.CAMPAIGNS, "[]"));
   }
 
   async getCampaignById(id: string): Promise<DonationCampaign | null> {
@@ -582,7 +552,7 @@ class DonationStorageService {
     };
 
     campaigns.push(newCampaign);
-    this.setToStorage(STORAGE_KEYS.CAMPAIGNS, JSON.stringify(campaigns));
+    await this.setToStorage(STORAGE_KEYS.CAMPAIGNS, JSON.stringify(campaigns));
 
     return newCampaign;
   }
@@ -610,12 +580,12 @@ class DonationStorageService {
       updatedAt: new Date().toISOString(),
     };
 
-    this.setToStorage(STORAGE_KEYS.CAMPAIGNS, JSON.stringify(campaigns));
+    await this.setToStorage(STORAGE_KEYS.CAMPAIGNS, JSON.stringify(campaigns));
   }
 
   // Goals operations
   async getAllGoals(): Promise<DonationGoal[]> {
-    return JSON.parse(this.getFromStorage(STORAGE_KEYS.GOALS, "[]"));
+    return JSON.parse(await this.getFromStorage(STORAGE_KEYS.GOALS, "[]"));
   }
 
   async updateGoalProgress(goalId: string): Promise<void> {
@@ -645,7 +615,7 @@ class DonationStorageService {
     goal.currentAmount = currentAmount;
     goal.updatedAt = new Date().toISOString();
 
-    this.setToStorage(STORAGE_KEYS.GOALS, JSON.stringify(goals));
+    await this.setToStorage(STORAGE_KEYS.GOALS, JSON.stringify(goals));
   }
 
   // Statistics and analytics
