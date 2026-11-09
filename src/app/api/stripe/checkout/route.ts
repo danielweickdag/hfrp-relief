@@ -48,16 +48,12 @@ export async function POST(request: NextRequest) {
 
     // Get the config manager instance
     const stripeConfigManager = getStripeConfigManager();
-    console.log(
-      "VERCEL_ENV_CHECK: NEXT_PUBLIC_STRIPE_LIVE_MODE is:",
-      process.env.NEXT_PUBLIC_STRIPE_LIVE_MODE,
-    );
-    const isTestMode = process.env.NEXT_PUBLIC_STRIPE_LIVE_MODE !== "true";
-    console.log("VERCEL_ENV_CHECK: isTestMode is:", isTestMode);
     let isValid = false;
     let validationErrors: string[] = [];
+    let isTestMode = true; // Default to test mode if config fails.
 
     if (stripeConfigManager) {
+      isTestMode = stripeConfigManager.getConfig().testMode;
       // Use the new config manager for validation
       const validation = await stripeConfigManager.validateConfiguration();
       isValid = validation.isValid;

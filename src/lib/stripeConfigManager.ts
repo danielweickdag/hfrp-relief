@@ -82,7 +82,7 @@ class StripeConfigManager {
 
   private loadEnvironmentConfig(): StripeEnvironmentConfig {
     const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "";
-    const testModeFlag = false; // HARDCODED FOR LIVE MODE
+    const testModeFlag = process.env.NEXT_PUBLIC_STRIPE_LIVE_MODE !== "true";
     const mockModeFlag = process.env.NEXT_PUBLIC_STRIPE_MOCK_MODE === "true";
     // Prefer choosing a secret that matches the current publishable key mode
     const webhookSecret = (() => {
