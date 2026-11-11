@@ -54,7 +54,9 @@ export async function POST(request: NextRequest) {
 
     if (stripeConfigManager) {
       isTestMode = stripeConfigManager.getConfig().testMode;
-      // Use the new config manager for validation
+      // Use the new config manager for validationconsole.error("STRIPE_DETAILED_ERROR:", JSON.stringify(error, null, 2));    console.error("Stripe session creation failed:", error);
+    console.error("STRIPE_DETAILED_ERROR:", JSON.stringify(error, null, 2)); // This is the new line
+    return NextResponse.json(
       const validation = await stripeConfigManager.validateConfiguration();
       isValid = validation.isValid;
       validationErrors = validation.errors;
