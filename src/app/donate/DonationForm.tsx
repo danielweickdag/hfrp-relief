@@ -13,6 +13,7 @@ const DonationForm = () => {
   const [selectedAmount, setSelectedAmount] = useState<number | null>(50);
   const [isRecurring, setIsRecurring] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const amounts = [10, 25, 50, 100];
 
@@ -29,11 +30,12 @@ const DonationForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
 
     const finalAmount = selectedAmount || parseFloat(customAmount) || 0;
 
     if (finalAmount <= 0) {
-      alert('Please enter a valid donation amount.');
+      setError('Please enter a valid donation amount.');
       setLoading(false);
       return;
     }
@@ -51,20 +53,26 @@ const DonationForm = () => {
         }),
       });
 
-      const { sessionId, error } = await response.json();
+      const session = await response.json();
 
-      if (error) {
-        throw new Error(error);
+      if (session.error) {
+        throw new Error(session.error);
       }
 
-      if (sessionId) {
-        router.push(`/api/stripe/redirect?sessionId=${sessionId}`);
+      if (session.sessionId) {
+        // Redirect to Stripe Checkout
+        const stripe = (window as any).Stripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
+        if (stripe) {
+            await stripe.redirectToCheckout({ sessionId: session.sessionId });
+        } else {
+            throw new Error('Stripe.js has not loaded.');
+        }
       } else {
         throw new Error('Could not create Stripe Checkout session.');
       }
     } catch (err: any) {
-      console.error(err);
-      alert(`Error: ${err.message}`);
+      console.error("Donation Form Error:", err);
+      setError(err.message || "An unknown error occurred.");
       setLoading(false);
     }
   };
@@ -75,6 +83,7 @@ const DonationForm = () => {
             <h2 className="text-2xl font-bold">Make a Donation</h2>
             <p className="text-gray-600">Your support makes a difference.</p>
         </div>
+        {error && <p className="text-red-500 text-center">{error}</p>}
       <div className="grid grid-cols-2 gap-4">
         {amounts.map((amount) => (
           <Button
