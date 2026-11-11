@@ -1,4 +1,5 @@
 
+// V2: Forcing a git change
 // Browser-safe storage using localStorage
 
 export async function getFromStorage(key: string, defaultValue = ""): Promise<string> {
