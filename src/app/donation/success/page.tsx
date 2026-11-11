@@ -12,53 +12,63 @@ function DonationSuccessContent() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (sessionId) {
-      // In production, fetch donation details from API
-      const response = await fetch(`/api/stripe/checkout/${sessionId}`);
-      const data = await response.json();
+    const fetchDonationDetails = async () => {
+      if (sessionId) {
+        try {
+          // In production, fetch donation details from API
+          const response = await fetch(`/api/stripe/checkout/${sessionId}`);
+          const data = await response.json();
 
-      if (response.ok) {
-        setDonationDetails({
-          amount: data.amount ? `$${(data.amount / 100).toFixed(2)}` : "$0.00",
-          campaign: data.campaign || "HFRP General Fund",
-          sessionId,
-          transactionId: data.transactionId,
-          date: data.date ? new Date(data.date).toLocaleDateString() : new Date().toLocaleDateString(),
-        });
+          if (response.ok) {
+            setDonationDetails({
+              amount: data.amount ? `$${(data.amount / 100).toFixed(2)}` : "$0.00",
+              campaign: data.campaign || "HFRP General Fund",
+              sessionId,
+              transactionId: data.transactionId,
+              date: data.date ? new Date(data.date).toLocaleDateString() : new Date().toLocaleDateString(),
+            });
+          } else {
+            throw new Error("API fetch failed");
+          }
+        } catch (error) {
+          console.warn("API fetch failed, falling back to mock data:", error);
+          // Fallback for mock sessions or errors
+          setDonationDetails({
+            amount: amount ? `$${amount}` : "$25.00",
+            campaign: campaign
+              ? campaign.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
+              : "HFRP General Fund",
+            sessionId,
+            transactionId: sessionId.substring(0, 8).toUpperCase(),
+            date: new Date().toLocaleDateString(),
+          });
+        }
+
+        setIsLoading(false);
+
+        // Track successful donation
+        if (window.gtag) {
+          window.gtag("event", "purchase", {
+            transaction_id: sessionId,
+            value: Number.parseFloat(amount || "25"),
+            currency: "USD",
+            items: [
+              {
+                item_id: campaign || "general",
+                item_name: "Donation",
+                category: "Charitable Giving",
+                quantity: 1,
+                price: Number.parseFloat(amount || "25"),
+              },
+            ],
+          });
+        }
       } else {
-        // Fallback for mock sessions or errors
-        setDonationDetails({
-          amount: amount ? `$${amount}` : "$25.00",
-          campaign: campaign
-            ? campaign.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
-            : "HFRP General Fund",
-          sessionId,
-          transactionId: sessionId.substring(0, 8).toUpperCase(),
-          date: new Date().toLocaleDateString(),
-        });
+        setIsLoading(false);
       }
-      setIsLoading(false);
+    };
 
-      // Track successful donation
-      if (window.gtag) {
-        window.gtag("event", "purchase", {
-          transaction_id: sessionId,
-          value: Number.parseFloat(amount || "25"),
-          currency: "USD",
-          items: [
-            {
-              item_id: campaign || "general",
-              item_name: "Donation",
-              category: "Charitable Giving",
-              quantity: 1,
-              price: Number.parseFloat(amount || "25"),
-            },
-          ],
-        });
-      }
-    } else {
-      setIsLoading(false);
-    }
+    fetchDonationDetails();
   }, [sessionId, campaign, amount]);
 
   if (isLoading) {

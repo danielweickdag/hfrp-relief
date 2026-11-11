@@ -1,32 +1,24 @@
-import fs from "fs/promises";
-import path from "path";
 
-const STORAGE_DIR = path.join(process.cwd(), "data");
-
-async function getStoragePath(key: string): Promise<string> {
-  try {
-    await fs.mkdir(STORAGE_DIR, { recursive: true });
-  } catch (e) {
-    // Ignore if directory already exists
-  }
-  return path.join(STORAGE_DIR, `${key}.json`);
-}
+// Browser-safe storage using localStorage
 
 export async function getFromStorage(key: string, defaultValue = ""): Promise<string> {
   try {
-    const filePath = await getStoragePath(key);
-    const data = await fs.readFile(filePath, "utf-8");
-    return data || defaultValue;
+    if (typeof window !== "undefined") {
+      const item = window.localStorage.getItem(key);
+      return item !== null ? item : defaultValue;
+    }
   } catch (error) {
-    return defaultValue;
+    console.error(`Failed to read from localStorage key ${key}:`, error);
   }
+  return defaultValue;
 }
 
 export async function setToStorage(key: string, value: string): Promise<void> {
   try {
-    const filePath = await getStoragePath(key);
-    await fs.writeFile(filePath, value, "utf-8");
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(key, value);
+    }
   } catch (error) {
-    console.error(`Failed to write to storage key ${key}:`, error);
+    console.error(`Failed to write to localStorage key ${key}:`, error);
   }
 }
