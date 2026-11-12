@@ -159,7 +159,7 @@ export default async function RootLayout({
           })}
         </script>
         {/* Stripe.js Script - Load early for better performance */}
-        <script src="https://js.stripe.com/basil/stripe.js" async />
+        <script src="https://js.stripe.com/v3/" async />
 
         {/*
           Google Analytics Script - Only load if valid measurement ID is provided

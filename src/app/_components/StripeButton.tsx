@@ -139,24 +139,11 @@ export default function StripeButton({
       const buttonId = `${amount ? `amount-${amount}` : "custom"}-${recurring ? "recurring" : "one-time"}`;
 
       // Track donation intent
-      console.log("🎯 StripeButton clicked!", {
-        campaignId,
-        amount,
-        recurring,
-        interval,
-        buttonId,
-        testMode,
-      });
+      console.log(`🎯 StripeButton clicked: ${campaignId} - $${amount} (${recurring ? interval : 'one-time'})`);
 
       // Log test mode status
       if (testMode) {
         console.log("🧪 STRIPE TEST MODE - No real charges will be made");
-        console.log("📋 Test Parameters:", {
-          amount,
-          recurring,
-          campaign: targetCampaign.name,
-          interval,
-        });
       }
 
       // Always use the real Stripe API for checkout sessions
