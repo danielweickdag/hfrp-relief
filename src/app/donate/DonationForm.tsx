@@ -16,7 +16,7 @@ const DonationForm = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const amounts = [0.50, 10, 25, 50, 100];
+  const amounts = [0.50, 50, 100, 200, 350, 500];
 
   const handleAmountClick = (amount: number) => {
     setSelectedAmount(amount);
@@ -25,6 +25,9 @@ const DonationForm = () => {
     if (amount === 0.50) {
       setIsRecurring(true);
       setRecurringInterval('day');
+    } else {
+      // For higher amounts, default to one-time as requested
+      setIsRecurring(false);
     }
   };
 
@@ -99,7 +102,7 @@ const DonationForm = () => {
             <p className="text-red-700 text-sm font-medium">{error}</p>
           </div>
         )}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {amounts.map((amount) => (
           <Button
             key={amount}
