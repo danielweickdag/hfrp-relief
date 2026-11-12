@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 // import StripeButton from "@/app/_components/StripeButton";
 import TestimonialsSection from "./_components/TestimonialsSection";
+import CombinedRadioPlayer from "./_components/CombinedRadioPlayer";
 
 // Extend window interface for gtag
 declare global {
@@ -155,7 +156,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-20">
             <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl shadow-lg p-8 text-center border-t-4 border-blue-500 transform hover:scale-105 transition-all duration-300">
               <div className="text-5xl mb-4">🍽️</div>
               <div className="text-3xl font-bold text-blue-600 mb-2">
@@ -203,6 +204,52 @@ export default function HomePage() {
                 Creating safe, loving spaces where families thrive
               </div>
             </div>
+          </div>
+
+          {/* Projects Section */}
+          <div className="mt-20">
+            <h3 className="text-3xl font-bold text-center text-gray-900 mb-12">
+              🏗️ Featured Projects
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 hover:shadow-2xl transition-all">
+                <div className="h-48 bg-orange-600 flex items-center justify-center text-6xl text-white">🍽️</div>
+                <div className="p-6">
+                  <h4 className="text-xl font-bold mb-2">Nutrition Center expansion</h4>
+                  <p className="text-gray-600 mb-4">Expanding our feeding capacity to reach 500 more children daily.</p>
+                  <Link href="/programs/feeding" className="text-orange-600 font-semibold hover:underline">Learn More →</Link>
+                </div>
+              </div>
+              <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 hover:shadow-2xl transition-all">
+                <div className="h-48 bg-blue-600 flex items-center justify-center text-6xl text-white">📚</div>
+                <div className="p-6">
+                  <h4 className="text-xl font-bold mb-2">Scholarship Fund 2026</h4>
+                  <p className="text-gray-600 mb-4">Providing full education support for 100 students in Port-au-Prince.</p>
+                  <Link href="/programs/education" className="text-blue-600 font-semibold hover:underline">Learn More →</Link>
+                </div>
+              </div>
+              <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 hover:shadow-2xl transition-all">
+                <div className="h-48 bg-purple-600 flex items-center justify-center text-6xl text-white">🏠</div>
+                <div className="p-6">
+                  <h4 className="text-xl font-bold mb-2">Safe Housing Initiative</h4>
+                  <p className="text-gray-600 mb-4">Building 5 new homes for families displaced by recent natural disasters.</p>
+                  <Link href="/programs/shelter" className="text-purple-600 font-semibold hover:underline">Learn More →</Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Radio Player Section */}
+      <section className="py-20 bg-gray-900 text-white">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold mb-6">📻 HFRP Radio Live</h2>
+            <p className="text-xl text-gray-400">Listen to our broadcast live from Haiti with inspirational music and community news.</p>
+          </div>
+          <div className="bg-white rounded-3xl shadow-2xl p-8 text-gray-900">
+            <CombinedRadioPlayer defaultPlayer="native" />
           </div>
         </div>
       </section>

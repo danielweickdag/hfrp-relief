@@ -43,20 +43,3 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
-
-// This handles retrieving the session details for the success page.
-export async function GET(request: NextRequest) {
-    const sessionId = request.nextUrl.searchParams.get('session_id');
-
-    if (!sessionId) {
-        return NextResponse.json({ error: 'Session ID is required' }, { status: 400 });
-    }
-
-    try {
-        const session = await stripe.checkout.sessions.retrieve(sessionId);
-        return NextResponse.json(session);
-    } catch (error: any) {
-        console.error(`Failed to retrieve session ${sessionId}:`, error.message);
-        return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-}

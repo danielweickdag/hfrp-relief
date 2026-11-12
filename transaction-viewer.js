@@ -5,7 +5,12 @@
 
 import https from 'https';
 
-const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || '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';
+const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
+
+if (!STRIPE_SECRET_KEY) {
+  console.error('❌ Error: STRIPE_SECRET_KEY environment variable is not set.');
+  process.exit(1);
+}
 
 function makeStripeRequest(endpoint) {
   return new Promise((resolve, reject) => {

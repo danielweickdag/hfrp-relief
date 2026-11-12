@@ -14,7 +14,7 @@ const defaultConfig: StripeConfig = {
   publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "",
   currency: "usd",
   country: "US",
-  isTestMode: process.env.NEXT_PUBLIC_STRIPE_LIVE_MODE !== 'true',
+  isTestMode: process.env.NEXT_PUBLIC_STRIPE_LIVE_MODE !== 'true' && process.env.NEXT_PUBLIC_STRIPE_TEST_MODE !== 'false',
 };
 
 class StripeService {

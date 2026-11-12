@@ -23,21 +23,14 @@ export async function GET(
     }
 
     const session = await stripe.checkout.sessions.retrieve(sessionId, {
-      expand: ["payment_intent"],
+      expand: ["payment_intent", "customer"],
     });
 
     if (!session) {
       return NextResponse.json({ error: "Session not found" }, { status: 404 });
     }
 
-    const paymentIntent = session.payment_intent as any;
-
-    return NextResponse.json({
-      amount: session.amount_total,
-      campaign: session.metadata?.campaignId || "Unknown Campaign",
-      transactionId: paymentIntent?.id || session.id,
-      date: paymentIntent?.created ? new Date(paymentIntent.created * 1000) : new Date(),
-    });
+    return NextResponse.json(session);
   } catch (error) {
     console.error("Stripe checkout GET error:", error);
     const message =
