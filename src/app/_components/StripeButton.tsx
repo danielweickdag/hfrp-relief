@@ -47,30 +47,23 @@ export default function StripeButton({
 
   // SSR-stable test mode: derive from env on first render; update after mount
   const [testMode, setTestMode] = useState<boolean>(false);
-
-  // Ensure latest config is loaded with env precedence (particularly after HMR)
-  // This avoids stale localStorage test settings overriding live env keys.
-
-
-  // Fallback UI when Stripe is not configured
-  if (!stripeEnhanced) {
-    return (
-      <button className={`${className} opacity-50 cursor-not-allowed`} disabled>
-        Stripe not configured
-      </button>
-    );
-  }
+  const [campaign, setCampaign] = useState<any>(null);
 
   useEffect(() => {
     async function loadStripeConfig() {
       try {
         await stripeEnhanced?.loadConfig();
         const cfg = stripeEnhanced?.getConfig();
-        if (cfg) setTestMode(cfg.testMode);
-        setSuccessUrl(
-          `${window.location.origin}${config.defaultSuccessUrl}?session_id={CHECKOUT_SESSION_ID}&campaign=${campaignId}&amount=${amount}`,
-        );
-        setCancelUrl(`${window.location.origin}${config.defaultCancelUrl}`);
+        if (cfg) {
+          setTestMode(cfg.testMode);
+          setSuccessUrl(
+            `${window.location.origin}${cfg.defaultSuccessUrl}?session_id={CHECKOUT_SESSION_ID}&campaign=${campaignId}&amount=${amount}`,
+          );
+          setCancelUrl(`${window.location.origin}${cfg.defaultCancelUrl}`);
+        }
+        
+        const campaignData = stripeEnhanced?.getCampaign(campaignId);
+        setCampaign(campaignData);
       } catch {}
     }
     if (stripeEnhanced) {
@@ -79,11 +72,11 @@ export default function StripeButton({
   }, [stripeEnhanced, campaignId, amount]);
 
   // Validate configuration with enhanced feedback
-  const validation = stripeEnhanced.validateConfig();
-  if (!validation.isValid) {
+  const validation = stripeEnhanced?.validateConfig() || { isValid: false, errors: ["Stripe not initialized"], warnings: [] };
+  if (stripeEnhanced && !validation.isValid) {
     console.error("Stripe configuration errors:", validation.errors);
   }
-  if (validation.warnings && validation.warnings.length > 0) {
+  if (stripeEnhanced && validation.warnings && validation.warnings.length > 0) {
     console.warn("Stripe configuration warnings:", validation.warnings);
   }
 
@@ -102,7 +95,7 @@ export default function StripeButton({
   const displayCampaign = getDisplayCampaign();
 
   const handleClick = async () => {
-    if (disabled || isLoading) return;
+    if (disabled || isLoading || !stripeEnhanced) return;
 
     setIsLoading(true);
 
@@ -122,7 +115,7 @@ export default function StripeButton({
         // Try to find a fallback campaign or create a generic one
         const availableCampaigns = stripeEnhanced.getCampaigns();
         targetCampaign = availableCampaigns.find(
-          (c) => c.status === "active",
+          (c: any) => c.status === "active",
         ) || {
           id: campaignId,
           name: `Campaign ${campaignId}`,
@@ -152,11 +145,11 @@ export default function StripeButton({
         recurring,
         interval,
         buttonId,
-        testMode: config.testMode,
+        testMode,
       });
 
       // Log test mode status
-      if (config.testMode) {
+      if (testMode) {
         console.log("🧪 STRIPE TEST MODE - No real charges will be made");
         console.log("📋 Test Parameters:", {
           amount,
@@ -209,7 +202,7 @@ export default function StripeButton({
           Array.isArray(data.details) && data.details.length > 0
             ? `\nDetails: ${data.details.join("; ")}`
             : "";
-        const guidance = config.testMode
+        const guidance = testMode
           ? "\nTip: Ensure valid STRIPE_TEST keys are set in .env.local and restart dev server."
           : "\nTip: Your Stripe keys may be invalid or expired. Update STRIPE_SECRET_KEY/NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY and restart.";
         throw new Error(
@@ -241,8 +234,8 @@ export default function StripeButton({
       }
 
       // Track successful checkout opening
-      if (window.gtag) {
-        window.gtag("event", "stripe_checkout_started", {
+      if ((window as any).gtag) {
+        (window as any).gtag("event", "stripe_checkout_started", {
           event_category: "Donations",
           event_label: `${campaignId}_${variant}`,
           value: amount || 0,
@@ -259,7 +252,7 @@ export default function StripeButton({
         error instanceof Error ? error.message : "Failed to open donation form";
 
       // User-friendly error handling
-      if (config.testMode) {
+      if (testMode) {
         alert(`Test mode error: ${errorMessage}`);
       } else {
         const userConfirmed = confirm(
@@ -275,8 +268,8 @@ export default function StripeButton({
       onError?.(errorMessage);
 
       // Track error
-      if (window.gtag) {
-        window.gtag("event", "stripe_checkout_error", {
+      if ((window as any).gtag) {
+        (window as any).gtag("event", "stripe_checkout_error", {
           event_category: "Errors",
           event_label: errorMessage,
           campaign_id: campaignId,
@@ -395,7 +388,7 @@ export default function StripeButton({
       )}
 
       {/* Validation Errors */}
-      {!validation.isValid && config.testMode && (
+      {!validation.isValid && testMode && (
         <div className="mt-2 text-xs text-red-600">
           Configuration issues: {validation.errors.join(", ")}
         </div>

@@ -1300,9 +1300,10 @@ class EnhancedStripeService {
 let stripeEnhancedInstance: EnhancedStripeService | null = null;
 
 export async function getStripeEnhanced(): Promise<EnhancedStripeService | null> {
-  // On the server, ensure secret key is configured; on the client, allow usage
-  const secretKey = process.env.STRIPE_SECRET_KEY;
-  if (!secretKey || secretKey === "your_stripe_secret_key_here") {
+  // Check for publishable key at minimum for client-side usage
+  const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+  if (!publishableKey || publishableKey === "pk_test_your_key_here") {
+    // If no publishable key, we can't do anything
     return null;
   }
 

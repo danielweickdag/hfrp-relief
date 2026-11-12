@@ -97,7 +97,24 @@ async function getSettings() {
     return JSON.parse(data);
   } catch (error) {
     return {
-      tabs: { overview: true, automation: true, analytics: true, content: true, gallery: true, settings: true, stripe: true, videos: true },
+      tabs: { 
+        home: true,
+        gallery: true,
+        videos: true,
+        radio: true,
+        impact: true,
+        programs: true,
+        blog: true,
+        about: true,
+        contact: true,
+        donate: true,
+        overview: true, 
+        automation: true, 
+        analytics: true, 
+        content: true, 
+        settings: true, 
+        stripe: true 
+      },
       socialIcons: { facebook: true, instagram: true, twitter: true, youtube: true, tiktok: true },
     };
   }
